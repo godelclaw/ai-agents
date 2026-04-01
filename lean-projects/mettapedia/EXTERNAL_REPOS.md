@@ -16,6 +16,11 @@ This project embeds external Lean repos as local directories for deterministic b
   - `origin`: `https://github.com/zariuq/provenance-lean.git`
   - `branch`: `update/4.28`
   - parent repo policy: keep this as a local checkout only; do not track its files in `ai-agents`
+- `Mettapedia/external/Metatheory`
+  - `origin`: `https://github.com/zariuq/Metatheory.git`
+  - `upstream`: `https://github.com/Arthur742Ramos/Metatheory.git`
+  - `branch`: `main`
+  - parent repo policy: keep this as a local checkout only; do not track its files in `ai-agents`
 - `Mettapedia/Logic/Foundation`
   - `origin`: `git@github.com:godelclaw/Foundation.git`
   - `upstream`: `https://github.com/zariuq/Foundation.git`
@@ -25,7 +30,7 @@ This project embeds external Lean repos as local directories for deterministic b
 
 ## Branch/toolchain policy
 
-- Keep `Foundation` and `OrderedSemigroups` on `main`.
+- Keep `Metatheory`, `Foundation`, and `OrderedSemigroups` on `main`.
 - Lean toolchain target is `v4.27.0`.
 - When syncing from upstream, fast-forward from `upstream/main` and then push to `origin/main`.
 
@@ -50,6 +55,13 @@ git fetch origin --prune
 git checkout update/4.28
 git pull --ff-only origin update/4.28
 
+# Metatheory
+cd ../Metatheory
+git fetch upstream origin --prune
+git checkout main
+git merge --ff-only upstream/main
+git push origin main
+
 # Foundation
 cd ../../Logic/Foundation
 git fetch upstream origin --prune
@@ -67,7 +79,7 @@ git push origin main
 
 ## Parent repo rule
 
-- `CertifyingDatalog`, `exchangeability`, and `provenance-lean` are external working checkouts under `Mettapedia/external/`.
+- `CertifyingDatalog`, `exchangeability`, `provenance-lean`, and `Metatheory` are external working checkouts under `Mettapedia/external/`.
 - The parent `ai-agents` repo should ignore them, like the other embedded external repos.
 - If a checkout is missing, clone it manually:
 
@@ -76,4 +88,8 @@ cd lean-projects/mettapedia/Mettapedia/external
 git clone --branch main https://github.com/jt0202/CertifyingDatalog CertifyingDatalog
 git clone --branch mettapedia https://github.com/zariuq/exchangeability.git exchangeability
 git clone --branch update/4.28 https://github.com/zariuq/provenance-lean.git provenance-lean
+git clone --branch main https://github.com/zariuq/Metatheory.git Metatheory
+cd Metatheory
+git remote add upstream https://github.com/Arthur742Ramos/Metatheory.git
+cd ..
 ```

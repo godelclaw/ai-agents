@@ -23,7 +23,10 @@ bounded rational saturation `u ↦ u / (1 + u)`, and the smooth exponential
 saturation `u ↦ 1 - exp(-u)` on nonnegative inputs, and a mathlib smooth
 transition profile `u ↦ u * smoothTransition(u)` are provided as canonical
 instances. A positive-parameter scaled smooth-transition family
-`u ↦ u * smoothTransition(cu)` is also formalized.
+`u ↦ u * smoothTransition(cu)` and an affine two-parameter family
+`u ↦ u * smoothTransition(cu + d)` are also formalized. A genuinely windowed
+difference-of-transitions profile is then shown to leave the `EnergyProfile`
+shell.
 -/
 
 set_option autoImplicit false
@@ -383,6 +386,77 @@ def scaledSmoothTransitionEnergyProfile (c : ℝ) (hc : 0 < c) : EnergyProfile w
     have hcu : 0 < c * u := mul_pos hc hu
     exact mul_pos hu (Real.smoothTransition.pos_of_pos hcu)
 
+/-- A positive-scale, nonnegative-shift smooth transition family
+`u * smoothTransition (c u + d)`. -/
+def affineSmoothTransitionEnergyProfile
+    (c d : ℝ) (hc : 0 < c) (hd : 0 ≤ d) : EnergyProfile where
+  profile := fun u => u * Real.smoothTransition (c * u + d)
+  continuous_profile := by
+    exact continuous_id.mul
+      (Real.smoothTransition.continuous.comp
+        ((continuous_const.mul continuous_id).add continuous_const))
+  profile_nonneg := by
+    intro u hu
+    exact mul_nonneg hu (Real.smoothTransition.nonneg (c * u + d))
+  profile_le := by
+    intro u hu
+    simpa using mul_le_mul_of_nonneg_left (Real.smoothTransition.le_one (c * u + d)) hu
+  profile_zero := by
+    simp
+  profile_pos := by
+    intro u hu
+    have harg_pos : 0 < c * u + d := by
+      have hcu : 0 < c * u := mul_pos hc hu
+      linarith
+    exact mul_pos hu (Real.smoothTransition.pos_of_pos harg_pos)
+
+/-- A genuinely windowed smooth profile: it turns on and later turns off. -/
+def windowedSmoothTransitionProfile (c : ℝ) : ℝ → ℝ :=
+  fun u => u * (Real.smoothTransition (c * u + 1) - Real.smoothTransition (c * u))
+
+theorem windowedSmoothTransitionProfile_nonneg
+    (c : ℝ) {u : ℝ} (hu : 0 ≤ u) :
+    0 ≤ windowedSmoothTransitionProfile c u := by
+  unfold windowedSmoothTransitionProfile
+  have hmono :
+      Real.smoothTransition (c * u) ≤ Real.smoothTransition (c * u + 1) := by
+    apply Real.smoothTransition.monotone
+    linarith
+  exact mul_nonneg hu (sub_nonneg.mpr hmono)
+
+theorem windowedSmoothTransitionProfile_le
+    (c : ℝ) {u : ℝ} (hu : 0 ≤ u) :
+    windowedSmoothTransitionProfile c u ≤ u := by
+  unfold windowedSmoothTransitionProfile
+  have hdiff_le : Real.smoothTransition (c * u + 1) - Real.smoothTransition (c * u) ≤ 1 := by
+    have hle : Real.smoothTransition (c * u + 1) ≤ 1 := Real.smoothTransition.le_one _
+    have hnonneg : 0 ≤ Real.smoothTransition (c * u) := Real.smoothTransition.nonneg _
+    linarith
+  simpa using mul_le_mul_of_nonneg_left hdiff_le hu
+
+theorem windowedSmoothTransitionProfile_inv_eq_zero
+    (c : ℝ) (hc : 0 < c) :
+    windowedSmoothTransitionProfile c c⁻¹ = 0 := by
+  unfold windowedSmoothTransitionProfile
+  have hcne : c ≠ 0 := ne_of_gt hc
+  have hbase : c * c⁻¹ = 1 := by
+    field_simp [hcne]
+  have h1 : 1 ≤ c * c⁻¹ := by simpa [hbase]
+  have h2 : 1 ≤ c * c⁻¹ + 1 := by linarith
+  rw [Real.smoothTransition.one_of_one_le h2, Real.smoothTransition.one_of_one_le h1]
+  ring
+
+theorem not_exists_energyProfile_windowedSmoothTransitionProfile
+    (c : ℝ) (hc : 0 < c) :
+    ¬ ∃ P : EnergyProfile, P.profile = windowedSmoothTransitionProfile c := by
+  intro h
+  rcases h with ⟨P, hP⟩
+  have hcinv : 0 < c⁻¹ := by
+    simpa [one_div] using (one_div_pos.mpr hc)
+  have hpos : 0 < P.profile c⁻¹ := P.profile_pos _ hcinv
+  rw [hP, windowedSmoothTransitionProfile_inv_eq_zero c hc] at hpos
+  linarith
+
 theorem profiledEnergyTerm_identity_eq_sobolevEnergyTerm
     (m : ℕ) (x : ModeState) (n : ℕ) :
     profiledEnergyTerm identityEnergyProfile m x n = sobolevEnergyTerm m x n := by
@@ -461,6 +535,14 @@ theorem hardProfileThresholdRadius_scaledSmoothTransition_eq_hardSobolevRadius
   simpa using
     hardProfileThresholdRadius_eq_hardSobolevRadius
       (P := scaledSmoothTransitionEnergyProfile c hc) m
+
+theorem hardProfileThresholdRadius_affineSmoothTransition_eq_hardSobolevRadius
+    (c d : ℝ) (hc : 0 < c) (hd : 0 ≤ d) (m : ℕ) :
+    hardProfileThresholdRadius (affineSmoothTransitionEnergyProfile c d hc hd) m
+      = hardSobolevRadius m := by
+  simpa using
+    hardProfileThresholdRadius_eq_hardSobolevRadius
+      (P := affineSmoothTransitionEnergyProfile c d hc hd) m
 
 end ModeStateEnergyProfileFork
 

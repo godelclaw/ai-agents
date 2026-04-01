@@ -110,7 +110,15 @@ the cutoff-convergence and uniform vorticity consequences can now be cited from
 one concrete package instead of from the whole abstraction stack.  The newest
 step then replaces the static selected-coefficient \(d\Phi\) surrogate by a
 nonnegative-time heat-decayed one, while preserving the same shared
-truncation, positivity, and coefficient-energy consequences.
+truncation, positivity, and coefficient-energy consequences.  The newest pass
+then tests a genuine smooth window cutoff rather than another monotone
+saturation.  Lean now shows that this window still passes through the present
+approximation shell and still satisfies the quantitative boundedness hypothesis
+needed by the heat-decayed package.  On top of that concrete windowed package,
+the route now fixes actual candidate fields, a seeded local target, a scaled
+descendant bridge, and an affine seed-blend descendant bridge, together with
+same-route rigidity theorems showing exactly when those descendants can still
+collapse back to original self-compatibility.
 
 This does \emph{not} prove 3D Navier--Stokes regularity.  What it does is make
 the positive architecture cleaner: if the hard analytic bridges can be supplied,
@@ -179,6 +187,14 @@ The grassroots route is not starting from zero.  The project already has:
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/GeometricColeHopfSharedApproximation.lean}} & Cole--Hopf-shaped shared instance driven by the actual chart heat datum \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/GeometricColeHopfPackage.lean}} & direct concrete package-level kernel and vorticity consequences for that instance \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/GeometricColeHopfHeatApproximation.lean}} & nonnegative-time heat-decayed \(d\Phi\) model on the same shared truncation family \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedCutoffApproximation.lean}} & genuine smooth window still compatible with the approximation shell \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatPackage.lean}} & concrete windowed heat package and uniform vorticity tendril \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatFoundationFrontier.lean}} & fixed candidate fields and compatibility frontier on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeededModel.lean}} & stronger zero-pressure / seeded-slice local target on that route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatScaledSeededFrontier.lean}} & first concrete non-self scaled descendant on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSelfCompatibilityObstruction.lean}} & rigidity of same-route closure for the scaled windowed descendant \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedBlendFrontier.lean}} & concrete affine seed-blend descendant bridge on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedBlendObstruction.lean}} & coefficient rigidity and nonexistence theorems for same-route affine descendants \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/FiniteModeLimit.lean}} & finite-mode positivity / energy transfer to the limit \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/FiniteModeKernelLimit.lean}} & finite-mode limit transfer into the local kernel shell \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/ManuscriptTruncationPackage.lean}} & combined manuscript-shaped truncation target \\
@@ -619,6 +635,69 @@ That matters because the next analytic theorem no longer has to be described
 vaguely as ``something feeding several shells.''  It now has one exact Lean
 landing point.
 
+\subsection{A Concrete Windowed Route}
+
+The newest concrete pass tests whether the present positive route can survive a
+genuine smooth chart window rather than only monotone saturations.  The new
+file \texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedCutoffApproximation.lean}
+defines the window
+\[
+  u \mapsto u \cdot
+  \bigl(\mathrm{smoothTransition}(cu+1)-\mathrm{smoothTransition}(cu)\bigr)
+\]
+and proves that it still passes through the existing approximation shell.  So
+leaving the stricter \texttt{EnergyProfile} shell does \emph{not} by itself
+break chart-side truncation convergence or the induced Cole--Hopf convergence.
+
+The next file,
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatPackage.lean},
+shows that the same window also survives the current quantitative heat-envelope
+shell.  Lean proves the explicit bound
+\[
+  |\chi_c(u)| \le c^{-1}
+\]
+for the smooth window cutoff \(\chi_c\), and uses that bound to instantiate the
+existing heat-decayed Cole--Hopf package.  So there is now a concrete windowed
+shared approximation package and a concrete uniform vorticity tendril on that
+route.
+
+The next two files then freeze the actual candidate fields carried by that
+route.  In
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatFoundationFrontier.lean},
+velocity is fixed to the package vorticity field and pressure is fixed to zero,
+with regularity, dynamics, and energy certificates packaged into an
+\texttt{AlmostFeffermanBridge}.  In
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeededModel.lean},
+the target is strengthened beyond boundedness-only form: pressure must vanish,
+velocity must match its distinguished initial slice at time \(1\), and the
+velocity bound is made explicit.  So the current concrete route no longer stops
+at a raw vorticity tendril; it already reaches a proof-carrying seeded local
+model.
+
+The next two frontiers then build genuine non-self descendants on that same
+concrete windowed route.  In
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatScaledSeededFrontier.lean},
+Lean packages the scaled descendant \(u(t,x)=a\,\omega(t,x)\).  In
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedBlendFrontier.lean},
+it packages the affine seed-blend descendant
+\[
+  u(t,x)=a\,\omega(t,x)+b\,\omega(1,x).
+\]
+Both routes now carry full local certificates and descend to explicit bridge
+objects on the concrete windowed package.
+
+Finally, the corresponding obstruction files record that same-route closure is
+already rigid on this concrete route.  In
+\texttt{WindowedColeHopfHeatSelfCompatibilityObstruction.lean}, Lean proves that
+on any genuinely nonzero vorticity state the scaled descendant can satisfy the
+original self-compatibility mouth only when \(a=1\).  In
+\texttt{WindowedColeHopfHeatSeedBlendObstruction.lean}, Lean proves that
+same-route closure for the affine seed-blend descendant forces explicit
+coefficient identities: \(a+b=1\) under a nonzero initial slice, and under
+stronger witnesses even \(a=1\) or \(b=0\).  So the grassroots route now
+contains not only positive concrete descendants, but also theorem-level
+rigidity about when those descendants can still pretend to be same-route.
+
 \section{Why This Matters}
 
 The value of this kernel is not that it proves a Millennium problem.  The value
@@ -689,6 +768,9 @@ The new Lean kernel also clarifies what it does \emph{not} solve.
   feed convergence of the radius and statistic observables into the new
   approximation shell, or the eventual positivity / coefficient-energy bounds
   into the new finite-mode limit shell.
+  \item It does not yet lift the current concrete windowed candidate and its
+  descendants to real velocity-generation or pressure-generation theorems
+  beyond the present seeded local predicates.
   \item It does not justify the manuscript's push-down theorem at a fully
   analytic infinite-dimensional level.
   \item It does not close BKM by itself; it only packages the algebraic part of
@@ -703,24 +785,17 @@ shrink the unknown region and expose the remaining burden sharply.
 The next constructive steps are fairly clear.
 
 \begin{enumerate}[leftmargin=1.5em]
-  \item Instantiate the new shared approximation package with a genuinely
-  manuscript-shaped truncation family: the chart-side D.4 datum and the
-  finite-mode identity-energy datum should come from the same explicit
-  truncation family, with convergence of the actual radius/statistic
-  observables and eventual lower positivity / coefficient-energy bounds for the
-  identity data.  That now feeds directly into
-  \texttt{ApproximationInterface.lean} and
-  \texttt{FiniteModeLimit.lean}, or equivalently into the combined
-  \texttt{ManuscriptTruncationPackage.lean} through
-  \texttt{SharedApproximationPackage.lean}.  The new geometric and geometric
-  Cole--Hopf instances are now explicit realizations of this pattern, and the
-  new heat-decayed Cole--Hopf instance is a more time-aware one, but the next
-  goal is still a more faithful manuscript-shaped package in which the chosen
-  \(d\Phi\) coefficients are justified by the actual SG/identity differential
-  story rather than by a finite selected-coefficient heat surrogate.
+  \item Push the concrete windowed route through its first real compatibility
+  theorem.  The present fixed candidate, scaled descendant, and affine
+  seed-blend descendant already have their local certificates; the next theorem
+  should decide whether any of them can generate a nontrivial velocity field in
+  a way that matches the current vorticity tendril.
   \item Strengthen the new local kernel-founded shell from ``kernel semigroup +
   identity interface'' to ``kernel semigroup + positivity/energy propagation''.
-  That is the next honest place where a real analytic theorem can plug in.
+  That remains the next honest place where a real analytic theorem can plug in.
+  \item Replace the current selected-coefficient heat surrogate by a more
+  faithful finite-mode identity differential law, so the concrete shared route
+  is closer to the manuscript's actual SG/identity story.
   \item Formalize finite-frame Sobolev-to-vorticity constants cleanly, so the
   current \texttt{abs\_vorticity\_le} theorem can be plugged into an explicit
   frame family rather than an abstract coefficient system.

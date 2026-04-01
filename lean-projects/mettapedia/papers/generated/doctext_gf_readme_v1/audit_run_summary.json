@@ -136,7 +136,7 @@
       "hard_audit_theorem": "metatheory_hard_audit",
       "module_file": "Mettapedia/DocText/MetatheoryReadmeCompositional.lean",
       "pass_count": 54,
-      "readme_path": "Mettapedia/Metatheory/README.md"
+      "readme_path": "Mettapedia/external/Metatheory/README.md"
     },
     {
       "claim_count": 22,
