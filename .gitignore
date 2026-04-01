@@ -135,6 +135,17 @@ venvs/
 # ATP datasets (huge)
 atps/datasets/
 
+
+# ─── Local Lean dependency repos (cloned externally, have their own .git) ───
+# These are required by lakefile.toml but are NOT part of this repo.
+# Clone them manually or via lake update.
+hyperon/metamath/mm-lean4/
+lean-projects/mettapedia/Mettapedia/Algebra/OrderedSemigroups/
+lean-projects/mettapedia/Mettapedia/external/CertifyingDatalog/
+lean-projects/mettapedia/Mettapedia/external/exchangeability/
+lean-projects/mettapedia/Mettapedia/external/provenance-lean/
+lean-projects/mettapedia/Mettapedia/Logic/Foundation/
+lean-projects/mettapedia/Mettapedia/Metatheory/
 # Experimental results, data, and scripts (regenerable)
 lean-projects/mettapedia/results/
 lean-projects/mettapedia/data/
