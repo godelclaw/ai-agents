@@ -49,10 +49,10 @@ path = "Mettapedia/SetTheory/BorelDeterminacy"
 name = "catLogic"
 path = "Mettapedia/CategoricalLogic"
 
-# Metatheory (local dependency)
+# Metatheory (external dependency)
 [[require]]
 name = "Metatheory"
-path = "Mettapedia/Metatheory"
+path = "Mettapedia/external/Metatheory"
 
 # Pure algorithm checker kernels (Init-only)
 [[require]]

@@ -22,13 +22,13 @@ Mettapedia/
 ├── Languages/
 ├── Logic/
 ├── MeasureTheory/
-├── Metatheory/
 ├── OSLF/
 ├── ProbabilityTheory/
 ├── QuantumTheory/
 ├── SetTheory/
 ├── UniversalAI/
 └── external/
+    └── Metatheory/
 ```
 
 ## Toolchain
@@ -145,8 +145,8 @@ rg -n "sorry" Mettapedia/
 
 ## External repo policy
 
-- the policy uses godelclaw forks as origin remotes.
-- the policy uses zariuq repos as upstream remotes.
-- the policy references EXTERNAL_REPOS.md for exact commands.
+- the policy keeps canonical remotes in EXTERNAL_REPOS.md.
+- the policy keeps external checkouts untracked in ai-agents.
+- the policy references EXTERNAL_REPOS.md for exact clone and sync commands.
 
 Accountability trace: the CertifyingDatalog bridge at `/home/zar/claude/lean-projects/mettapedia/Mettapedia/Logic/LP/CertifyingDatalogBridge.lean` was reviewed by Codex 5.4 and Claude Code Opus 4.6.

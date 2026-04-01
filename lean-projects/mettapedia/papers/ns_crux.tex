@@ -44,8 +44,18 @@ energy-style soft-vs-hard forks on that same space, plus a log-energy fork
 showing that a smoother radial profile still lands on the same good/bad split,
 and finally a generic energy-profile theorem packaging that split for any
 continuous radial profile dominated by the identity on nonnegative inputs.  It
-does \emph{not} yet formalize the manuscript's specific chart, local
-hypotheses \((H1)\), \((H2)\), or the BKM-closing analytic bridge.
+also now contains a theorem-statement-back interface from a local
+Fefferman-style global-regularity target to the exact uniform vorticity-control
+tendril currently produced by the grassroots packages, together with a
+constructive top-down bridge interface decomposing the missing lift into
+candidate fields, regularity, dynamics, energy, and vorticity-compatibility
+layers.  The newest pass also specializes that compatibility frontier back down
+to the concrete windowed Cole--Hopf heat route: a genuine smooth window still
+survives the present approximation and heat-envelope shells, and the resulting
+scaled and affine seed-blend descendants already satisfy bridge-level rigidity
+theorems for original same-route closure.  It does \emph{not} yet formalize
+the manuscript's specific chart,
+local hypotheses \((H1)\), \((H2)\), or the BKM-closing analytic bridge.
 \end{abstract}
 
 \section{Scope}
@@ -68,13 +78,36 @@ The Navier--Stokes Lean work currently lives in:
   \item \texttt{FluidDynamics/NavierStokes/ModeStateEnergyChartFork.lean},
   \item \texttt{FluidDynamics/NavierStokes/ModeStateLogEnergyChartFork.lean},
   \item \texttt{FluidDynamics/NavierStokes/ModeStateEnergyProfileFork.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanTargetBack.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanTopDownBridge.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanCompatibilityFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanWeakSelfModel.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanSeededSelfModel.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanBoundedSeededSelfModel.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanPressureSeededSelfModel.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanScaledPressureSeededFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanSeedBlendPressureFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanSaturatedPressureFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanFrozenGatePressureFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanSeedLiveProfileFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/FeffermanSeedLiveOperatorFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedCutoffApproximation.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatPackage.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatFoundationFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSeededModel.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatScaledSeededFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSelfCompatibilityObstruction.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedBlendFrontier.lean},
+  \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedBlendObstruction.lean},
   \item \texttt{FluidDynamics/NavierStokes/IdentityEnergy.lean},
   \item \texttt{FluidDynamics/NavierStokes/ColeHopfInterface.lean},
   \item \texttt{FluidDynamics/NavierStokes/KernelSemigroupInterface.lean}.
 \end{enumerate}
 
-These modules compile without \texttt{sorry}.  They provide a formal shell for
-what a future SG-Cole-Hopf proof attempt would need to instantiate.
+These modules form the live NS interface shell.  The currently verified slice is
+recorded explicitly in Section~\ref{sec:ns-verification}.  Together they
+provide a formal shell for what a future SG-Cole-Hopf proof attempt would need
+to instantiate.
 
 \section{Lean-Backed Results}
 
@@ -402,8 +435,23 @@ The file also includes canonical instances:
   \texttt{Real.smoothTransition}, again with the same hard-detector collapse;
   \item more strongly, a positive-parameter family
   \(u \mapsto u \cdot \mathrm{smoothTransition}(cu)\) for \(c>0\), all with the
+  same hard-detector collapse;
+  \item stronger still, an affine two-parameter family
+  \(u \mapsto u \cdot \mathrm{smoothTransition}(cu+d)\) for \(c>0\), \(d\ge 0\),
+  all with the
   same hard-detector collapse.
 \end{enumerate}
+
+The new boundary result is that a genuinely windowed difference-of-transitions
+profile already leaves the shell.  Lean defines
+\[
+u \mapsto
+u \cdot \bigl(\mathrm{smoothTransition}(cu+1)-\mathrm{smoothTransition}(cu)\bigr)
+\]
+and proves that for every \(c>0\) this profile cannot be the
+\texttt{profile}-field of any \texttt{EnergyProfile}: it vanishes at the
+positive input \(u=c^{-1}\), so it cannot satisfy the required strict
+positivity on all positive energies.
 
 So the current shared-mode-space NS fork is now theorem-level rather than
 example-level:
@@ -458,6 +506,371 @@ This does not add new analytic content.  It says that if a future NS evolution
 is encoded as a local kernel semigroup, then the existing identity-energy
 bridge can be reused unchanged.
 
+\subsection{Fefferman-Style Target Backward Interface}
+
+In \texttt{FeffermanTargetBack.lean}, Lean now works backward from a local
+mirror of the Clay/Fefferman output clause.  The file first defines a
+\texttt{FeffermanPredicateKit}, so the target is parameterized by abstract
+output-side predicates but still requires actual proofs of them.  It then does
+three things:
+\begin{enumerate}[leftmargin=1.5em]
+  \item it defines \texttt{UniformVorticityTendril}, the exact smallest
+  theorem-statement-back fragment currently reached by the grassroots lane: a
+  globally defined vorticity field with one uniform envelope;
+  \item it proves that the existing local shells
+  \texttt{ColeHopfIdentityData}, \texttt{FiniteModeColeHopfData},
+  \texttt{ColeHopfKernelSemigroupData}, \texttt{FiniteModeColeHopfKernelData},
+  \texttt{ManuscriptTruncationPackage}, and
+  \texttt{SharedApproximationPackage} all land in that same tendril;
+  \item it defines \texttt{FeffermanLiftObligations}, the exact additional lift
+  still missing if one wants to climb from that tendril to a local
+  Fefferman-style global-regularity output witness: velocity, pressure, proofs
+  of the chosen smoothness / dynamics / energy predicates, and a proof of the
+  chosen vorticity-to-velocity compatibility predicate.
+\end{enumerate}
+
+So the target-back picture is now explicit in Lean:
+\begin{quote}
+current grassroots NS packages already produce a uniform vorticity-control
+tendril, but a separate lift is still required before one has even a local
+mirror of the Fefferman-style global-regularity output clause.
+\end{quote}
+
+\subsection{Top-Down Fefferman Bridge}
+
+In \texttt{FeffermanTopDownBridge.lean}, Lean turns that missing lift into a
+positive program rather than a vague gap.  Relative to a chosen predicate kit
+and a chosen vorticity-compatibility predicate, the file defines:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \texttt{VelocityPressureCandidate}, the candidate output fields;
+  \item \texttt{RegularityCertificate}, \texttt{DynamicsCertificate}, and
+  \texttt{EnergyCertificate}, separating smoothness, PDE/incompressibility /
+  initial-condition, and bounded-energy obligations;
+  \item \texttt{VorticityCompatibility}, isolating the extra theorem that ties
+  the already-available vorticity tendril back to the chosen velocity field;
+  \item \texttt{TopDownFeffermanBridge}, bundling exactly those layers.
+\end{enumerate}
+
+Lean then proves that any such bridge assembles:
+\begin{enumerate}[leftmargin=1.5em]
+  \item the explicit \texttt{FeffermanLiftObligations} from the target-back
+  file;
+  \item the local Fefferman-style global-regularity clause;
+  \item preservation of the original uniform vorticity tendril.
+\end{enumerate}
+
+Finally, the file proves package-level realization theorems for the current NS
+lane: if a top-down bridge is supplied on the tendril induced by
+\texttt{ColeHopfIdentityData}, \texttt{FiniteModeColeHopfData},
+\texttt{ColeHopfKernelSemigroupData}, \texttt{FiniteModeColeHopfKernelData},
+\texttt{ManuscriptTruncationPackage}, or \texttt{SharedApproximationPackage},
+then the local Fefferman-style clause follows immediately.
+
+So the constructive NS picture is now also explicit in Lean:
+\begin{quote}
+the current grassroots route already reaches a uniform vorticity tendril, and
+the remaining top-down work is decomposed into theorem-sized lift layers rather
+than one monolithic miracle step.
+\end{quote}
+
+\subsection{Compatibility Frontier}
+
+In \texttt{FeffermanCompatibilityFrontier.lean}, Lean peels that top-down bridge
+one step further.  It defines \texttt{AlmostFeffermanBridge}, which contains:
+\begin{enumerate}[leftmargin=1.5em]
+  \item a candidate velocity/pressure pair;
+  \item the corresponding regularity certificate;
+  \item the corresponding dynamics certificate;
+  \item the corresponding energy certificate;
+\end{enumerate}
+but deliberately omits vorticity-to-velocity compatibility.
+
+Lean then proves that once a compatibility proof is supplied, the full
+\texttt{TopDownFeffermanBridge} and hence the local Fefferman-style clause
+follow immediately.  It also adds package-level reduction theorems showing that
+\texttt{ColeHopfIdentityData}, \texttt{FiniteModeColeHopfData},
+\texttt{ColeHopfKernelSemigroupData}, \texttt{FiniteModeColeHopfKernelData},
+\texttt{ManuscriptTruncationPackage}, and \texttt{SharedApproximationPackage}
+all reduce to that same compatibility frontier.
+
+So the live constructive NS bottleneck is now even sharper in Lean:
+\begin{quote}
+once candidate fields and their certificates are fixed, the remaining theorem is
+exactly the compatibility of the current vorticity tendril with the chosen
+velocity field.
+\end{quote}
+
+\subsection{Weak Self-Model Realization}
+
+In \texttt{FeffermanWeakSelfModel.lean}, Lean now proves the top-down stack is
+not vacuous.  The file defines a weak but nontrivial predicate kit where:
+\begin{enumerate}[leftmargin=1.5em]
+  \item smoothness, momentum, incompressibility, and initial-condition
+  predicates are left trivial;
+  \item the only nontrivial output-side predicate is a uniform pointwise bound
+  on the velocity field;
+  \item compatibility means the chosen velocity field is literally the current
+  vorticity tendril.
+\end{enumerate}
+
+With that choice, Lean constructs a canonical self-model:
+\begin{enumerate}[leftmargin=1.5em]
+  \item velocity is the tendril vorticity itself;
+  \item pressure is identically zero;
+  \item the tendril envelope supplies the boundedness certificate;
+  \item compatibility is tautological.
+\end{enumerate}
+
+It then proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item every \texttt{UniformVorticityTendril} realizes the weak local
+  Fefferman-style clause;
+  \item the same realization can be seen directly through the compatibility
+  frontier;
+  \item all current NS packages therefore already realize that weak clause.
+\end{enumerate}
+
+So the constructive picture is now stronger:
+\begin{quote}
+the top-down NS bridge is not merely a decomposition of obligations; for a weak
+but genuine target, the current grassroots tendril already closes the whole
+stack in Lean.
+\end{quote}
+
+\subsection{Seeded and Bounded Seeded Strengthenings}
+
+In \texttt{FeffermanSeededSelfModel.lean}, Lean strengthens the weak self-model
+in two concrete ways:
+\begin{enumerate}[leftmargin=1.5em]
+  \item the pressure predicate is no longer trivial: it must be identically
+  zero;
+  \item the initial-condition predicate is no longer trivial: velocity at the
+  distinguished base time \(1\) must match the seed slice extracted from the
+  tendril itself.
+\end{enumerate}
+
+The file proves that every current NS package still realizes that stronger
+seeded clause by the same self candidate and the same compatibility proof.
+
+In \texttt{FeffermanBoundedSeededSelfModel.lean}, Lean strengthens the target
+once more by making the velocity-side regularity predicate nontrivial too: it
+must satisfy the same uniform pointwise bound already carried by the tendril
+envelope.  The same self candidate still closes the clause.
+
+In \texttt{FeffermanPressureSeededSelfModel.lean}, Lean strengthens the target
+again by making one more dynamics field nontrivial: the momentum slot now also
+requires the pressure field to vanish.  Since the canonical self candidate still
+has identically zero pressure, the same self candidate and the same
+compatibility proof still close the clause.
+
+So the current top-down picture is sharper:
+\begin{quote}
+the current NS tendril now closes not just a boundedness-only toy target, but a
+proof-carrying family of self-model targets with zero pressure, explicit
+initial slice, a nontrivial velocity-bound predicate, and now also a nontrivial
+momentum-slot pressure condition.
+\end{quote}
+
+\subsection{First Non-Self Compatibility Frontier}
+
+In \texttt{FeffermanScaledPressureSeededFrontier.lean}, Lean introduces the
+first genuinely non-self candidate: velocity is a scalar multiple of the
+current vorticity tendril, while pressure stays identically zero.  Lean proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item the same strengthened pressure-seeded target still has full regularity,
+  dynamics, and energy certificates for this rescaled candidate;
+  \item therefore the same-route version now reaches an explicit
+  \texttt{AlmostFeffermanBridge} with a nontrivial compatibility mouth;
+  \item a nearby descendant route with rescaled compatibility closes
+  immediately;
+  \item the same-route mouth already closes in special regimes, including the
+  trivial scaling \(a=1\) and the degenerate zero-vorticity case.
+\end{enumerate}
+
+So the constructive picture is sharper again:
+\begin{quote}
+Lean now contains not only self-model closures, but also the first explicit
+non-self candidate whose certificates are complete and whose remaining obstacle
+is exactly a compatibility theorem.
+\end{quote}
+
+In \texttt{FeffermanSeedBlendPressureFrontier.lean}, Lean pushes this one step
+further.  The new non-self candidate has velocity
+\[
+u(t,x) = a\,\omega(t,x) + b\,\omega(1,x),
+\]
+mixing the live tendril with its seeded slice while keeping pressure zero.
+Lean proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item the same strengthened pressure-seeded target still has complete
+  regularity, dynamics, and energy certificates for this affine seed-blend
+  candidate;
+  \item therefore the same-route version again reaches an explicit
+  \texttt{AlmostFeffermanBridge} whose live mouth is compatibility;
+  \item a nearby descendant route with affine seed-blend compatibility closes
+  immediately;
+  \item the same-route mouth already closes in special cases such as
+  \((a,b)=(1,0)\) and the zero-vorticity regime.
+\end{enumerate}
+
+So the top-down NS tendril now reaches a second, strictly richer non-self
+frontier in Lean.
+
+In \texttt{FeffermanSaturatedPressureFrontier.lean}, Lean adds the first
+nonlinear non-self candidate:
+\[
+u(t,x) = a \cdot \frac{\omega(t,x)}{1 + |\omega(t,x)|}.
+\]
+The file proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item the saturated profile still satisfies the strengthened pressure-seeded
+  target's regularity, dynamics, and energy slots;
+  \item the same-route version again reaches an explicit
+  \texttt{AlmostFeffermanBridge} with compatibility as the only remaining mouth;
+  \item a nearby descendant route with saturated compatibility closes
+  immediately;
+  \item zero vorticity already collapses the same-route mouth.
+\end{enumerate}
+
+So the top-down ladder now contains not just linear and affine non-self
+frontiers, but also a first nonlinear saturated frontier in Lean.
+
+In \texttt{FeffermanFrozenGatePressureFrontier.lean}, Lean adds a more
+manuscript-shaped nonlinear non-self candidate:
+\[
+u(t,x) = a \cdot \frac{|\omega(1,x)|}{1 + |\omega(1,x)|} \cdot \omega(t,x).
+\]
+The live tendril is now modulated by a nonlinear gate computed from the frozen
+seed slice.  The file proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item this frozen-seed-gated candidate still satisfies the strengthened
+  pressure-seeded target's regularity, dynamics, and energy slots;
+  \item the same-route version again reaches an explicit
+  \texttt{AlmostFeffermanBridge} with compatibility as the only remaining mouth;
+  \item a nearby descendant route with frozen-gate compatibility closes
+  immediately;
+  \item zero vorticity again collapses the same-route mouth.
+\end{enumerate}
+
+So the top-down ladder now contains not just linear, affine, and pointwise
+nonlinear frontiers, but also a first frozen-seed-gated frontier in Lean.
+
+In \texttt{FeffermanSeedLiveProfileFrontier.lean}, Lean then packages these
+frontiers into one reusable theorem family.  The new structure
+\texttt{SeedLiveProfile} covers any pointwise candidate of the form
+\[
+u(t,x) = \Phi(\omega(1,x), \omega(t,x))
+\]
+under the single bound
+\[
+|\Phi(\mathrm{seed},\mathrm{live})|
+  \le c \bigl(|\mathrm{seed}| + |\mathrm{live}|\bigr).
+\]
+The file proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item every such profile automatically carries the strengthened
+  pressure-seeded target through regularity, dynamics, and energy;
+  \item the same-route version always reaches an explicit
+  \texttt{AlmostFeffermanBridge} whose only remaining mouth is compatibility;
+  \item the descendant route with the exact profile-compatibility predicate
+  closes immediately;
+  \item the scalar-rescaled, affine seed-blend, nonlinear saturated, and
+  frozen-seed-gated candidates are recovered as concrete instances.
+\end{enumerate}
+
+So the NS top-down lane now has not only several explicit non-self frontier
+examples, but also a reusable seed/live profile shell that subsumes them.
+
+In \texttt{FeffermanSeedLiveOperatorFrontier.lean}, Lean pushes this one step
+further to a genuinely non-pointwise shell.  The new structure
+\texttt{SeedLiveOperator} allows the candidate at \(x\) to depend on the full
+seeded and live slices as functions, provided it satisfies a uniform envelope
+bound in terms of seeded/live slice bounds.  The file proves:
+\begin{enumerate}[leftmargin=1.5em]
+  \item every such operator automatically carries the strengthened
+  pressure-seeded target through regularity, dynamics, and energy;
+  \item the same-route version again reaches an explicit
+  \texttt{AlmostFeffermanBridge} whose only remaining mouth is compatibility;
+  \item the descendant route with exact operator compatibility closes
+  immediately;
+  \item the pointwise \texttt{SeedLiveProfile} shell embeds into this operator
+  shell, and a concrete anchored non-pointwise seed/live blend is realized as
+  an instance.
+\end{enumerate}
+
+So the top-down NS lane now reaches not only pointwise non-self frontier
+families, but also a first proof-carrying non-pointwise operator shell.
+
+\subsection{Concrete Windowed Descendant Route}
+
+The newest specialization step pushes the same top-down frontier back down to
+the actual concrete windowed heat package.  In
+\texttt{WindowedCutoffApproximation.lean}, Lean proves that the genuinely
+windowed cutoff
+\[
+u \mapsto
+u \cdot \bigl(\mathrm{smoothTransition}(cu+1)-\mathrm{smoothTransition}(cu)\bigr)
+\]
+still passes through the current approximation shell.  So leaving the stricter
+\texttt{EnergyProfile} shell is not yet a failure of truncation convergence or
+of the induced Cole--Hopf convergence.
+
+In \texttt{WindowedColeHopfHeatPackage.lean}, Lean proves the quantitative
+window bound
+\[
+|\chi_c(u)| \le c^{-1},
+\]
+which is enough to instantiate the present heat-decayed Cole--Hopf package.
+So the current concrete route already carries a genuine windowed shared
+approximation package and a genuine uniform vorticity tendril.
+
+In \texttt{WindowedColeHopfHeatFoundationFrontier.lean} and
+\texttt{WindowedColeHopfHeatSeededModel.lean}, Lean then fixes the actual
+candidate fields on that concrete route:
+\begin{enumerate}[leftmargin=1.5em]
+  \item velocity is the package vorticity field;
+  \item pressure is identically zero;
+  \item the candidate closes a stronger seeded local target with zero pressure,
+  a distinguished initial slice at time \(1\), and a uniform pointwise bound.
+\end{enumerate}
+
+So the current compatibility frontier is no longer only an abstract theorem
+schema.  It now sits on one explicit concrete windowed route.
+
+\subsection{Concrete Windowed Same-Route Rigidity}
+
+The next new files show that the concrete route already has theorem-level
+same-route rigidity.
+
+In \texttt{WindowedColeHopfHeatScaledSeededFrontier.lean}, Lean packages the
+scaled descendant \(u(t,x)=a\,\omega(t,x)\) on the concrete windowed route.
+In \texttt{WindowedColeHopfHeatSelfCompatibilityObstruction.lean}, Lean proves
+that if this scaled descendant is forced back through the original
+self-compatibility mouth on a genuinely nonzero vorticity state, then the
+scaling must satisfy \(a=1\).  Equivalently, if \(a\neq 1\), then no bridge of
+that same-route type exists on a nonzero-vorticity state.
+
+In \texttt{WindowedColeHopfHeatSeedBlendFrontier.lean}, Lean packages the
+affine seed-blend descendant
+\[
+u(t,x)=a\,\omega(t,x)+b\,\omega(1,x).
+\]
+In \texttt{WindowedColeHopfHeatSeedBlendObstruction.lean}, Lean proves bridge-
+level rigidity laws for the same-route mouth:
+\begin{enumerate}[leftmargin=1.5em]
+  \item a nonzero initial slice forces \(a+b=1\);
+  \item a witness with zero initial slice but nonzero live vorticity forces
+  \(a=1\);
+  \item a witness with zero live vorticity but nonzero initial slice forces
+  \(b=0\);
+  \item violating any of these identities rules out the corresponding
+  same-route bridge on the concrete windowed route.
+\end{enumerate}
+
+So the NS crux has now moved one step forward: the issue is no longer merely
+that abstract non-self frontiers exist.  The issue is that on the concrete
+windowed route, original same-route closure is already provably rigid.
+
 \section{Current Boundary}
 
 The following are \emph{not} yet formalized in Lean in the present NS lane:
@@ -466,6 +879,15 @@ The following are \emph{not} yet formalized in Lean in the present NS lane:
   \(\mathrm{SDiff}^m\);
   \item the finite-mode truncation / approximation theorem actually needed for
   that datum;
+  \item instantiations of the new top-down bridge layers with real velocity and
+  pressure candidates, real regularity and dynamics certificates, and a real
+  vorticity-to-velocity compatibility theorem beyond the current self,
+  scalar-rescaled, affine seed-blend, nonlinear saturated, frozen-seed-gated,
+  bounded seed/live operator toy candidates, and the current concrete windowed
+  descendants;
+  \item strengthening the current seeded / bounded-seeded self models toward
+  something recognizably closer to the Clay/Fefferman predicates than pointwise
+  bounds, zero pressure, and a distinguished initial slice;
   \item the local hypotheses \((H1)\), \((H2)\);
   \item the manuscript's claimed identity-only propagation lemma;
   \item the BKM-closing bridge for the full infinite-dimensional argument.
@@ -477,46 +899,32 @@ Lean has formalized the generic interface shell that a proof attempt would need,
 but not the manuscript-specific analytic instantiations.
 \end{quote}
 
-\section{Verification}
+\section{Verification}\label{sec:ns-verification}
 
-The currently relevant NS modules were checked with:
+The currently relevant verified NS slice was checked with a grouped build over
+the \texttt{NavierStokes} directory, excluding only two unrelated in-progress
+local frontier files that are currently broken.  Concretely:
 \begin{verbatim}
-lake build \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateEnergyProfileFork \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateLogEnergyChartFork \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateEnergyChartFork \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateSobolevChartFork \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateChartFork \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateTailSensitivityObstruction \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateObservableClass \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateProductTopologyObstruction \
-  Mettapedia.FluidDynamics.NavierStokes.ModeStateProductTopologyContinuity \
-  Mettapedia.FluidDynamics.NavierStokes.ProductTopologyL1Countermodel \
-  Mettapedia.FluidDynamics.NavierStokes.GeometricModeApproximation \
-  Mettapedia.FluidDynamics.NavierStokes.ChartApproximationModel \
-  Mettapedia.FluidDynamics.NavierStokes.IdentityEnergy \
-  Mettapedia.FluidDynamics.NavierStokes.WeakTopologyCountermodel \
-  Mettapedia.FluidDynamics.NavierStokes.KernelSemigroupInterface \
-  Mettapedia.FluidDynamics.NavierStokes.ApproximationInterface \
-  Mettapedia.FluidDynamics.NavierStokes.CutoffContinuity \
-  Mettapedia.FluidDynamics.NavierStokes.ColeHopfTopology \
-  Mettapedia.FluidDynamics.NavierStokes.ColeHopfInterface
+mods=$(find Mettapedia/FluidDynamics/NavierStokes -maxdepth 1 -name '*.lean' \
+  ! -name 'FeffermanSeededSelfModel.lean' \
+  ! -name 'FeffermanSeedLiveOperatorFrontier.lean' \
+  | sort | sed 's|/|.|g; s|\.lean$||')
+lake build $mods
 \end{verbatim}
 
 \section{Next Lean Target}
 
-The natural next formal step is no longer more prose.  It is to instantiate one
-of the current abstract fork with manuscript-specific data:
+The natural next formal step is no longer more prose.  It is to keep pushing
+top-down from the target:
 \begin{enumerate}[leftmargin=1.5em]
-  \item formalize a manuscript-shaped chart observable on the shared mode space
-  whose shape is \emph{closer} than the current Sobolev-style soft/hard toy,
-  and prove whether it belongs to the good summable class or the bad
-  tail-sensitive class;
-  \item if it lands on the good side, formalize the approximation/truncation
-  theorem needed to feed \texttt{ApproximationInterface.lean};
-  \item formalize the manuscript's local identity-energy bridge inside the
-  abstract shell already provided by \texttt{IdentityEnergy.lean} and
-  \texttt{ColeHopfInterface.lean}.
+  \item strengthen the proof-carrying target again by making at least one more
+  regularity or dynamics predicate genuinely nontrivial while keeping the clause
+  closable by current packages;
+  \item push the concrete windowed route beyond same-route rigidity and toward a
+  real velocity-generation or pressure-generation theorem on that fixed
+  candidate;
+  \item reconnect whichever concrete descendant survives that test to the
+  mode-space chart / approximation shells.
 \end{enumerate}
 
 \end{document}

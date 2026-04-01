@@ -178,10 +178,10 @@ def renderMettapediaClaim : MettapediaClaim → String
       mkPresPos subj (complV2 (mkV2 (regV "require")) (properNameNP "frequent lake build checks"))
   | .policyUsesGodelclawOrigin =>
       let subj := linDetCN theDefArt (linUseN policy_N)
-      mkPresPos subj (complV2 (mkV2 (regV "use")) (properNameNP "godelclaw forks as origin remotes"))
+      mkPresPos subj (complV2 (mkV2 (regV "use")) (properNameNP "canonical remotes in EXTERNAL_REPOS.md"))
   | .policyUsesZariuqUpstream =>
       let subj := linDetCN theDefArt (linUseN policy_N)
-      mkPresPos subj (complV2 (mkV2 (regV "use")) (properNameNP "zariuq repos as upstream remotes"))
+      mkPresPos subj (complV2 (mkV2 (regV "use")) (properNameNP "external checkouts untracked in ai-agents"))
   | .policyReferencesExternalRepos =>
       let subj := linDetCN theDefArt (linUseN policy_N)
       mkPresPos subj (complV2 (mkV2 (regV "reference")) (properNameNP "EXTERNAL_REPOS.md for exact commands"))
@@ -285,7 +285,7 @@ def mettapediaReadmeBlocks : List ReadmeBlock :=
   , .heading 2 (renderMettapediaHeading .layoutHighLevel)
   , .paragraph [renderMettapediaClaim .layoutPresentsHighLevelStructure]
   , .codeBlock ""
-      "Mettapedia/\n├── Algebra/\n├── Bridge/\n├── CategoricalLogic/\n├── CategoryTheory/\n├── CognitiveArchitecture/\n├── Computability/\n├── Examples/\n├── GraphTheory/\n├── GSLT/\n├── Implementation/\n├── InformationTheory/\n├── Languages/\n├── Logic/\n├── MeasureTheory/\n├── Metatheory/\n├── OSLF/\n├── ProbabilityTheory/\n├── QuantumTheory/\n├── SetTheory/\n├── UniversalAI/\n└── external/"
+      "Mettapedia/\n├── Algebra/\n├── Bridge/\n├── CategoricalLogic/\n├── CategoryTheory/\n├── CognitiveArchitecture/\n├── Computability/\n├── Examples/\n├── GraphTheory/\n├── GSLT/\n├── Implementation/\n├── InformationTheory/\n├── Languages/\n├── Logic/\n├── MeasureTheory/\n├── OSLF/\n├── ProbabilityTheory/\n├── QuantumTheory/\n├── SetTheory/\n├── UniversalAI/\n└── external/\n    └── Metatheory/"
   , .heading 2 (renderMettapediaHeading .toolchain)
   , .claimBullets
       [ claimBullet .toolchainUsesLean4270
