@@ -195,6 +195,26 @@ The grassroots route is not starting from zero.  The project already has:
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSelfCompatibilityObstruction.lean}} & rigidity of same-route closure for the scaled windowed descendant \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedBlendFrontier.lean}} & concrete affine seed-blend descendant bridge on the windowed route \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedBlendObstruction.lean}} & coefficient rigidity and nonexistence theorems for same-route affine descendants \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatFrozenGateFrontier.lean}} & concrete frozen-seed-gated descendant bridge on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatFrozenGateObstruction.lean}} & frozen-gate same-route rigidity: nonzero live witnesses force \(a>1\) \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedLiveProfileFrontier.lean}} & generic pointwise seed/live-profile shell on the concrete windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedLiveProfileObstruction.lean}} & generic witness law \(P(s,\ell)=\ell\) for same-route pointwise descendants \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedLiveOperatorFrontier.lean}} & generic non-pointwise seed/live-operator shell on the concrete windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedLiveOperatorObstruction.lean}} & generic witness law \(O(s,\ell,x)=\ell(x)\) for same-route operator descendants \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSeedOnlyOperatorObstruction.lean}} & seed-only operator descendants force time-invariant witnesses, hence fail on genuinely time-varying states \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatLiveOnlySampleKernelObstruction.lean}} & live-only sampled and shift kernels fail when all sampled live witnesses vanish but the target live value does not \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSampleKernelFrontier.lean}} & first finite non-pointwise sampled-kernel descendant on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatShiftKernelFrontier.lean}} & first concrete spatial shift-kernel descendant on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatShiftKernelObstruction.lean}} & witness-forced same-route coefficient rigidity for the anchored spatial descendant \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatMaskedShiftKernelObstruction.lean}} & finite masked spatial families collapse back to the anchored shift obstruction, with bridge-level impossibility corollaries \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSampleKernelObstruction.lean}} & diagonal sampled-kernel same-route rigidity inherited inside the first finite family \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatIdentitySampleKernelObstruction.lean}} & any identity-anchor finite sampled kernel collapses back to affine same-route rigidity \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedFrontier.lean}} & concrete nonlinear saturated descendant bridge on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedObstruction.lean}} & first nonlinear same-route rigidity theorem on the windowed route \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedMaskedShiftKernelObstruction.lean}} & widened finite spatial masked-shift shell inherits the nonlinear saturated rigidity \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedIdentitySampleKernelObstruction.lean}} & identity-anchor finite sampled kernels inherit the nonlinear saturated constant-magnitude obstruction \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedShiftKernelObstruction.lean}} & arbitrary finite translation kernels inherit the nonlinear saturated constant-magnitude obstruction \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/WindowedColeHopfHeatSaturatedShiftKernelMaskedSpecialization.lean}} & the older masked common-shift shell is now derived back from the general nonlinear finite shift-kernel theorem \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/FiniteModeLimit.lean}} & finite-mode positivity / energy transfer to the limit \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/FiniteModeKernelLimit.lean}} & finite-mode limit transfer into the local kernel shell \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/ManuscriptTruncationPackage.lean}} & combined manuscript-shaped truncation target \\
@@ -683,8 +703,163 @@ it packages the affine seed-blend descendant
 \[
   u(t,x)=a\,\omega(t,x)+b\,\omega(1,x).
 \]
-Both routes now carry full local certificates and descend to explicit bridge
-objects on the concrete windowed package.
+The next file,
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatFrozenGateFrontier.lean},
+adds the first seeded nonlinear modulation on that same concrete route:
+\[
+  u(t,x)=a\,\frac{|\omega(1,x)|}{1+|\omega(1,x)|}\,\omega(t,x).
+\]
+So the windowed route now reaches not only scalar and affine descendants, but
+also a genuinely seed-gated pointwise nonlinearity.  The follow-up obstruction
+file
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatFrozenGateObstruction.lean}
+then proves that original self-compatibility already forces
+\[
+  a\,\frac{|\omega(1,y)|}{1+|\omega(1,y)|}=1
+\]
+at every nonzero live witness.  Because the frozen gate is always strictly less
+than \(1\), any such witness forces \(a>1\).  So on any genuinely nonzero live
+state there can be no same-route frozen-gate bridge of this literal form when
+\(a \le 1\).  Lean now also proves that any two nonzero live witnesses on such
+a bridge must see the same frozen gate.  So the first seeded nonlinear
+pointwise route is already rigid on the seed side as well, not only on the
+global coefficient.
+
+These pointwise descendants are now unified in
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedLiveProfileFrontier.lean}.
+That file packages the generic shell
+\[
+  u(t,x)=P(\omega(1,x),\omega(t,x))
+\]
+directly on the concrete windowed route and proves that the scaled, affine
+seed-blend, saturated, and frozen-gate descendants are all exact special cases
+of it.  The companion obstruction file
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedLiveProfileObstruction.lean}
+then isolates the shared same-route witness law: at any nonzero live witness,
+original self-compatibility forces
+\[
+  P(\omega(1,y),\omega(t,y))=\omega(t,y).
+\]
+So the pointwise repair search is no longer only a bag of examples.  It now has
+one concrete generic mouth on the actual windowed package, and every literal
+pointwise descendant has to close through that same law.
+
+The next compression step is now formalized too in
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedLiveOperatorFrontier.lean}.
+That file packages the full non-pointwise shell
+\[
+  u(t,x)=O(\omega(1,\cdot),\omega(t,\cdot),x)
+\]
+on the same concrete windowed route.  It proves that the pointwise
+\texttt{SeedLiveProfile} shell, the finite sampled-kernel shell, and the finite
+shift-kernel shell are all exact specializations of this one operator frontier.
+The companion obstruction file
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedLiveOperatorObstruction.lean}
+then isolates the shared same-route law:
+\[
+  O(\omega(1,\cdot),\omega(t,\cdot),y)=\omega(t,y).
+\]
+So even the non-pointwise repair search is no longer a loose collection of
+sampled-kernel variants.  On the concrete windowed package it now has one
+generic operator mouth, and the finite sampled-kernel and shift-kernel
+descendants all feed into it.
+
+The next file,
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSeedOnlyOperatorObstruction.lean},
+pushes that generic operator mouth one step closer to the real compatibility
+issue.  It proves that if a concrete operator descendant actually ignores the
+live slice, then same-route closure forces
+\[
+  \omega(t_1,y)=\omega(t_2,y)
+\]
+at every witness \(y\) and every pair of times \(t_1,t_2\).  So any genuinely
+time-varying witness already rules out that whole seed-only non-pointwise
+family.  In other words, once the operator shell is stated honestly, Lean
+already shows that a successful repair must use the current live state in a real
+dynamical way, not merely the frozen seeded slice.  The same file then pushes
+this directly into the first finite non-pointwise shell: any sampled kernel with
+all live coefficients equal to \(0\) is a seed-only operator, so it is ruled out
+immediately on any witness where the concrete windowed route changes in time.
+Because finite shift kernels are just sampled kernels with translation anchors,
+the same theorem also kills the first genuinely spatial seed-only corridor:
+any shift-kernel descendant with all live coefficients \(0\) already fails on a
+time-varying witness.
+
+The next file,
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatLiveOnlySampleKernelObstruction.lean},
+pushes the dual live-dependent finite-kernel obstruction.  If a sampled kernel
+ignores the seeded slice entirely, then same-route closure becomes the pure
+live-sample equation
+\[
+  \sum_i a_i\,\omega(t,\alpha_i(y))=\omega(t,y).
+\]
+So if every sampled live witness vanishes while the target live value does not,
+that literal live-only sampled-kernel bridge is impossible.  Because shift
+kernels are only sampled kernels with translation anchors, the same argument
+immediately rules out the first genuinely spatial live-only shell too.
+
+The route now also reaches a first finite non-pointwise family in
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSampleKernelFrontier.lean},
+where a sampled kernel mixes finitely many seeded and live samples through
+anchor maps.  The diagonal one-point kernel is proved to recover the old affine
+seed-blend descendant exactly, so this broader family extends the concrete
+windowed route without breaking contact with the earlier rigidity theorems.
+The new file
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSampleKernelObstruction.lean}
+pushes that one step further: on the diagonal sampled-kernel case, the affine
+same-route bridge obstructions are inherited verbatim.  So a nonzero initial
+slice still forces \(a+b=1\), and the stronger witness patterns still force
+\(a=1\) or \(b=0\), now inside the first finite non-pointwise family rather
+than only in the pointwise affine shell.  The next file,
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatIdentitySampleKernelObstruction.lean},
+shows that this is not merely a one-point diagonal curiosity: whenever a finite
+sampled kernel keeps both seed and live anchors equal to the identity, the
+whole descendant collapses back to the affine seed-blend route with coefficients
+given by the total live and seed masses.  So finite repetition at the same
+point still forces the same affine same-route identities on those total masses.
+The newest nonlinear step adds
+\texttt{Mettapedia/FluidDynamics/NavierStokes/WindowedColeHopfHeatSaturatedFrontier.lean},
+which packages the saturated descendant
+\[
+  u(t,x)=a\,\frac{\omega(t,x)}{1+|\omega(t,x)|}.
+\]
+All four routes now carry full local certificates and descend to explicit
+bridge objects on the concrete windowed package.
+
+The spatial route is now concrete too.  In
+\texttt{WindowedColeHopfHeatShiftKernelFrontier.lean}, Lean proves that the
+anchored descendant
+\[
+  u(t,x)=a\,\omega(t,x)+b\,\omega(1,x+s)+d\,\omega(t,x+s)
+\]
+is exactly a finite translation-kernel instance of the generic shift-kernel
+frontier.  In
+\texttt{WindowedColeHopfHeatShiftKernelObstruction.lean}, Lean then proves the
+first same-route rigidity laws for that spatial descendant: if the shifted
+seeded and shifted live slices vanish while the unshifted live slice is
+nonzero, then \(a=1\); if the unshifted live and shifted live slices vanish
+while the shifted seeded slice is nonzero, then \(b=0\); and if the unshifted
+live and shifted seeded slices vanish while the shifted live slice is nonzero,
+then \(d=0\).  So the first genuinely spatial descendant is not only packaged,
+but already constrained by theorem-level same-route rigidity on the concrete
+windowed route.
+
+The next widening step,
+\texttt{WindowedColeHopfHeatMaskedShiftKernelObstruction.lean}, lifts that
+spatial rigidity from one anchored descendant to a finite Boolean-masked family.
+Every seed term uses the same shift \(s\), while each live term either stays at
+\(x\) or moves to \(x+s\).  Lean proves that this whole family collapses back to
+the same three-coefficient anchored route with coefficients given by the total
+unshifted-live mass, total seed mass, and total shifted-live mass.  So the same
+witness patterns now force, at finite-family level,
+\[
+  a_{\mathrm{base}}=1,\qquad b_{\mathrm{seed}}=0,\qquad
+  d_{\mathrm{shift}}=0,
+\]
+and the matching bridge-level impossibility corollaries are formalized too.  So
+the first concrete spatial rigidity result is no longer a one-instance fact; it
+already controls a nontrivial finite spatial shell on the concrete windowed
+route.
 
 Finally, the corresponding obstruction files record that same-route closure is
 already rigid on this concrete route.  In
@@ -696,7 +871,66 @@ same-route closure for the affine seed-blend descendant forces explicit
 coefficient identities: \(a+b=1\) under a nonzero initial slice, and under
 stronger witnesses even \(a=1\) or \(b=0\).  So the grassroots route now
 contains not only positive concrete descendants, but also theorem-level
-rigidity about when those descendants can still pretend to be same-route.
+rigidity about when those descendants can still pretend to be same-route.  The
+new file
+\texttt{WindowedColeHopfHeatSaturatedObstruction.lean} now adds the first
+nonlinear rigidity law on the same concrete route: if the saturated descendant
+is forced back through original self-compatibility at a nonzero vorticity
+witness, then \(a = 1 + |\omega(t,x)|\), hence in particular no such same-route
+bridge can exist on a nonzero-vorticity state when \(a \le 1\).  The new
+bridge-level upgrade is stronger: any same-route saturated bridge now forces
+all nonzero witnesses to have the same absolute vorticity magnitude.  So two
+distinct nonzero magnitudes already rule out that nonlinear closure entirely.
+The new file
+\texttt{WindowedColeHopfHeatSaturatedIdentitySampleKernelObstruction.lean}
+pushes that same nonlinear rigidity through every finite sampled kernel whose
+seed and live anchors are both the identity.  In that regime the sampled-kernel
+candidate still collapses to a total-mass affine combination at time \(1\), so
+if it realizes the saturated descendant with \(a \neq 0\), then all nonzero
+initial witnesses must again have the same absolute vorticity magnitude.  So
+finite repetition at the same point does not rescue the nonlinear saturated
+route either.
+
+The corresponding widened finite spatial shell is now pinned down too.  In
+\texttt{WindowedColeHopfHeatSaturatedMaskedShiftKernelObstruction.lean}, Lean
+proves that if the saturated descendant is realized through the finite masked
+shift-kernel family and one has a witness with zero shifted initial slice, zero
+shifted live slice, and nonzero unshifted live slice, then the total
+unshifted-live mass must satisfy
+\[
+  a_{\mathrm{base}} \bigl(1 + |\omega(t,x)|\bigr) = a.
+\]
+So if there are two such witnesses with distinct nonzero absolute vorticity
+magnitudes, the widened masked-shift spatial shell cannot realize the saturated
+descendant at all.  Thus the first nonlinear spatial escape corridor is already
+formally rigid too.
+
+The next file
+\texttt{WindowedColeHopfHeatSaturatedShiftKernelObstruction.lean} removes the
+common-shift restriction altogether.  Lean proves that if the saturated
+descendant is realized through an arbitrary finite translation-kernel shell and
+one has a witness whose seeded anchors all vanish, whose nonzero live anchors
+all vanish, and whose unshifted live value remains nonzero, then the total
+zero-shift live mass must satisfy
+\[
+  a_{0} \bigl(1 + |\omega(t,x)|\bigr) = a.
+\]
+So if two such witnesses survive with distinct nonzero absolute magnitudes, the
+entire finite translation-kernel shell cannot realize the saturated descendant.
+At that point the nonlinear rigidity is no longer tied to one concrete spatial
+encoding; it already lives at the general finite shift-kernel level.  The same
+Lean file now also specializes this back to the first anchored translation
+kernel, so even the original concrete spatial descendant does not reopen the
+nonlinear route once two such witness magnitudes disagree.
+
+The follow-up file
+\texttt{WindowedColeHopfHeatSaturatedShiftKernelMaskedSpecialization.lean} now
+closes the loop the other way too: it shows that the older masked common-shift
+family is already a special case of the newer general finite shift-kernel
+theorem.  So the nonlinear spatial obstruction picture is no longer a stack of
+separate examples; the older masked shell now sits inside the newer general
+one, with the earlier masked impossibility corollary recovered from the more
+abstract finite-kernel theorem.
 
 \section{Why This Matters}
 
