@@ -1,190 +1,131 @@
 import GFCore.Check
 import Algorithms.GF.Generated.PaperAmbiguitySig
-import Mettapedia.Languages.GF.OSLFBridge
+import Mettapedia.Languages.GF.GFRealSyntaxBridge
+import Mettapedia.Languages.GF.ConformanceCertificate
 import Mettapedia.OSLF.MeTTaIL.DeclReducesWithPremises
 
 /-!
 # GF Generated-Bridge Conformance
 
-This module pins the GF→OSLF bridge to a real auto-generated `GrammarSig`
-coming from the GF side, not a hand-authored shadow grammar.
+Pins the real GF→IR→Lean bridge to `PaperAmbiguitySig`, a generated grammar.
 
-We use `Algorithms.GF.Generated.PaperAmbiguitySig.sig`, which is generated from
-the GF PGF export pipeline, and then check:
+This file is intentionally limited to the authoritative syntax-only path:
 
-- the generated `LanguageDef` reuses the authored semantic kernel,
-- real GF raw terms check successfully through `GFCore.check`,
-- the resulting `CheckedExpr` values lower through `gfCheckedExprToPattern`,
-- the actual rewrite engine produces the expected semantic reductions.
+- `GFCore.check` validates raw GF terms against the real signature
+- `gfCheckedExprToPattern` lowers checked trees to OSLF patterns
+- `gfSyntaxLanguageDef` captures the same generated grammar in the MeTTaIL DSL
 
-Positive examples:
-- `UseN(man_N)` reduces to `man_N`,
-- active voice reduces to passive voice.
-
-Negative examples:
-- unsupported shared-kernel rules are excluded rather than silently claimed for
-  this generated signature,
-- active→passive remains one-directional.
+No invented semantic equations or rewrites are part of this contract.
 -/
 
 namespace Mettapedia.Languages.GF.GeneratedBridgeConformance
 
 open GFCore
 open Mettapedia.Languages.GF.GFCoreOSLFBridge
+open Mettapedia.Languages.GF.ConformanceCertificate
 open Mettapedia.OSLF.MeTTaIL.Syntax
 open Mettapedia.OSLF.MeTTaIL.Engine
-open Mettapedia.OSLF.MeTTaIL.DeclReducesPremises
 
 def paperSig : GrammarSig :=
   Algorithms.GF.Generated.PaperAmbiguitySig.sig
 
-def paperLang : LanguageDef :=
-  gfRGLLanguageDef paperSig
-
-def validationErrors : List ValidationError :=
-  LanguageDef.validate paperLang
+def paperSyntaxLang : LanguageDef :=
+  gfSyntaxLanguageDef paperSig
 
 def checkedPattern? (t : RawTerm) : Option Pattern :=
   match check paperSig t with
   | .ok e => some (gfCheckedExprToPattern e)
   | .error _ => none
 
-def useNManRaw : RawTerm :=
-  .mk "UseN" #[.leaf "man_N"]
+-- ═══════════════════════════════════════════════════════════════════
+-- Structural pattern literals for real checked parses
+-- ═══════════════════════════════════════════════════════════════════
 
-def useNManPattern : Pattern :=
-  .apply "UseN" [.apply "man_N" []]
+def useNManRaw : RawTerm := .mk "UseN" #[.leaf "man_N"]
+def useNManPattern : Pattern := .apply "UseN" [.apply "man_N" []]
+def manPattern : Pattern := .apply "man_N" []
 
-def manPattern : Pattern :=
-  .apply "man_N" []
-
-def johnNPPattern : Pattern :=
-  .apply "UsePN" [.apply "john_PN" []]
-
-def annaNPPattern : Pattern :=
-  .apply "UsePN" [.apply "anna_PN" []]
+def johnNPPattern : Pattern := .apply "UsePN" [.apply "john_PN" []]
+def annaNPPattern : Pattern := .apply "UsePN" [.apply "anna_PN" []]
 
 def activeClauseRaw : RawTerm :=
   .mk "PredVP" #[
     .mk "UsePN" #[.leaf "john_PN"],
-    .mk "ComplSlash" #[
-      .mk "SlashV2a" #[.leaf "see_V2"],
-      .mk "UsePN" #[.leaf "anna_PN"]
-    ]
-  ]
+    .mk "ComplSlash" #[.mk "SlashV2a" #[.leaf "see_V2"], .mk "UsePN" #[.leaf "anna_PN"]]]
 
 def activeClausePattern : Pattern :=
   .apply "PredVP"
     [ johnNPPattern
-    , .apply "ComplSlash"
-        [ .apply "SlashV2a" [.apply "see_V2" []]
-        , annaNPPattern
-        ]
-    ]
-
-def passiveClausePattern : Pattern :=
-  .apply "PredVP"
-    [ annaNPPattern
-    , .apply "PassV2" [.apply "see_V2" []]
-    ]
+    , .apply "ComplSlash" [.apply "SlashV2a" [.apply "see_V2" []], annaNPPattern]]
 
 def presentSentenceRaw : RawTerm :=
-  .mk "UseCl" #[
-    .mk "TTAnt" #[.leaf "TPres", .leaf "ASimul"],
-    .leaf "PPos",
-    activeClauseRaw
-  ]
+  .mk "UseCl" #[.mk "TTAnt" #[.leaf "TPres", .leaf "ASimul"], .leaf "PPos", activeClauseRaw]
 
 def presentSentencePattern : Pattern :=
   .apply "UseCl"
     [ .apply "TTAnt" [.apply "TPres" [], .apply "ASimul" []]
-    , .apply "PPos" []
-    , activeClausePattern
-    ]
+    , .apply "PPos" [], activeClausePattern]
 
+def badTypeRaw : RawTerm := .mk "UseN" #[.leaf "see_V2"]
+
+-- A semantic target that should NOT be reachable in the syntax-only lane.
 def temporalPresentPattern : Pattern :=
   .apply "⊛temporal" [activeClausePattern, .apply "0" []]
 
-example : paperLang.name = "PaperAmbiguity" := rfl
+-- ═══════════════════════════════════════════════════════════════════
+-- Layer 1: Kernel-checked facts about the certificate literals
+-- ═══════════════════════════════════════════════════════════════════
 
-example : paperLang.equations = gfSemanticEquationsForSig paperSig := rfl
+example : paperTypeNames.length = 16 := by decide
+example : paperTermNames.length = 26 := by decide
+example : paperEquationCount = 0 := rfl
+example : paperRewriteCount = 0 := rfl
 
-example : paperLang.rewrites = gfSemanticRewritesForSig paperSig := rfl
+-- ═══════════════════════════════════════════════════════════════════
+-- Layer 2: Compiled-code-verified exact bridge checks
+-- ═══════════════════════════════════════════════════════════════════
 
-example : paperLang.equations.length = 1 := by
-  native_decide
+private def ensureEq (label : String) (actual expected : String) : IO Unit :=
+  if actual == expected then
+    IO.println s!"PASS: {label}"
+  else
+    throw <| IO.userError s!"FAIL: {label}: got {actual}, expected {expected}"
 
-example : paperLang.rewrites.length ≥ 4 := by
-  native_decide
+private def ensureBool (label : String) (b : Bool) : IO Unit :=
+  if b then
+    IO.println s!"PASS: {label}"
+  else
+    throw <| IO.userError s!"FAIL: {label}"
 
-example : paperLang.equations.map (·.name) = ["UseNIdentity"] := by
-  native_decide
+#eval do
+  ensureEq "type count" (toString paperSyntaxLang.types.length) "16"
+  ensureEq "term count" (toString paperSyntaxLang.terms.length) "26"
+  ensureEq "equation count" (toString paperSyntaxLang.equations.length) "0"
+  ensureEq "rewrite count" (toString paperSyntaxLang.rewrites.length) "0"
+  ensureBool "validation clean" (LanguageDef.validate paperSyntaxLang == [])
+  ensureEq "type names"
+    (toString (paperSyntaxLang.types.map (fun t : TypeDecl => t.name)))
+    (toString paperTypeNames)
+  ensureEq "term names"
+    (toString (paperSyntaxLang.terms.map GrammarRule.label))
+    (toString paperTermNames)
 
-example : validationErrors = [] := by
-  native_decide
+#eval do
+  ensureBool "UseN(man_N) check"
+    (checkedPattern? useNManRaw == some useNManPattern)
+  ensureBool "active clause check"
+    (checkedPattern? activeClauseRaw == some activeClausePattern)
+  ensureBool "present sentence check"
+    (checkedPattern? presentSentenceRaw == some presentSentencePattern)
+  ensureBool "ill-typed UseN(see_V2) rejected"
+    (checkedPattern? badTypeRaw == none)
 
-example : checkedPattern? useNManRaw = some useNManPattern := by
-  native_decide
-
-example : checkedPattern? activeClauseRaw = some activeClausePattern := by
-  native_decide
-
-example : checkedPattern? presentSentenceRaw = some presentSentencePattern := by
-  native_decide
-
-/- Positive: a real generated GF term hits the authored `UseN` semantic rule. -/
-example : manPattern ∈ rewriteWithContextWithPremises paperLang useNManPattern := by
-  native_decide
-
-example :
-    DeclReducesWithPremises RelationEnv.empty paperLang useNManPattern manPattern := by
-  exact engineWithPremises_sound (lang := paperLang) (p := useNManPattern)
-    (q := manPattern) (by native_decide)
-
-/- Positive: active→passive reduction works on a real generated GF clause. -/
-example :
-    passiveClausePattern ∈
-      rewriteWithContextWithPremises paperLang activeClausePattern := by
-  native_decide
-
-example :
-    DeclReducesWithPremises RelationEnv.empty paperLang
-      activeClausePattern passiveClausePattern := by
-  exact engineWithPremises_sound (lang := paperLang) (p := activeClausePattern)
-    (q := passiveClausePattern) (by native_decide)
-
-/- Negative: the reduction is directional only. -/
-example :
-    activeClausePattern ∉
-      rewriteWithContextWithPremises paperLang passiveClausePattern := by
-  native_decide
-
-/- Negative: unsupported shared-kernel rules stay out of the generated bridge. -/
-example : "PositAElim" ∉ paperLang.rewrites.map (·.name) := by
-  native_decide
-
-example : "UseCompElim" ∉ paperLang.rewrites.map (·.name) := by
-  native_decide
-
-example : "UseVElim" ∉ paperLang.rewrites.map (·.name) := by
-  native_decide
-
-example : "UseN2Elim" ∉ paperLang.rewrites.map (·.name) := by
-  native_decide
-
-example : "UseA2Elim" ∉ paperLang.rewrites.map (·.name) := by
-  native_decide
-
-/- Positive: tense reduction now matches real checked GF trees as well. -/
-example :
-    temporalPresentPattern ∈
-      rewriteWithContextWithPremises paperLang presentSentencePattern := by
-  native_decide
-
-example :
-    DeclReducesWithPremises RelationEnv.empty paperLang
-      presentSentencePattern temporalPresentPattern := by
-  exact engineWithPremises_sound (lang := paperLang)
-    (p := presentSentencePattern) (q := temporalPresentPattern) (by native_decide)
+#eval do
+  ensureBool "syntax lane has no authored reductions"
+    (rewriteWithContextWithPremises paperSyntaxLang presentSentencePattern == [])
+  ensureBool "no temporal target produced in syntax lane"
+    (temporalPresentPattern ∉ rewriteWithContextWithPremises paperSyntaxLang presentSentencePattern)
+  ensureBool "UseN(man_N) does not reduce in syntax lane"
+    (manPattern ∉ rewriteWithContextWithPremises paperSyntaxLang useNManPattern)
 
 end Mettapedia.Languages.GF.GeneratedBridgeConformance

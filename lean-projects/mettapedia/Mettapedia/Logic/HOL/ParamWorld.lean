@@ -1,6 +1,7 @@
 import Mettapedia.Logic.HOL.DerivationExtensionality
 import Mettapedia.Logic.HOL.Syntax.ConstMap
 import Mettapedia.Logic.HOL.PrimeHenkinExtension
+import Mathlib.Order.UpperLower.CompleteLattice
 
 namespace Mettapedia.Logic.HOL
 
@@ -771,9 +772,9 @@ This mirrors the `hctx`-style equal-context wrappers used in
       (freshParamToVar (Base := Base) (Const := Const) (Γ := Γ) (σ := σ)
         (Ξ := Ξ₁ ++ Ξ₃) (hctx ▸ t)) := by
   subst hctx
-  simpa using
-    (freshParamToVar_insertRenPrefix (Base := Base) (Const := Const)
-      (Γ := Γ) (σ := σ) (ρ := ρ) (Ξ₁ := Ξ₁) (Ξ₃ := Ξ₃) t)
+  exact
+    freshParamToVar_insertRenPrefix (Base := Base) (Const := Const)
+      (Γ := Γ) (σ := σ) (ρ := ρ) (Ξ₁ := Ξ₁) (Ξ₃ := Ξ₃) t
 
 @[simp] theorem freshParamToVar_weaken
     {Γ : Ctx Base} {σ ρ : Ty Base} :
@@ -900,7 +901,7 @@ theorem freshParamToVar_substPrefix
         freshParamToVar_substPrefix Ξ₁ Ξ₂ t f,
         freshParamToVar_substPrefix Ξ₁ Ξ₂ t u]
   | Ξ₁, Ξ₂, _, t, .lam body => by
-      simp only [subst, freshParamToVar, substPrefix, substPrefixOut]
+      simp only [subst, freshParamToVar]
       congr 1
       exact freshParamToVar_substPrefix (_ :: Ξ₁) Ξ₂ t body
   | _, _, _, _, .top => by
@@ -927,11 +928,11 @@ theorem freshParamToVar_substPrefix
         freshParamToVar_substPrefix Ξ₁ Ξ₂ t a,
         freshParamToVar_substPrefix Ξ₁ Ξ₂ t b]
   | Ξ₁, Ξ₂, _, t, .all body => by
-      simp only [subst, freshParamToVar, substPrefix, substPrefixOut]
+      simp only [subst, freshParamToVar]
       congr 1
       exact freshParamToVar_substPrefix (_ :: Ξ₁) Ξ₂ t body
   | Ξ₁, Ξ₂, _, t, .ex body => by
-      simp only [subst, freshParamToVar, substPrefix, substPrefixOut]
+      simp only [subst, freshParamToVar]
       congr 1
       exact freshParamToVar_substPrefix (_ :: Ξ₁) Ξ₂ t body
 
@@ -1138,7 +1139,7 @@ private theorem varToFreshParam_eq_freshSuffixSubst
         varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) Ξ f,
         varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) Ξ t]
   | Ξ, _, .lam body => by
-      simp only [varToFreshParam, liftParamCtx, mapConst, freshSuffixSubst, subst]
+      simp only [varToFreshParam, liftParamCtx, mapConst, subst]
       congr 1
       exact varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) (_ :: Ξ) body
   | _, _, .top => by simp [varToFreshParam, liftParamCtx, mapConst, subst]
@@ -1163,11 +1164,11 @@ private theorem varToFreshParam_eq_freshSuffixSubst
         varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) Ξ a,
         varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) Ξ b]
   | Ξ, _, .all body => by
-      simp only [varToFreshParam, liftParamCtx, mapConst, freshSuffixSubst, subst]
+      simp only [varToFreshParam, liftParamCtx, mapConst, subst]
       congr 1
       exact varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) (_ :: Ξ) body
   | Ξ, _, .ex body => by
-      simp only [varToFreshParam, liftParamCtx, mapConst, freshSuffixSubst, subst]
+      simp only [varToFreshParam, liftParamCtx, mapConst, subst]
       congr 1
       exact varToFreshParam_eq_freshSuffixSubst (Γ := Γ) (σ := σ) (_ :: Ξ) body
 
@@ -1503,6 +1504,665 @@ structure GrowingWorld (Base : Type u) (Const : Ty Base → Type v) where
   ctx : Ctx Base
   theory : PrimeTheory Const ctx
 
+namespace PrimeTheory
+
+/-- Same-context extension of prime theories by carrier inclusion.
+
+Positive example:
+this is the monotone extension used in the implication and negation clauses.
+
+Negative example:
+this does not add any new parameter constants; it stays at the same context.
+-/
+def SameCtxExt {Γ : Ctx Base} (W V : PrimeTheory Const Γ) : Prop :=
+  ∀ {φ : ClosedFormula (ParamConst Const Γ)}, φ ∈ W.carrier → φ ∈ V.carrier
+
+/-- One-step parameter extension of prime theories.
+
+Positive example:
+this is the cross-context extension used in the universal clause, where
+formulas from `Γ` are lifted into `σ :: Γ`.
+
+Negative example:
+this is not arbitrary same-context strengthening; the target context must be
+exactly one fresh parameter longer.
+-/
+def ParamExt {Γ : Ctx Base} {σ : Ty Base}
+    (W : PrimeTheory Const Γ) (V : PrimeTheory Const (σ :: Γ)) : Prop :=
+  ∀ {φ : ClosedFormula (ParamConst Const Γ)},
+    φ ∈ W.carrier → liftParamCtxFormula σ φ ∈ V.carrier
+
+theorem sameCtxExt_refl {Γ : Ctx Base} (W : PrimeTheory Const Γ) :
+    SameCtxExt W W := by
+  intro φ hφ
+  exact hφ
+
+theorem sameCtxExt_trans {Γ : Ctx Base}
+    {W V U : PrimeTheory Const Γ}
+    (hWV : SameCtxExt W V)
+    (hVU : SameCtxExt V U) :
+    SameCtxExt W U := by
+  intro φ hφ
+  exact hVU (hWV hφ)
+
+end PrimeTheory
+
+namespace GrowingWorld
+
+/-- One elementary growth step in the direct parameterized Kripke route.
+
+There are exactly two honest primitive moves:
+1. same-context theory extension,
+2. one-step fresh-parameter extension.
+
+Positive example:
+the implication truth lemma uses `same`.
+
+Negative example:
+an arbitrary multi-step jump is not primitive; it should factor through the
+transitive closure below.
+-/
+inductive Step : GrowingWorld Base Const → GrowingWorld Base Const → Prop
+  | same
+      {Γ : Ctx Base}
+      {W V : PrimeTheory Const Γ}
+      (hWV : PrimeTheory.SameCtxExt W V) :
+      Step ⟨Γ, W⟩ ⟨Γ, V⟩
+  | param
+      {Γ : Ctx Base} {σ : Ty Base}
+      {W : PrimeTheory Const Γ}
+      {V : PrimeTheory Const (σ :: Γ)}
+      (hWV : PrimeTheory.ParamExt W V) :
+      Step ⟨Γ, W⟩ ⟨σ :: Γ, V⟩
+
+/-- Reflexive-transitive closure of elementary growth steps.
+
+Positive example:
+a world can grow by several fresh parameters and several same-context prime
+extensions.
+
+Negative example:
+this relation does not identify unrelated contexts or theories; every growth
+must be witnessed by a chain of honest semantic steps.
+-/
+inductive Extends : GrowingWorld Base Const → GrowingWorld Base Const → Prop
+  | refl (W : GrowingWorld Base Const) : Extends W W
+  | tail {U V W : GrowingWorld Base Const} :
+      Step U V → Extends V W → Extends U W
+
+theorem extends_of_step
+    {U V : GrowingWorld Base Const}
+    (hUV : Step U V) :
+    Extends U V :=
+  .tail hUV (.refl V)
+
+theorem extends_trans
+    {U V W : GrowingWorld Base Const}
+    (hUV : Extends U V)
+    (hVW : Extends V W) :
+    Extends U W := by
+  induction hUV with
+  | refl _ =>
+      exact hVW
+  | tail hStep hTail ih =>
+      exact .tail hStep (ih hVW)
+
+instance instLEGrowingWorld : LE (GrowingWorld Base Const) where
+  le W V := Extends W V
+
+instance instPreorderGrowingWorld : Preorder (GrowingWorld Base Const) where
+  le_refl := Extends.refl
+  le_trans := by
+    intro a b c hab hbc
+    exact extends_trans hab hbc
+
+theorem step_same
+    {Γ : Ctx Base}
+    {W V : PrimeTheory Const Γ}
+    (hWV : PrimeTheory.SameCtxExt W V) :
+    (⟨Γ, W⟩ : GrowingWorld Base Const) ≤ ⟨Γ, V⟩ :=
+  extends_of_step (.same hWV)
+
+theorem step_param
+    {Γ : Ctx Base} {σ : Ty Base}
+    {W : PrimeTheory Const Γ}
+    {V : PrimeTheory Const (σ :: Γ)}
+    (hWV : PrimeTheory.ParamExt W V) :
+    (⟨Γ, W⟩ : GrowingWorld Base Const) ≤ ⟨σ :: Γ, V⟩ :=
+  extends_of_step (.param hWV)
+
+/-- Embed a local parameter constant from the suffix context `Γ` into the
+larger parameter context `Ξ ++ Γ`.
+
+Positive example:
+old parameters survive fresh-prefix growth by moving to the right suffix.
+
+Negative example:
+this does not create a new distinguished fresh parameter; it only reindexes the
+ones already present.
+-/
+def prefixParamWeaken {Ξ Γ : Ctx Base} :
+    ∀ {τ : Ty Base}, ParamConst Const Γ τ → ParamConst Const (Ξ ++ Γ) τ
+  | _, Sum.inl c => Sum.inl c
+  | _, Sum.inr v => Sum.inr (keepSuffixVar (Γ := Ξ) (Ξ := Γ) v)
+
+/-- Transport a local term across an explicitly chosen fresh-parameter prefix.
+
+Positive example:
+prefix `[σ, ρ]` lifts local parameter constants from `Γ` into the larger
+context `σ :: ρ :: Γ`.
+
+Negative example:
+this does not use any world-extension proof yet; it is purely a context-level
+transport.
+-/
+abbrev liftParamPrefix {Ξ Γ : Ctx Base} :
+    Term (ParamConst Const Γ) Γ' τ → Term (ParamConst Const (Ξ ++ Γ)) Γ' τ :=
+  mapConst prefixParamWeaken
+
+/-- Transport a local closed formula across an explicitly chosen
+fresh-parameter prefix. -/
+abbrev liftParamPrefixFormula {Ξ Γ : Ctx Base} :
+    ClosedFormula (ParamConst Const Γ) → ClosedFormula (ParamConst Const (Ξ ++ Γ)) :=
+  mapConst prefixParamWeaken
+
+@[simp] theorem prefixParamWeaken_nil
+    {Γ : Ctx Base} {τ : Ty Base}
+    (c : ParamConst Const Γ τ) :
+    prefixParamWeaken (Base := Base) (Const := Const) (Ξ := []) c = c := by
+  rcases c with c | v <;> simp [prefixParamWeaken, keepSuffixVar]
+
+@[simp] theorem liftParamPrefix_nil
+    {Γ Γ' : Ctx Base} {τ : Ty Base}
+    (t : Term (ParamConst Const Γ) Γ' τ) :
+    liftParamPrefix (Base := Base) (Const := Const) (Ξ := []) t = t := by
+  calc
+    liftParamPrefix (Base := Base) (Const := Const) (Ξ := []) t
+        = mapConst (fun {τ} c => c) t := by
+            unfold liftParamPrefix
+            apply mapConst_ext
+            intro τ c
+            exact prefixParamWeaken_nil (Base := Base) (Const := Const) c
+    _ = t := mapConst_id t
+
+@[simp] theorem liftParamPrefixFormula_nil
+    {Γ : Ctx Base}
+    (χ : ClosedFormula (ParamConst Const Γ)) :
+    liftParamPrefixFormula (Base := Base) (Const := Const) (Ξ := []) χ = χ := by
+  exact
+    liftParamPrefix_nil (Base := Base) (Const := Const) (Γ := Γ)
+      (Γ' := ([] : Ctx Base)) χ
+
+@[simp] theorem prefixParamWeaken_singleton
+    {Γ : Ctx Base} {σ τ : Ty Base}
+    (c : ParamConst Const Γ τ) :
+    prefixParamWeaken (Base := Base) (Const := Const) (Ξ := [σ]) c =
+      paramWeaken (Base := Base) (Const := Const) (σ := σ) c := by
+  rcases c with c | v <;> simp [prefixParamWeaken, paramWeaken, keepSuffixVar]
+
+@[simp] theorem liftParamPrefix_singleton
+    {Γ Γ' : Ctx Base} {σ τ : Ty Base}
+    (t : Term (ParamConst Const Γ) Γ' τ) :
+    liftParamPrefix (Base := Base) (Const := Const) (Ξ := [σ]) t =
+      liftParamCtx (Base := Base) (Const := Const) (Γ := Γ) (σ := σ) t := by
+  unfold liftParamPrefix liftParamCtx
+  apply mapConst_ext
+  intro τ c
+  exact prefixParamWeaken_singleton (Base := Base) (Const := Const) (σ := σ) c
+
+@[simp] theorem liftParamPrefixFormula_singleton
+    {Γ : Ctx Base} {σ : Ty Base}
+    (χ : ClosedFormula (ParamConst Const Γ)) :
+    liftParamPrefixFormula (Base := Base) (Const := Const) (Ξ := [σ]) χ =
+      liftParamCtxFormula (Base := Base) (Const := Const) (Γ := Γ) σ χ := by
+  exact
+    liftParamPrefix_singleton (Base := Base) (Const := Const) (Γ := Γ)
+      (Γ' := ([] : Ctx Base)) (σ := σ) χ
+
+@[simp] theorem liftParam_eq_liftParamPrefix_comp
+    {Γ Γ' Ξ : Ctx Base}
+    {τ : Ty Base}
+    (t : Term Const Γ' τ) :
+    liftParam (Base := Base) (Const := Const) (Γ' := Ξ ++ Γ) t =
+      liftParamPrefix (Base := Base) (Const := Const) (Ξ := Ξ) (Γ := Γ)
+        (liftParam (Base := Base) (Const := Const) (Γ' := Γ) t) := by
+  rw [liftParam, liftParam, liftParamPrefix, mapConst_comp]
+  apply mapConst_ext
+  intro τ c
+  rfl
+
+@[simp] theorem liftParamFormula_eq_liftParamPrefixFormula_comp
+    {Γ Ξ : Ctx Base}
+    (φ : ClosedFormula Const) :
+    liftParamFormula (Base := Base) (Const := Const) (Ξ ++ Γ) φ =
+      liftParamPrefixFormula (Base := Base) (Const := Const) (Ξ := Ξ) (Γ := Γ)
+        (liftParamFormula (Base := Base) (Const := Const) Γ φ) := by
+  exact
+    liftParam_eq_liftParamPrefix_comp (Base := Base) (Const := Const)
+      (Γ := Γ) (Γ' := ([] : Ctx Base)) (Ξ := Ξ) φ
+
+/-- Any one-step world growth enlarges the parameter context by an explicit
+left prefix. -/
+theorem exists_ctxPrefix_of_step
+    {U V : GrowingWorld Base Const}
+    (hUV : Step U V) :
+    ∃ Ξ : Ctx Base, V.ctx = Ξ ++ U.ctx := by
+  cases hUV with
+  | same =>
+      exact ⟨[], by simp⟩
+  | param hWV =>
+      rename_i Γ σ W V
+      exact ⟨[σ], by simp⟩
+
+/-- Any honest growth chain enlarges the parameter context by an explicit left
+prefix. -/
+theorem exists_ctxPrefix_of_extends
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    ∃ Ξ : Ctx Base, V.ctx = Ξ ++ U.ctx := by
+  induction hUV with
+  | refl U =>
+      exact ⟨[], by simp⟩
+  | tail hStep hTail ih =>
+      rcases exists_ctxPrefix_of_step (Base := Base) (Const := Const) hStep with
+        ⟨Ξ₁, hΞ₁⟩
+      rcases ih with ⟨Ξ₂, hΞ₂⟩
+      refine ⟨Ξ₂ ++ Ξ₁, ?_⟩
+      simp [hΞ₁, hΞ₂, List.append_assoc]
+
+/-- Chosen left prefix witnessing a world-growth chain. -/
+noncomputable def ctxPrefixOfExtends
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) : Ctx Base :=
+  Classical.choose (exists_ctxPrefix_of_extends (Base := Base) (Const := Const) hUV)
+
+theorem ctx_eq_ctxPrefixOfExtends_append
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    V.ctx =
+      ctxPrefixOfExtends (Base := Base) (Const := Const) hUV ++ U.ctx := by
+  exact
+    Classical.choose_spec
+      (exists_ctxPrefix_of_extends (Base := Base) (Const := Const) hUV)
+
+/-- The chosen left prefix is unique for a fixed growth boundary. -/
+theorem ctxPrefixOfExtends_eq
+    {U V : GrowingWorld Base Const}
+    (h₁ h₂ : U ≤ V) :
+    ctxPrefixOfExtends (Base := Base) (Const := Const) h₁ =
+      ctxPrefixOfExtends (Base := Base) (Const := Const) h₂ := by
+  have hctx₁ := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const) h₁
+  have hctx₂ := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const) h₂
+  have happ :
+      ctxPrefixOfExtends (Base := Base) (Const := Const) h₁ ++ U.ctx =
+        ctxPrefixOfExtends (Base := Base) (Const := Const) h₂ ++ U.ctx := by
+    calc
+      ctxPrefixOfExtends (Base := Base) (Const := Const) h₁ ++ U.ctx = V.ctx := by
+        simp [hctx₁]
+      _ = ctxPrefixOfExtends (Base := Base) (Const := Const) h₂ ++ U.ctx := by
+        simp [hctx₂]
+  exact (List.append_left_injective U.ctx) happ
+
+/-- Prefix decomposition of a composed growth chain. -/
+theorem ctxPrefixOfExtends_trans
+    {U V W : GrowingWorld Base Const}
+    (hUV : U ≤ V) (hVW : V ≤ W) :
+    ctxPrefixOfExtends (Base := Base) (Const := Const) (le_trans hUV hVW) =
+      ctxPrefixOfExtends (Base := Base) (Const := Const) hVW ++
+        ctxPrefixOfExtends (Base := Base) (Const := Const) hUV := by
+  have hctxUV := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const) hUV
+  have hctxVW := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const) hVW
+  have hctxUW := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const)
+    (le_trans hUV hVW)
+  have happ :
+      ctxPrefixOfExtends (Base := Base) (Const := Const) (le_trans hUV hVW) ++ U.ctx =
+        (ctxPrefixOfExtends (Base := Base) (Const := Const) hVW ++
+          ctxPrefixOfExtends (Base := Base) (Const := Const) hUV) ++ U.ctx := by
+    calc
+      ctxPrefixOfExtends (Base := Base) (Const := Const) (le_trans hUV hVW) ++ U.ctx
+          = W.ctx := by simp [hctxUW]
+      _ = ctxPrefixOfExtends (Base := Base) (Const := Const) hVW ++ V.ctx := by
+            simp [hctxVW]
+      _ = ctxPrefixOfExtends (Base := Base) (Const := Const) hVW ++
+            (ctxPrefixOfExtends (Base := Base) (Const := Const) hUV ++ U.ctx) := by
+            simp [hctxUV]
+      _ = (ctxPrefixOfExtends (Base := Base) (Const := Const) hVW ++
+            ctxPrefixOfExtends (Base := Base) (Const := Const) hUV) ++ U.ctx := by
+            simp [List.append_assoc]
+  exact (List.append_left_injective U.ctx) happ
+
+@[simp] theorem ctxPrefixOfExtends_same
+    {Γ : Ctx Base}
+    {W V : PrimeTheory Const Γ}
+    (hWV : PrimeTheory.SameCtxExt W V) :
+    ctxPrefixOfExtends (Base := Base) (Const := Const)
+      (extends_of_step (Step.same (Base := Base) (Const := Const) hWV)) = [] := by
+  have hctx := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const)
+    (extends_of_step (Step.same (Base := Base) (Const := Const) hWV))
+  have happ :
+      ([] : Ctx Base) ++ Γ =
+        ctxPrefixOfExtends (Base := Base) (Const := Const)
+          (extends_of_step (Step.same (Base := Base) (Const := Const) hWV)) ++ Γ := by
+    simpa using hctx
+  exact (List.append_left_injective Γ) happ.symm
+
+@[simp] theorem ctxPrefixOfExtends_param
+    {Γ : Ctx Base} {σ : Ty Base}
+    {W : PrimeTheory Const Γ}
+    {V : PrimeTheory Const (σ :: Γ)}
+    (hWV : PrimeTheory.ParamExt W V) :
+    ctxPrefixOfExtends (Base := Base) (Const := Const)
+      (extends_of_step (Step.param (Base := Base) (Const := Const) hWV)) = [σ] := by
+  have hctx := ctx_eq_ctxPrefixOfExtends_append (Base := Base) (Const := Const)
+    (extends_of_step (Step.param (Base := Base) (Const := Const) hWV))
+  have happ :
+      ([σ] : Ctx Base) ++ Γ =
+        ctxPrefixOfExtends (Base := Base) (Const := Const)
+          (extends_of_step (Step.param (Base := Base) (Const := Const) hWV)) ++ Γ := by
+    simpa using hctx
+  exact (List.append_left_injective Γ) happ.symm
+
+/-- Computational witness for one honest growth step. -/
+inductive StepChain : GrowingWorld Base Const → GrowingWorld Base Const → Type (max u v)
+  | same
+      {Γ : Ctx Base}
+      {W V : PrimeTheory Const Γ}
+      (hWV : PrimeTheory.SameCtxExt W V) :
+      StepChain ⟨Γ, W⟩ ⟨Γ, V⟩
+  | param
+      {Γ : Ctx Base} {σ : Ty Base}
+      {W : PrimeTheory Const Γ}
+      {V : PrimeTheory Const (σ :: Γ)}
+      (hWV : PrimeTheory.ParamExt W V) :
+      StepChain ⟨Γ, W⟩ ⟨σ :: Γ, V⟩
+
+/-- Forgetful map from computational one-step witnesses to propositional steps. -/
+def StepChain.toStep : StepChain (Base := Base) (Const := Const) U V → Step U V
+  | .same hWV => .same hWV
+  | .param hWV => .param hWV
+
+/-- Any propositional one-step growth has a computational witness. -/
+theorem StepChain.nonempty_of_step
+    {U V : GrowingWorld Base Const}
+    (hUV : Step U V) :
+    Nonempty (StepChain (Base := Base) (Const := Const) U V) := by
+  cases hUV with
+  | same hWV => exact ⟨.same hWV⟩
+  | param hWV => exact ⟨.param hWV⟩
+
+/-- Strengthened bridge: one-step propositional growth to a computational
+witness with exact forgetful equality. -/
+theorem StepChain.exists_of_step
+    {U V : GrowingWorld Base Const}
+    (hUV : Step U V) :
+    ∃ c : StepChain (Base := Base) (Const := Const) U V, c.toStep = hUV := by
+  cases hUV with
+  | same hWV =>
+      exact ⟨.same hWV, rfl⟩
+  | param hWV =>
+      exact ⟨.param hWV, rfl⟩
+
+/-- Computational witness for an honest growth chain. -/
+inductive ExtendsChain : GrowingWorld Base Const → GrowingWorld Base Const → Type (max u v)
+  | refl (W : GrowingWorld Base Const) : ExtendsChain W W
+  | tail {U V W : GrowingWorld Base Const} :
+      StepChain (Base := Base) (Const := Const) U V →
+      ExtendsChain V W →
+      ExtendsChain U W
+
+/-- Forgetful map from computational chains to propositional growth. -/
+def ExtendsChain.toExtends :
+    ExtendsChain (Base := Base) (Const := Const) U V → U ≤ V
+  | .refl _ => .refl U
+  | .tail hStep hTail => .tail hStep.toStep hTail.toExtends
+
+/-- Concatenate computational growth chains. -/
+def ExtendsChain.trans
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V)
+    (hVW : ExtendsChain (Base := Base) (Const := Const) V W) :
+    ExtendsChain (Base := Base) (Const := Const) U W :=
+  match hUV with
+  | .refl _ => hVW
+  | .tail hStep hTail => .tail hStep (ExtendsChain.trans hTail hVW)
+
+/-- Any propositional growth proof has a computational witness. -/
+theorem ExtendsChain.nonempty_of_extends
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    Nonempty (ExtendsChain (Base := Base) (Const := Const) U V) := by
+  induction hUV with
+  | refl U =>
+      exact ⟨.refl U⟩
+  | tail hStep hTail ih =>
+      rcases StepChain.nonempty_of_step (Base := Base) (Const := Const) hStep with ⟨hStepC⟩
+      rcases ih with ⟨hTailC⟩
+      exact ⟨.tail hStepC hTailC⟩
+
+/-- Strengthened bridge: propositional growth to a computational witness with
+exact forgetful equality. -/
+theorem ExtendsChain.exists_of_extends
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    ∃ c : ExtendsChain (Base := Base) (Const := Const) U V, c.toExtends = hUV := by
+  induction hUV with
+  | refl U =>
+      exact ⟨.refl U, rfl⟩
+  | tail hStep hTail ih =>
+      rcases StepChain.exists_of_step (Base := Base) (Const := Const) hStep with
+        ⟨hStepC, hStepEq⟩
+      rcases ih with ⟨hTailC, hTailEq⟩
+      refine ⟨.tail hStepC hTailC, ?_⟩
+      cases hStepEq
+      cases hTailEq
+      rfl
+
+/-- Transport parameter constants along one computational step. -/
+def stepParamConstChain :
+    {U V : GrowingWorld Base Const} →
+      StepChain (Base := Base) (Const := Const) U V →
+        ∀ {τ : Ty Base}, ParamConst Const U.ctx τ → ParamConst Const V.ctx τ
+  | _, _, .same _, _, c => c
+  | _, _, .param (σ := σ) _, _, c =>
+      paramWeaken (Base := Base) (Const := Const) (σ := σ) c
+
+/-- Cast-free transport of parameter constants along a computational growth chain. -/
+def transportParamConstChain :
+    {U V : GrowingWorld Base Const} →
+      ExtendsChain (Base := Base) (Const := Const) U V →
+        ∀ {τ : Ty Base}, ParamConst Const U.ctx τ → ParamConst Const V.ctx τ
+  | _, _, .refl _, _, c => c
+  | _, _, .tail hStep hTail, _, c =>
+      transportParamConstChain hTail (stepParamConstChain hStep c)
+
+/-- Chain transport composes definitionally. -/
+theorem transportParamConstChain_trans
+    {U V W : GrowingWorld Base Const}
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V)
+    (hVW : ExtendsChain (Base := Base) (Const := Const) V W)
+    {τ : Ty Base}
+    (c : ParamConst Const U.ctx τ) :
+    transportParamConstChain (Base := Base) (Const := Const) (hUV.trans hVW) c =
+      transportParamConstChain (Base := Base) (Const := Const) hVW
+        (transportParamConstChain (Base := Base) (Const := Const) hUV c) := by
+  induction hUV generalizing W with
+  | refl U =>
+      rfl
+  | tail hStep hTail ih =>
+      simp [ExtendsChain.trans, transportParamConstChain, ih]
+
+/-- Cast-free term transport along a computational growth chain. -/
+abbrev transportClosedTermChain
+    {U V : GrowingWorld Base Const}
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V) :
+    {τ : Ty Base} →
+      ClosedTerm (ParamConst Const U.ctx) τ →
+      ClosedTerm (ParamConst Const V.ctx) τ :=
+  mapConst (transportParamConstChain (Base := Base) (Const := Const) hUV)
+
+/-- Cast-free closed-formula transport along a computational growth chain. -/
+abbrev transportClosedFormulaChain
+    {U V : GrowingWorld Base Const}
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V) :
+    ClosedFormula (ParamConst Const U.ctx) →
+      ClosedFormula (ParamConst Const V.ctx) :=
+  mapConst (transportParamConstChain (Base := Base) (Const := Const) hUV)
+
+theorem transportClosedTermChain_trans
+    {U V W : GrowingWorld Base Const}
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V)
+    (hVW : ExtendsChain (Base := Base) (Const := Const) V W)
+    {τ : Ty Base}
+    (t : ClosedTerm (ParamConst Const U.ctx) τ) :
+    transportClosedTermChain (Base := Base) (Const := Const) (hUV.trans hVW) t =
+      transportClosedTermChain (Base := Base) (Const := Const) hVW
+        (transportClosedTermChain (Base := Base) (Const := Const) hUV t) := by
+  unfold transportClosedTermChain
+  rw [Mettapedia.Logic.HOL.mapConst_comp]
+  apply mapConst_ext
+  intro τ c
+  exact transportParamConstChain_trans (Base := Base) (Const := Const) hUV hVW c
+
+theorem transportClosedFormulaChain_trans
+    {U V W : GrowingWorld Base Const}
+    (hUV : ExtendsChain (Base := Base) (Const := Const) U V)
+    (hVW : ExtendsChain (Base := Base) (Const := Const) V W)
+    (χ : ClosedFormula (ParamConst Const U.ctx)) :
+    transportClosedFormulaChain (Base := Base) (Const := Const) (hUV.trans hVW) χ =
+      transportClosedFormulaChain (Base := Base) (Const := Const) hVW
+        (transportClosedFormulaChain (Base := Base) (Const := Const) hUV χ) := by
+  unfold transportClosedFormulaChain
+  rw [Mettapedia.Logic.HOL.mapConst_comp]
+  apply mapConst_ext
+  intro τ c
+  exact transportParamConstChain_trans (Base := Base) (Const := Const) hUV hVW c
+
+/-- Proof-indexed transport used by existing API boundaries.
+
+This keeps the original interface while the cast-free chain transport above is
+available for coherence-sensitive proofs.
+-/
+noncomputable abbrev chooseExtendsChain
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    ExtendsChain (Base := Base) (Const := Const) U V :=
+  Classical.choose
+    (ExtendsChain.exists_of_extends (Base := Base) (Const := Const) hUV)
+
+@[simp] theorem chooseExtendsChain_toExtends
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    (chooseExtendsChain (Base := Base) (Const := Const) hUV).toExtends = hUV :=
+  Classical.choose_spec
+    (ExtendsChain.exists_of_extends (Base := Base) (Const := Const) hUV)
+
+/-- Proof-indexed closed-term transport, implemented through cast-free chain
+transport. -/
+noncomputable def transportClosedTerm
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    {τ : Ty Base} →
+      ClosedTerm (ParamConst Const U.ctx) τ →
+      ClosedTerm (ParamConst Const V.ctx) τ :=
+  transportClosedTermChain (Base := Base) (Const := Const)
+    (chooseExtendsChain (Base := Base) (Const := Const) hUV)
+
+/-- Proof-indexed closed-formula transport, implemented through cast-free chain
+transport. -/
+noncomputable def transportClosedFormula
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V) :
+    ClosedFormula (ParamConst Const U.ctx) →
+      ClosedFormula (ParamConst Const V.ctx) :=
+  transportClosedFormulaChain (Base := Base) (Const := Const)
+    (chooseExtendsChain (Base := Base) (Const := Const) hUV)
+
+/-- One-step transport of original closed-formula membership along honest world
+growth.
+
+Positive example:
+same-context prime extension preserves any lifted original hypothesis already in
+the carrier.
+
+Negative example:
+this theorem only transports formulas coming from the original signature; it
+does not claim arbitrary local parameter formulas survive across context
+changes.
+-/
+theorem liftParamFormula_mem_of_step
+    {φ : ClosedFormula Const}
+    {U V : GrowingWorld Base Const}
+    (hUV : Step U V)
+    (hφ : liftParamFormula U.ctx φ ∈ U.theory.carrier) :
+    liftParamFormula V.ctx φ ∈ V.theory.carrier := by
+  cases hUV with
+  | same hWV =>
+      simpa using hWV hφ
+  | param hWV =>
+      simpa [liftParamFormula, liftParam_eq_liftParamCtx_comp] using hWV hφ
+
+/-- Multi-step transport of original closed-formula membership along the
+growing-world preorder.
+
+Positive example:
+once a lifted original hypothesis is present at a world, it remains present at
+every honest future world.
+
+Negative example:
+this is not converse reflection; later worlds may contain more formulas than
+their predecessors.
+-/
+theorem liftParamFormula_mem_of_extends
+    {φ : ClosedFormula Const}
+    {U V : GrowingWorld Base Const}
+    (hUV : U ≤ V)
+    (hφ : liftParamFormula U.ctx φ ∈ U.theory.carrier) :
+    liftParamFormula V.ctx φ ∈ V.theory.carrier := by
+  induction hUV with
+  | refl _ =>
+      simpa using hφ
+  | tail hStep hTail ih =>
+      exact ih (liftParamFormula_mem_of_step hStep hφ)
+
+/-- Truth values for the direct growing-world route.
+
+The dual order on upper sets is the standard Kripke-Heyting truth object:
+larger upper sets mean stronger truth conditions, while frame operations come
+for free from mathlib.
+-/
+abbrev Ω : Type _ := OrderDual (UpperSet (GrowingWorld Base Const))
+
+/-- The upper set of worlds where an original closed formula holds after
+lifting it into the local parameter context.
+
+Positive example:
+if a root hypothesis belongs to the current carrier, every future world stays
+inside this upper set.
+
+Negative example:
+this is not yet the denotation of arbitrary open formulas; it is the first
+closed-formula truth object needed by the direct export route.
+-/
+def formulaUpperSet (φ : ClosedFormula Const) : UpperSet (GrowingWorld Base Const) :=
+  ⟨
+    {W | liftParamFormula W.ctx φ ∈ W.theory.carrier},
+    by
+      intro U V hUV hU
+      exact liftParamFormula_mem_of_extends hUV hU
+  ⟩
+
+/-- Closed-formula truth, viewed inside the dual-order truth object. -/
+abbrev formulaTruth (φ : ClosedFormula Const) : Ω (Base := Base) (Const := Const) :=
+  formulaUpperSet (Base := Base) (Const := Const) φ
+
+@[simp] theorem mem_formulaUpperSet
+    {φ : ClosedFormula Const}
+    {W : GrowingWorld Base Const} :
+    W ∈ formulaUpperSet (Base := Base) (Const := Const) φ ↔
+      liftParamFormula W.ctx φ ∈ W.theory.carrier :=
+  Iff.rfl
+
+end GrowingWorld
+
 /-- Build a prime extension of a theory at the SAME context that omits φ.
 This is the key tool for the implication truth lemma. -/
 theorem PrimeTheory.exists_extension_omitting
@@ -1517,6 +2177,25 @@ theorem PrimeTheory.exists_extension_omitting
   rcases ClosedTheorySet.exists_prime_extension_separating hNot with
     ⟨U, hExt, hClosed, hCons, hPrime, hOmit⟩
   exact ⟨⟨U, hClosed, hCons, hPrime⟩, fun h => hExt h, hOmit⟩
+
+/-- Same-context omission as an explicit growing-world step.
+
+Positive example:
+this is the exact step used by the implication and negation clauses.
+
+Negative example:
+this still stays at context `Γ`; it does not witness fresh-parameter growth.
+-/
+theorem PrimeTheory.exists_sameStep_omitting
+    {Γ : Ctx Base}
+    {W : PrimeTheory Const Γ}
+    {φ : ClosedFormula (ParamConst Const Γ)}
+    (hNot : ¬ ClosedTheorySet.Provable W.carrier φ) :
+    ∃ V : PrimeTheory Const Γ,
+      GrowingWorld.Step (Base := Base) (Const := Const) ⟨Γ, W⟩ ⟨Γ, V⟩ ∧
+      φ ∉ V.carrier := by
+  rcases W.exists_extension_omitting hNot with ⟨V, hWV, hOmit⟩
+  exact ⟨V, .same hWV, hOmit⟩
 
 /--
 Local fresh-parameter reflection for the universal counterexample step.
@@ -1623,6 +2302,26 @@ theorem PrimeTheory.exists_paramExt_omitting
   · intro φ hφ
     exact hExt ⟨φ, hφ, rfl⟩
   · exact hOmit
+
+/-- One-step fresh-parameter omission as an explicit growing-world step.
+
+Positive example:
+this is the exact cross-context step used by the universal clause.
+
+Negative example:
+this is not arbitrary transitive growth; it only records one fresh parameter.
+-/
+theorem PrimeTheory.exists_paramStep_omitting
+    {Γ : Ctx Base}
+    {W : PrimeTheory Const Γ}
+    {σ : Ty Base} {ψ : Formula (ParamConst Const Γ) [σ]}
+    (hAll : (.all ψ : ClosedFormula (ParamConst Const Γ)) ∉ W.carrier) :
+    ∃ V : PrimeTheory Const (σ :: Γ),
+      GrowingWorld.Step (Base := Base) (Const := Const) ⟨Γ, W⟩ ⟨σ :: Γ, V⟩ ∧
+      ∃ t : ClosedTerm (ParamConst Const (σ :: Γ)) σ,
+        instantiate t (liftParamCtx ψ) ∉ V.carrier := by
+  rcases W.exists_paramExt_omitting hAll with ⟨V, hWV, t, hOmit⟩
+  exact ⟨V, .param hWV, ⟨t, hOmit⟩⟩
 
 end GrowingFrame
 
