@@ -58,7 +58,6 @@ lean-projects/ramsey36/related_literature/
 lean-projects/ramsey36/paper/Cariolaro_R36_EasyProof\.pdf
 lean-projects/ramsey36/paper/Cariolaro_R36_EasyProof\.tex
 lean-projects/fourcolor/FourColor/Goertzel_4CP/
-lean-projects/fourcolor/FourColor/GoertzelV23/
 megalodon/JUrban_exp/topology  2Ed - James Munkres\.pdf
 Isabelle2025/
 .isabelle/
@@ -151,9 +150,9 @@ hyperon/metamath/mm-lean4/
 lean-projects/mettapedia/Mettapedia/Algebra/OrderedSemigroups/
 lean-projects/mettapedia/Mettapedia/external/CertifyingDatalog/
 lean-projects/mettapedia/Mettapedia/external/exchangeability/
-lean-projects/mettapedia/Mettapedia/external/Metatheory/
 lean-projects/mettapedia/Mettapedia/external/provenance-lean/
 lean-projects/mettapedia/Mettapedia/Logic/Foundation/
+lean-projects/mettapedia/Mettapedia/Metatheory/
 # Experimental results, data, and scripts (regenerable)
 lean-projects/mettapedia/results/
 lean-projects/mettapedia/data/
@@ -175,7 +174,6 @@ lean-projects/mettapedia/Mettapedia/external/provenance-lean/
 # AI review bundles (copies of source for external review)
 GPT-Pro_Responses/
 ai_review_bundles/
-review_bundles/
 **/ai_review_bundles/
 **/gpt54_review_bundle/
 
@@ -216,27 +214,9 @@ Apache_loc.txt
 
 # LaTeX build artifacts
 *.aux
-*.bbl
-*.blg
 *.fdb_latexmk
 *.fls
 *.toc
-*.synctex.gz
-*.xdv
-
-# Agent scratch/archive artifacts
-_archive/
-_archive_logs/
-_archive_scratch/
-_archive_scripts/
-_archive_test_files/
-codex_scratch/
-atps/_archive/
-atps/enigma/
-atps/enigmatic/
-atps/pyprove/
-*/_scratch/
-all_mm*.txt
 *.synctex.gz
 *.xdv
 *.bbl
