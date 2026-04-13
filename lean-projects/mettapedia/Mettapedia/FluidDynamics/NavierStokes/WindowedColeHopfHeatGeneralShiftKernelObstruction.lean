@@ -37,6 +37,7 @@ def liveCoeffSumAt (K : SeedLiveShiftKernel κ X) (u : X) : ℝ :=
 
 end SeedLiveShiftKernel
 
+omit [DecidableEq X] in
 theorem WeightedObservable.windowedColeHopfHeatShiftKernel_sum_eq_of_topDownBridge
     (L : WeightedObservable)
     (selector : ι → ℕ)

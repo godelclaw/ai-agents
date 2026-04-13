@@ -40,6 +40,7 @@ def UniformVorticityTendril.saturatedCandidate
   velocity := fun t x => a * (T.vorticity t x / (1 + |T.vorticity t x|))
   pressure := fun _ _ => 0
 
+omit [One Time] [Mul Time] in
 theorem UniformVorticityTendril.saturatedCandidate_zeroPressure
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -47,6 +48,7 @@ theorem UniformVorticityTendril.saturatedCandidate_zeroPressure
   intro t x
   rfl
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.saturatedCandidate_matches_initialSlice
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -59,6 +61,7 @@ def saturatedCompatibilityPred (a : ℝ) :
     VorticityCompatibilityPred (Time := Time) (X := X) :=
   fun T u => ∀ t x, u t x = a * (T.vorticity t x / (1 + |T.vorticity t x|))
 
+omit [One Time] [Mul Time] in
 theorem UniformVorticityTendril.saturatedCandidate_has_saturatedCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -66,8 +69,9 @@ theorem UniformVorticityTendril.saturatedCandidate_has_saturatedCompatibility
   intro t x
   rfl
 
-/-- The saturated profile is uniformly bounded by the original tendril
+/- The saturated profile is uniformly bounded by the original tendril
 envelope. -/
+omit [One Time] [Mul Time] in
 theorem UniformVorticityTendril.saturated_abs_le
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) (t : Time) (x : X) :
@@ -75,7 +79,7 @@ theorem UniformVorticityTendril.saturated_abs_le
   have hden_nonneg : 0 ≤ 1 + |T.vorticity t x| := by positivity
   have hfrac : |T.vorticity t x| / (1 + |T.vorticity t x|) ≤ |T.vorticity t x| := by
     have hone : 1 ≤ 1 + |T.vorticity t x| := by
-      simpa using le_add_of_nonneg_right (abs_nonneg (T.vorticity t x))
+      simp [abs_nonneg (T.vorticity t x)]
     exact div_le_self (abs_nonneg _) hone
   calc
     |(T.saturatedCandidate a).velocity t x|
@@ -137,8 +141,9 @@ def UniformVorticityTendril.toSaturatedPressureSeededAlmostBridge
   dynamics := T.saturatedPressureSeededDynamicsCertificate a
   energy := T.saturatedPressureSeededEnergyCertificate a
 
-/-- Same-route version: all certificates are present and compatibility is the
+/- Same-route version: all certificates are present and compatibility is the
 remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_saturatedSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ)
@@ -158,7 +163,7 @@ def UniformVorticityTendril.toSaturatedPressureSeededBridge
       (saturatedCompatibilityPred (Time := Time) (X := X) a) T :=
   (T.toSaturatedPressureSeededAlmostBridge a).toTopDownBridge
     (T.saturatedCandidate_has_saturatedCompatibility a)
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_saturated_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -167,7 +172,8 @@ theorem UniformVorticityTendril.realizes_saturated_pressure_seeded_clause
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.saturatedInitialSlice a)) :=
   (T.toSaturatedPressureSeededBridge a).realizes_clause
 
-/-- Zero vorticity collapses the same-route mouth for any saturated scaling. -/
+/- Zero vorticity collapses the same-route mouth for any saturated scaling. -/
+omit [One Time] [Mul Time] in
 theorem UniformVorticityTendril.saturatedCandidate_has_selfCompatibility_of_zero
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ)

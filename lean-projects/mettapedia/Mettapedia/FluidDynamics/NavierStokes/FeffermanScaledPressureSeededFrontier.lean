@@ -127,6 +127,7 @@ def UniformVorticityTendril.toScaledPressureSeededAlmostBridge
   dynamics := T.scaledPressureSeededDynamicsCertificate a
   energy := T.scaledPressureSeededEnergyCertificate a
 
+omit [Mul Time] in
 /-- The same-route version stops at the compatibility frontier. -/
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_selfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
@@ -138,6 +139,7 @@ theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_selfCompatibi
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.scaledInitialSlice a)) :=
   (T.toScaledPressureSeededAlmostBridge a).realizes_clause_of_compatibility hcompat
 
+omit [One Time] [Mul Time] in
 /-- The same-route compatibility mouth closes again when the scaling is
 trivial. -/
 theorem UniformVorticityTendril.scaledCandidate_has_selfCompatibility_of_one
@@ -147,6 +149,7 @@ theorem UniformVorticityTendril.scaledCandidate_has_selfCompatibility_of_one
   intro t x
   simp [UniformVorticityTendril.scaledCandidate]
 
+omit [Mul Time] in
 /-- In that trivial-scaling regime the same-route clause closes again. -/
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_one
     (T : UniformVorticityTendril (Time := Time) (X := X)) :
@@ -157,6 +160,7 @@ theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_one
   T.realizes_pressure_seeded_clause_of_selfCompatibility (a := 1)
     T.scaledCandidate_has_selfCompatibility_of_one
 
+omit [One Time] [Mul Time] in
 /-- The same-route compatibility also closes in the degenerate zero-vorticity
 regime, for any scaling factor. -/
 theorem UniformVorticityTendril.scaledCandidate_has_selfCompatibility_of_zero
@@ -178,6 +182,8 @@ def UniformVorticityTendril.toScaledPressureSeededBridge
   (T.toScaledPressureSeededAlmostBridge a).toTopDownBridge
     (T.scaledCandidate_has_scaledCompatibility a)
 
+omit [Mul Time] in
+/-- The descendant-route scaled pressure-seeded clause closes immediately. -/
 theorem UniformVorticityTendril.realizes_scaled_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :

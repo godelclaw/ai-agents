@@ -42,6 +42,7 @@ def UniformVorticityTendril.seedBlendCandidate
   velocity := fun t x => a * T.vorticity t x + b * T.vorticity 1 x
   pressure := fun _ _ => 0
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedBlendCandidate_zeroPressure
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ) :
@@ -49,6 +50,7 @@ theorem UniformVorticityTendril.seedBlendCandidate_zeroPressure
   intro t x
   rfl
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedBlendCandidate_matches_initialSlice
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ) :
@@ -62,6 +64,7 @@ def seedBlendCompatibilityPred (a b : ℝ) :
     VorticityCompatibilityPred (Time := Time) (X := X) :=
   fun T u => ∀ t x, u t x = a * T.vorticity t x + b * T.vorticity 1 x
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedBlendCandidate_has_seedBlendCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ) :
@@ -141,8 +144,9 @@ def UniformVorticityTendril.toSeedBlendPressureSeededAlmostBridge
   dynamics := T.seedBlendPressureSeededDynamicsCertificate a b
   energy := T.seedBlendPressureSeededEnergyCertificate a b
 
-/-- Same-route version: all certificates are present and compatibility is the
+/- Same-route version: all certificates are present and compatibility is the
 remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_seedBlendSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ)
@@ -162,7 +166,7 @@ def UniformVorticityTendril.toSeedBlendPressureSeededBridge
       (seedBlendCompatibilityPred (Time := Time) (X := X) a b) T :=
   (T.toSeedBlendPressureSeededAlmostBridge a b).toTopDownBridge
     (T.seedBlendCandidate_has_seedBlendCompatibility a b)
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_seedBlend_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ) :
@@ -171,7 +175,8 @@ theorem UniformVorticityTendril.realizes_seedBlend_pressure_seeded_clause
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.seedBlendInitialSlice a b)) :=
   (T.toSeedBlendPressureSeededBridge a b).realizes_clause
 
-/-- Special closure: `(a,b)=(1,0)` recovers the same-route self candidate. -/
+/- Special closure: `(a,b)=(1,0)` recovers the same-route self candidate. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedBlendCandidate_has_selfCompatibility_of_one_zero
     (T : UniformVorticityTendril (Time := Time) (X := X)) :
     selfCompatibility (Time := Time) (X := X)
@@ -179,8 +184,9 @@ theorem UniformVorticityTendril.seedBlendCandidate_has_selfCompatibility_of_one_
   intro t x
   simp [UniformVorticityTendril.seedBlendCandidate]
 
-/-- Special closure: zero vorticity makes the same-route mouth collapse for any
+/- Special closure: zero vorticity makes the same-route mouth collapse for any
 affine blend. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedBlendCandidate_has_selfCompatibility_of_zero
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a b : ℝ)

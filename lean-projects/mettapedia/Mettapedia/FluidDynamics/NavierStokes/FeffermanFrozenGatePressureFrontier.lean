@@ -46,6 +46,7 @@ def UniformVorticityTendril.frozenGateCandidate
   velocity := fun t x => a * T.seedGate x * T.vorticity t x
   pressure := fun _ _ => 0
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.frozenGate_zeroPressure
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -53,6 +54,7 @@ theorem UniformVorticityTendril.frozenGate_zeroPressure
   intro t x
   rfl
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.frozenGate_matches_initialSlice
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -65,6 +67,7 @@ def frozenGateCompatibilityPred (a : ℝ) :
     VorticityCompatibilityPred (Time := Time) (X := X) :=
   fun T u => ∀ t x, u t x = a * T.seedGate x * T.vorticity t x
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.frozenGate_has_frozenGateCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -73,12 +76,14 @@ theorem UniformVorticityTendril.frozenGate_has_frozenGateCompatibility
   intro t x
   rfl
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedGate_nonneg
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (x : X) : 0 ≤ T.seedGate x := by
   unfold UniformVorticityTendril.seedGate
   positivity
 
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedGate_le_one
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (x : X) : T.seedGate x ≤ 1 := by
@@ -86,8 +91,9 @@ theorem UniformVorticityTendril.seedGate_le_one
   have hnum_le : |T.vorticity 1 x| ≤ 1 + |T.vorticity 1 x| := by linarith
   exact div_le_one_of_le₀ hnum_le (by positivity)
 
-/-- The frozen-gate candidate is uniformly bounded by the original tendril
+/- The frozen-gate candidate is uniformly bounded by the original tendril
 envelope. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.frozenGate_abs_le
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) (t : Time) (x : X) :
@@ -158,8 +164,9 @@ def UniformVorticityTendril.toFrozenGateAlmostBridge
   dynamics := T.frozenGateDynamicsCertificate a
   energy := T.frozenGateEnergyCertificate a
 
-/-- Same-route version: all certificates are present and compatibility is the
+/- Same-route version: all certificates are present and compatibility is the
 remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_frozenGateSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ)
@@ -179,7 +186,7 @@ def UniformVorticityTendril.toFrozenGateBridge
       (frozenGateCompatibilityPred (Time := Time) (X := X) a) T :=
   (T.toFrozenGateAlmostBridge a).toTopDownBridge
     (T.frozenGate_has_frozenGateCompatibility a)
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_frozenGate_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ) :
@@ -188,7 +195,8 @@ theorem UniformVorticityTendril.realizes_frozenGate_pressure_seeded_clause
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.frozenGateInitialSlice a)) :=
   (T.toFrozenGateBridge a).realizes_clause
 
-/-- Zero vorticity collapses the same-route mouth for any frozen-gate scaling. -/
+/- Zero vorticity collapses the same-route mouth for any frozen-gate scaling. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.frozenGate_has_selfCompatibility_of_zero
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (a : ℝ)

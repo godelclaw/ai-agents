@@ -84,8 +84,9 @@ theorem UniformVorticityTendril.seedLiveOperatorCandidate_has_seedLiveOperatorCo
   intro t x
   rfl
 
-/-- Any admissible seed/live operator is uniformly bounded by the tendril
+/- Any admissible seed/live operator is uniformly bounded by the tendril
 envelope. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedLiveOperator_abs_le
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (O : SeedLiveOperator X)
@@ -152,7 +153,8 @@ def UniformVorticityTendril.toSeedLiveOperatorAlmostBridge
   dynamics := T.seedLiveOperatorDynamicsCertificate O
   energy := T.seedLiveOperatorEnergyCertificate O
 
-/-- Same-route version: self-compatibility is the only remaining mouth. -/
+/- Same-route version: self-compatibility is the only remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_seedLiveOperatorSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (O : SeedLiveOperator X)
@@ -162,6 +164,91 @@ theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_seedLiveOpera
       (Time := Time) (X := X)
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice O)) :=
   (T.toSeedLiveOperatorAlmostBridge O).realizes_clause_of_compatibility hcompat
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause_of_selfCompatibility
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hcompat : selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate O).velocity) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit (Time := Time) (X := X)
+        (T.seedLiveOperatorInitialSlice O)) :=
+  T.realizes_pressure_seeded_clause_of_seedLiveOperatorSelfCompatibility O hcompat
+
+omit [Mul Time] in
+theorem UniformVorticityTendril.seedLiveOperatorCandidate_has_selfCompatibility_of_operator_eq_live
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO : ∀ seed live x, O.operator seed live x = live x) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate O).velocity := by
+  intro t x
+  simpa [UniformVorticityTendril.seedLiveOperatorCandidate] using
+    hO (fun y => T.vorticity 1 y) (fun y => T.vorticity t y) x
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause_of_operator_eq_live
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO : ∀ seed live x, O.operator seed live x = live x) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit (Time := Time) (X := X)
+        (T.seedLiveOperatorInitialSlice O)) :=
+  T.realizes_seedLiveOperator_pressure_seeded_clause_of_selfCompatibility O
+    (T.seedLiveOperatorCandidate_has_selfCompatibility_of_operator_eq_live O hO)
+
+omit [Mul Time] in
+theorem UniformVorticityTendril.seedLiveOperatorCandidate_has_selfCompatibility_of_operator_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO : ∀ seed live x, O.operator seed live x = seed x)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate O).velocity := by
+  intro t x
+  calc
+    (T.seedLiveOperatorCandidate O).velocity t x
+        = O.operator (fun y => T.vorticity 1 y) (fun y => T.vorticity t y) x := rfl
+    _ = T.vorticity 1 x := hO (fun y => T.vorticity 1 y) (fun y => T.vorticity t y) x
+    _ = T.vorticity t x := hstat t x
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause_of_operator_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO : ∀ seed live x, O.operator seed live x = seed x)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit (Time := Time) (X := X)
+        (T.seedLiveOperatorInitialSlice O)) :=
+  T.realizes_seedLiveOperator_pressure_seeded_clause_of_selfCompatibility O
+    (T.seedLiveOperatorCandidate_has_selfCompatibility_of_operator_eq_seed_of_stationary
+      O hO hstat)
+
+omit [Mul Time] in
+theorem UniformVorticityTendril.seedLiveOperatorCandidate_has_selfCompatibility_of_zero_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO0 : ∀ x, O.operator (fun _ => 0) (fun _ => 0) x = 0)
+    (hzero : ∀ t x, T.vorticity t x = 0) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate O).velocity := by
+  intro t x
+  have hseed0 : (fun y => T.vorticity 1 y) = (fun _ => (0 : ℝ)) := by
+    funext y
+    exact hzero 1 y
+  have hlive0 : (fun y => T.vorticity t y) = (fun _ => (0 : ℝ)) := by
+    funext y
+    exact hzero t y
+  calc
+    (T.seedLiveOperatorCandidate O).velocity t x
+        = O.operator (fun y => T.vorticity 1 y) (fun y => T.vorticity t y) x := rfl
+    _ = O.operator (fun _ => 0) (fun _ => 0) x := by rw [hseed0, hlive0]
+    _ = 0 := hO0 x
+    _ = T.vorticity t x := by
+      symm
+      exact hzero t x
 
 /-- Descendant-route closure for the exact seed/live operator compatibility. -/
 def UniformVorticityTendril.toSeedLiveOperatorBridge
@@ -172,7 +259,7 @@ def UniformVorticityTendril.toSeedLiveOperatorBridge
       (seedLiveOperatorCompatibilityPred (Time := Time) (X := X) O) T :=
   (T.toSeedLiveOperatorAlmostBridge O).toTopDownBridge
     (T.seedLiveOperatorCandidate_has_seedLiveOperatorCompatibility O)
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (O : SeedLiveOperator X) :
@@ -180,6 +267,24 @@ theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause
       (Time := Time) (X := X)
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice O)) :=
   (T.toSeedLiveOperatorBridge O).realizes_clause
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_seedLiveOperator_pressure_seeded_clause_of_zero_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X)
+    (hO0 : ∀ x, O.operator (fun _ => 0) (fun _ => 0) x = 0)
+    (hzero : ∀ t x, T.vorticity t x = 0) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit (Time := Time) (X := X)
+        (T.seedLiveOperatorInitialSlice O)) :=
+  T.realizes_seedLiveOperator_pressure_seeded_clause_of_selfCompatibility O
+    (T.seedLiveOperatorCandidate_has_selfCompatibility_of_zero_vorticity O hO0 hzero)
+omit [Mul Time] in
+theorem UniformVorticityTendril.toSeedLiveOperatorBridge_retains_uniform_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (O : SeedLiveOperator X) :
+    ∀ t x, |T.vorticity t x| ≤ T.envelope :=
+  (T.toSeedLiveOperatorBridge O).retains_uniform_vorticity
 
 /-- Every pointwise seed/live profile yields a seed/live operator. -/
 def SeedLiveProfile.toSeedLiveOperator

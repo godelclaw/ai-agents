@@ -1,5 +1,6 @@
 import Mettapedia.FluidDynamics.NavierStokes.WindowedColeHopfHeatShiftKernelFrontier
 import Mettapedia.FluidDynamics.NavierStokes.WindowedColeHopfHeatSaturatedFrontier
+import Mettapedia.FluidDynamics.NavierStokes.WindowedColeHopfHeatSaturatedShiftKernelInvariantFrontier
 
 /-!
 # Constant-Magnitude Saturated Shift-Kernel Frontier
@@ -131,6 +132,47 @@ theorem WeightedObservable.windowedColeHopfHeatSaturatedConstantMagnitudeShiftKe
       ring
     _ = a * (T.vorticity t y / (1 + |T.vorticity t y|)) := by
       rw [hmag]
+
+theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause_via_constantMagnitudeShiftKernel
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a r c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlBound : ℝ)
+    (curlBound_nonneg : 0 ≤ curlBound)
+    (hcurl : ∀ x, gamma (fun i => curlFrame i x) ≤ curlBound)
+    (x : ModeState)
+    (habs :
+      ∀ t y,
+        |(L.windowedColeHopfHeatUniformVorticityTendril
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).vorticity t y| = r) :
+    FeffermanGlobalRegularityClause
+      (pressureSeededPredicateKit
+        (Time := NNReal) (X := X)
+        (L.windowedColeHopfHeatSaturatedInitialSlice
+          (ι := ι) (X := X)
+          selector a c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x)) := by
+  exact
+    L.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause_via_shiftKernel_of_shiftInvariant_constantMagnitude
+      (ι := ι) (X := X)
+      selector (saturatedConstantMagnitudeShiftKernel X a r) a r c ν hc hν
+      curlFrame curlBound curlBound_nonneg hcurl x
+      (by
+        simp [saturatedConstantMagnitudeShiftKernel, diagonalShiftKernel,
+          SeedLiveShiftKernel.totalCoeffSum, SeedLiveShiftKernel.seedCoeffSum,
+          SeedLiveShiftKernel.liveCoeffSum])
+      (by
+        intro i t y
+        fin_cases i
+        simp [saturatedConstantMagnitudeShiftKernel, diagonalShiftKernel, add_zero])
+      (by
+        intro i t y
+        fin_cases i
+        simp [saturatedConstantMagnitudeShiftKernel, diagonalShiftKernel, add_zero])
+      habs
 
 theorem WeightedObservable.exists_windowedColeHopfHeatSaturatedConstantMagnitudeShiftKernelBridge
     (L : WeightedObservable)

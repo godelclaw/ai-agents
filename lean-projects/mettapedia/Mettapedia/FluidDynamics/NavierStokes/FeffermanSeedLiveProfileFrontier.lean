@@ -78,8 +78,9 @@ theorem UniformVorticityTendril.seedLiveCandidate_has_seedLiveCompatibility
   intro t x
   rfl
 
-/-- The profile bound pushes the whole seed/live candidate under the tendril
+/- The profile bound pushes the whole seed/live candidate under the tendril
 envelope. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.seedLive_abs_le
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (P : SeedLiveProfile)
@@ -152,8 +153,9 @@ def UniformVorticityTendril.toSeedLiveAlmostBridge
   dynamics := T.seedLiveDynamicsCertificate P
   energy := T.seedLiveEnergyCertificate P
 
-/-- Same-route version: all slots are filled and self-compatibility is the
+/- Same-route version: all slots are filled and self-compatibility is the
 remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_seedLiveSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (P : SeedLiveProfile)
@@ -164,6 +166,34 @@ theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_seedLiveSelfC
       (pressureSeededPredicateKit (Time := Time) (X := X) (T.seedLiveInitialSlice P)) :=
   (T.toSeedLiveAlmostBridge P).realizes_clause_of_compatibility hcompat
 
+omit [Mul Time] in
+theorem UniformVorticityTendril.seedLiveCandidate_has_selfCompatibility_of_profile_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (P : SeedLiveProfile)
+    (hP : ∀ seed live, P.profile seed live = seed)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveCandidate P).velocity := by
+  intro t x
+  calc
+    (T.seedLiveCandidate P).velocity t x
+        = P.profile (T.vorticity 1 x) (T.vorticity t x) := rfl
+    _ = T.vorticity 1 x := hP (T.vorticity 1 x) (T.vorticity t x)
+    _ = T.vorticity t x := hstat t x
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_seedLive_pressure_seeded_clause_of_profile_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (P : SeedLiveProfile)
+    (hP : ∀ seed live, P.profile seed live = seed)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit (Time := Time) (X := X)
+        (T.seedLiveInitialSlice P)) :=
+  T.realizes_pressure_seeded_clause_of_seedLiveSelfCompatibility P
+    (T.seedLiveCandidate_has_selfCompatibility_of_profile_eq_seed_of_stationary
+      P hP hstat)
+
 /-- Descendant-route closure for the exact seed/live profile compatibility. -/
 def UniformVorticityTendril.toSeedLiveBridge
     (T : UniformVorticityTendril (Time := Time) (X := X))
@@ -173,7 +203,7 @@ def UniformVorticityTendril.toSeedLiveBridge
       (seedLiveCompatibilityPred (Time := Time) (X := X) P) T :=
   (T.toSeedLiveAlmostBridge P).toTopDownBridge
     (T.seedLiveCandidate_has_seedLiveCompatibility P)
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_seedLive_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (P : SeedLiveProfile) :

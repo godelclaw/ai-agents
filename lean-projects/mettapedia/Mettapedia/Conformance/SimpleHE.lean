@@ -293,30 +293,30 @@ theorem he_io_anchor_he_duplicate_multiplicity_preserved :
   unfold checkDuplicate at h
   exact (decide_eq_true_eq.mp h)
 
-#eval ("expectedSimple", expectedSimple)
-#eval ("runtimeSimple", runSimple spaceSimple (.expression [.symbol "f", .symbol "a"]))
+-- #eval ("expectedSimple", expectedSimple)
+-- #eval ("runtimeSimple", runSimple spaceSimple (.expression [.symbol "f", .symbol "a"]))
 
-#eval ("expectedNested", expectedNested)
-#eval ("runtimeNested", runSimple spaceNested (.expression [.symbol "g", .symbol "a"]))
+-- #eval ("expectedNested", expectedNested)
+-- #eval ("runtimeNested", runSimple spaceNested (.expression [.symbol "g", .symbol "a"]))
 
-#eval ("expectedNondet", expectedNondet)
-#eval ("runtimeNondet", runSimple spaceNondet (.expression [.symbol "choose"]))
+-- #eval ("expectedNondet", expectedNondet)
+-- #eval ("runtimeNondet", runSimple spaceNondet (.expression [.symbol "choose"]))
 
-#eval ("expectedNoReduction", expectedNoReduction)
-#eval ("runtimeNoReduction", runSimple Space.empty (.expression [.symbol "unknown", .symbol "arg"]))
+-- #eval ("expectedNoReduction", expectedNoReduction)
+-- #eval ("runtimeNoReduction", runSimple Space.empty (.expression [.symbol "unknown", .symbol "arg"]))
 
-#eval ("expectedPatternVar", expectedPatternVar)
-#eval ("runtimePatternVar", runSimple spacePatternVar (.expression [.symbol "f", .symbol "hello"]))
+-- #eval ("expectedPatternVar", expectedPatternVar)
+-- #eval ("runtimePatternVar", runSimple spacePatternVar (.expression [.symbol "f", .symbol "hello"]))
 
-#eval ("expectedDuplicate", expectedDuplicate)
-#eval ("runtimeDuplicate", runSimpleWithCfg cfgDuplicate (.expr [.symbol "dup"]))
+-- #eval ("expectedDuplicate", expectedDuplicate)
+-- #eval ("runtimeDuplicate", runSimpleWithCfg cfgDuplicate (.expr [.symbol "dup"]))
 
-#eval ("expectedPremiseRelation", expectedPremiseRelation)
-#eval ("runtimePremiseRelation", runSimpleWithCfg cfgPremiseRelation (.expr [.symbol "fromRel"]))
-#eval ("expectedPremiseBuiltin", expectedPremiseBuiltin)
-#eval ("runtimePremiseBuiltin", runSimpleWithCfg cfgPremiseBuiltin (.expr [.symbol "fromBuiltin"]))
+-- #eval ("expectedPremiseRelation", expectedPremiseRelation)
+-- #eval ("runtimePremiseRelation", runSimpleWithCfg cfgPremiseRelation (.expr [.symbol "fromRel"]))
+-- #eval ("expectedPremiseBuiltin", expectedPremiseBuiltin)
+-- #eval ("runtimePremiseBuiltin", runSimpleWithCfg cfgPremiseBuiltin (.expr [.symbol "fromBuiltin"]))
 
-#eval allChecks
-#eval ("allChecksPass", allChecksPass)
+-- #eval allChecks
+-- #eval ("allChecksPass", allChecksPass)
 
 end Mettapedia.Conformance.SimpleHE

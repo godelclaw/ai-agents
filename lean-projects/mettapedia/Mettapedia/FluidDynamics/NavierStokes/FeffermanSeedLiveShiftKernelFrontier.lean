@@ -50,7 +50,8 @@ def UniformVorticityTendril.toShiftKernelAlmostBridge
         (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) T :=
   T.toSampleKernelAlmostBridge K.toSampleKernel
 
-/-- Same-route version: self-compatibility is still the remaining mouth. -/
+/- Same-route version: self-compatibility is still the remaining mouth. -/
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_shiftKernelSelfCompatibility
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (K : SeedLiveShiftKernel κ X)
@@ -62,6 +63,15 @@ theorem UniformVorticityTendril.realizes_pressure_seeded_clause_of_shiftKernelSe
         (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
   T.realizes_pressure_seeded_clause_of_sampleKernelSelfCompatibility K.toSampleKernel hcompat
 
+omit [Mul Time] in
+theorem UniformVorticityTendril.shiftKernelCandidate_has_selfCompatibility_of_zero_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hzero : ∀ t x, T.vorticity t x = 0) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate K.toSampleKernel.toSeedLiveOperator).velocity :=
+  T.sampleKernelCandidate_has_selfCompatibility_of_zero_vorticity K.toSampleKernel hzero
+
 /-- Descendant-route closure for exact shift-kernel compatibility. -/
 def UniformVorticityTendril.toShiftKernelBridge
     (T : UniformVorticityTendril (Time := Time) (X := X))
@@ -71,7 +81,7 @@ def UniformVorticityTendril.toShiftKernelBridge
         (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator))
       (shiftKernelCompatibilityPred (Time := Time) (X := X) K) T :=
   T.toSampleKernelBridge K.toSampleKernel
-
+omit [Mul Time] in
 theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause
     (T : UniformVorticityTendril (Time := Time) (X := X))
     (K : SeedLiveShiftKernel κ X) :
@@ -80,6 +90,79 @@ theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause
       (pressureSeededPredicateKit
         (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
   T.realizes_sampleKernel_pressure_seeded_clause K.toSampleKernel
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause_of_selfCompatibility
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hcompat : selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate K.toSampleKernel.toSeedLiveOperator).velocity) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit
+        (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
+  T.realizes_pressure_seeded_clause_of_shiftKernelSelfCompatibility K hcompat
+
+omit [Mul Time] in
+theorem UniformVorticityTendril.shiftKernelCandidate_has_selfCompatibility_of_operator_eq_live
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hK : ∀ seed live x, K.toSampleKernel.toSeedLiveOperator.operator seed live x = live x) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate K.toSampleKernel.toSeedLiveOperator).velocity :=
+  T.sampleKernelCandidate_has_selfCompatibility_of_operator_eq_live
+    K.toSampleKernel hK
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause_of_operator_eq_live
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hK : ∀ seed live x, K.toSampleKernel.toSeedLiveOperator.operator seed live x = live x) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit
+        (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
+  T.realizes_shiftKernel_pressure_seeded_clause_of_selfCompatibility K
+    (T.shiftKernelCandidate_has_selfCompatibility_of_operator_eq_live K hK)
+
+omit [Mul Time] in
+theorem UniformVorticityTendril.shiftKernelCandidate_has_selfCompatibility_of_operator_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hK : ∀ seed live x, K.toSampleKernel.toSeedLiveOperator.operator seed live x = seed x)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    selfCompatibility (Time := Time) (X := X)
+      T (T.seedLiveOperatorCandidate K.toSampleKernel.toSeedLiveOperator).velocity :=
+  T.sampleKernelCandidate_has_selfCompatibility_of_operator_eq_seed_of_stationary
+    K.toSampleKernel hK hstat
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause_of_operator_eq_seed_of_stationary
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hK : ∀ seed live x, K.toSampleKernel.toSeedLiveOperator.operator seed live x = seed x)
+    (hstat : ∀ t x, T.vorticity 1 x = T.vorticity t x) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit
+        (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
+  T.realizes_shiftKernel_pressure_seeded_clause_of_selfCompatibility K
+    (T.shiftKernelCandidate_has_selfCompatibility_of_operator_eq_seed_of_stationary
+      K hK hstat)
+omit [Mul Time] in
+theorem UniformVorticityTendril.realizes_shiftKernel_pressure_seeded_clause_of_zero_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X)
+    (hzero : ∀ t x, T.vorticity t x = 0) :
+    FeffermanGlobalRegularityClause
+      (Time := Time) (X := X)
+      (pressureSeededPredicateKit
+        (Time := Time) (X := X) (T.seedLiveOperatorInitialSlice K.toSampleKernel.toSeedLiveOperator)) :=
+  T.realizes_shiftKernel_pressure_seeded_clause_of_selfCompatibility K
+    (T.shiftKernelCandidate_has_selfCompatibility_of_zero_vorticity K hzero)
+omit [Mul Time] in
+theorem UniformVorticityTendril.toShiftKernelBridge_retains_uniform_vorticity
+    (T : UniformVorticityTendril (Time := Time) (X := X))
+    (K : SeedLiveShiftKernel κ X) :
+    ∀ t x, |T.vorticity t x| ≤ T.envelope :=
+  (T.toShiftKernelBridge K).retains_uniform_vorticity
 
 /-- A concrete same-shift live/seed blend kernel. -/
 def diagonalShiftKernel (s : X) (a b : ℝ) : SeedLiveShiftKernel Unit X where
