@@ -22,6 +22,11 @@ codex_*.txt
 codex_*.md
 codex_prompts/
 
+# Generated dependency/progress snapshots
+/DEPS*
+/Mettapedia/AutoBooks/DEPS*
+/Mettapedia/AutoBooks/PROGRESS*
+
 # Build logs
 /build_logs/
 
