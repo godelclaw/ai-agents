@@ -1,0 +1,523 @@
+import Mettapedia.Computability.PNP.PNPv13SwitchingInstantiation
+
+/-!
+# Regression checks for the PNP v13 switching instantiation interface
+
+These wrappers pin the v13-specific bridge from finite history-cell ledgers to
+the generic tower-product theorem.
+-/
+
+namespace Mettapedia.Computability.PNP.PNPv13SwitchingInstantiationRegression
+
+open Mettapedia.Computability.PNP
+
+universe u
+
+theorem prefix_half_step_from_v13_prefix_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13PrefixInstantiation hist step) :
+    PrefixHalfStep hist step.successEvent := by
+  exact prefixHalfStep_of_v13PrefixInstantiation cert
+
+def v13_prefix_certificate_from_prefix_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (h : PrefixHalfStep hist step.successEvent) :
+    V13PrefixInstantiation hist step := by
+  exact v13PrefixInstantiation_of_prefixHalfStep h
+
+theorem v13_prefix_instantiated_iff_prefix_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13PrefixInstantiated hist step ↔
+      PrefixHalfStep hist step.successEvent := by
+  exact v13PrefixInstantiated_iff_prefixHalfStep
+
+theorem no_v13_prefix_certificate_from_failed_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hfail : ¬ PrefixHalfStep hist step.successEvent) :
+    ¬ V13PrefixInstantiated hist step := by
+  exact not_v13PrefixInstantiated_of_not_prefixHalfStep hfail
+
+def v13_prefix_certificate_from_concrete_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13ConcretePrefixInstantiation hist step) :
+    V13PrefixInstantiation hist step := by
+  exact v13PrefixInstantiation_of_concretePrefixInstantiation cert
+
+theorem prefix_half_step_from_concrete_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13ConcretePrefixInstantiation hist step) :
+    PrefixHalfStep hist step.successEvent := by
+  exact prefixHalfStep_of_v13ConcretePrefixInstantiation cert
+
+theorem finite_event_count_cell_partition_regression
+    {Ω Cell : Type u} [Fintype Ω] [Fintype Cell] [DecidableEq Cell]
+    {E : Ω → Prop} [DecidablePred E] (cellOf : Ω → Cell) :
+    finiteEventCount Ω E =
+      Finset.univ.sum (fun cell =>
+        finiteEventCount Ω (fun ω => E ω ∧ cellOf ω = cell)) := by
+  exact finiteEventCount_cell_partition cellOf
+
+theorem finite_event_count_split_regression
+    {Ω : Type u} [Fintype Ω]
+    {E F : Ω → Prop} [DecidablePred E] [DecidablePred F] :
+    finiteEventCount Ω E =
+      finiteEventCount Ω (fun ω => E ω ∧ F ω) +
+        finiteEventCount Ω (fun ω => E ω ∧ ¬ F ω) := by
+  exact finiteEventCount_split
+
+theorem concrete_prefix_count_decomp_regression
+    {Ω Cell : Type u} [Fintype Ω] [Fintype Cell] [DecidableEq Cell]
+    (hist : List (FiniteEvent Ω)) (cellOf : Ω → Cell) :
+    finiteHistoryCount Ω hist =
+      Finset.univ.sum (v13ConcretePrefixCount (Ω := Ω) hist cellOf) := by
+  exact v13ConcretePrefixCount_decomp hist cellOf
+
+theorem concrete_success_count_decomp_regression
+    {Ω Cell : Type u} [Fintype Ω] [Fintype Cell] [DecidableEq Cell]
+    (hist : List (FiniteEvent Ω)) (step : V13SwitchedStep Ω)
+    (cellOf : Ω → Cell) :
+    finiteHistoryCount Ω (hist ++ [step.successEvent]) =
+      Finset.univ.sum (v13ConcreteSuccessCount (Ω := Ω) hist step cellOf) := by
+  exact v13ConcreteSuccessCount_decomp hist step cellOf
+
+theorem concrete_prefix_count_success_failure_split_regression
+    {Ω Cell : Type u} [Fintype Ω] [DecidableEq Cell]
+    (hist : List (FiniteEvent Ω)) (step : V13SwitchedStep Ω)
+    (cellOf : Ω → Cell) (cell : Cell) :
+    v13ConcretePrefixCount (Ω := Ω) hist cellOf cell =
+      v13ConcreteSuccessCount (Ω := Ω) hist step cellOf cell +
+        v13ConcreteFailureCount (Ω := Ω) hist step cellOf cell := by
+  exact v13ConcretePrefixCount_eq_success_add_failure hist step cellOf cell
+
+theorem concrete_cell_half_iff_success_le_failure_regression
+    {Ω Cell : Type u} [Fintype Ω] [DecidableEq Cell]
+    (hist : List (FiniteEvent Ω)) (step : V13SwitchedStep Ω)
+    (cellOf : Ω → Cell) (cell : Cell) :
+    (2 * v13ConcreteSuccessCount (Ω := Ω) hist step cellOf cell ≤
+        v13ConcretePrefixCount (Ω := Ω) hist cellOf cell) ↔
+      v13ConcreteSuccessCount (Ω := Ω) hist step cellOf cell ≤
+        v13ConcreteFailureCount (Ω := Ω) hist step cellOf cell := by
+  exact v13ConcreteCellHalf_iff_success_le_failure hist step cellOf cell
+
+def concrete_prefix_certificate_from_prefix_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (h : PrefixHalfStep hist step.successEvent) :
+    V13ConcretePrefixInstantiation hist step := by
+  exact v13ConcretePrefixInstantiation_of_prefixHalfStep h
+
+def concrete_prefix_certificate_from_cell_half_regression
+    {Ω Cell : Type u} [Fintype Ω] [Fintype Cell] [DecidableEq Cell]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cellOf : Ω → Cell)
+    (hhalf : ∀ cell,
+      2 * v13ConcreteSuccessCount (Ω := Ω) hist step cellOf cell ≤
+        v13ConcretePrefixCount (Ω := Ω) hist cellOf cell) :
+    V13ConcretePrefixInstantiation hist step := by
+  exact v13ConcretePrefixInstantiation_of_cellHalf cellOf hhalf
+
+theorem concrete_prefix_instantiated_iff_prefix_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13ConcretePrefixInstantiated hist step ↔
+      PrefixHalfStep hist step.successEvent := by
+  exact v13ConcretePrefixInstantiated_iff_prefixHalfStep
+
+def concrete_prefix_certificate_from_field_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13FieldPrefixInstantiation field hist step) :
+    V13ConcretePrefixInstantiation hist step := by
+  exact v13ConcretePrefixInstantiation_of_fieldPrefixInstantiation cert
+
+theorem prefix_half_step_from_field_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13FieldPrefixInstantiation field hist step) :
+    PrefixHalfStep hist step.successEvent := by
+  exact prefixHalfStep_of_v13FieldPrefixInstantiation cert
+
+def field_prefix_certificate_from_cell_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hhalf : ∀ cell,
+      2 * v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+        v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell) :
+    V13FieldPrefixInstantiation field hist step := by
+  exact v13FieldPrefixInstantiation_of_cellHalf hhalf
+
+theorem field_prefix_certificate_iff_cell_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13FieldPrefixInstantiation field hist step ↔
+      ∀ cell,
+        2 * v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+          v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell := by
+  exact v13FieldPrefixInstantiation_iff_cellHalf
+
+theorem field_prefix_certificate_iff_success_le_failure_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13FieldPrefixInstantiation field hist step ↔
+      ∀ cell,
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+          v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
+  exact v13FieldPrefixInstantiation_iff_success_le_failure
+
+theorem no_field_prefix_certificate_from_bad_cell_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cell : field.Cell)
+    (hbad :
+      ¬ 2 * v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+        v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact not_v13FieldPrefixInstantiation_of_cell_half_violation cell hbad
+
+theorem success_history_field_true_cell_count_regression
+    {Ω : Type u} [Fintype Ω]
+    (hist : List (FiniteEvent Ω)) (step : V13SwitchedStep Ω) :
+    v13ConcretePrefixCount (Ω := Ω) hist
+        (v13SuccessHistoryField step).cellOf (ULift.up true) =
+      finiteHistoryCount Ω (hist ++ [step.successEvent]) := by
+  exact v13SuccessHistoryField_prefix_true_count hist step
+
+theorem field_certificate_success_cell_is_mixed_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13FieldPrefixInstantiation field hist step)
+    (cell : field.Cell)
+    (hpos :
+      0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell <
+      v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell := by
+  exact
+    v13FieldPrefixInstantiation_successCount_lt_prefixCount_of_success_pos
+      cert cell hpos
+
+theorem field_certificate_one_success_requires_two_prefix_points_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cert : V13FieldPrefixInstantiation field hist step)
+    (cell : field.Cell)
+    (hsucc :
+      v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell = 1) :
+    2 ≤ v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell := by
+  exact
+    v13FieldPrefixInstantiation_two_le_prefixCount_of_successCount_eq_one
+      cert cell hsucc
+
+theorem no_field_prefix_certificate_from_total_success_cell_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cell : field.Cell)
+    (hpos :
+      0 < v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell)
+    (hall :
+      v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell =
+        v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact not_v13FieldPrefixInstantiation_of_cell_success_eq_prefix cell hpos hall
+
+theorem no_field_prefix_certificate_from_positive_total_success_cell_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cell : field.Cell)
+    (hpos :
+      0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell)
+    (hall :
+      v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell =
+        v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_of_positive_success_eq_prefix
+      cell hpos hall
+
+theorem no_field_prefix_certificate_from_singleton_success_cell_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cell : field.Cell)
+    (hprefix :
+      v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell = 1)
+    (hsuccess :
+      v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell = 1) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_of_singleton_success_cell
+      cell hprefix hsuccess
+
+theorem no_success_history_field_certificate_from_positive_success_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldPrefixInstantiation (v13SuccessHistoryField step) hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_successHistoryField_of_positive_success hpos
+
+theorem sequential_half_from_field_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (h : V13FieldSwitchingInstantiatedFrom hist items) :
+    SequentialHalfAdmissibleFrom hist (v13FieldedSuccessEvents items) := by
+  exact sequentialHalfAdmissibleFrom_of_v13FieldSwitchingInstantiatedFrom h
+
+theorem product_bound_from_field_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    (items : List (V13FieldedStep Ω))
+    (h : V13FieldSwitchingInstantiated items) :
+    2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+      finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
+  exact v13_product_bound_of_fieldInstantiated items h
+
+theorem field_instantiation_iff_cell_half_from_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiatedFrom hist items ↔
+      V13FieldSwitchingCellHalfFrom hist items := by
+  exact v13FieldSwitchingInstantiatedFrom_iff_cellHalfFrom
+
+theorem field_instantiation_empty_iff_cell_half_regression
+    {Ω : Type u} [Fintype Ω] {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiated items ↔
+      V13FieldSwitchingCellHalf items := by
+  exact v13FieldSwitchingInstantiated_iff_cellHalf
+
+theorem product_bound_violation_blocks_field_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ¬ V13FieldSwitchingInstantiated items := by
+  exact not_v13FieldSwitchingInstantiated_of_product_bound_violation hbad
+
+theorem failed_field_prefix_blocks_field_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {item : V13FieldedStep Ω} {rest : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldPrefixInstantiation item.field hist item.step) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (item :: rest) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
+      hfail
+
+theorem success_revealing_field_blocks_field_suffix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} {rest : List (V13FieldedStep Ω)}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist
+      (v13SuccessFieldedStep step :: rest) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_successField_cons_of_positive_success
+      hpos
+
+theorem sequential_half_from_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (h : V13SwitchingInstantiatedFrom hist steps) :
+    SequentialHalfAdmissibleFrom hist (v13SuccessEvents steps) := by
+  exact sequentialHalfAdmissibleFrom_of_v13SwitchingInstantiatedFrom h
+
+theorem v13_instantiation_from_sequential_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (h : SequentialHalfAdmissibleFrom hist (v13SuccessEvents steps)) :
+    V13SwitchingInstantiatedFrom hist steps := by
+  exact v13SwitchingInstantiatedFrom_of_sequentialHalfAdmissibleFrom h
+
+theorem v13_instantiation_iff_sequential_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)} :
+    V13SwitchingInstantiatedFrom hist steps ↔
+      SequentialHalfAdmissibleFrom hist (v13SuccessEvents steps) := by
+  exact v13SwitchingInstantiatedFrom_iff_sequentialHalfAdmissibleFrom
+
+theorem v13_instantiation_empty_iff_sequential_half_regression
+    {Ω : Type u} [Fintype Ω] {steps : List (V13SwitchedStep Ω)} :
+    V13SwitchingInstantiated steps ↔
+      SequentialHalfAdmissible (v13SuccessEvents steps) := by
+  exact v13SwitchingInstantiated_iff_sequentialHalfAdmissible
+
+theorem v13_instantiation_from_concrete_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (h : V13ConcreteSwitchingInstantiatedFrom hist steps) :
+    V13SwitchingInstantiatedFrom hist steps := by
+  exact v13SwitchingInstantiatedFrom_of_concreteSwitchingInstantiatedFrom h
+
+theorem concrete_v13_instantiation_from_sequential_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (h : SequentialHalfAdmissibleFrom hist (v13SuccessEvents steps)) :
+    V13ConcreteSwitchingInstantiatedFrom hist steps := by
+  exact v13ConcreteSwitchingInstantiatedFrom_of_sequentialHalfAdmissibleFrom h
+
+theorem concrete_v13_instantiation_iff_sequential_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)} :
+    V13ConcreteSwitchingInstantiatedFrom hist steps ↔
+      SequentialHalfAdmissibleFrom hist (v13SuccessEvents steps) := by
+  exact v13ConcreteSwitchingInstantiatedFrom_iff_sequentialHalfAdmissibleFrom
+
+theorem concrete_v13_instantiation_empty_iff_sequential_half_regression
+    {Ω : Type u} [Fintype Ω] {steps : List (V13SwitchedStep Ω)} :
+    V13ConcreteSwitchingInstantiated steps ↔
+      SequentialHalfAdmissible (v13SuccessEvents steps) := by
+  exact v13ConcreteSwitchingInstantiated_iff_sequentialHalfAdmissible
+
+theorem product_bound_from_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    (steps : List (V13SwitchedStep Ω))
+    (h : V13SwitchingInstantiated steps) :
+    2 ^ steps.length * finiteHistoryCount Ω (v13SuccessEvents steps) ≤
+      finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
+  exact v13_product_bound_of_instantiated steps h
+
+theorem product_bound_from_concrete_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    (steps : List (V13SwitchedStep Ω))
+    (h : V13ConcreteSwitchingInstantiated steps) :
+    2 ^ steps.length * finiteHistoryCount Ω (v13SuccessEvents steps) ≤
+      finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
+  exact v13_product_bound_of_concreteInstantiated steps h
+
+theorem product_bound_violation_blocks_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {steps : List (V13SwitchedStep Ω)}
+    (hbad :
+      ¬ 2 ^ steps.length * finiteHistoryCount Ω (v13SuccessEvents steps) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ¬ V13SwitchingInstantiated steps := by
+  exact not_v13SwitchingInstantiated_of_product_bound_violation hbad
+
+theorem product_bound_violation_blocks_concrete_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {steps : List (V13SwitchedStep Ω)}
+    (hbad :
+      ¬ 2 ^ steps.length * finiteHistoryCount Ω (v13SuccessEvents steps) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ¬ V13ConcreteSwitchingInstantiated steps := by
+  exact not_v13ConcreteSwitchingInstantiated_of_product_bound_violation hbad
+
+theorem failed_prefix_blocks_v13_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} {rest : List (V13SwitchedStep Ω)}
+    (hfail : ¬ PrefixHalfStep hist step.successEvent) :
+    ¬ V13SwitchingInstantiatedFrom hist (step :: rest) := by
+  exact not_v13SwitchingInstantiatedFrom_cons_of_not_prefixHalfStep hfail
+
+theorem first_step_global_half_regression :
+    PrefixHalfStep ([] : List (FiniteEvent (Bool × Bool)))
+      v13BoolPairRepeatedStep.successEvent := by
+  exact prefixHalfStep_v13BoolPairRepeatedStep_empty
+
+theorem first_coordinate_field_prefix_true_count_regression :
+    v13ConcretePrefixCount (Ω := Bool × Bool)
+      ([] : List (FiniteEvent (Bool × Bool)))
+      v13BoolPairFirstCoordinateField.cellOf true = 2 := by
+  exact v13BoolPairFirstCoordinateField_prefix_true_count
+
+theorem first_coordinate_field_success_true_count_regression :
+    v13ConcreteSuccessCount (Ω := Bool × Bool)
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep
+      v13BoolPairFirstCoordinateField.cellOf true = 2 := by
+  exact v13BoolPairFirstCoordinateField_success_true_count
+
+theorem first_coordinate_field_failure_true_count_regression :
+    v13ConcreteFailureCount (Ω := Bool × Bool)
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep
+      v13BoolPairFirstCoordinateField.cellOf true = 0 := by
+  decide
+
+theorem no_fixed_first_coordinate_field_certificate_regression :
+    ¬ V13FieldPrefixInstantiation v13BoolPairFirstCoordinateField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact not_v13FieldPrefixInstantiation_firstCoordinateField_empty
+
+theorem prefix_half_without_fixed_first_coordinate_certificate_regression :
+    PrefixHalfStep ([] : List (FiniteEvent (Bool × Bool)))
+        v13BoolPairRepeatedStep.successEvent ∧
+      ¬ V13FieldPrefixInstantiation v13BoolPairFirstCoordinateField
+        ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact prefixHalfStep_without_firstCoordinateFieldInstantiation
+
+theorem no_field_instantiation_for_first_coordinate_one_step_regression :
+    ¬ V13FieldSwitchingInstantiated
+      [v13BoolPairFirstCoordinateFieldedStep] := by
+  exact not_v13FieldSwitchingInstantiated_firstCoordinateOneStep
+
+theorem no_success_revealing_field_certificate_bool_pair_regression :
+    ¬ V13FieldPrefixInstantiation
+      (v13SuccessHistoryField v13BoolPairRepeatedStep)
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact
+    not_v13FieldPrefixInstantiation_successHistoryField_of_positive_success
+      (by
+        decide)
+
+theorem no_success_revealing_fielded_step_bool_pair_regression :
+    ¬ V13FieldSwitchingInstantiated
+      [v13SuccessFieldedStep v13BoolPairRepeatedStep] := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_successField_cons_of_positive_success
+      (by
+        decide)
+
+theorem repeated_step_second_prefix_count_regression :
+    finiteHistoryCount (Bool × Bool) [v13BoolPairRepeatedStep.successEvent] = 2 := by
+  exact v13BoolPairRepeatedStep_success_count
+
+theorem repeated_step_second_prefix_fails_regression :
+    ¬ PrefixHalfStep [v13BoolPairRepeatedStep.successEvent]
+      v13BoolPairRepeatedStep.successEvent := by
+  exact not_prefixHalfStep_v13BoolPairRepeatedStep_after_success
+
+theorem no_v13_certificate_for_repeated_second_step_regression :
+    ¬ V13PrefixInstantiated [v13BoolPairRepeatedStep.successEvent]
+      v13BoolPairRepeatedStep := by
+  exact not_v13PrefixInstantiated_boolPairRepeatedStep_second
+
+theorem repeated_two_steps_product_bound_violation_regression :
+    ¬ 2 ^ [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep].length *
+        finiteHistoryCount (Bool × Bool)
+          (v13SuccessEvents
+            [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep]) ≤
+      finiteHistoryCount (Bool × Bool) ([] : List (FiniteEvent (Bool × Bool))) := by
+  exact v13BoolPairRepeatedTwoSteps_product_bound_violation
+
+theorem no_v13_instantiation_for_repeated_two_steps_regression :
+    ¬ V13SwitchingInstantiated
+      [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
+  exact not_v13SwitchingInstantiated_boolPairRepeatedTwoSteps
+
+theorem no_v13_instantiation_for_repeated_two_steps_by_product_bound_regression :
+    ¬ V13SwitchingInstantiated
+      [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
+  exact not_v13SwitchingInstantiated_boolPairRepeatedTwoSteps_by_product_bound
+
+theorem no_concrete_v13_instantiation_for_repeated_two_steps_by_product_bound_regression :
+    ¬ V13ConcreteSwitchingInstantiated
+      [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
+  exact
+    not_v13ConcreteSwitchingInstantiated_boolPairRepeatedTwoSteps_by_product_bound
+
+end Mettapedia.Computability.PNP.PNPv13SwitchingInstantiationRegression

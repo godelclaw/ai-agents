@@ -172,6 +172,86 @@ Sixth, even the tree-message route does not follow from tree-likeness alone: a f
 binary tree architecture of depth \(n\) already realizes every Boolean rule on \(n\) visible bits,
 just by changing its leaf labels.
 
+The v13 crux ledger adds two smaller but sharper obligations.  A \(P=NP\) upper-bound decoder that
+uses an arbitrary SAT-search output cannot recover a hidden message unless every satisfying witness
+has the same message readout.  Bare satisfiability plus a readout map is not enough: the two-point
+Boolean model already has two satisfying witnesses with different readouts.  Separately,
+unconditional one-coordinate half-success estimates do not imply a product small-success bound.
+Two identical half-mass events have half-mass intersection, not quarter-mass intersection.  Thus the
+product theorem needs a genuinely sequential conditional hypothesis over admissible histories.  The
+same Lean file now records this repair target positively on the four-point Boolean square: a
+first-step half-success bound plus a second-step conditional half-success bound implies the
+two-step product bound.  The correlated model fails exactly the second, conditional premise.
+The separate finite switching module generalizes this to arbitrary finite histories: if every
+successive event halves the current admissible history class, then the whole tower has the expected
+product bound.  What remains is not product arithmetic, but an instantiation theorem for the actual
+switched histories.  The same generic layer also proves the corresponding failure principle: one
+failed prefix half-step blocks sequential admissibility for the entire remaining history.  The
+newest monotonicity lemmas also rule out a spurious edge case: if the current history class is
+already empty, the next prefix half-step is automatic.  Hence real blockers must occur at
+positive-mass conditioning prefixes.  The generic layer now also records the global contrapositive:
+if the final intersection is too large for the claimed tower, then no sequential half-admissibility
+proof can exist at all.  The v13 layer specializes this to abstract atom ledgers, semantic
+concrete-cell certificates, and ordered fixed-field certificates.  Thus a proposed switched list
+must first pass the tower-product count check before any finer cell structure can rescue it.  The
+v13 instantiation layer now sharpens this further.
+Lean first proves a useful negative interface fact: an abstract atom ledger with arbitrary
+per-cell counts is equivalent to the generic prefix half-step, because a successful half-step can
+always be represented by one summary cell.  It then proves the same collapse for an existential
+``concrete'' cell-map certificate: the constant cell map is enough whenever the prefix half-step
+already holds.  The latest Lean theorem lifts this prefix collapse through the whole ordered
+switching list: both the abstract atom-ledger switching interface and the existential concrete-cell
+switching interface are equivalent to generic sequential half-admissibility of the induced success
+events.  So a real manuscript instantiation cannot be an existential over cell maps.  It must
+instead name the actual finite history field before each switched coordinate and prove cellwise
+half-success for that fixed field.  The newest atom-ledger structure theorem clarifies
+the role of the concrete cell map: once a finite \texttt{cellOf} is supplied, the prefix and
+next-success decomposition equations are automatic finite partition identities.  Thus decomposition
+is not an independent escape hatch; the remaining mathematical burden is the cellwise half-success
+inequality for the actual cells.  The fixed-field interface records this obligation:
+the supplied field's cells must decompose both the current success prefix and the prefix plus the
+next success event, and the next success event must occupy at most half of each cell.  This
+has now been rewritten in Lean in the more diagnostic form
+\texttt{v13FieldPrefixInstantiation\_iff\_success\_le\_failure}: after the finite
+cell is fixed, a certificate exists exactly when every cell has at least as many
+next-failure prefix points as next-success prefix points.  The supporting theorem
+\texttt{v13ConcretePrefixCount\_eq\_success\_add\_failure} proves that this is not
+a new assumption but the exact split of each cell's prefix mass into success and
+failure parts.  This fixed-field condition is strictly stronger than the global
+prefix half-step: on the Boolean square,
+first-coordinate success is globally half-admissible from the empty history, but the fixed field
+that reveals that same first coordinate has a `true' cell where success has conditional mass \(1\),
+so no fixed-field certificate exists.  Lean now also lifts this fixed-field premise to an ordered
+fielded switching list: each step carries its own supplied field, and the full fixed-field
+instantiation is equivalent to the recursive list of these cellwise half-success inequalities.
+Thus the fixed-field decomposition equalities are no longer open proof obligations; the remaining
+fielded burden is exactly the half-success ledger over the named cells.  A full list of fixed-field
+certificates implies the generic sequential half-admissibility and hence the finite tower product
+bound.  Conversely, a single failed fixed-field prefix certificate blocks the whole remaining
+fielded suffix, and the same Boolean first-coordinate one-step model instantiates that blocker.
+The newest fixed-field theorem abstracts the reason: any positive-mass cell on which the next
+success event is total violates the half-success inequality.  In particular, if the supplied field
+reveals the next success event itself, then a fixed-field certificate can exist only when that next
+success prefix has zero mass.  The latest necessary-condition theorem gives the same fact in
+positive form: under any valid fixed-field certificate, every cell containing a successful point
+must also contain an unsuccessful prefix point.  A singleton successful atom is therefore already
+fatal.
+The same v13-specific module also checks the smallest
+positive-mass failure mode for sequential repetition: if the second switched step repeats the first
+exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
+still has count \(2\), and the second prefix half-step is false.  Thus no v13 switching certificate
+can exist for this repeated two-step switching claim.  The same example also fails the global
+product-bound audit: two identical half-mass success events still have half-mass intersection, so
+the required quarter-mass tower bound is false.
+
+Assessment after the v13 switching packets: the formal work does not prove that no conceivable
+v13-style switching strategy can work, because one residual positive target remains--name the
+actual manuscript history fields and prove their recursive cellwise half-success bounds.  But it
+does close the main bookkeeping escape hatches.  Abstract ledgers and existential concrete cell
+maps add no strength beyond generic sequential half-admissibility; decomposition by finite cells is
+automatic; and fixed fields reduce exactly to the cellwise half-success inequalities, with
+positive-mass total-success cells and repeated success events blocked by small finite models.
+
 At the same time, the optimistic Lean work now isolates the precise positive interface one
 would need for the switching lemma to go through: a \emph{small explicitly encoded
 hypothesis family} whose realized classifier class is bounded by its code budget, together
@@ -250,6 +330,12 @@ The current Lean modules under
 \texttt{ShortProgramObstruction.lean} & polynomial-size programs already realize all log-width local rules \\
 \texttt{MetagraphObstruction.lean} & exact metagraph/interface quotients have state explosion \\
 \texttt{TreeMessageObstruction.lean} & fixed tree architectures already realize all local rules \\
+\texttt{PNPv13CruxLedger.lean} & v13 decoder readout constancy and product-success finite obstructions \\
+\texttt{PNPv13CruxLedgerRegression.lean} & regression checks for the v13 crux ledger \\
+\texttt{FiniteSwitchingAdmissibility.lean} & generic finite history admissibility, monotone history counts, and tower-product theorem \\
+\texttt{FiniteSwitchingAdmissibilityRegression.lean} & regression checks for the generic switching interface \\
+\texttt{PNPv13SwitchingInstantiation.lean} & v13 summary/concrete equivalences, fixed history-field and ordered fielded switching interfaces, and product bridge \\
+\texttt{PNPv13SwitchingInstantiationRegression.lean} & regression checks for the v13 switching-instantiation interfaces \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -301,9 +387,13 @@ The blocker program is adversarial.  It asks:
   \item Does an exact finite-state metagraph/message quotient on a log-width interface already
   require too many states?
   \item Does tree-likeness alone force a small exact message/interpreter class?
+  \item Does arbitrary SAT-search output recover a unique hidden message without a theorem that all
+  satisfying witnesses have the same readout?
+  \item Do unconditional half-success marginals imply a product small-success bound without
+  sequential conditional admissibility?
 \end{enumerate}
 
-The current Lean answer to all twenty-one is ``yes.''  Therefore the published proof cannot be
+The current Lean answer to all twenty-three is ``yes.''  Therefore the published proof cannot be
 accepted \emph{as written} unless it supplies additional structural theorems.
 
 \subsection{The Optimistic Program}
@@ -1852,9 +1942,41 @@ The present crux-first formal work yields a clean conditional diagnosis.
   polylogarithmic coding budget.
   \item Therefore the program needs a separate theorem proving exceptional compressibility
   of the particular switched predictors it generates.
+  \item The v13 \(P=NP\) upper-bound decoder also needs a single-message theorem for arbitrary
+  satisfying SAT-search outputs.
+  \item The v13 product-success step also needs a sequential conditional admissibility theorem;
+  unconditional half-success marginals are insufficient, while the checked sequential conditional
+  interface is strong enough for the two-step finite product bound.
+  \item A generic finite switching theorem now proves the full tower-product bound from sequential
+  half-admissibility.  The open crux is whether the manuscript's switched histories satisfy that
+  admissibility premise on positive-mass prefixes.  Empty prefixes are automatically harmless by
+  finite-history monotonicity, while one failed nonempty prefix half-step is enough to block the
+  tower argument.  Independently, a failed final tower-product count blocks sequential
+  admissibility before one inspects any individual prefix.
+  \item The v13 instantiation obligation is now fixed-field-level: both the abstract
+  atom-ledger interface and an existential concrete-cell interface are equivalent to the generic
+  prefix half-step.  The manuscript must therefore specify the actual finite history field and
+  prove that its fixed fibers decompose the relevant histories and satisfy the cellwise
+  half-success bounds.  The decomposition part is automatic for any finite cell map; the
+  substantive obligation is the half-success bound inside each supplied cell, equivalently a
+  proof that every supplied cell has at least as many next-failure prefix points as next-success
+  prefix points.  This fixed-field premise is strictly stronger than global half-success:
+  a field that reveals the successful Boolean coordinate already fails cellwise at the first step.
+  The ordered fielded-switching interface now gives the positive bridge as well: if every supplied
+  field certificate is proved, the tower product bound follows; if one fixed-field prefix
+  certificate fails, the remaining fielded suffix is blocked.
+  More generally, a positive-mass fixed-field cell that is entirely successful already blocks the
+  certificate, so a field that exposes the next success event is admissible only in the vacuous
+  zero-success case.  Equivalently, every successful atom in a valid fixed-field certificate must
+  be mixed with at least one unsuccessful prefix point.
+  \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
+  obligation: the second repeated step has conditional success \(1\), so no v13 switching
+  instantiation exists for the two-step repeated Boolean-square model.  It also violates the
+  global tower-product inequality, blocking both abstract and concrete v13 certificates by the new
+  product-bound contrapositive.
 \end{enumerate}
 
-That is currently the sharpest formally checked crux we have in Lean.
+These are currently the sharpest formally checked cruxes we have in Lean.
 
 \begin{thebibliography}{9}
 \bibitem{manuscript2025}
