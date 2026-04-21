@@ -2548,6 +2548,17 @@ finite-time bounded-energy predicate if and only if either \(A=0\) entrywise or
 the time-zero input filter; any nonzero matrix-linear mode that is active even
 once on the slab is excluded directly by the finite-time energy slot.
 
+The finite-time smooth PDE package now has the same exact boundary.  Lean
+proves
+\texttt{finiteModeLinearMatrix\_timeDependent\_smooth\_momentum\_incompressible\_boundedEnergyUpTo\_iff\_exists}:
+for symmetric trace-free \(A\), smooth \(g,g'\), and a derivative relation, the
+affine-quadratic pressure package gives smooth \((u,p)\), pointwise momentum,
+and incompressibility on the slab \(0\le t\le T\), while
+\texttt{boundedKineticEnergyUpTo} for \(u\) is equivalent to \(A=0\) entrywise
+or \(g(t)=0\) on the whole slab.  Thus the slab theorem is not just a
+predicate-level obstruction; it classifies the energy slot inside the concrete
+finite-time PDE package.
+
 The global bounded-energy boundary is exact too.  Lean proves
 \texttt{boundedKineticEnergy\_finiteModeLinearMatrixTimeVelocity\_iff}: the
 whole-time predicate \texttt{boundedKineticEnergy} holds for

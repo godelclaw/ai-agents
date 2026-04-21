@@ -147,6 +147,53 @@ theorem boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff
     · simp [hfield]
     · simp [kineticEnergyAt, hfield]
 
+/-- Exact finite-time energy status of the smooth matrix-linear finite-mode
+PDE package.  On a slab `0 ≤ t ≤ T`, symmetric trace-free matrix-linear
+candidates can be closed by an explicit smooth affine-quadratic pressure and
+satisfy the pointwise momentum equation and incompressibility on the slab, but
+the finite-time bounded-energy slot is equivalent to genuine degeneracy on
+that slab: either the matrix mode is zero, or the scalar amplitude vanishes
+throughout the slab. -/
+theorem finiteModeLinearMatrix_timeDependent_smooth_momentum_incompressible_boundedEnergyUpTo_iff_exists
+    (ν T : ℝ) (A : Fin 3 → Fin 3 → ℝ) (g gdot : NSTime → ℝ)
+    (hA : ∀ i j, A i j = A j i)
+    (htrace : ∑ i : Fin 3, A i i = 0)
+    (hg : ContDiff ℝ ∞ g) (hgdot : ContDiff ℝ ∞ gdot)
+    (hderiv : ∀ t : NSTime, HasDerivAt g (gdot t) t) :
+    ∃ b : ℝ → FiniteModeState FiniteModeAffineQuadraticPressureIndex,
+      ∃ u : NSVelocityField, ∃ p : NSPressureField,
+      b = finiteModeLinearMatrixTimePressureCoefficients A g gdot ∧
+        u = finiteModeLinearMatrixTimeVelocity A g ∧
+          p = finiteModeReconstructedPressure finiteModeAffineQuadraticPressureMode b ∧
+            smoothSpaceTimeVelocity u ∧
+              smoothSpaceTimePressure p ∧
+                (∀ t x, 0 ≤ t → t ≤ T →
+                  timeVelocityDerivative u t x +
+                      spatialConvection u t x +
+                        spatialPressureGradient p t x =
+                    ν • spatialLaplacian u t x) ∧
+                (∀ t x, 0 ≤ t → t ≤ T → spatialDivergence u t x = 0) ∧
+                  (boundedKineticEnergyUpTo u T ↔
+                    (∀ i j : Fin 3, A i j = 0) ∨
+                      ∀ t : NSTime, 0 ≤ t → t ≤ T → g t = 0) := by
+  refine
+    ⟨finiteModeLinearMatrixTimePressureCoefficients A g gdot,
+      finiteModeLinearMatrixTimeVelocity A g,
+      finiteModeLinearMatrixTimePressure A g gdot,
+      rfl, rfl, rfl, ?_, ?_, ?_, ?_, ?_⟩
+  · exact finiteModeLinearMatrix_timeDependent_smoothSpaceTimeVelocity A g hg
+  · simpa [finiteModeLinearMatrixTimePressure] using
+      finiteModeLinearMatrix_timeDependent_smoothSpaceTimePressure
+        A g gdot hg hgdot
+  · intro t x _ht0 _htT
+    simpa [finiteModeLinearMatrixTimePressure] using
+      finiteModeLinearMatrix_timeDependent_pointwise_momentum_eq
+        ν A g gdot hA hderiv t x
+  · intro t x _ht0 _htT
+    exact finiteModeLinearMatrix_timeDependent_spatialDivergence_zero_of_trace
+      A g htrace t x
+  · exact boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff A g T
+
 /-- Exact global energy boundary for the matrix-linear finite-mode velocity:
 globally bounded kinetic energy holds precisely when the matrix mode is zero,
 or the scalar amplitude vanishes at every time.  This is the whole-time
