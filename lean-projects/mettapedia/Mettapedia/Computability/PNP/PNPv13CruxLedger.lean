@@ -41,7 +41,10 @@ surface needed to test one brittle central link.
    issue: the same blocker applies at any later fielded position after
    extending the history by the preceding success events.  In matching form,
    a valid recursive proof on a positive-mass next-success prefix proves the
-   supplied field at that position does not determine the next success bit.
+   supplied field at that position does not determine the next success bit on
+   the accumulated history support.  This prefix-relative form is stronger
+   than the earlier global blocker: a field can be harmless globally but become
+   success-revealing after conditioning on the current history.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

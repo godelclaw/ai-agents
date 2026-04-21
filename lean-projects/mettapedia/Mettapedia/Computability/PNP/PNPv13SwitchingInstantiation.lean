@@ -595,6 +595,28 @@ def V13HistoryFieldDeterminesSuccess {Ω : Type u}
     field.cellOf ω = field.cellOf ω' →
       step.successEvent.pred ω → step.successEvent.pred ω'
 
+/-- Prefix-relative success determination.  This is the relevant obstruction
+for conditioned switching histories: a field may reveal the next success event
+on the current history support even if it does not reveal it globally. -/
+def V13HistoryFieldDeterminesSuccessOn {Ω : Type u}
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) : Prop :=
+  ∀ ⦃ω ω' : Ω⦄,
+    allEvents hist ω →
+      allEvents hist ω' →
+        field.cellOf ω = field.cellOf ω' →
+          step.successEvent.pred ω → step.successEvent.pred ω'
+
+/-- Global success determination implies prefix-relative success determination
+on every current history support. -/
+theorem v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess {Ω : Type u}
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step) :
+    V13HistoryFieldDeterminesSuccessOn field hist step := by
+  intro ω ω' _ _ hcell hsucc
+  exact hdet hcell hsucc
+
 /-- The fixed field that reveals exactly whether the next v13 switched step is
 successful.  A genuine v13 history field cannot behave this way on a
 positive-mass prefix while also satisfying the cellwise half-success
@@ -837,13 +859,13 @@ theorem not_v13FieldPrefixInstantiation_of_success_gt_failure
     (v13FieldPrefixInstantiation_iff_success_le_failure.mp cert) cell
   exact (not_le_of_gt hbad) hbalance
 
-/-- In a success-homogeneous field cell, positive success mass forces the
-next-failure count in that same cell to be zero. -/
-theorem v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
+/-- In a prefix-relative success-homogeneous field cell, positive success mass
+forces the next-failure count in that same cell to be zero. -/
+theorem v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccessOn_of_success_pos
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
     {step : V13SwitchedStep Ω}
-    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hdet : V13HistoryFieldDeterminesSuccessOn field hist step)
     (cell : field.Cell)
     (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
     v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell = 0 := by
@@ -852,7 +874,7 @@ theorem v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
         allEvents hist ω ∧ field.cellOf ω = cell ∧ step.successEvent.pred ω} := by
     exact Fintype.card_pos_iff.mp (by
       simpa [v13ConcreteSuccessCount, finiteEventCount] using hpos)
-  rcases hnonempty with ⟨⟨ω₀, _hhist₀, hcell₀, hsuccess₀⟩⟩
+  rcases hnonempty with ⟨⟨ω₀, hhist₀, hcell₀, hsuccess₀⟩⟩
   apply Nat.eq_zero_of_le_zero
   have hle :
       finiteEventCount Ω
@@ -867,8 +889,42 @@ theorem v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
       (F := fun _ : Ω => False)
       (by
         intro ω hω
-        exact hω.2.2 (hdet (hcell₀.trans hω.2.1.symm) hsuccess₀))
+        exact hω.2.2
+          (hdet hhist₀ hω.1 (hcell₀.trans hω.2.1.symm) hsuccess₀))
   simpa [v13ConcreteFailureCount, finiteEventCount] using hle
+
+/-- In a globally success-homogeneous field cell, positive success mass forces
+the next-failure count in that same cell to be zero. -/
+theorem v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (cell : field.Cell)
+    (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell = 0 := by
+  exact
+    v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccessOn_of_success_pos
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet) cell hpos
+
+/-- If a supplied field determines the next success event on the current
+history support, any cell with positive next-success mass blocks the fixed-field
+prefix certificate. -/
+theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_cell_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccessOn field hist step)
+    (cell : field.Cell)
+    (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  have hfailure_zero :=
+    v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccessOn_of_success_pos
+      (Ω := Ω) (field := field) (hist := hist) (step := step)
+      hdet cell hpos
+  exact not_v13FieldPrefixInstantiation_of_success_gt_failure cell (by
+    rw [hfailure_zero]
+    exact hpos)
 
 /-- If a supplied field determines the next success event, any cell with
 positive next-success mass blocks the fixed-field prefix certificate. -/
@@ -880,21 +936,17 @@ theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_cell_success
     (cell : field.Cell)
     (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
     ¬ V13FieldPrefixInstantiation field hist step := by
-  have hfailure_zero :=
-    v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
-      (Ω := Ω) (field := field) (hist := hist) (step := step)
-      hdet cell hpos
-  exact not_v13FieldPrefixInstantiation_of_success_gt_failure cell (by
-    rw [hfailure_zero]
-    exact hpos)
+  exact
+    not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_cell_success
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet) cell hpos
 
-/-- A success-determining field can satisfy the fixed-field prefix certificate
-only when the next-success prefix has zero mass. -/
-theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
+/-- A prefix-relative success-determining field can satisfy the fixed-field
+prefix certificate only when the next-success prefix has zero mass. -/
+theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
     {step : V13SwitchedStep Ω}
-    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hdet : V13HistoryFieldDeterminesSuccessOn field hist step)
     (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
     ¬ V13FieldPrefixInstantiation field hist step := by
   have hnonempty :
@@ -908,8 +960,34 @@ theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_succe
       0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell := by
     rw [v13ConcreteSuccessCount]
     exact Fintype.card_pos_iff.mpr ⟨⟨ω, hboth.1, rfl, hboth.2⟩⟩
-  exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_cell_success
+  exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_cell_success
     hdet cell hcellpos
+
+/-- A success-determining field can satisfy the fixed-field prefix certificate
+only when the next-success prefix has zero mass. -/
+theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet) hpos
+
+/-- A prefix-relative success-determining field with positive next-success mass
+cannot satisfy the operational same-cell failure-matching obligation. -/
+theorem not_v13FieldFailureMatching_of_fieldDeterminesSuccessOn_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccessOn field hist step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldFailureMatching field hist step := by
+  intro hmatch
+  exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
+    hdet hpos (v13FieldPrefixInstantiation_of_failureMatching hmatch)
 
 /-- A success-determining field with positive next-success mass cannot satisfy
 the operational same-cell failure-matching obligation. -/
@@ -920,12 +998,28 @@ theorem not_v13FieldFailureMatching_of_fieldDeterminesSuccess_positive_success
     (hdet : V13HistoryFieldDeterminesSuccess field step)
     (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
     ¬ V13FieldFailureMatching field hist step := by
-  intro hmatch
-  exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
-    hdet hpos (v13FieldPrefixInstantiation_of_failureMatching hmatch)
+  exact
+    not_v13FieldFailureMatching_of_fieldDeterminesSuccessOn_positive_success
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet) hpos
 
 /-- Conversely, a valid same-cell failure matching on a positive next-success
-prefix proves that the supplied field does not determine the next success bit. -/
+prefix proves that the supplied field does not determine the next success bit
+on the current history support. -/
+theorem not_v13HistoryFieldDeterminesSuccessOn_of_failureMatching_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccessOn field hist step := by
+  intro hdet
+  exact
+    not_v13FieldFailureMatching_of_fieldDeterminesSuccessOn_positive_success
+      hdet hpos hmatch
+
+/-- Conversely, a valid same-cell failure matching on a positive next-success
+prefix proves that the supplied field does not globally determine the next
+success bit. -/
 theorem not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
@@ -935,8 +1029,9 @@ theorem not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
     ¬ V13HistoryFieldDeterminesSuccess field step := by
   intro hdet
   exact
-    not_v13FieldFailureMatching_of_fieldDeterminesSuccess_positive_success
-      hdet hpos hmatch
+    not_v13HistoryFieldDeterminesSuccessOn_of_failureMatching_positive_success
+      hmatch hpos
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet)
 
 /-- A fixed-field certificate induces the existential concrete-cell certificate. -/
 def v13ConcretePrefixInstantiation_of_fieldPrefixInstantiation
@@ -1255,8 +1350,29 @@ theorem v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
       simpa [v13FieldedSuccessEvents, List.append_assoc] using hitem
 
 /-- At any later fielded position, a recursive matching proof on a positive
-next-success prefix rules out a supplied field that already determines the next
-success bit. -/
+next-success prefix rules out a supplied field that determines the next success
+bit on the accumulated history support. -/
+theorem not_v13HistoryFieldDeterminesSuccessOn_at_append_cons_of_failureMatchingFrom_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hmatch :
+      V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix))
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccessOn item.field
+      (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  exact
+    not_v13HistoryFieldDeterminesSuccessOn_of_failureMatching_positive_success
+      (v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
+        (hist := hist) (pre := pre) (item := item) (suffix := suffix) hmatch)
+      hpos
+
+/-- At any later fielded position, a recursive matching proof on a positive
+next-success prefix rules out a supplied field that globally determines the
+next success bit. -/
 theorem not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFrom_positive_success
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -1268,14 +1384,33 @@ theorem not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFr
       0 < finiteHistoryCount Ω
         ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
     ¬ V13HistoryFieldDeterminesSuccess item.field item.step := by
+  intro hdet
   exact
-    not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
-      (v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
-        (hist := hist) (pre := pre) (item := item) (suffix := suffix) hmatch)
-      hpos
+    not_v13HistoryFieldDeterminesSuccessOn_at_append_cons_of_failureMatchingFrom_positive_success
+      hmatch hpos
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet)
 
-/-- A success-determining later field with positive next-success mass blocks
-the recursive same-cell matching obligation itself. -/
+/-- A prefix-relative success-determining later field with positive
+next-success mass blocks the recursive same-cell matching obligation itself. -/
+theorem not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccessOn_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet :
+      V13HistoryFieldDeterminesSuccessOn item.field
+        (hist ++ v13FieldedSuccessEvents pre) item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix) := by
+  intro hmatch
+  exact
+    not_v13HistoryFieldDeterminesSuccessOn_at_append_cons_of_failureMatchingFrom_positive_success
+      hmatch hpos hdet
+
+/-- A globally success-determining later field with positive next-success mass
+blocks the recursive same-cell matching obligation itself. -/
 theorem not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccess_positive_success
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -1286,10 +1421,12 @@ theorem not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesS
       0 < finiteHistoryCount Ω
         ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
     ¬ V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix) := by
-  intro hmatch
   exact
-    not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFrom_positive_success
-      hmatch hpos hdet
+    not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccessOn_positive_success
+      (hdet :=
+        v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess
+          (hist := hist ++ v13FieldedSuccessEvents pre) hdet)
+      hpos
 
 /-- Fixed-field v13 certificates instantiate the generic sequential
 half-admissibility interface. -/
@@ -1392,8 +1529,22 @@ theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiati
   exact hfail h.1
 
 /-- If the supplied first field in a fielded suffix determines the next success
-event and that next-success prefix has positive mass, the whole fielded suffix
-is blocked. -/
+event on the current history support and that next-success prefix has positive
+mass, the whole fielded suffix is blocked. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccessOn_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    {rest : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccessOn item.field hist item.step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (item :: rest) := by
+  exact not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
+    (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
+      hdet hpos)
+
+/-- If the supplied first field in a fielded suffix globally determines the next
+success event and that next-success prefix has positive mass, the whole fielded
+suffix is blocked. -/
 theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccess_positive_success
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
@@ -1401,9 +1552,9 @@ theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccess_pos
     (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
     (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
     ¬ V13FieldSwitchingInstantiatedFrom hist (item :: rest) := by
-  exact not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
-    (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
-      hdet hpos)
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccessOn_positive_success
+      (v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess hdet) hpos
 
 /-- A failed fixed-field prefix certificate at any later position blocks the
 whole fielded switching list.  The history at the failed item is exactly the
@@ -1435,8 +1586,31 @@ theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInst
         simpa [v13FieldedSuccessEvents, List.append_assoc] using hfail
       exact ih (hist := hist ++ [head.step.successEvent]) hfail' h.2
 
-/-- If any later supplied field determines its next success event and the
-corresponding next-success prefix has positive mass, the whole fielded
+/-- If any later supplied field determines its next success event on the
+accumulated history support and the corresponding next-success prefix has
+positive mass, the whole fielded switching list is blocked. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccessOn_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet :
+      V13HistoryFieldDeterminesSuccessOn item.field
+        (hist ++ v13FieldedSuccessEvents pre) item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
+      (hist := hist) (pre := pre) (item := item) (suffix := suffix)
+      (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
+        (Ω := Ω) (field := item.field)
+        (hist := hist ++ v13FieldedSuccessEvents pre) (step := item.step)
+        hdet hpos)
+
+/-- If any later supplied field globally determines its next success event and
+the corresponding next-success prefix has positive mass, the whole fielded
 switching list is blocked. -/
 theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccess_positive_success
     {Ω : Type u} [Fintype Ω]
@@ -1449,12 +1623,11 @@ theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSucc
         ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
     ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
   exact
-    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
-      (hist := hist) (pre := pre) (item := item) (suffix := suffix)
-      (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
-        (Ω := Ω) (field := item.field)
-        (hist := hist ++ v13FieldedSuccessEvents pre) (step := item.step)
-        hdet hpos)
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccessOn_positive_success
+      (hdet :=
+        v13HistoryFieldDeterminesSuccessOn_of_determinesSuccess
+          (hist := hist ++ v13FieldedSuccessEvents pre) hdet)
+      hpos
 
 /-- A success-revealing fielded step with positive next-success mass blocks the
 entire fixed-field switching suffix. -/
@@ -1732,6 +1905,18 @@ def v13BoolPairFirstCoordinateField : V13HistoryField (Bool × Bool) where
   Cell := Bool
   cellOf := fun ω => ω.1
 
+/-- A fixed field that reveals the second coordinate.  It does not globally
+determine first-coordinate success, but it does after conditioning on the
+diagonal history event below. -/
+def v13BoolPairSecondCoordinateField : V13HistoryField (Bool × Bool) where
+  Cell := Bool
+  cellOf := fun ω => ω.2
+
+/-- The diagonal history event `first = second` on the Boolean square. -/
+def v13BoolPairDiagonalEvent : FiniteEvent (Bool × Bool) where
+  pred := fun ω => ω.1 = ω.2
+  decidablePred := fun _ => inferInstance
+
 /-- The first-coordinate field determines exact success for the repeated
 first-coordinate switched step. -/
 theorem v13BoolPairFirstCoordinateField_determinesSuccess :
@@ -1745,6 +1930,34 @@ theorem v13BoolPairFirstCoordinateField_determinesSuccess :
           cases a <;> cases a' <;> cases b <;> cases b' <;>
             simp [v13BoolPairFirstCoordinateField, v13BoolPairRepeatedStep,
               V13SwitchedStep.successEvent] at hcell hsucc ⊢
+
+/-- The second-coordinate field does not globally determine first-coordinate
+success: outside the diagonal, points with the same second coordinate can have
+different first-coordinate success values. -/
+theorem not_v13BoolPairSecondCoordinateField_determinesSuccess :
+    ¬ V13HistoryFieldDeterminesSuccess v13BoolPairSecondCoordinateField
+      v13BoolPairRepeatedStep := by
+  intro hdet
+  have htarget :
+      v13BoolPairRepeatedStep.successEvent.pred (false, true) :=
+    hdet (ω := (true, true)) (ω' := (false, true)) rfl (by decide)
+  simp [v13BoolPairRepeatedStep, V13SwitchedStep.successEvent] at htarget
+
+/-- After conditioning on the diagonal history event, the second-coordinate
+field does determine first-coordinate success.  This is the prefix-relative
+case that a purely global blocker would miss. -/
+theorem v13BoolPairSecondCoordinateField_determinesSuccessOn_diagonal :
+    V13HistoryFieldDeterminesSuccessOn v13BoolPairSecondCoordinateField
+      [v13BoolPairDiagonalEvent] v13BoolPairRepeatedStep := by
+  intro ω ω' hω hω' hcell hsucc
+  cases ω with
+  | mk a b =>
+      cases ω' with
+      | mk a' b' =>
+          cases a <;> cases a' <;> cases b <;> cases b' <;>
+            simp [v13BoolPairSecondCoordinateField, v13BoolPairRepeatedStep,
+              v13BoolPairDiagonalEvent, V13SwitchedStep.successEvent,
+              allEvents] at hω hω' hcell hsucc ⊢
 
 /-- The first-coordinate switched step paired with the fixed field that reveals
 that same coordinate. -/
@@ -1768,6 +1981,12 @@ def v13BoolPairUnitFieldedStep : V13FieldedStep (Bool × Bool) where
 Boolean square. -/
 theorem v13BoolPairRepeatedStep_success_count :
     finiteHistoryCount (Bool × Bool) [v13BoolPairRepeatedStep.successEvent] = 2 := by
+  decide
+
+/-- On the diagonal prefix, first-coordinate success has positive mass. -/
+theorem v13BoolPairDiagonal_repeatedStep_success_count :
+    finiteHistoryCount (Bool × Bool)
+      ([v13BoolPairDiagonalEvent] ++ [v13BoolPairRepeatedStep.successEvent]) = 1 := by
   decide
 
 /-- The first success event is globally half-admissible from the empty history. -/
@@ -1824,6 +2043,30 @@ theorem not_v13FieldPrefixInstantiation_firstCoordinateField_empty_by_determined
   exact
     not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
       v13BoolPairFirstCoordinateField_determinesSuccess (by decide)
+
+/-- Prefix-relative success determination is enough to block a fixed-field
+certificate even when the field is not globally success-determining. -/
+theorem not_v13FieldPrefixInstantiation_secondCoordinateField_diagonal_by_determines_success_on :
+    ¬ V13FieldPrefixInstantiation v13BoolPairSecondCoordinateField
+      [v13BoolPairDiagonalEvent] v13BoolPairRepeatedStep := by
+  exact
+    not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccessOn_positive_success
+      v13BoolPairSecondCoordinateField_determinesSuccessOn_diagonal
+      (by
+        rw [v13BoolPairDiagonal_repeatedStep_success_count]
+        decide)
+
+/-- The same diagonal-prefix obstruction blocks the operational same-cell
+success-to-failure matching formulation. -/
+theorem not_v13FieldFailureMatching_secondCoordinateField_diagonal_by_determines_success_on :
+    ¬ V13FieldFailureMatching v13BoolPairSecondCoordinateField
+      [v13BoolPairDiagonalEvent] v13BoolPairRepeatedStep := by
+  exact
+    not_v13FieldFailureMatching_of_fieldDeterminesSuccessOn_positive_success
+      v13BoolPairSecondCoordinateField_determinesSuccessOn_diagonal
+      (by
+        rw [v13BoolPairDiagonal_repeatedStep_success_count]
+        decide)
 
 /-- A compact separation theorem: the generic prefix half-step can hold while
 the natural fixed first-coordinate history field fails the v13 cellwise

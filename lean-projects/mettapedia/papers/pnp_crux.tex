@@ -236,14 +236,19 @@ success prefix has zero mass.  The latest necessary-condition theorem gives the 
 positive form: under any valid fixed-field certificate, every cell containing a successful point
 must also contain an unsuccessful prefix point.  A singleton successful atom is therefore already
 fatal.  The newest strengthening generalizes the success-revealing-field blocker:
-\texttt{V13HistoryFieldDeterminesSuccess} says that every field cell is homogeneous for the next
-success event, and
-\texttt{not\_v13FieldPrefixInstantiation\_of\_fieldDeterminesSuccess\_positive\_success} proves
-that any such field is certifiable only when the next-success prefix has zero mass.  Thus a proposed
-v13 history field cannot already decide the next success bit on any positive-mass prefix; it must
-leave enough same-cell counterexamples to satisfy the success-versus-failure balance.  The Boolean
-first-coordinate field now fails by this general theorem, not only by an arithmetic calculation on
-one named cell.  The blocker has also been lifted from the head of a fielded suffix to an arbitrary
+\texttt{V13HistoryFieldDeterminesSuccessOn} says that every field cell is homogeneous for the next
+success event on the current history support, and the corresponding positive-success blocker
+proves that any such field is certifiable only when the next-success prefix has zero mass.  The
+older global predicate \texttt{V13HistoryFieldDeterminesSuccess} is now just a special case.  Thus
+a proposed v13 history field cannot already decide the next success bit after conditioning on any
+positive-mass prefix; it must leave enough same-cell counterexamples to satisfy the
+success-versus-failure balance.  Lean also checks the repair-resistant distinction: on the Boolean
+square, the second-coordinate field does \emph{not} globally determine first-coordinate success,
+but after conditioning on the diagonal history event it does determine that success bit, and the
+positive diagonal success prefix has no fixed-field certificate or same-cell failure matching.  The
+Boolean first-coordinate field now fails by the global special case, not only by an arithmetic
+calculation on one named cell.  The blocker has also been lifted from the head of a fielded suffix
+to an arbitrary
 later position: a failed fixed-field prefix certificate after any preceding fielded list blocks the
 whole original list, with the current history equal to the old history extended by the preceding
 success events.  In the Boolean square, the one-cell field certifies the first half-success cut, but
@@ -256,7 +261,8 @@ fielded version is equivalent to the whole fixed-field switching instantiation. 
 repair can now be asked for an explicit same-cell matching at each switched position, not merely a
 global counting slogan.  The matching interface also gives the contrapositive in the form needed
 for audit: if the accumulated next-success prefix has positive mass and the recursive matching
-proof exists, then the supplied field at that position cannot determine the next success bit.
+proof exists, then the supplied field at that position cannot determine the next success bit on the
+accumulated history support.
 The same v13-specific module also checks the smallest
 positive-mass failure mode for sequential repetition: if the second switched step repeats the first
 exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
@@ -1992,11 +1998,14 @@ The present crux-first formal work yields a clean conditional diagnosis.
   certificate, so a field that exposes the next success event is admissible only in the vacuous
   zero-success case.  Equivalently, every successful atom in a valid fixed-field certificate must
   be mixed with at least one unsuccessful prefix point.  The same conclusion now holds for any
-  supplied field that determines the next success bit cellwise: on a positive-mass success prefix,
-  such a field blocks the whole fielded suffix, and the theorem applies at any later fielded
-  position after the preceding success-event history has been accumulated.  In the operational
-  matching formulation, any recursive matching proof on such a positive-mass prefix directly
-  proves that the supplied field is not success-determining.
+  supplied field that determines the next success bit cellwise on the current history support: on a
+  positive-mass success prefix, such a field blocks the whole fielded suffix, and the theorem
+  applies at any later fielded position after the preceding success-event history has been
+  accumulated.  This is strictly stronger than the global version: the Boolean-square diagonal
+  model has a second-coordinate field that is not globally success-determining but becomes
+  success-determining after conditioning.  In the operational matching formulation, any recursive
+  matching proof on such a positive-mass prefix directly proves that the supplied field is not
+  success-determining on the accumulated history support.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the
