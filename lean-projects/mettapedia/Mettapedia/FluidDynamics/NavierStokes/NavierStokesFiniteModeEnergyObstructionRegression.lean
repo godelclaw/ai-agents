@@ -48,6 +48,16 @@ theorem finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_if
       (∀ i j : Fin 3, A i j = 0) ∨ g 0 = 0 :=
   finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_iff A g
 
+/-- The slab bounded-energy boundary for matrix-linear finite modes is exact:
+bounded-energy membership forces the matrix mode to vanish or the scalar
+amplitude to vanish throughout the slab. -/
+theorem boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff_regression
+    (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) (T : ℝ) :
+    boundedKineticEnergyUpTo (finiteModeLinearMatrixTimeVelocity A g) T ↔
+      (∀ i j : Fin 3, A i j = 0) ∨
+        ∀ t : NSTime, 0 ≤ t → t ≤ T → g t = 0 :=
+  boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff A g T
+
 /-- The smooth active matrix-linear finite-mode package exposes the exact slab
 energy obstruction. -/
 theorem finiteModeLinearMatrix_timeDependent_smooth_momentum_incompressible_without_boundedEnergyUpTo_exists_regression

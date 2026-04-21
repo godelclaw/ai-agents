@@ -2540,6 +2540,14 @@ whole-space matrix-linear ansatz cannot be repaired into the Clay-style
 finite-energy input class while it remains an active nonzero linear-growth
 profile; a repair must genuinely localize or decay the spatial modes.
 
+The slab-bounded-energy boundary is now exact as well.  Lean proves
+\texttt{boundedKineticEnergyUpTo\_finiteModeLinearMatrixTimeVelocity\_iff}:
+on a fixed slab \(0\le t\le T\), the velocity \(u(t,x)=g(t)Ax\) satisfies the
+finite-time bounded-energy predicate if and only if either \(A=0\) entrywise or
+\(g(t)=0\) throughout that slab.  Thus the obstruction is not an artifact of
+the time-zero input filter; any nonzero matrix-linear mode that is active even
+once on the slab is excluded directly by the finite-time energy slot.
+
 The same file now also discharges the basic smoothness side conditions for
 this cell.  The theorem
 \texttt{smoothSpaceTimeVelocity\_twoModeSchwartzVelocity} proves that smooth

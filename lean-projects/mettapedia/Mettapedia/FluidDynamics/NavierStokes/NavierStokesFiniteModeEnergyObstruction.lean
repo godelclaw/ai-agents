@@ -98,6 +98,55 @@ theorem finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_if
         simp [hg0]
       simpa [hfield] using finiteInitialKineticEnergy_zero
 
+/-- Exact finite-time energy boundary for the matrix-linear finite-mode
+velocity: on a slab `0 ≤ t ≤ T`, bounded kinetic energy holds precisely in the
+degenerate cases where the matrix mode is zero, or the scalar amplitude
+vanishes throughout the slab.  Any active nonzero linear-growth profile is
+therefore excluded by the energy predicate itself. -/
+theorem boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff
+    (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) (T : ℝ) :
+    boundedKineticEnergyUpTo (finiteModeLinearMatrixTimeVelocity A g) T ↔
+      (∀ i j : Fin 3, A i j = 0) ∨
+        ∀ t : NSTime, 0 ≤ t → t ≤ T → g t = 0 := by
+  constructor
+  · intro hE
+    by_cases hAzero : ∀ i j : Fin 3, A i j = 0
+    · exact Or.inl hAzero
+    · right
+      by_contra hzeroOn
+      have hAnz : ∃ i j : Fin 3, A i j ≠ 0 := by
+        by_contra hnone
+        apply hAzero
+        intro i j
+        by_contra hij
+        exact hnone ⟨i, j, hij⟩
+      have hactive : ∃ t : NSTime, 0 ≤ t ∧ t ≤ T ∧ g t ≠ 0 := by
+        by_contra hno
+        apply hzeroOn
+        intro t ht0 htT
+        by_contra hgt
+        exact hno ⟨t, ht0, htT, hgt⟩
+      exact (not_boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity
+        hAnz hactive) hE
+  · intro hdegenerate
+    refine ⟨0, le_rfl, ?_⟩
+    intro t ht0 htT
+    have hfield :
+        kineticEnergyDensity (finiteModeLinearMatrixTimeVelocity A g) t =
+          fun _ : NSSpace => 0 := by
+      funext x
+      have hvelocity :
+          finiteModeLinearMatrixTimeVelocity A g t x = (0 : NSSpace) := by
+        ext j
+        rw [finiteModeLinearMatrixTimeVelocity_apply]
+        rcases hdegenerate with hAzero | hzeroOn
+        · simp [hAzero]
+        · simp [hzeroOn t ht0 htT]
+      simp [kineticEnergyDensity, hvelocity]
+    constructor
+    · simp [hfield]
+    · simp [kineticEnergyAt, hfield]
+
 /-- Smooth matrix-linear finite-mode candidates give the exact finite-time
 status on an active slab: smooth velocity, smooth pressure, pointwise momentum,
 and incompressibility are available on the slab, while finite-time bounded
