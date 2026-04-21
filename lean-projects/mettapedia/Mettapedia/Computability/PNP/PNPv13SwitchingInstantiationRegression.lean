@@ -175,6 +175,40 @@ theorem field_prefix_certificate_iff_success_le_failure_regression
           v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
   exact v13FieldPrefixInstantiation_iff_success_le_failure
 
+theorem field_failure_matching_iff_success_le_failure_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13FieldFailureMatching field hist step ↔
+      ∀ cell,
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+          v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
+  exact v13FieldFailureMatching_iff_success_le_failure
+
+theorem field_prefix_certificate_iff_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω} :
+    V13FieldPrefixInstantiation field hist step ↔
+      V13FieldFailureMatching field hist step := by
+  exact v13FieldPrefixInstantiation_iff_failureMatching
+
+def field_prefix_certificate_from_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step) :
+    V13FieldPrefixInstantiation field hist step :=
+  v13FieldPrefixInstantiation_of_failureMatching hmatch
+
+theorem no_field_prefix_certificate_from_no_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldFailureMatching field hist step) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact not_v13FieldPrefixInstantiation_of_not_failureMatching hfail
+
 theorem no_field_prefix_certificate_from_success_gt_failure_regression
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω}
@@ -350,6 +384,27 @@ theorem field_instantiation_empty_iff_cell_half_regression
       V13FieldSwitchingCellHalf items := by
   exact v13FieldSwitchingInstantiated_iff_cellHalf
 
+theorem field_instantiation_iff_failure_matching_from_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiatedFrom hist items ↔
+      V13FieldSwitchingFailureMatchingFrom hist items := by
+  exact v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom
+
+theorem field_instantiation_empty_iff_failure_matching_regression
+    {Ω : Type u} [Fintype Ω] {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiated items ↔
+      V13FieldSwitchingFailureMatching items := by
+  exact v13FieldSwitchingInstantiated_iff_failureMatching
+
+theorem product_bound_from_field_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    (items : List (V13FieldedStep Ω))
+    (h : V13FieldSwitchingFailureMatching items) :
+    2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+      finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
+  exact v13_product_bound_of_fieldFailureMatching items h
+
 theorem product_bound_violation_blocks_field_instantiation_regression
     {Ω : Type u} [Fintype Ω]
     {items : List (V13FieldedStep Ω)}
@@ -368,6 +423,13 @@ theorem failed_field_prefix_blocks_field_instantiation_regression
   exact
     not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
       hfail
+
+theorem failed_failure_matching_blocks_field_instantiation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist items := by
+  exact not_v13FieldSwitchingInstantiatedFrom_of_not_failureMatchingFrom hfail
 
 theorem determined_success_field_blocks_field_suffix_regression
     {Ω : Type u} [Fintype Ω]
@@ -524,6 +586,13 @@ theorem unit_field_first_step_certificate_regression :
       ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
   exact v13FieldPrefixInstantiation_unitField_empty
 
+theorem unit_field_first_step_failure_matching_regression :
+    V13FieldFailureMatching v13BoolPairUnitField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact
+    v13FieldPrefixInstantiation_iff_failureMatching.mp
+      v13FieldPrefixInstantiation_unitField_empty
+
 theorem first_coordinate_field_prefix_true_count_regression :
     v13ConcretePrefixCount (Ω := Bool × Bool)
       ([] : List (FiniteEvent (Bool × Bool)))
@@ -558,6 +627,13 @@ theorem no_fixed_first_coordinate_field_certificate_by_determined_success_regres
   exact
     not_v13FieldPrefixInstantiation_firstCoordinateField_empty_by_determined_success
 
+theorem no_first_coordinate_field_failure_matching_regression :
+    ¬ V13FieldFailureMatching v13BoolPairFirstCoordinateField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  intro hmatch
+  exact not_v13FieldPrefixInstantiation_firstCoordinateField_empty
+    (v13FieldPrefixInstantiation_of_failureMatching hmatch)
+
 theorem prefix_half_without_fixed_first_coordinate_certificate_regression :
     PrefixHalfStep ([] : List (FiniteEvent (Bool × Bool)))
         v13BoolPairRepeatedStep.successEvent ∧
@@ -576,6 +652,13 @@ theorem unit_field_then_first_coordinate_field_second_blocked_regression :
       ¬ V13FieldSwitchingInstantiated
         [v13BoolPairUnitFieldedStep, v13BoolPairFirstCoordinateFieldedStep] := by
   exact unitField_first_step_then_firstCoordinateField_second_blocked
+
+theorem no_failure_matching_for_unit_then_first_coordinate_regression :
+    ¬ V13FieldSwitchingFailureMatching
+      [v13BoolPairUnitFieldedStep, v13BoolPairFirstCoordinateFieldedStep] := by
+  intro hmatch
+  exact unitField_first_step_then_firstCoordinateField_second_blocked.2
+    (v13FieldSwitchingInstantiated_iff_failureMatching.mpr hmatch)
 
 theorem no_success_revealing_field_certificate_bool_pair_regression :
     ¬ V13FieldPrefixInstantiation

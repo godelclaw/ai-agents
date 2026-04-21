@@ -1,4 +1,5 @@
 import Mathlib.Data.Fintype.BigOperators
+import Mathlib.Data.Fintype.EquivFin
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mettapedia.Computability.PNP.FiniteSwitchingAdmissibility
@@ -721,6 +722,106 @@ theorem v13FieldPrefixInstantiation_iff_success_le_failure
     exact (v13ConcreteCellHalf_iff_success_le_failure
       (Ω := Ω) hist step field.cellOf cell).mpr (h cell)
 
+/-- The successful points in a supplied history cell for the next v13 switched
+coordinate. -/
+def V13CellSuccessFiber {Ω : Type u} [Fintype Ω]
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) (cell : field.Cell) : Type u :=
+  {ω : Ω // allEvents hist ω ∧ field.cellOf ω = cell ∧ step.successEvent.pred ω}
+
+/-- The unsuccessful points in a supplied history cell for the next v13
+switched coordinate. -/
+def V13CellFailureFiber {Ω : Type u} [Fintype Ω]
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) (cell : field.Cell) : Type u :=
+  {ω : Ω // allEvents hist ω ∧ field.cellOf ω = cell ∧ ¬ step.successEvent.pred ω}
+
+instance v13CellSuccessFiber_fintype {Ω : Type u} [Fintype Ω]
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) (cell : field.Cell) :
+    Fintype (V13CellSuccessFiber field hist step cell) := by
+  unfold V13CellSuccessFiber
+  infer_instance
+
+instance v13CellFailureFiber_fintype {Ω : Type u} [Fintype Ω]
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) (cell : field.Cell) :
+    Fintype (V13CellFailureFiber field hist step cell) := by
+  unfold V13CellFailureFiber
+  infer_instance
+
+/-- The operational fixed-field obligation: in every supplied history cell,
+successful prefix points can be injectively matched to unsuccessful prefix
+points in the same cell. -/
+def V13FieldFailureMatching {Ω : Type u} [Fintype Ω]
+    (field : V13HistoryField Ω) (hist : List (FiniteEvent Ω))
+    (step : V13SwitchedStep Ω) : Prop :=
+  ∀ cell, Nonempty
+    (V13CellSuccessFiber field hist step cell ↪
+      V13CellFailureFiber field hist step cell)
+
+/-- The same-cell failure matching interface is exactly the per-cell
+success-versus-failure count balance. -/
+theorem v13FieldFailureMatching_iff_success_le_failure
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} :
+    V13FieldFailureMatching field hist step ↔
+      ∀ cell,
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+          v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
+  constructor
+  · intro hmatch cell
+    rcases hmatch cell with ⟨emb⟩
+    have hcard := Fintype.card_le_of_embedding emb
+    simpa [V13CellSuccessFiber, V13CellFailureFiber,
+      v13ConcreteSuccessCount, v13ConcreteFailureCount, finiteEventCount]
+      using hcard
+  · intro hbalance cell
+    rw [Function.Embedding.nonempty_iff_card_le]
+    simpa [V13CellSuccessFiber, V13CellFailureFiber,
+      v13ConcreteSuccessCount, v13ConcreteFailureCount, finiteEventCount]
+      using hbalance cell
+
+/-- A fixed-field v13 prefix certificate is equivalent to an explicit
+same-cell injection from successful prefix points to unsuccessful prefix
+points.  This is the constructive interface a proof of v13 sequential
+admissibility must supply after the field is fixed. -/
+theorem v13FieldPrefixInstantiation_iff_failureMatching
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} :
+    V13FieldPrefixInstantiation field hist step ↔
+      V13FieldFailureMatching field hist step := by
+  constructor
+  · intro cert
+    exact v13FieldFailureMatching_iff_success_le_failure.mpr
+      (v13FieldPrefixInstantiation_iff_success_le_failure.mp cert)
+  · intro hmatch
+    exact v13FieldPrefixInstantiation_iff_success_le_failure.mpr
+      (v13FieldFailureMatching_iff_success_le_failure.mp hmatch)
+
+/-- An explicit same-cell success-to-failure matching is sufficient to build
+the fixed-field prefix certificate. -/
+def v13FieldPrefixInstantiation_of_failureMatching
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step) :
+    V13FieldPrefixInstantiation field hist step :=
+  v13FieldPrefixInstantiation_iff_failureMatching.mpr hmatch
+
+/-- Failure of the same-cell matching obligation blocks the fixed-field prefix
+certificate. -/
+theorem not_v13FieldPrefixInstantiation_of_not_failureMatching
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldFailureMatching field hist step) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  intro cert
+  exact hfail (v13FieldPrefixInstantiation_iff_failureMatching.mp cert)
+
 /-- If a field cell has more next-success points than next-failure points, the
 fixed-field prefix certificate is impossible. -/
 theorem not_v13FieldPrefixInstantiation_of_success_gt_failure
@@ -1043,6 +1144,69 @@ theorem v13FieldSwitchingInstantiated_iff_cellHalf
       V13FieldSwitchingCellHalf items := by
   exact v13FieldSwitchingInstantiatedFrom_iff_cellHalfFrom
 
+/-- Recursive operational matching obligation: at each fielded step, every
+successful point in each current history cell must be injectively matchable to
+an unsuccessful point in the same cell. -/
+def V13FieldSwitchingFailureMatchingFrom {Ω : Type u} [Fintype Ω]
+    (hist : List (FiniteEvent Ω)) : List (V13FieldedStep Ω) → Prop
+  | [] => True
+  | item :: rest =>
+      V13FieldFailureMatching item.field hist item.step ∧
+        V13FieldSwitchingFailureMatchingFrom
+          (hist ++ [item.step.successEvent]) rest
+
+/-- Empty-history form of the recursive same-cell success-to-failure matching
+obligation. -/
+def V13FieldSwitchingFailureMatching {Ω : Type u} [Fintype Ω]
+    (items : List (V13FieldedStep Ω)) : Prop :=
+  V13FieldSwitchingFailureMatchingFrom ([] : List (FiniteEvent Ω)) items
+
+/-- The whole fixed-field v13 switching interface is exactly the recursive
+same-cell success-to-failure matching obligation. -/
+theorem v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiatedFrom hist items ↔
+      V13FieldSwitchingFailureMatchingFrom hist items := by
+  induction items generalizing hist with
+  | nil =>
+      constructor <;> intro h <;> trivial
+  | cons item rest ih =>
+      constructor
+      · intro h
+        rcases h with ⟨hitem, hrest⟩
+        exact ⟨v13FieldPrefixInstantiation_iff_failureMatching.mp hitem,
+          (ih.mp hrest)⟩
+      · intro h
+        rcases h with ⟨hitem, hrest⟩
+        exact ⟨v13FieldPrefixInstantiation_iff_failureMatching.mpr hitem,
+          (ih.mpr hrest)⟩
+
+/-- Empty-history form: fixed-field v13 switching is exactly recursive
+same-cell success-to-failure matching. -/
+theorem v13FieldSwitchingInstantiated_iff_failureMatching
+    {Ω : Type u} [Fintype Ω] {items : List (V13FieldedStep Ω)} :
+    V13FieldSwitchingInstantiated items ↔
+      V13FieldSwitchingFailureMatching items := by
+  exact v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom
+
+/-- Failure of the recursive same-cell matching obligation blocks fixed-field
+v13 switching. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_of_not_failureMatchingFrom
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist items := by
+  intro h
+  exact hfail (v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom.mp h)
+
+/-- Empty-history blocker from failure of recursive same-cell matching. -/
+theorem not_v13FieldSwitchingInstantiated_of_not_failureMatching
+    {Ω : Type u} [Fintype Ω] {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatching items) :
+    ¬ V13FieldSwitchingInstantiated items := by
+  exact not_v13FieldSwitchingInstantiatedFrom_of_not_failureMatchingFrom hfail
+
 /-- Fixed-field v13 certificates instantiate the generic sequential
 half-admissibility interface. -/
 theorem sequentialHalfAdmissibleFrom_of_v13FieldSwitchingInstantiatedFrom
@@ -1084,6 +1248,27 @@ theorem v13_product_bound_of_fieldInstantiated
       finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
   simpa [V13FieldSwitchingInstantiated] using
     v13_product_bound_of_fieldInstantiatedFrom
+      ([] : List (FiniteEvent Ω)) items h
+
+/-- Recursive same-cell matchings imply the finite tower product bound. -/
+theorem v13_product_bound_of_fieldFailureMatchingFrom
+    {Ω : Type u} [Fintype Ω]
+    (hist : List (FiniteEvent Ω)) (items : List (V13FieldedStep Ω))
+    (h : V13FieldSwitchingFailureMatchingFrom hist items) :
+    2 ^ items.length * finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+      finiteHistoryCount Ω hist := by
+  exact v13_product_bound_of_fieldInstantiatedFrom hist items
+    (v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom.mpr h)
+
+/-- Empty-history tower product bound from recursive same-cell matchings. -/
+theorem v13_product_bound_of_fieldFailureMatching
+    {Ω : Type u} [Fintype Ω]
+    (items : List (V13FieldedStep Ω))
+    (h : V13FieldSwitchingFailureMatching items) :
+    2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+      finiteHistoryCount Ω ([] : List (FiniteEvent Ω)) := by
+  simpa [V13FieldSwitchingFailureMatching] using
+    v13_product_bound_of_fieldFailureMatchingFrom
       ([] : List (FiniteEvent Ω)) items h
 
 /-- A global tower-product violation blocks any fixed-field v13 instantiation,
