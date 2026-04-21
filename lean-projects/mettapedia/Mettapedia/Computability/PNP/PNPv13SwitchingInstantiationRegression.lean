@@ -937,6 +937,44 @@ theorem product_bound_violation_blocks_concrete_v13_instantiation_regression
     ¬ V13ConcreteSwitchingInstantiated steps := by
   exact not_v13ConcreteSwitchingInstantiated_of_product_bound_violation hbad
 
+theorem failed_v13_prefix_position_from_not_instantiated_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (hfail : ¬ V13SwitchingInstantiatedFrom hist steps) :
+    ∃ pre step suffix,
+      steps = pre ++ step :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ v13SuccessEvents pre) step.successEvent := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_not_v13SwitchingInstantiatedFrom
+      hfail
+
+theorem failed_v13_prefix_position_from_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {steps : List (V13SwitchedStep Ω)}
+    (hbad :
+      ¬ 2 ^ steps.length *
+          finiteHistoryCount Ω (hist ++ v13SuccessEvents steps) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre step suffix,
+      steps = pre ++ step :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ v13SuccessEvents pre) step.successEvent := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_v13_product_bound_violation
+      hbad
+
+theorem failed_v13_prefix_position_from_empty_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {steps : List (V13SwitchedStep Ω)}
+    (hbad :
+      ¬ 2 ^ steps.length * finiteHistoryCount Ω (v13SuccessEvents steps) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ∃ pre step suffix,
+      steps = pre ++ step :: suffix ∧
+        ¬ PrefixHalfStep (v13SuccessEvents pre) step.successEvent := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_v13_empty_product_bound_violation
+      hbad
+
 theorem failed_prefix_blocks_v13_instantiation_regression
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}

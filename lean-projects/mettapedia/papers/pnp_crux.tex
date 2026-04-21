@@ -195,10 +195,15 @@ newest monotonicity lemmas also rule out a spurious edge case: if the current hi
 already empty, the next prefix half-step is automatic.  Hence real blockers must occur at
 positive-mass conditioning prefixes.  The generic layer now also records the global contrapositive:
 if the final intersection is too large for the claimed tower, then no sequential half-admissibility
-proof can exist at all.  The v13 layer specializes this to abstract atom ledgers, semantic
-concrete-cell certificates, and ordered fixed-field certificates.  Thus a proposed switched list
-must first pass the tower-product count check before any finer cell structure can rescue it.  The
-v13 instantiation layer now sharpens this further.
+proof can exist at all.  The newest localization theorem strengthens this from a global audit to a
+specific missing premise: any such product-bound violation yields a decomposition
+\texttt{pre ++ E :: suffix} whose accumulated prefix fails the conditional half-step.  The v13
+layer lifts the same statement from event lists to switched-coordinate lists, so a failed product
+count identifies an exact switched coordinate whose induced success event does not halve the
+current success history.  The v13 layer also specializes the product check to abstract atom
+ledgers, semantic concrete-cell certificates, and ordered fixed-field certificates.  Thus a proposed
+switched list must first pass the tower-product count check before any finer cell structure can
+rescue it.  The v13 instantiation layer now sharpens this further.
 Lean first proves a useful negative interface fact: an abstract atom ledger with arbitrary
 per-cell counts is equivalent to the generic prefix half-step, because a successful half-step can
 always be represented by one summary cell.  It then proves the same collapse for an existential
@@ -1999,7 +2004,7 @@ The present crux-first formal work yields a clean conditional diagnosis.
   admissibility premise on positive-mass prefixes.  Empty prefixes are automatically harmless by
   finite-history monotonicity, while one failed nonempty prefix half-step is enough to block the
   tower argument.  Independently, a failed final tower-product count blocks sequential
-  admissibility before one inspects any individual prefix.
+  admissibility and now localizes to an exact failed conditional prefix cut.
   \item The v13 instantiation obligation is now fixed-field-level: both the abstract
   atom-ledger interface and an existential concrete-cell interface are equivalent to the generic
   prefix half-step.  The manuscript must therefore specify the actual finite history field and

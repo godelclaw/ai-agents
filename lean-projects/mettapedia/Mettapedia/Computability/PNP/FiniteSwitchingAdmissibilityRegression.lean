@@ -67,6 +67,44 @@ theorem product_bound_violation_blocks_sequential_half_regression
     ¬ SequentialHalfAdmissible events := by
   exact not_sequentialHalfAdmissible_of_product_bound_violation hbad
 
+theorem failed_prefix_position_from_not_sequential_half_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist events : List (FiniteEvent Ω)}
+    (hfail : ¬ SequentialHalfAdmissibleFrom hist events) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ pre) E := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_not_sequentialHalfAdmissibleFrom
+      hfail
+
+theorem failed_prefix_position_from_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist events : List (FiniteEvent Ω)}
+    (hbad :
+      ¬ 2 ^ events.length *
+          finiteHistoryCount Ω (hist ++ events) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ pre) E := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_product_bound_violation
+      hbad
+
+theorem failed_prefix_position_from_empty_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {events : List (FiniteEvent Ω)}
+    (hbad :
+      ¬ 2 ^ events.length * finiteHistoryCount Ω events ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep pre E := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_empty_product_bound_violation
+      hbad
+
 theorem prefix_half_step_from_cons_regression
     {Ω : Type u} [Fintype Ω]
     {hist rest : List (FiniteEvent Ω)} {E : FiniteEvent Ω}

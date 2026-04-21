@@ -54,7 +54,10 @@ surface needed to test one brittle central link.
    Finally, any violation of the tower product inequality rules out the
    operational recursive matching proof itself, not just the wrapper
    certificate; the repeated Boolean-square one-cell fielded example exposes
-   this directly at the fixed-field layer.  The latest localization theorem
+   this directly at the fixed-field layer.  The product-bound contrapositive
+   now localizes to an exact failed conditional prefix half-step in both the
+   generic finite-switching interface and the v13 switched-coordinate list.
+   The fixed-field localization theorem
    turns any failed recursive matching proof, and any product-bound failure,
    into a concrete failed fielded position `pre ++ item :: suffix`; in the
    repeated one-cell example, the exact failed position is the second cut after

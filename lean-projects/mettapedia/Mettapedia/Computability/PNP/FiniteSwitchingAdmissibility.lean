@@ -196,4 +196,63 @@ theorem not_sequentialHalfAdmissible_of_product_bound_violation
   intro h
   exact hbad (finiteHistory_product_bound_of_sequentialHalf events h)
 
+/-- Failure of recursive sequential half-admissibility localizes to one failed
+prefix half-step, with the current history extended exactly by the preceding
+events. -/
+theorem exists_failed_prefixHalfStep_at_append_cons_of_not_sequentialHalfAdmissibleFrom
+    {Ω : Type u} [Fintype Ω]
+    {hist events : List (FiniteEvent Ω)}
+    (hfail : ¬ SequentialHalfAdmissibleFrom hist events) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ pre) E := by
+  induction events generalizing hist with
+  | nil =>
+      exact False.elim (hfail trivial)
+  | cons E rest ih =>
+      by_cases hstep : PrefixHalfStep hist E
+      · have htail :
+            ¬ SequentialHalfAdmissibleFrom (hist ++ [E]) rest := by
+          intro hrest
+          exact hfail ⟨by simpa [PrefixHalfStep] using hstep, hrest⟩
+        rcases ih (hist := hist ++ [E]) htail with
+          ⟨pre, F, suffix, hevents, hbad⟩
+        refine ⟨E :: pre, F, suffix, ?_, ?_⟩
+        · simp [hevents]
+        · simpa [List.append_assoc] using hbad
+      · refine ⟨[], E, rest, ?_, ?_⟩
+        · simp
+        · simpa using hstep
+
+/-- A tower-product violation localizes to a concrete failed prefix half-step. -/
+theorem exists_failed_prefixHalfStep_at_append_cons_of_product_bound_violation
+    {Ω : Type u} [Fintype Ω]
+    {hist events : List (FiniteEvent Ω)}
+    (hbad :
+      ¬ 2 ^ events.length *
+          finiteHistoryCount Ω (hist ++ events) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep (hist ++ pre) E := by
+  exact
+    exists_failed_prefixHalfStep_at_append_cons_of_not_sequentialHalfAdmissibleFrom
+      (not_sequentialHalfAdmissibleFrom_of_product_bound_violation hbad)
+
+/-- Empty-history form: a product-bound violation gives an exact failed
+conditional prefix cut. -/
+theorem exists_failed_prefixHalfStep_at_append_cons_of_empty_product_bound_violation
+    {Ω : Type u} [Fintype Ω]
+    {events : List (FiniteEvent Ω)}
+    (hbad :
+      ¬ 2 ^ events.length * finiteHistoryCount Ω events ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ∃ pre E suffix,
+      events = pre ++ E :: suffix ∧
+        ¬ PrefixHalfStep pre E := by
+  simpa using
+    exists_failed_prefixHalfStep_at_append_cons_of_product_bound_violation
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω)))
+      (events := events) (by simpa using hbad)
+
 end Mettapedia.Computability.PNP
