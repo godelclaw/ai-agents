@@ -1633,6 +1633,31 @@ theorem not_v13FieldSwitchingInstantiated_of_product_bound_violation
   intro h
   exact hbad (v13_product_bound_of_fieldInstantiated items h)
 
+/-- A global tower-product violation also blocks the operational recursive
+same-cell matching obligation directly. -/
+theorem not_v13FieldSwitchingFailureMatchingFrom_of_product_bound_violation
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist items := by
+  intro hmatch
+  exact hbad (v13_product_bound_of_fieldFailureMatchingFrom hist items hmatch)
+
+/-- Empty-history tower-product blocker for the operational recursive same-cell
+matching obligation. -/
+theorem not_v13FieldSwitchingFailureMatching_of_product_bound_violation
+    {Ω : Type u} [Fintype Ω]
+    {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ¬ V13FieldSwitchingFailureMatching items := by
+  intro hmatch
+  exact hbad (v13_product_bound_of_fieldFailureMatching items hmatch)
+
 /-- One failed fixed-field prefix certificate blocks the corresponding
 fixed-field switching suffix. -/
 theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
@@ -2282,6 +2307,16 @@ theorem v13BoolPairRepeatedTwoSteps_product_bound_violation :
       finiteHistoryCount (Bool × Bool) ([] : List (FiniteEvent (Bool × Bool))) := by
   decide
 
+/-- The same product-bound violation appears at the fixed-field layer even if
+both repeated cuts use the non-revealing one-cell field. -/
+theorem v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation :
+    ¬ 2 ^ [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep].length *
+        finiteHistoryCount (Bool × Bool)
+          (v13FieldedSuccessEvents
+            [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep]) ≤
+      finiteHistoryCount (Bool × Bool) ([] : List (FiniteEvent (Bool × Bool))) := by
+  decide
+
 /-- The whole two-step repeated-coordinate switching claim is therefore not
 instantiable in the v13 atom-ledger interface. -/
 theorem not_v13SwitchingInstantiated_boolPairRepeatedTwoSteps :
@@ -2305,6 +2340,22 @@ theorem not_v13ConcreteSwitchingInstantiated_boolPairRepeatedTwoSteps_by_product
       [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
   exact not_v13ConcreteSwitchingInstantiated_of_product_bound_violation
     v13BoolPairRepeatedTwoSteps_product_bound_violation
+
+/-- Even the non-revealing one-cell fixed field cannot instantiate both
+repeated cuts: the fielded product bound already fails. -/
+theorem not_v13FieldSwitchingInstantiated_unitField_repeatedTwoSteps_by_product_bound :
+    ¬ V13FieldSwitchingInstantiated
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
+  exact not_v13FieldSwitchingInstantiated_of_product_bound_violation
+    v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation
+
+/-- The same fielded product failure blocks the operational same-cell matching
+obligation itself. -/
+theorem not_v13FieldSwitchingFailureMatching_unitField_repeatedTwoSteps_by_product_bound :
+    ¬ V13FieldSwitchingFailureMatching
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
+  exact not_v13FieldSwitchingFailureMatching_of_product_bound_violation
+    v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation
 
 end BoolPairRepeatedStep
 

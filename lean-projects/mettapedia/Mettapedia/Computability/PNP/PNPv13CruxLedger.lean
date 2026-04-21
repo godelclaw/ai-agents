@@ -48,6 +48,10 @@ surface needed to test one brittle central link.
    obligation is also pointwise: every successful prefix point must have an
    explicit same-cell failed prefix point, so one successful point whose
    accumulated-history cell contains only successes already blocks the route.
+   Finally, any violation of the tower product inequality rules out the
+   operational recursive matching proof itself, not just the wrapper
+   certificate; the repeated Boolean-square one-cell fielded example exposes
+   this directly at the fixed-field layer.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

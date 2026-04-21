@@ -567,6 +567,26 @@ theorem product_bound_violation_blocks_field_instantiation_regression
     ¬ V13FieldSwitchingInstantiated items := by
   exact not_v13FieldSwitchingInstantiated_of_product_bound_violation hbad
 
+theorem product_bound_violation_blocks_field_failure_matching_from_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist items := by
+  exact
+    not_v13FieldSwitchingFailureMatchingFrom_of_product_bound_violation hbad
+
+theorem product_bound_violation_blocks_field_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length * finiteHistoryCount Ω (v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω ([] : List (FiniteEvent Ω))) :
+    ¬ V13FieldSwitchingFailureMatching items := by
+  exact not_v13FieldSwitchingFailureMatching_of_product_bound_violation hbad
+
 theorem failed_field_prefix_blocks_field_instantiation_regression
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -1090,6 +1110,14 @@ theorem repeated_two_steps_product_bound_violation_regression :
       finiteHistoryCount (Bool × Bool) ([] : List (FiniteEvent (Bool × Bool))) := by
   exact v13BoolPairRepeatedTwoSteps_product_bound_violation
 
+theorem unit_field_repeated_two_steps_product_bound_violation_regression :
+    ¬ 2 ^ [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep].length *
+        finiteHistoryCount (Bool × Bool)
+          (v13FieldedSuccessEvents
+            [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep]) ≤
+      finiteHistoryCount (Bool × Bool) ([] : List (FiniteEvent (Bool × Bool))) := by
+  exact v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation
+
 theorem no_v13_instantiation_for_repeated_two_steps_regression :
     ¬ V13SwitchingInstantiated
       [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
@@ -1105,5 +1133,17 @@ theorem no_concrete_v13_instantiation_for_repeated_two_steps_by_product_bound_re
       [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
   exact
     not_v13ConcreteSwitchingInstantiated_boolPairRepeatedTwoSteps_by_product_bound
+
+theorem no_field_instantiation_for_unit_field_repeated_two_steps_by_product_bound_regression :
+    ¬ V13FieldSwitchingInstantiated
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
+  exact
+    not_v13FieldSwitchingInstantiated_unitField_repeatedTwoSteps_by_product_bound
+
+theorem no_failure_matching_for_unit_field_repeated_two_steps_by_product_bound_regression :
+    ¬ V13FieldSwitchingFailureMatching
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
+  exact
+    not_v13FieldSwitchingFailureMatching_unitField_repeatedTwoSteps_by_product_bound
 
 end Mettapedia.Computability.PNP.PNPv13SwitchingInstantiationRegression

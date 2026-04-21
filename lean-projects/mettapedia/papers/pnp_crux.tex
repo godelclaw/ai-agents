@@ -274,7 +274,11 @@ exact-success event, then the first success prefix has count \(2\), the repeated
 still has count \(2\), and the second prefix half-step is false.  Thus no v13 switching certificate
 can exist for this repeated two-step switching claim.  The same example also fails the global
 product-bound audit: two identical half-mass success events still have half-mass intersection, so
-the required quarter-mass tower bound is false.
+the required quarter-mass tower bound is false.  The product-bound contrapositive now reaches the
+operational fixed-field matching layer as well: a tower-product violation rules out the recursive
+same-cell matching proof directly.  In particular, even using the non-revealing one-cell field for
+both repeated Boolean-square cuts cannot instantiate the fixed-field route; the fielded product
+bound and the recursive matching obligation both fail.
 
 Assessment after the v13 switching packets: the formal work does not prove that no conceivable
 v13-style switching strategy can work, because one residual positive target remains--name the
@@ -2017,7 +2021,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the
   global tower-product inequality, blocking both abstract and concrete v13 certificates by the new
-  product-bound contrapositive.
+  product-bound contrapositive.  The fixed-field version is now blocked at the same level: when
+  both repeated cuts use the one-cell field, the fielded tower-product bound fails and therefore no
+  recursive same-cell matching proof can exist.
 \end{enumerate}
 
 These are currently the sharpest formally checked cruxes we have in Lean.
