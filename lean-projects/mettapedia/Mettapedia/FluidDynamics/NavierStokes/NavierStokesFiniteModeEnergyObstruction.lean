@@ -147,6 +147,53 @@ theorem boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff
     · simp [hfield]
     · simp [kineticEnergyAt, hfield]
 
+/-- Exact global energy boundary for the matrix-linear finite-mode velocity:
+globally bounded kinetic energy holds precisely when the matrix mode is zero,
+or the scalar amplitude vanishes at every time.  This is the whole-time
+counterpart of the slab classification. -/
+theorem boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff
+    (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) :
+    boundedKineticEnergy (finiteModeLinearMatrixTimeVelocity A g) ↔
+      (∀ i j : Fin 3, A i j = 0) ∨ ∀ t : NSTime, g t = 0 := by
+  constructor
+  · intro hE
+    by_cases hAzero : ∀ i j : Fin 3, A i j = 0
+    · exact Or.inl hAzero
+    · right
+      by_contra hzero
+      have hAnz : ∃ i j : Fin 3, A i j ≠ 0 := by
+        by_contra hnone
+        apply hAzero
+        intro i j
+        by_contra hij
+        exact hnone ⟨i, j, hij⟩
+      have hgactive : ∃ t : NSTime, g t ≠ 0 := by
+        by_contra hno
+        apply hzero
+        intro t
+        by_contra hgt
+        exact hno ⟨t, hgt⟩
+      exact (not_boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity
+        hAnz hgactive) hE
+  · intro hdegenerate
+    refine ⟨0, le_rfl, ?_⟩
+    intro t
+    have hfield :
+        kineticEnergyDensity (finiteModeLinearMatrixTimeVelocity A g) t =
+          fun _ : NSSpace => 0 := by
+      funext x
+      have hvelocity :
+          finiteModeLinearMatrixTimeVelocity A g t x = (0 : NSSpace) := by
+        ext j
+        rw [finiteModeLinearMatrixTimeVelocity_apply]
+        rcases hdegenerate with hAzero | hzero
+        · simp [hAzero]
+        · simp [hzero t]
+      simp [kineticEnergyDensity, hvelocity]
+    constructor
+    · simp [hfield]
+    · simp [kineticEnergyAt, hfield]
+
 /-- Smooth matrix-linear finite-mode candidates give the exact finite-time
 status on an active slab: smooth velocity, smooth pressure, pointwise momentum,
 and incompressibility are available on the slab, while finite-time bounded

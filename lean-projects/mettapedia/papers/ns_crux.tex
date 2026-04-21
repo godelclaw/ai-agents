@@ -2548,6 +2548,14 @@ finite-time bounded-energy predicate if and only if either \(A=0\) entrywise or
 the time-zero input filter; any nonzero matrix-linear mode that is active even
 once on the slab is excluded directly by the finite-time energy slot.
 
+The global bounded-energy boundary is exact too.  Lean proves
+\texttt{boundedKineticEnergy\_finiteModeLinearMatrixTimeVelocity\_iff}: the
+whole-time predicate \texttt{boundedKineticEnergy} holds for
+\(u(t,x)=g(t)Ax\) if and only if either \(A=0\) entrywise or \(g(t)=0\) for
+every time \(t\in\mathbb{R}\).  This rules out repairs that preserve a nonzero
+linear-growth matrix mode but try to move its activity outside the chosen slab;
+the global finite-energy slot sees every active time slice.
+
 The same file now also discharges the basic smoothness side conditions for
 this cell.  The theorem
 \texttt{smoothSpaceTimeVelocity\_twoModeSchwartzVelocity} proves that smooth

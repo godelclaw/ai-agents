@@ -58,6 +58,15 @@ theorem boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff_regressi
         ∀ t : NSTime, 0 ≤ t → t ≤ T → g t = 0 :=
   boundedKineticEnergyUpTo_finiteModeLinearMatrixTimeVelocity_iff A g T
 
+/-- The global bounded-energy boundary for matrix-linear finite modes is
+exact: globally bounded-energy membership forces the matrix mode to vanish or
+the scalar amplitude to vanish at every time. -/
+theorem boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff_regression
+    (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) :
+    boundedKineticEnergy (finiteModeLinearMatrixTimeVelocity A g) ↔
+      (∀ i j : Fin 3, A i j = 0) ∨ ∀ t : NSTime, g t = 0 :=
+  boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff A g
+
 /-- The smooth active matrix-linear finite-mode package exposes the exact slab
 energy obstruction. -/
 theorem finiteModeLinearMatrix_timeDependent_smooth_momentum_incompressible_without_boundedEnergyUpTo_exists_regression
