@@ -2540,6 +2540,15 @@ whole-space matrix-linear ansatz cannot be repaired into the Clay-style
 finite-energy input class while it remains an active nonzero linear-growth
 profile; a repair must genuinely localize or decay the spatial modes.
 
+The same boundary now holds at the finite-time witness layer on nonnegative
+slabs.  Lean proves
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_finiteModeLinearMatrixTimeVelocity\_initial\_iff}:
+when \(0\le T\), the witness type for initial datum \(x\mapsto g(0)Ax\) is
+inhabited if and only if \(A=0\) entrywise or \(g(0)=0\).  The forward
+direction uses the general theorem that every witness on a nonnegative slab has
+finite initial energy; the reverse direction is the canonical zero witness
+after the degenerate initial slice is identified with zero.
+
 The slab-bounded-energy boundary is now exact as well.  Lean proves
 \texttt{boundedKineticEnergyUpTo\_finiteModeLinearMatrixTimeVelocity\_iff}:
 on a fixed slab \(0\le t\le T\), the velocity \(u(t,x)=g(t)Ax\) satisfies the

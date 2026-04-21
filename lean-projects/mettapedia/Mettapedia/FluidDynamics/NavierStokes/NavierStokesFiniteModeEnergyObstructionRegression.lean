@@ -48,6 +48,17 @@ theorem finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_if
       (∀ i j : Fin 3, A i j = 0) ∨ g 0 = 0 :=
   finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_iff A g
 
+/-- On nonnegative slabs, matrix-linear finite-time witness nonemptiness is
+exactly the degenerate zero-initial-data boundary. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_finiteModeLinearMatrixTimeVelocity_initial_iff_regression
+    {ν T : ℝ} (hT : 0 ≤ T) (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) :
+    Nonempty
+        (ExplicitFiniteTimeRegularityWitness ν
+          (fun x : NSSpace => finiteModeLinearMatrixTimeVelocity A g 0 x) T) ↔
+      (∀ i j : Fin 3, A i j = 0) ∨ g 0 = 0 :=
+  nonempty_ExplicitFiniteTimeRegularityWitness_finiteModeLinearMatrixTimeVelocity_initial_iff
+    hT A g
+
 /-- The slab bounded-energy boundary for matrix-linear finite modes is exact:
 bounded-energy membership forces the matrix mode to vanish or the scalar
 amplitude to vanish throughout the slab. -/

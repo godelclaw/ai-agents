@@ -98,6 +98,35 @@ theorem finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_if
         simp [hg0]
       simpa [hfield] using finiteInitialKineticEnergy_zero
 
+/-- On nonnegative slabs, finite-time witness nonemptiness for a matrix-linear
+initial slice is exact: the witness type is inhabited precisely when the
+initial slice is the zero datum, i.e. either the matrix mode is zero or the
+time-zero scalar amplitude vanishes. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_finiteModeLinearMatrixTimeVelocity_initial_iff
+    {ν T : ℝ} (hT : 0 ≤ T) (A : Fin 3 → Fin 3 → ℝ) (g : NSTime → ℝ) :
+    Nonempty
+        (ExplicitFiniteTimeRegularityWitness ν
+          (fun x : NSSpace => finiteModeLinearMatrixTimeVelocity A g 0 x) T) ↔
+      (∀ i j : Fin 3, A i j = 0) ∨ g 0 = 0 := by
+  constructor
+  · intro hW
+    rcases hW with ⟨W⟩
+    exact
+      (finiteInitialKineticEnergy_finiteModeLinearMatrixTimeVelocity_initial_iff
+        A g).mp (W.finiteInitialKineticEnergy hT)
+  · intro hdegenerate
+    have hfield :
+        (fun x : NSSpace => finiteModeLinearMatrixTimeVelocity A g 0 x) =
+          (0 : NSInitialVelocity) := by
+      funext x
+      ext j
+      rw [finiteModeLinearMatrixTimeVelocity_apply]
+      rcases hdegenerate with hAzero | hg0
+      · simp [hAzero]
+      · simp [hg0]
+    simpa [hfield] using
+      (Nonempty.intro (zeroFiniteTimeRegularityWitness ν T))
+
 /-- Exact finite-time energy boundary for the matrix-linear finite-mode
 velocity: on a slab `0 ≤ t ≤ T`, bounded kinetic energy holds precisely in the
 degenerate cases where the matrix mode is zero, or the scalar amplitude
