@@ -587,6 +587,48 @@ theorem product_bound_violation_blocks_field_failure_matching_regression
     ¬ V13FieldSwitchingFailureMatching items := by
   exact not_v13FieldSwitchingFailureMatching_of_product_bound_violation hbad
 
+theorem failed_field_failure_matching_position_from_not_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ¬ V13FieldFailureMatching item.field
+          (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  exact
+    exists_failed_fieldFailureMatching_at_append_cons_of_not_failureMatchingFrom
+      hfail
+
+theorem failed_field_failure_matching_position_from_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ¬ V13FieldFailureMatching item.field
+          (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  exact
+    exists_failed_fieldFailureMatching_at_append_cons_of_product_bound_violation
+      hbad
+
+theorem failed_field_prefix_position_from_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ¬ V13FieldPrefixInstantiation item.field
+          (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  exact
+    exists_failed_fieldPrefixInstantiation_at_append_cons_of_product_bound_violation
+      hbad
+
 theorem failed_field_prefix_blocks_field_instantiation_regression
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -1128,6 +1170,31 @@ theorem no_v13_instantiation_for_repeated_two_steps_by_product_bound_regression 
       [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
   exact not_v13SwitchingInstantiated_boolPairRepeatedTwoSteps_by_product_bound
 
+theorem unit_field_repeated_success_cell_has_no_failure_regression :
+    ∀ ⦃ω' : Bool × Bool⦄,
+      allEvents [v13BoolPairRepeatedStep.successEvent] ω' →
+        v13BoolPairUnitField.cellOf ω' =
+          v13BoolPairUnitField.cellOf (true, true) →
+            v13BoolPairRepeatedStep.successEvent.pred ω' := by
+  exact v13BoolPairUnitField_repeatedSuccess_cell_has_no_failure
+
+theorem no_unit_field_failure_matching_after_repeated_success_regression :
+    ¬ V13FieldFailureMatching v13BoolPairUnitField
+      [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep := by
+  exact not_v13FieldFailureMatching_unitField_after_repeatedSuccess
+
+theorem no_unit_field_prefix_certificate_after_repeated_success_regression :
+    ¬ V13FieldPrefixInstantiation v13BoolPairUnitField
+      [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep := by
+  exact not_v13FieldPrefixInstantiation_unitField_after_repeatedSuccess
+
+theorem unit_field_repeated_two_steps_second_step_blocked_regression :
+    V13FieldPrefixInstantiation v13BoolPairUnitField
+        ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep ∧
+      ¬ V13FieldSwitchingInstantiated
+        [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
+  exact unitField_repeatedTwoSteps_second_step_blocked
+
 theorem no_concrete_v13_instantiation_for_repeated_two_steps_by_product_bound_regression :
     ¬ V13ConcreteSwitchingInstantiated
       [v13BoolPairRepeatedStep, v13BoolPairRepeatedStep] := by
@@ -1145,5 +1212,27 @@ theorem no_failure_matching_for_unit_field_repeated_two_steps_by_product_bound_r
       [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
   exact
     not_v13FieldSwitchingFailureMatching_unitField_repeatedTwoSteps_by_product_bound
+
+theorem failed_matching_position_for_unit_field_repeated_two_steps_regression :
+    ∃ pre item suffix,
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] =
+        pre ++ item :: suffix ∧
+        ¬ V13FieldFailureMatching item.field
+          (([] : List (FiniteEvent (Bool × Bool))) ++
+            v13FieldedSuccessEvents pre) item.step := by
+  exact
+    exists_failed_fieldFailureMatching_at_append_cons_of_product_bound_violation
+      v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation
+
+theorem failed_prefix_position_for_unit_field_repeated_two_steps_regression :
+    ∃ pre item suffix,
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] =
+        pre ++ item :: suffix ∧
+        ¬ V13FieldPrefixInstantiation item.field
+          (([] : List (FiniteEvent (Bool × Bool))) ++
+            v13FieldedSuccessEvents pre) item.step := by
+  exact
+    exists_failed_fieldPrefixInstantiation_at_append_cons_of_product_bound_violation
+      v13BoolPairUnitFieldedRepeatedTwoSteps_product_bound_violation
 
 end Mettapedia.Computability.PNP.PNPv13SwitchingInstantiationRegression

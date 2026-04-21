@@ -278,7 +278,12 @@ the required quarter-mass tower bound is false.  The product-bound contrapositiv
 operational fixed-field matching layer as well: a tower-product violation rules out the recursive
 same-cell matching proof directly.  In particular, even using the non-revealing one-cell field for
 both repeated Boolean-square cuts cannot instantiate the fixed-field route; the fielded product
-bound and the recursive matching obligation both fail.
+bound and the recursive matching obligation both fail.  The newest localization theorem also
+turns either a failed recursive matching proof or a tower-product violation into a concrete failed
+fielded position \(pre ++ item :: suffix\), with the accumulated history computed from \(pre\).
+For the repeated one-cell Boolean-square model, Lean identifies the exact obstruction: after the
+first success event, the one-cell field's only accumulated-history cell contains no failed point
+for the second repeated success test.
 
 Assessment after the v13 switching packets: the formal work does not prove that no conceivable
 v13-style switching strategy can work, because one residual positive target remains--name the
@@ -2023,7 +2028,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   global tower-product inequality, blocking both abstract and concrete v13 certificates by the new
   product-bound contrapositive.  The fixed-field version is now blocked at the same level: when
   both repeated cuts use the one-cell field, the fielded tower-product bound fails and therefore no
-  recursive same-cell matching proof can exist.
+  recursive same-cell matching proof can exist.  This failure is no longer only global: Lean
+  localizes any such failure to a concrete fielded position, and in the one-cell repeated model the
+  second conditioned cut is explicitly the failed same-cell matching/certificate obligation.
 \end{enumerate}
 
 These are currently the sharpest formally checked cruxes we have in Lean.

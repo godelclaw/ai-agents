@@ -51,7 +51,11 @@ surface needed to test one brittle central link.
    Finally, any violation of the tower product inequality rules out the
    operational recursive matching proof itself, not just the wrapper
    certificate; the repeated Boolean-square one-cell fielded example exposes
-   this directly at the fixed-field layer.
+   this directly at the fixed-field layer.  The latest localization theorem
+   turns any failed recursive matching proof, and any product-bound failure,
+   into a concrete failed fielded position `pre ++ item :: suffix`; in the
+   repeated one-cell example, the exact failed position is the second cut after
+   conditioning on the first success event.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the
