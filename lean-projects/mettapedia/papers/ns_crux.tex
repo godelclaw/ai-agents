@@ -69,7 +69,26 @@ makes the convection slot concrete: \((u \cdot \nabla)u\) is defined as the
 spatial Fr\'echet derivative applied to the current velocity vector, so the
 current most concrete constructor now packages the full left-hand side of the
 NS momentum equation literally, leaving only the Laplacian and analytic
-regularity slots abstract.  The newest pass also specializes that compatibility frontier back down
+regularity slots abstract.  It now also makes the Laplacian slot concrete using
+mathlib's actual Laplace operator on finite-dimensional inner-product spaces,
+so the current most concrete constructor packages the full differential
+operator content of the NS equation on \(\mathbb{R} \times \mathbb{R}^3\),
+leaving only the analytic regularity and energy predicates abstract.  The
+next pass also fixes the smoothness predicates themselves: velocity and pressure
+are now required to be actual \(C^\infty\) maps on \(\mathbb{R} \times
+\mathbb{R}^3\), and initial velocity data are actual \(C^\infty\) maps on
+\(\mathbb{R}^3\).  The next strengthening then also fixes bounded energy to a
+literal uniform bound on the spatial kinetic-energy integrals
+\(\int_{\mathbb{R}^3} |u(t,x)|^2\,dx\), so what remains abstract is no longer the
+theorem surface but the actual existence/regularity bridge.  The
+next analytic pass then adds a first concrete continuation surface on top of
+that explicit theorem statement: finite-time smooth witnesses on slabs
+\(0 \le t \le T\), a literal curl/vorticity operator on \(\mathbb{R}^3\), and a
+uniform-vorticity continuation target saying that such a slab witness should
+extend to a global one.  The next sharpening then adds a closer-to-BKM
+continuation target using an explicit nonnegative time-envelope \(\Omega(t)\)
+for \(\|\omega(t,\cdot)\|\) which is integrable on \([0,T]\).  The
+newest pass also specializes that compatibility frontier back down
 to the concrete windowed Cole--Hopf heat route: a genuine smooth window still
 survives the present approximation and heat-envelope shells, and the resulting
 scaled and affine seed-blend descendants already satisfy bridge-level rigidity
@@ -683,6 +702,918 @@ explicit \(\partial_t u\), \((u \cdot \nabla)u\), \(\nabla p\), and
 Laplacian and the analytic regularity/energy predicates remain abstract at this
 surface.
 
+The next strengthening fixes the fifth PDE-side slot.  In
+\texttt{mkWithConcreteDifferentialOperators}, the Laplacian is the actual
+mathlib Laplace operator on the fixed-time velocity slice, so the momentum
+equation is now literally the full differential equation with explicit
+\(\partial_t u\), \((u \cdot \nabla)u\), \(\nabla p\), \(\Delta u\), and
+\(\operatorname{div} u\) on \(\mathbb{R} \times \mathbb{R}^3\).  At that
+surface, what remains abstract is no longer the differential operator content
+of the PDE, but the analytic regularity, energy, and existence machinery.
+
+The next strengthening fixes the smoothness predicates themselves.  In
+\texttt{mkWithConcreteDifferentialOperatorsAndSmoothness}, velocity and
+pressure are required to be literal \(C^\infty\) maps on
+\(\mathbb{R} \times \mathbb{R}^3\), while initial velocity data are literal
+\(C^\infty\) maps on \(\mathbb{R}^3\).  So at this surface the remaining
+abstract slot is no longer “smoothness” in name only: it is essentially the
+bounded-energy predicate and the actual existence/regularity theorem.
+An important local repair was needed here after mathlib's current
+\texttt{ContDiff} indexing semantics became sharper: \texttt{ContDiff~$\mathbb R$~$\top$}
+is an \(\omega\)-level analytic requirement, not the intended \(C^\infty\)
+surface.  The local NS theorem surface now explicitly uses
+\texttt{ContDiff~$\mathbb R$~$\infty$} for velocity, pressure, and initial data,
+so the formalized smoothness slot once again matches the manuscript-level
+``smooth'' / Schwartz reading rather than an unintended analyticity demand.
+
+The next strengthening fixes that remaining theorem-surface predicate too.  In
+\texttt{mkFullyConcreteNavierStokesSurface}, the bounded-energy slot is
+literally the statement that there exists a uniform constant \(C \ge 0\) such
+that for every time \(t\), the kinetic-energy density \(|u(t,x)|^2\) is
+integrable on \(\mathbb{R}^3\) and
+\[
+\int_{\mathbb{R}^3} |u(t,x)|^2\,dx \le C.
+\]
+So the local target is now fully concrete at the PDE-surface level:
+differential operators, smoothness, incompressibility, initial condition, and
+bounded energy are all literal Lean definitions on
+\(\mathbb{R} \times \mathbb{R}^3\).  What remains abstract is the actual theorem
+asserting global existence and regularity for that fully concrete surface.
+
+The next tightening removes one more layer of packaging.  The same file now
+defines an explicit proposition saying directly that for every viscosity
+\(\nu > 0\) and every smooth divergence-free initial velocity \(u_0\), there
+exist \(u\) and \(p\) such that \(u\) and \(p\) are smooth,
+\[
+\partial_t u + (u \cdot \nabla)u + \nabla p = \nu \Delta u,\qquad
+\operatorname{div} u = 0,\qquad
+u(0,\cdot)=u_0,
+\]
+and the kinetic-energy integrals are uniformly bounded in time.  Lean proves
+that this fully explicit statement is equivalent to the current structured
+\texttt{ConcreteNavierStokesMillenniumTarget}.  So the target is no longer only
+concrete “up to record fields”; it is now pinned to a literal theorem statement.
+
+The first bottom-up follow-up file, \texttt{VectorCalculusR3.lean}, extracts a
+reusable concrete vector-calculus layer from that theorem surface.  It defines
+coordinate derivatives and the literal curl/vorticity operator on
+\(\mathbb{R}^3\), then proves real linearity and zero lemmas for the concrete
+operators \(\partial_t\), \(\operatorname{div}\), \(\nabla p\), and \(\Delta\),
+plus the corresponding coordinate-derivative facts and concrete vorticity
+identities (zero field and scalar-multiplication commutation).  This is
+meant as curriculum-style material with independent value, not more interface
+packaging.
+
+The next file, \texttt{NavierStokesUniformVorticityContinuationTarget.lean},
+adds the first concrete analytic bridge surface on top of that literal theorem.
+It defines explicit finite-time smooth witnesses on a slab \(0 \le t \le T\),
+the concrete vorticity operator \(\nabla \times u\) on \(\mathbb{R}^3\), a
+uniform vorticity bound on the slab, and the corresponding continuation target
+saying that such a witness should extend to a global smooth incompressible
+solution with bounded kinetic energy.  Lean also proves the sanity theorem that
+the fully explicit global theorem target subsumes this continuation target, and
+hence so does the structured fully concrete target via the explicit-equivalence
+theorem above.  At present this is only a one-way subsumption result: the Lean
+proof simply reuses the full global theorem target and does not yet use the
+vorticity-bound hypothesis in any analytic argument.  But this file now also
+contains an operational zero-data instantiation: it constructs a canonical
+finite-time zero witness with uniform zero vorticity bound and proves that, if
+the uniform continuation target is assumed, one gets an explicit global output
+for zero initial data at any positive viscosity.  In addition, this same file
+now proves a target-free baseline theorem:
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_zero}, together with the
+matching clause-level inhabitant
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_zero}.  Those two lemmas
+do not assume any continuation target; they are direct concrete PDE-side sanity
+anchors on the literal \(\mathbb{R} \times \mathbb{R}^3\) statement surface.
+The same concrete layer now also exposes a real pressure-gauge symmetry:
+\texttt{smoothSpaceTimePressure\_contDiff\_spatialSlice} and
+\texttt{smoothSpaceTimePressure\_differentiableAt\_spatialSlice} give the
+fixed-time smoothness bridge for pressure slices,
+\texttt{smoothSpaceTimeVelocity\_add},
+\texttt{smoothSpaceTimeVelocity\_sub}, and
+\texttt{smoothSpaceTimeVelocity\_linearCombination} now make the corresponding
+smooth velocity algebra explicit on \(\mathbb{R} \times \mathbb{R}^3\),
+\texttt{smoothSpaceTimePressure\_const},
+\texttt{smoothSpaceTimePressure\_const\_smul},
+\texttt{smoothSpaceTimePressure\_sub}, and
+\texttt{smoothSpaceTimePressure\_linearCombination} do the same for smooth
+pressure fields,
+\texttt{spatialPressureGradient\_add},
+\texttt{spatialPressureGradient\_const\_smul},
+\texttt{spatialPressureGradient\_sub}, and
+\texttt{spatialPressureGradient\_linearCombination} give the matching affine
+algebra for concrete pressure gradients on each fixed spatial slice,
+\texttt{ExplicitFiniteTimeRegularityWitness.addPressureOfZeroSpatialGradient}
+and
+\texttt{ExplicitConcreteNavierStokesGlobalOutput.addPressureOfZeroSpatialGradient}
+now package the gauge transport principle itself at the explicit witness and
+global-output layers, while
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_addPressureOfZeroSpatialGradient}
+and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_addPressureOfZeroSpatialGradient}
+push the same invariance into the two concrete continuation-data packages,
+\texttt{smoothSpaceTimePressure\_timeOnly} records that any smooth scalar
+function of time alone gives a smooth space-time pressure field, and
+\texttt{spatialPressureGradient\_timeOnly} records that such a time-only
+pressure has zero spatial gradient.  The resulting witness/global-output
+transport theorems
+\texttt{ExplicitFiniteTimeRegularityWitness.addTimeOnlyPressure} and
+\texttt{ExplicitConcreteNavierStokesGlobalOutput.addTimeOnlyPressure} show that
+adding any smooth pressure gauge of the form \(p(t)\) leaves the concrete
+Navier--Stokes data valid.  The older constant-pressure transport theorems are
+now honest special cases of this larger gauge symmetry.  Consequently Lean now
+also proves the explicit time-gauge baseline
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_zero\_timeOnlyPressure}: zero
+velocity with arbitrary smooth time-only pressure is still a genuine global
+solution on the literal PDE surface.  The same baseline is now packaged at the
+regularity-clause level too by
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_addPressureOfZeroSpatialGradient},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_addPressureOfZeroSpatialGradient},
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_zero\_addPressureOfZeroSpatialGradient},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_zero\_addPressureOfZeroSpatialGradient},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_zero\_addPressureOfZeroSpatialGradient},
+which package the generic slice-wise zero-gradient gauge symmetry first on the
+arbitrary-data explicit clause layer and then on the zero baseline, and the
+older constant-pressure and time-only baseline lemmas are now just wrappers
+around those generic transports:
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_zero\_constantPressure},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_zero\_constantPressure},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_zero\_timeOnlyPressure}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_zero\_timeOnlyPressure}.
+The same generic transport now also reaches the structured fully concrete
+whole-space clause layer via
+\texttt{concreteNavierStokesGlobalRegularityClause\_addPressureOfZeroSpatialGradient}
+and
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_addPressureOfZeroSpatialGradient},
+with the zero-data instances exposed via
+\texttt{concreteNavierStokesGlobalRegularityClause\_zero\_addPressureOfZeroSpatialGradient}
+and
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_zero\_addPressureOfZeroSpatialGradient},
+so the concrete clause layer itself inherits this pressure-gauge symmetry.
+This same pressure-gauge invariance now also reaches the uniform continuation side:
+\texttt{ExplicitUniformVorticityContinuationClause\_apply\_of\_uniformVorticityBound\_addTimeOnlyPressure}
+shows that a same-horizon uniform continuation clause can be applied after a
+smooth time-only pressure-gauge change, while
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_addTimeOnlyPressure\_restrict}
+shows that the same uniform bound survives gauge change plus restriction to a
+shorter slab, and
+\texttt{ExplicitUniformVorticityContinuationClause\_apply\_of\_uniformVorticityBound\_addTimeOnlyPressure\_restrict}
+turns that directly into a smaller-horizon operational clause theorem.  Lean
+now also instantiates that operational theorem concretely at zero data first
+for arbitrary slice-wise zero-gradient gauges:
+\texttt{zeroFiniteTimeRegularityWitness\_addPressureOfZeroSpatialGradient\_restrict\_has\_uniformVorticityBound}
+shows that the gauged-and-restricted zero witness itself already carries the
+explicit shorter-slab zero vorticity bound, and
+\texttt{ExplicitUniformVorticityContinuationClause\_implies\_zeroGlobalOutput\_addPressureOfZeroSpatialGradient}
+shows that a smaller-slab uniform continuation clause can therefore be applied
+directly to that concrete gauged zero witness.  The older
+\texttt{\dots\_timeOnlyPressure} and constant-pressure lemmas are now just
+wrappers around that general zero-spatial-gradient transport.  The same
+zero-data operational packaging now exists on the BKM side too via
+\texttt{zeroFiniteTimeRegularityWitness\_addPressureOfZeroSpatialGradient\_restrict\_has\_BKMEnvelope},
+\texttt{ExplicitBKMContinuationClause\_implies\_zeroGlobalOutput\_addPressureOfZeroSpatialGradient},
+and their repaired finite-energy analogues.
+The same layer now also includes the direct clause-level formulation
+\texttt{ExplicitUniformVorticityContinuationClause\_implies\_zeroGlobalOutput},
+which applies one concrete uniform continuation clause instance to the canonical
+zero slab witness.  The premise is now also packaged explicitly by
+\texttt{zeroFiniteTimeRegularityWitness\_exhibits\_uniformContinuationPremise},
+which says the quantified witness-and-bound hypothesis is genuinely inhabited at
+zero data and therefore not merely vacuous there.  The zero-data route is now
+factored through a reusable uniform bound lemma
+\texttt{uniformVorticityBoundUpTo\_zero}.  This layer now also contains a
+reusable rescaling transport lemma
+\texttt{uniformVorticityBoundUpTo\_const\_smul}: if
+\(\|\omega_u\| \le B\) on a slab, then \(\|\omega_{a\cdot u}\| \le |a|\,B\) on
+the same slab, plus monotonicity and sign-flip transport lemmas
+\texttt{uniformVorticityBoundUpTo\_mono} and
+\texttt{uniformVorticityBoundUpTo\_neg}.  The concrete vector-calculus layer
+underneath now also exposes
+\texttt{smoothSpaceTimeVelocity\_contDiff\_spatialSlice} and
+\texttt{smoothSpaceTimeVelocity\_differentiableAt\_spatialSlice}, which turn
+full space-time smoothness into fixed-time spatial differentiability.  Using
+that bridge, the same file now proves the additive closure theorem
+\texttt{uniformVorticityBoundUpTo\_add}: smooth slab bounds for \(u\) and \(v\)
+combine into a slab bound for \(u+v\) with parameter \(B+B'\).  So the uniform
+layer now supports not only rescaling and restriction, but also explicit
+composition of concrete vorticity bounds under field addition.  It also has
+time-restriction transport lemmas
+\texttt{uniformVorticityBoundUpTo\_restrict} and
+\texttt{boundedKineticEnergyUpTo\_restrict}.  It also now adds a witness-level
+restriction constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.restrict} and the induced transport
+lemma
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_restrict},
+as well as the clause-level horizon-monotonicity theorem
+\texttt{ExplicitUniformVorticityContinuationClause\_mono\_horizon}.
+The same bottom-up lane now also contains an explicit nonzero-looking sanity
+family that exposes a genuine obstruction instead of more interface layering.
+The vector-calculus file introduces \texttt{constantVelocityField} and
+\texttt{constantInitialVelocity} and proves that such fields have zero time
+derivative, zero convection, zero Laplacian, zero divergence, and zero
+vorticity, so they are honest differential-side constant-field solutions on the
+literal \(\mathbb{R} \times \mathbb{R}^3\) PDE surface.  The uniform-vorticity
+file then proves \texttt{uniformVorticityBoundUpTo\_constantVelocityField},
+showing that every constant field carries the trivial vorticity envelope
+\(B=0\).  But Lean now also proves the obstruction the manuscript actually
+needs: \texttt{not\_integrable\_kineticEnergyDensity\_constantVelocityField},
+\texttt{not\_boundedKineticEnergy\_constantVelocityField}, and
+\texttt{not\_boundedKineticEnergyUpTo\_constantVelocityField} show that on
+whole-space \(\mathbb{R}^3\), every nonzero constant velocity field fails the
+bounded-energy slot.  So the tempting ``nonzero constant witness'' ansatz is
+ruled out by a real proved theorem rather than by informal handwaving.  Lean
+now also proves the stronger initial-data obstruction the manuscript actually
+needs for the explicit theorem surfaces: if a field merely matches nonzero
+constant initial data at time \(t=0\), then its initial kinetic-energy density
+already agrees with the forbidden constant one.  Concretely,
+\texttt{not\_integrable\_kineticEnergyDensity\_zero\_of\_matchesInitialVelocity\_constantInitialVelocity},
+\texttt{not\_boundedKineticEnergyUpTo\_of\_matchesInitialVelocity\_constantInitialVelocity},
+and \texttt{not\_boundedKineticEnergy\_of\_matchesInitialVelocity\_constantInitialVelocity}
+push the obstruction from the special ansatz \(u(t,x) \equiv c\) to any field
+with nonzero constant initial slice.  Consequently
+\texttt{not\_nonempty\_ExplicitFiniteTimeRegularityWitness\_constantInitialVelocity},
+\texttt{not\_ExplicitConcreteNavierStokesGlobalOutput\_constantInitialVelocity},
+and \texttt{not\_ExplicitConcreteNavierStokesRegularityClause\_constantInitialVelocity}
+show that the current explicit witness, global-output, and regularity-clause
+surfaces all honestly reject nonzero constant initial data on \(\mathbb{R}^3\).
+Lean now also contains the first genuinely nonconstant version of the same
+obstruction.  The vector-calculus layer introduces
+\texttt{linearShearMap}, \texttt{linearShearInitialVelocity}, and the actual
+space-time field \texttt{linearShearVelocityField}, proving that the profile
+\(u(t,x) = (a x_1, 0, 0)\) is smooth, divergence-free, has zero time
+derivative, zero convection, zero Laplacian, and constant vorticity
+\((0,0,-a)\).  So this is not merely a tempting initial datum: it is an honest
+exact Navier--Stokes differential-side candidate on
+\(\mathbb{R} \times \mathbb{R}^3\) with zero pressure.  The uniform-vorticity
+layer then proves \texttt{uniformVorticityBoundUpTo\_linearShearVelocityField},
+so this nonzero candidate carries the explicit bound \(B = |a|\).  Lean now
+packages the whole point directly as
+\texttt{linearShearVelocityField\_exhibits\_concreteCandidate\_except\_boundedEnergy}:
+already on the global explicit theorem surface, the steady shear field gives an
+honest smooth incompressible zero-pressure Navier--Stokes candidate whose only
+missing slot is bounded kinetic energy.  Lean then packages the resulting
+global-surface mismatch as
+\texttt{linearShearInitialVelocity\_exhibits\_concreteCandidate\_without\_globalOutput}:
+the explicit candidate exists, but \texttt{ExplicitConcreteNavierStokesGlobalOutput}
+is still false.  Lean now pushes this all the way to the theorem surface:
+\texttt{not\_ExplicitConcreteNavierStokesMillenniumTarget} and
+\texttt{not\_ConcreteNavierStokesMillenniumTarget} show that the current
+formal target is outright false, because it quantifies over smooth
+divergence-free data like nonzero linear shear without imposing a finite-energy
+admissibility condition on the input side.  Lean now also records the repaired
+whole-space theorem surface itself:
+\emph{This is a bug in our local over-broad whole-space surrogate, not in the
+upstream Clay-style theorem surface, and not by itself in Goertzel's current
+manuscript route.}  The reference Lean repo already builds the
+\(\mathbb{R}^3\) statement with bounded-energy admissibility on the input side,
+and Goertzel's draft works with narrower input surfaces such as the torus and
+Schwartz-type whole-space data.  Accordingly, the negative theorem here should
+be read as a regression guard on our theorem shaping: any local
+\(\mathbb{R}^3\) target that forgets that input restriction is wrong.
+\texttt{finiteInitialKineticEnergy},
+\texttt{FiniteEnergyAdmissibleNavierStokesProblemData},
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause},
+and \texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_iff\_explicit}.
+So the correction is no longer only informal commentary: it is a separate Lean
+target.  Lean now also records the direct theorem-surface implication layer:
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_implies\_finiteEnergy},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_iff\_of\_finiteInitialKineticEnergy},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergy},
+and \texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergy}, so
+the repaired theorem surface is now explicitly packaged as a restriction of the
+older unrepaired one.  The zero datum satisfies the repaired input hypothesis via
+\texttt{finiteInitialKineticEnergy\_zero}, and
+\texttt{NavierStokesSchwartzData.lean} now adds the manuscript-compatible
+restricted whole-space input lane:
+\texttt{NSSchwartzInitialVelocity},
+\texttt{smoothInitialVelocityData\_of\_schwartzInitialVelocity},
+\texttt{finiteInitialKineticEnergy\_of\_schwartzInitialVelocity},
+\texttt{ExplicitSchwartzAdmissibleNavierStokesRegularityClause}, and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_schwartzTarget}
+package the fact that Schwartz initial data automatically satisfy the repaired
+\(\mathbb{R}^3\) input hypotheses.  This gives the local Lean lane a theorem
+surface that matches the manuscript's intended torus-to-Schwartz exhaustion
+story more closely than the old unrepaired whole-space surrogate.
+\texttt{NavierStokesEquationTarget.lean} was also repaired at this stage so the
+underlying smoothness predicates are genuinely \(C^\infty\) rather than the
+stronger \(\omega\)-analytic \texttt{ContDiff~$\top$} tier; this matters for the
+Schwartz route because generic Schwartz data are smooth, but not automatically
+analytic.  The next refinement is now present explicitly in
+\texttt{NavierStokesSchwartzDivergenceFreeData.lean}: Lean packages the
+manuscript's Appendix~H.1 input class \(S_\sigma(\mathbb{R}^3)\) itself as the
+subtype \texttt{NSSchwartzDivergenceFreeInitialVelocity} of Schwartz data whose
+initial divergence vanishes, and theorems such as
+\texttt{ExplicitSchwartzDivergenceFreeNavierStokesRegularityClause\_iff} and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_schwartzDivergenceFreeTarget}
+show that the repaired whole-space target now specializes directly to that
+manuscript-style input surface rather than only to the looser ``Schwartz plus a
+separate divergence-free hypothesis'' packaging.  The same file now also
+packages the structured side of that restriction: a manuscript-style datum with
+\(\nu > 0\) canonically produces repaired
+\texttt{FiniteEnergyAdmissibleNavierStokesProblemData}, and
+\texttt{StructuredSchwartzDivergenceFreeNavierStokesRegularityClause\_iff}
+identifies the resulting record-based whole-space clause with the explicit
+\(S_\sigma(\mathbb{R}^3)\) clause.  So the manuscript-compatible subtype is now
+connected to both local theorem surfaces, not only the explicit one.
+\texttt{NavierStokesSchwartzPartialPeriodization.lean} now adds the next
+bottom-up Appendix~H.2/H.3 precursor: a finite lattice-sum periodization layer.
+Instead of jumping straight to the full infinite torus-periodization series,
+Lean first packages the local algebra that the later exhaustion argument needs:
+\texttt{periodizationShift}, \texttt{translateInitialVelocity}, and
+\texttt{finitePartialPeriodizedInitialVelocity}, together with proofs that
+spatial translation preserves smoothness and initial divergence, finite sums of
+translated data preserve both properties, and finite partial periodizations
+therefore preserve the manuscript's \(S_\sigma(\mathbb{R}^3)\) input class via
+\texttt{finitePartialPeriodizationSchwartzDivergenceFreeInitialVelocity}.  The
+companion regression file checks the empty and singleton-zero partial
+periodizations explicitly, so the torus-to-whole-space route now has a verified
+finite prelude rather than only an informal next-step note.
+\texttt{NavierStokesSchwartzPeriodizationBoxes.lean} now adds the next H.4-side
+exhaustion layer on top of that prelude: the concrete centered cubic boxes
+\([-N,N]^3 \subset \mathbb{Z}^3\), the shell decomposition from radius \(N\) to
+radius \(N+1\), and the boxed partial-periodization operators obtained by
+specializing the general finite-sum interface to those boxes.  This makes the
+truncation family itself available as named Lean data via
+\texttt{centeredLatticeBox}, \texttt{centeredLatticeShell}, and
+\texttt{boxedPartialPeriodizedInitialVelocity}, with direct zero-radius and
+successor-step theorems.  So the manuscript's large-box exhaustion is no longer
+just an intended indexing convention: the finite approximation family and its
+one-step growth law now exist explicitly in the local formalization.
+\texttt{NavierStokesSchwartzPeriodizationConvergence.lean} adds the first
+honest local limit interface above those finite boxes.  Instead of claiming the
+full Schwartz periodization limit already exists, Lean now packages
+cube-local convergence of the boxed partial periodizations on
+\(Q_R = [-R,R]^3\) via
+\texttt{BoxedPartialPeriodizationConvergesOnCube}, proves monotonicity in the
+cube radius, and derives the key structural consequence that if the boxed sums
+converge on a fixed cube then the added shell contributions must converge to
+zero there.  The newest strengthening also packages this shell-vanishing
+corollary directly for genuine Schwartz data and nonzero lattice period, so
+Appendix~H.4's first local decay step is now available in Lean without first
+restating a separate convergence hypothesis.  This is exactly the first
+nontrivial convergence fact needed before any Arzel\`a--Ascoli / compactness
+step in Appendix~H.4 can be stated cleanly.
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_zero}
+shows the repaired explicit clause is inhabited there.  On the other hand,
+Lean now also records that this repaired explicit clause is still vacuous
+outside the finite-energy domain:
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_of\_not\_finiteInitialKineticEnergy}
+packages the generic logical fact, while
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_constantInitialVelocity\_without\_regularity}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_linearShearInitialVelocity\_without\_regularity}
+show concretely that the repaired clause can still be true on the old bad
+families while the unrepaired concrete regularity clause is false there.
+\texttt{not\_finiteInitialKineticEnergy\_linearShearInitialVelocity} and
+\texttt{not\_finiteInitialKineticEnergy\_constantInitialVelocity} show that the
+counterexample families are now excluded at the input side rather than only
+killed later by the output bounded-energy slot, and Lean now also records that
+this exclusion is literal on the repaired structured theorem surface via the
+generic theorem
+\texttt{not\_nonempty\_FiniteEnergyAdmissibleNavierStokesProblemData\_of\_not\_finiteInitialKineticEnergy},
+with the concrete constant and shear instances exposed as
+\texttt{not\_nonempty\_FiniteEnergyAdmissibleNavierStokesProblemData\_constantInitialVelocity}
+and
+\texttt{not\_nonempty\_FiniteEnergyAdmissibleNavierStokesProblemData\_linearShearInitialVelocity}.
+Lean now also packages the positive converse for fixed concrete data:
+\texttt{nonempty\_FiniteEnergyAdmissibleNavierStokesProblemData\_iff} says that
+once viscosity positivity, initial smoothness, and initial divergence-freeness
+are fixed, inhabiting the repaired structured input surface is equivalent to
+having finite initial kinetic energy.
+At the clause level,
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_iff} now makes
+the same repaired surface explicit: for a fixed finite-energy datum, the
+repaired structured fully concrete clause is just the repaired explicit
+regularity clause packaged through the concrete target shell.
+Lean now also packages the repaired/unrepaired structured-clause equivalence on
+that same fixed datum directly as
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_iff\_of\_finiteInitialKineticEnergy},
+so the repaired concrete shell is no longer only compared to the unrepaired one
+through the explicit surface.
+The equation layer now also exposes the forgetful directions themselves:
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_implies\_ExplicitConcreteNavierStokesRegularityClause\_of\_finiteInitialKineticEnergy}
+packages the repaired explicit-to-unrepaired explicit step on a fixed
+finite-energy datum, while
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_implies\_concreteNavierStokesGlobalRegularityClause\_of\_finiteInitialKineticEnergy}
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_implies\_finiteEnergyConcreteNavierStokesGlobalRegularityClause\_of\_finiteInitialKineticEnergy}
+do the same directly on the structured concrete shell.
+At the theorem surface, Lean now also packages the structured-to-explicit
+export directly as
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_ExplicitConcreteNavierStokesMillenniumTarget}
+and
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_implies\_ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget},
+so downstream continuation files can reuse these bridges instead of reopening
+the corresponding \texttt{\_iff\_explicit} equivalences locally.
+It now also packages the mixed bridge
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget},
+so downstream repaired continuation exports no longer need to reconstruct the
+two-step path through the repaired structured theorem surface either.
+The continuation layer now
+also uses that repaired input condition analytically:
+\texttt{ExplicitFiniteTimeRegularityWitness.finiteInitialKineticEnergy} and
+\texttt{not\_nonempty\_ExplicitFiniteTimeRegularityWitness\_of\_not\_finiteInitialKineticEnergy}
+show that any actual slab witness on a nonnegative horizon already forces
+finite initial energy.  Lean now packages that fact directly into repaired
+continuation surfaces:
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause},
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationTarget},
+\texttt{ExplicitFiniteEnergyBKMContinuationClause}, and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget}.  The equivalence theorems
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_iff\_of\_nonneg\_horizon}
+and \texttt{ExplicitFiniteEnergyBKMContinuationClause\_iff\_of\_nonneg\_horizon}
+show that on nonnegative slabs these repaired clauses coincide with the older
+ones, precisely because any real slab witness already carries finite initial
+energy.  Consequently the repaired theorem target now lands directly in both
+repaired continuation targets via
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationTarget},
+while the older unrepaired whole-space theorem surfaces now also reach these
+same repaired continuation targets directly through
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationTarget},
+and
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationTarget},
+and the same fixed-horizon directness is now exposed at clause level via
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause},
+and
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause},
+while the older unrepaired continuation layer now also exposes the analogous
+target-level admissibility lifts
+\texttt{ExplicitUniformVorticityContinuationTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget}
+and
+\texttt{ExplicitBKMContinuationTarget\_implies\_finiteEnergyBKMContinuationTarget},
+as well as the fixed-horizon corollaries
+\texttt{ExplicitUniformVorticityContinuationClause\_implies\_finiteEnergy}
+and
+\texttt{ExplicitBKMContinuationClause\_implies\_finiteEnergy},
+so the same unrepaired$\to$repaired step is now exposed uniformly on both the
+target and clause surfaces.  The unrepaired continuation layer also exposes the
+analogous
+fixed-horizon corollaries
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_BKMContinuationClause},
+and
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_BKMContinuationClause}.
+The uniform side now also exposes the lower-level clause repackaging bridges
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_implies\_ExplicitUniformVorticityContinuationClause}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_implies\_ExplicitFiniteEnergyUniformVorticityContinuationClause},
+as well as their fixed-datum all-horizons families
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_implies\_ExplicitUniformVorticityContinuationClause\_allHorizons}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_implies\_ExplicitFiniteEnergyUniformVorticityContinuationClause\_allHorizons},
+so both fixed-horizon uniform clauses and their fixed-datum target families can
+be obtained directly from the imported whole-space explicit clause surfaces.
+The theorem surface now re-exports those fixed-datum families as
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause\_allHorizons}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+so downstream code can stay on the theorem-target API while still recovering
+the full $\forall T$ continuation-clause family without reopening the
+whole-space clause binder locally.  The same pattern now also covers the
+structured and repaired theorem surfaces via
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+and
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause\_allHorizons}.
+The BKM side now also exposes the lower-level clause repackaging bridges
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_implies\_ExplicitBKMContinuationClause}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_implies\_ExplicitFiniteEnergyBKMContinuationClause},
+as well as their fixed-datum all-horizons families
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_implies\_ExplicitBKMContinuationClause\_allHorizons}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_implies\_ExplicitFiniteEnergyBKMContinuationClause\_allHorizons},
+so both fixed-horizon BKM clauses and their fixed-datum target families can be
+obtained directly from the imported whole-space explicit clause surfaces.
+The theorem surface now re-exports those fixed-datum families as
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_BKMContinuationClause\_allHorizons}
+and
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause\_allHorizons},
+so the same direct $\forall T$ access is available on the explicit BKM
+theorem-target API as well.  The same pattern now also covers the structured
+and repaired theorem surfaces via
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause\_allHorizons},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause\_allHorizons},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyBKMContinuationClause\_allHorizons},
+and
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_BKMContinuationClause\_allHorizons},
+and
+the zero-data BKM clause baselines now factor through those reusable bridges
+instead of reopening the witness and envelope binders locally.
+The repaired continuation layer itself now contains the same BKM-to-uniform
+bridge as the unrepaired one:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_finiteEnergyUniformVorticityContinuationClause}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget}
+transport repaired BKM data directly to repaired uniform-vorticity data,
+and the BKM target surface now also re-exports the corresponding fixed-datum
+uniform clause families as
+\texttt{ExplicitBKMContinuationTarget\_implies\_uniformVorticityContinuationClause\_allHorizons},
+\texttt{ExplicitBKMContinuationTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons},
+so downstream code can recover the entire unrepaired or repaired uniform clause
+family directly from a BKM target assumption without first passing through the
+target-valued bridge theorem,
+while the same file now also records the composed theorem-surface exports
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationTarget\_via\_BKM},
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget\_via\_BKM},
+their repaired/concrete analogues, and the matching fixed-datum clause families
+such as
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause\_allHorizons\_via\_BKM}
+and
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_finiteEnergyUniformVorticityContinuationClause\_allHorizons\_via\_BKM},
+so the BKM route remains explicit even at the whole-theorem and whole-family
+surface,
+while the older bridge theorems to the unrepaired clauses survive as corollaries
+on nonnegative horizons.  These older nonnegative-horizon forgetful steps are
+now also packaged as direct theorem-target families
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationTarget\_implies\_uniformVorticityContinuationClause\_allNonnegHorizons},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause\_allNonnegHorizons},
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_implies\_uniformVorticityContinuationClause\_allNonnegHorizons},
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_BKMContinuationClause\_allNonnegHorizons},
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget\_implies\_BKMContinuationClause\_allNonnegHorizons},
+\texttt{FiniteEnergyConcreteNavierStokesMillenniumTarget\_implies\_BKMContinuationClause\_allNonnegHorizons},
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_uniformVorticityContinuationClause\_allNonnegHorizons},
+so downstream code can use a single repaired target and then recover the entire
+``for every nonnegative slab'' family without reopening the fixed-horizon
+forgetful lemma by hand.  These repaired targets are also already operational on
+the concrete zero family:
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationTarget\_implies\_zeroGlobalOutput}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_zeroGlobalOutput}
+apply them directly to the canonical zero slab witness together with the now
+explicit input fact \texttt{finiteInitialKineticEnergy\_zero}.  The API is now
+also clean one layer lower:
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_implies\_zeroGlobalOutput}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_zeroGlobalOutput}
+show that the repaired clause surface itself already has the same concrete
+zero-data operational consequence as the unrepaired one.  The same is now true
+for the time-gauge sanity check:
+\texttt{ExplicitUniformVorticityContinuationTarget\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+and
+\texttt{ExplicitBKMContinuationTarget\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+now package the unrepaired target-level version directly, while
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+show that the repaired clause layer also survives adding any smooth
+time-dependent pressure gauge on a larger zero slab and restricting back down.
+Lean now also packages the constant-pressure special cases directly on all four
+continuation surfaces via
+\texttt{ExplicitUniformVorticityContinuationClause\_implies\_zeroGlobalOutput\_constantPressure},
+\texttt{ExplicitUniformVorticityContinuationTarget\_implies\_zeroGlobalOutput\_constantPressure},
+\texttt{ExplicitBKMContinuationClause\_implies\_zeroGlobalOutput\_constantPressure},
+and
+\texttt{ExplicitBKMContinuationTarget\_implies\_zeroGlobalOutput\_constantPressure},
+plus their repaired finite-energy analogues.
+The same zero-data operational API now exists one layer higher on the actual
+whole-space theorem surfaces:
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_zeroGlobalOutput},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_zeroGlobalOutput}, and
+their repaired finite-energy analogues.  That whole-space layer is now also
+normalized through the same gauge interface:
+\texttt{ExplicitConcreteNavierStokesMillenniumTarget\_implies\_zeroGlobalOutput\_addPressureOfZeroSpatialGradient},
+\texttt{ConcreteNavierStokesMillenniumTarget\_implies\_zeroGlobalOutput\_addPressureOfZeroSpatialGradient},
+and the repaired finite-energy analogues package the generic
+zero-spatial-gradient transport once, and the older time-only and
+constant-pressure theorem-surface exports are now just wrappers around that
+shared zero-data theorem.
+The repaired target surface now packages the same fact directly via
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationTarget\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_zeroGlobalOutput\_timeOnlyPressure}.
+The continuation layer then
+packages the whole point directly as
+\texttt{linearShearVelocityField\_exhibits\_uniformCandidate\_except\_boundedEnergy}:
+there exist explicit \(u,p,B\) satisfying the smoothness, momentum,
+incompressibility, initial-condition, and uniform-vorticity parts of the
+finite-time witness surface, and the only missing slot is bounded kinetic
+energy.  The BKM file then sharpens the same point on the stricter
+time-integrated surface:
+\texttt{linearShearVelocityField\_has\_constantBKMEnvelope} proves that the same
+field carries the literal constant envelope \(\Omega(t)=|a|\) with integral
+bound \(T|a|\), and
+\texttt{linearShearVelocityField\_exhibits\_BKMCandidate\_except\_boundedEnergy}
+packages it as a full BKM-side candidate whose only missing slot is again
+bounded kinetic energy.  Lean now also packages the precise mismatch directly as
+\texttt{linearShearInitialVelocity\_exhibits\_BKMCandidate\_without\_finiteTimeWitness}:
+the explicit BKM-side candidate exists, but the finite-time witness type is
+still empty.  The continuation file also defines the associated explicit density
+\texttt{linearShearKineticEnergyDensity} and proves
+\texttt{not\_integrable\_linearShearKineticEnergyDensity} by an exact scaling
+argument on \(\mathbb{R}^3\): if the density were integrable, Haar scaling by
+\(x \mapsto 2x\) would force its integral to be both \(4I\) and \(I/8\), hence
+zero, contradicting positivity.  This is then pushed from the special shear
+ansatz to any field matching nonzero linear-shear initial data at \(t=0\) via
+\texttt{not\_integrable\_kineticEnergyDensity\_zero\_of\_matchesInitialVelocity\_linearShearInitialVelocity},
+\texttt{not\_boundedKineticEnergyUpTo\_of\_matchesInitialVelocity\_linearShearInitialVelocity},
+and
+\texttt{not\_boundedKineticEnergy\_of\_matchesInitialVelocity\_linearShearInitialVelocity}.
+Consequently
+\texttt{not\_nonempty\_ExplicitFiniteTimeRegularityWitness\_linearShearInitialVelocity},
+\texttt{not\_ExplicitConcreteNavierStokesGlobalOutput\_linearShearInitialVelocity},
+and
+\texttt{not\_ExplicitConcreteNavierStokesRegularityClause\_linearShearInitialVelocity}
+show that the current explicit bounded-energy theorem surfaces also reject this
+genuinely nonconstant initial-data family.
+At the same time, Lean now exposes a precise target-shape caveat: the current
+continuation clauses themselves remain true on such impossible data, but only
+vacuously, because they quantify over a finite-time witness type that is
+already empty there.  This is now stated explicitly by
+\texttt{ExplicitUniformVorticityContinuationClause\_of\_not\_nonempty\_finiteTimeWitness}
+and \texttt{ExplicitBKMContinuationClause\_of\_not\_nonempty\_finiteTimeWitness},
+which isolate the vacuity mechanism itself, and then concretely by
+\texttt{ExplicitUniformVorticityContinuationClause\_constantInitialVelocity} and
+\texttt{ExplicitBKMContinuationClause\_constantInitialVelocity}; Lean now also
+shows the same mismatch on the nonconstant shear family via
+\texttt{ExplicitUniformVorticityContinuationClause\_linearShearInitialVelocity}
+and \texttt{ExplicitBKMContinuationClause\_linearShearInitialVelocity}; and it
+packages both mismatches directly as
+\texttt{ExplicitUniformVorticityContinuationClause\_constantInitialVelocity\_without\_regularity}
+and
+\texttt{ExplicitBKMContinuationClause\_constantInitialVelocity\_without\_regularity},
+as well as
+\texttt{ExplicitUniformVorticityContinuationClause\_linearShearInitialVelocity\_without\_regularity}
+and
+\texttt{ExplicitBKMContinuationClause\_linearShearInitialVelocity\_without\_regularity}.
+The repaired continuation clauses inherit a second vacuity mode from the
+finite-energy input filter itself:
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_of\_not\_finiteInitialKineticEnergy}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_of\_not\_finiteInitialKineticEnergy}
+package the generic logical fact, while the constant and shear families are now
+also recorded directly on those repaired surfaces by
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_constantInitialVelocity\_without\_regularity},
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_constantInitialVelocity\_without\_regularity},
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_linearShearInitialVelocity\_without\_regularity},
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_linearShearInitialVelocity\_without\_regularity}.
+So the present continuation surfaces are not by themselves existence claims;
+the zero family supplies one honest concrete nonvacuity route, and linear shear
+now supplies an honest nonzero PDE-side candidate with explicit vorticity
+control, but genuinely nonzero inhabited finite-time witnesses still fail here
+precisely at the bounded-energy slot.  This again isolates a defect in the
+present local whole-space continuation surface; it does not by itself rule out
+reasonable torus or Schwartz-restricted adaptations of the Goertzel route.
+On the positive API side, the same file now also packages the repaired-to-unrepaired
+uniform forgetful step on nonnegative slabs directly as
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_implies\_uniformVorticityContinuationClause\_of\_nonneg\_horizon}
+and its target-to-fixed-horizon corollary
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationTarget\_implies\_uniformVorticityContinuationClause\_of\_nonneg\_horizon},
+so the repaired whole-space theorem-surface export on a fixed nonnegative
+horizon can now factor through one reusable continuation-target theorem instead
+of reopening the repaired/unrepaired equivalence locally.
+The repaired uniform clause now also inherits the same restriction-based
+horizon monotonicity API directly:
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_apply\_of\_uniformVorticityBound\_restrict}
+and
+\texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_mono\_horizon}
+show that once finite initial energy is fixed, the repaired continuation
+surface restricts along shorter slabs exactly as the unrepaired one does.
+
+The next file, \texttt{NavierStokesBKMContinuationTarget.lean}, sharpens that
+surface toward the actual BKM shape.  Instead of a uniform-in-time bound, it
+asks for an explicit scalar envelope \(\Omega : \mathbb{R} \to \mathbb{R}\)
+such that \(\|\omega(t,x)\| \le \Omega(t)\) on the slab, \(\Omega(t) \ge 0\) on
+\([0,T]\), and \(\Omega\) is integrable on \([0,T]\) with an explicit integral
+bound.  This is still only a target, not a proof, but it is a more theorem-like
+continuation surface than the earlier uniform bound.  Lean again proves the
+sanity theorem that the full explicit global theorem target subsumes this
+BKM-style continuation target, and hence so does the structured fully concrete
+theorem target.  In this file we now also have a nontrivial bridge theorem:
+a uniform slab vorticity bound gives an explicit constant-in-time envelope that
+is integrable on \([0,T]\), and therefore the BKM-style continuation target
+implies the uniform-vorticity continuation target.  So this is no longer only
+parallel one-way subsumption from the full global theorem target; there is now a
+real continuation-surface implication that uses the continuation hypotheses.
+Combining that implication with the new zero-data uniform instantiation gives
+the corresponding operational BKM corollary: under the BKM target assumption and
+positive viscosity, one gets an explicit global output for zero initial data.
+At the same layer, Lean now also contains the direct clause-level operational
+formulation \texttt{ExplicitBKMContinuationClause\_implies\_zeroGlobalOutput},
+which applies one concrete BKM clause instance directly to the canonical zero
+slab witness and explicit envelope data.  The envelope input is now itself
+proved directly in
+\texttt{zeroFiniteTimeRegularityWitness\_has\_BKMEnvelope}, with the explicit
+choice \(\Omega(t)=0\) and \(B=0\) on \([0,T]\), via reusable zero-envelope
+components \texttt{vorticityEnvelopeOn\_zero} and
+\texttt{integrableVorticityEnvelopeOn\_zero}.  It now also contains the
+constant-envelope lemma
+\texttt{integrableVorticityEnvelopeOn\_const}, which on nonnegative slabs
+\([0,T]\) turns the constant envelope value \(B\) into the explicit linear bound
+\(T \cdot B\), and the corresponding bridge
+\texttt{uniformVorticityBoundUpTo\_implies\_constantBKMEnvelope} showing that a
+uniform slab vorticity bound already produces that exact finite-time
+constant-envelope package.  The same file now also adds
+reusable time-restriction transport lemmas
+\texttt{vorticityEnvelopeOn\_restrict} and
+\texttt{integrableVorticityEnvelopeOn\_restrict}, and uses them to refactor the
+uniform-to-BKM restriction bridge
+\texttt{uniformVorticityBoundUpTo\_implies\_BKMEnvelope\_restrict}.  At the same
+layer it now also includes a clause-level bridge theorem
+\texttt{ExplicitBKMContinuationClause\_implies\_uniformVorticityContinuationClause},
+and the witness-level restricted-envelope transport theorem
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_restrict}.  Lean now
+also packages the repaired-to-unrepaired BKM forgetful bridge on
+nonnegative slabs:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_BKMContinuationClause\_of\_nonneg\_horizon}
+and its target-to-fixed-horizon corollary
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_BKMContinuationClause\_of\_nonneg\_horizon}.
+It then composes that forgetful step with the unrepaired BKM-to-uniform bridge
+to obtain the repaired-to-unrepaired uniform variant on the same slabs:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_uniformVorticityContinuationClause\_of\_nonneg\_horizon}
+and its target-to-fixed-horizon corollary
+\texttt{ExplicitFiniteEnergyBKMContinuationTarget\_implies\_uniformVorticityContinuationClause\_of\_nonneg\_horizon}.
+The repaired BKM clause now also has the direct restriction-based horizon API
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_apply\_of\_BKMEnvelope\_restrict}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_mono\_horizon},
+so the repaired BKM surface itself now transports to larger horizons by the
+same witness-restriction argument as the unrepaired clause.
+The bridge stack now also reaches the repaired uniform surface directly:
+\texttt{ExplicitBKMContinuationClause\_implies\_finiteEnergyUniformVorticityContinuationClause}
+records the same-horizon unrepaired-BKM to repaired-uniform step, while
+\texttt{ExplicitBKMContinuationClause\_implies\_finiteEnergyUniformVorticityContinuationClause\_mono\_horizon}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_implies\_finiteEnergyUniformVorticityContinuationClause\_mono\_horizon}
+package the corresponding shorter-slab to larger-slab transport there.  At the
+theorem-surface level this now yields the direct bridge
+\texttt{ExplicitBKMContinuationTarget\_implies\_finiteEnergyUniformVorticityContinuationTarget}
+in addition to the older unrepaired-uniform and repaired-uniform target exports.
+The repaired theorem-surface fixed-horizon BKM export now factors through that
+target-level forgetful theorem, rather than reopening the repaired/unrepaired
+BKM equivalence locally.
+The newest pass sharpens that witness-level transport by using envelope nonnegativity on
+the restricted slab, via
+\texttt{vorticityEnvelopeOn.integrable\_restrict}, so the witness-level bound is
+the restricted integral itself rather than its absolute value.  The same pass
+also adds the BKM clause horizon-monotonicity theorem
+\texttt{ExplicitBKMContinuationClause\_mono\_horizon}.  The latest bottom-up
+addition to that file is a small additive algebra for concrete envelopes:
+\texttt{vorticityEnvelopeOn\_add} combines two slab envelopes into an envelope
+for the summed field \(u+v\), using the concrete curl linearity lemma
+\texttt{spatialVorticity\_add}, and
+\texttt{integrableVorticityEnvelopeOn\_add} adds the corresponding time-integral
+bounds.  So the BKM layer now supports not just restriction and constantization
+of envelope data, but also explicit composition of envelope data under field
+addition.  The newest pass makes that addition theorem witness-friendly:
+\texttt{vorticityEnvelopeOn\_add\_of\_smooth} discharges the pointwise
+differentiability side condition from full space-time smoothness, and the same
+file now also contains the direct sum-bridge corollaries
+\texttt{uniformVorticityBoundUpTo\_add\_implies\_BKMEnvelope} and
+\texttt{uniformVorticityBoundUpTo\_add\_implies\_constantBKMEnvelope}, which
+turn two smooth uniform slab bounds into explicit BKM-envelope data for the
+summed field.  The next pass adds the rescaling/sign-flip side of the same
+bottom-up algebra: \texttt{vorticityEnvelopeOn\_const\_smul} transports a slab
+envelope along constant velocity rescaling \(u \mapsto a \cdot u\) with the
+expected factor \(|a|\,\Omega(t)\), while
+\texttt{integrableVorticityEnvelopeOn\_const\_mul} and
+\texttt{integrableVorticityEnvelopeOn\_abs\_const\_smul} transport the
+time-integrability bound itself under nonnegative and absolute-value rescaling.
+The sign-flip corollary \texttt{vorticityEnvelopeOn\_neg} then comes for free.
+So the concrete BKM layer now supports not only restriction, constantization,
+and addition, but also explicit scaling symmetry of envelope data.  The newest
+pass then turns that algebra into subtraction theorems:
+\texttt{vorticityEnvelopeOn\_sub\_of\_smooth} gives a concrete envelope for
+\(u-v\) from smooth envelopes for \(u\) and \(v\), and the bridge corollaries
+\texttt{uniformVorticityBoundUpTo\_sub\_implies\_BKMEnvelope} and
+\texttt{uniformVorticityBoundUpTo\_sub\_implies\_constantBKMEnvelope} package
+the same perturbative move at the uniform-to-BKM interface.  So the bottom-up
+continuation algebra now handles both addition and subtraction of smooth slab
+data.  The latest pass then bundles the envelope and integrability sides back
+together into reusable package theorems
+\texttt{BKMEnvelopeData\_add\_of\_smooth} and
+\texttt{BKMEnvelopeData\_sub\_of\_smooth}.  These no longer just say that the
+pointwise bound or the time-integral bound can be transported separately; they
+package exact finite-slab BKM data for \(u+v\) and \(u-v\) in one theorem
+surface, which is a better mouth for later witness-level perturbative
+arguments.  The newest pass then lifts those bundled theorems to the witness
+layer itself via
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_add} and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_sub}: if two finite
+slab witnesses each carry explicit BKM data on the same horizon, then the sum
+or difference of their velocity fields carries explicit BKM data too.  That is
+still not a continuation proof, but it is a cleaner perturbative surface for
+future witness-level arguments than re-unpacking the smoothness and envelope
+data by hand each time.  The newest pass adds the rescaling/sign-flip side at
+the same witness level:
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_const\_smul} transports
+explicit BKM data along constant velocity rescaling, and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_neg} specializes that
+to sign reversal.  So the witness-level perturbative surface now supports
+addition, subtraction, scaling, and negation of the carried BKM packages,
+without claiming that the transformed velocity fields are themselves full
+Navier--Stokes witnesses.  The newest pass then combines perturbation with
+horizon restriction directly:
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_add\_restrict} and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_sub\_restrict} show
+that once the sum or difference field carries explicit BKM data on a slab
+\(0 \le t \le T\), the same concrete package can be pushed down to any shorter
+slab \(0 \le t \le T' \le T\) without rebuilding the envelope algebra by hand.
+The newest pass closes the same smaller-slab transport under scaling symmetry
+as well:
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_const\_smul\_restrict}
+and \texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_neg\_restrict}
+show that constant rescaling and sign flip commute with this witness-level
+restriction surface too.  The newest pass packages the whole perturbative
+pattern into one direct API theorem:
+\texttt{BKMEnvelopeData\_linearCombination\_of\_smooth} gives exact finite-slab
+BKM data for \(a \bullet u + b \bullet v\), with the envelope
+\(|a|\,\Omega + |b|\,\Omega'\) and the corresponding bound
+\(|a|\,B + |b|\,B'\), and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_linearCombination\_restrict}
+pushes that same linear-combination package down to any shorter slab
+\(0 \le t \le T' \le T\).  So later perturbative arguments can now consume one
+concrete linear-combination theorem instead of manually chaining scale, add,
+and restrict lemmas.  The newest pass mirrors this on the uniform-vorticity
+side too:
+\texttt{uniformVorticityBoundUpTo\_linearCombination} packages the same
+\(|a|\,B + |b|\,B'\) bound for the concrete uniform criterion, and the bridge
+corollaries
+\texttt{uniformVorticityBoundUpTo\_linearCombination\_implies\_BKMEnvelope} and
+\texttt{uniformVorticityBoundUpTo\_linearCombination\_implies\_constantBKMEnvelope}
+push that uniform perturbative surface directly back into the BKM layer.  The
+newest pass lifts this to the witness layer on both sides:
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_linearCombination}
+and
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_linearCombination\_restrict}
+give direct witness-level uniform control for linear combinations on the full
+slab and on shorter slabs, while
+\texttt{uniformVorticityBoundUpTo\_linearCombination\_implies\_BKMEnvelope\_restrict}
+now gives the corresponding field-level restricted BKM bridge directly, so the
+witness theorem can sit on a concrete PDE lemma instead of restitching the
+conversion by hand.  Then
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_linearCombination\_implies\_BKMEnvelope\_restrict}
+turns that same smaller-slab witness-level uniform control directly into
+explicit BKM data.  The newest pass then adds the constant-envelope version of
+that bridge on nonnegative shorter slabs:
+\texttt{uniformVorticityBoundUpTo\_implies\_constantBKMEnvelope\_restrict}
+packages the restricted constant envelope \( \Omega(t)=B \), and
+\texttt{uniformVorticityBoundUpTo\_linearCombination\_implies\_constantBKMEnvelope\_restrict}
+does the same for the linear-combination surface itself, while
+\texttt{ExplicitFiniteTimeRegularityWitness.uniformVorticityBound\_linearCombination\_implies\_constantBKMEnvelope\_restrict}
+lifts the same constant-envelope route to witness-level linear combinations.
+The generic BKM side now has the matching restricted package too:
+\texttt{BKMEnvelopeData\_linearCombination\_restrict\_of\_smooth} gives the
+shorter-slab linear-combination envelope data directly at the concrete PDE
+layer, and
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_linearCombination\_restrict}
+is now just the witness-level lift of that same bottom-up package.
+The continuation layer now consumes these restriction bridges honestly on
+actual witnesses:
+\texttt{ExplicitUniformVorticityContinuationClause\_apply\_of\_uniformVorticityBound\_restrict}
+applies a smaller-slab uniform clause to a larger-slab witness after
+restriction,
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_BKMEnvelope\_restrict} does
+the same for explicit BKM data, and
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_uniformVorticityBound\_restrict}
+feeds the restricted uniform-to-BKM bridge directly into the BKM clause.  This
+keeps the continuation side honest: it uses smaller-slab restrictions of
+genuine witnesses, rather than treating linear combinations of unrelated
+witnesses as new Navier--Stokes solutions.  The latest pass also makes this
+continuation surface explicitly pressure-gauge invariant:
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_addTimeOnlyPressure}
+shows that the carried BKM package is unchanged after adding any smooth
+time-only pressure gauge to the witness, and
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_BKMEnvelope\_addTimeOnlyPressure}
+shows that the BKM clause can therefore be applied after such a gauge change
+without any hidden pressure normalization assumption.  The same invariance now
+also survives smaller-slab restriction:
+\texttt{ExplicitFiniteTimeRegularityWitness.BKMEnvelope\_addTimeOnlyPressure\_restrict}
+pushes the unchanged BKM package down to any shorter slab after the gauge
+change, and
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_BKMEnvelope\_addTimeOnlyPressure\_restrict}
+turns that directly into a smaller-horizon operational clause theorem.  Lean
+now also exposes the same operational mouth starting only from a uniform
+vorticity bound:
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_uniformVorticityBound\_addTimeOnlyPressure}
+applies the BKM clause after a same-horizon smooth time-only pressure-gauge
+change using the unchanged uniform bound, while
+\texttt{ExplicitBKMContinuationClause\_apply\_of\_uniformVorticityBound\_addTimeOnlyPressure\_restrict}
+does the same after restricting a larger-slab gauged witness to a shorter
+horizon.  Lean
+now also instantiates this on the concrete zero witness family:
+\texttt{zeroFiniteTimeRegularityWitness\_addTimeOnlyPressure\_restrict\_has\_BKMEnvelope}
+shows that the gauged-and-restricted zero witness itself already carries the
+explicit shorter-slab zero BKM envelope, and
+\texttt{ExplicitBKMContinuationClause\_implies\_zeroGlobalOutput\_timeOnlyPressure}
+shows that a smaller-slab BKM clause can therefore be applied directly to that
+concrete gauged zero witness.
+
 \subsection{Compatibility Frontier}
 
 In \texttt{FeffermanCompatibilityFrontier.lean}, Lean peels that top-down bridge
@@ -890,6 +1821,11 @@ The file proves:
 
 So the NS top-down lane now has not only several explicit non-self frontier
 examples, but also a reusable seed/live profile shell that subsumes them.
+Lean now also records the dual stationary closure regime already on that
+pointwise shell: if the profile returns the seeded slice pointwise and the
+concrete windowed vorticity tendril is stationary between the seeded slice and
+every live slice, then the same pressure-seeded clause closes directly there
+too.
 
 In \texttt{FeffermanSeedLiveOperatorFrontier.lean}, Lean pushes this one step
 further to a genuinely non-pointwise shell.  The new structure
@@ -1004,6 +1940,20 @@ same-route rigidity.
 
 In \texttt{WindowedColeHopfHeatScaledSeededFrontier.lean}, Lean packages the
 scaled descendant \(u(t,x)=a\,\omega(t,x)\) on the concrete windowed route.
+The new file \texttt{WindowedColeHopfHeatScaledPressureSeededFrontier.lean}
+then lifts that same concrete rescaled descendant to the stronger
+pressure-seeded target already used by the later non-self frontiers, producing
+explicit concrete \texttt{AlmostFeffermanBridge} and
+\texttt{TopDownFeffermanBridge} objects and the direct clause theorem
+\texttt{WeightedObservable.windowedColeHopfHeat\_realizes\_scaled\_pressure\_seeded\_clause}.
+It now also records the two honest same-route closure regimes on that stronger
+concrete target: the rescaled descendant closes the original compatibility
+mouth when \(a=1\), and more generally it closes that mouth for any \(a\) when
+the underlying windowed vorticity tendril vanishes identically.  Lean packages
+those special cases as direct clause theorems
+\texttt{WeightedObservable.windowedColeHopfHeat\_realizes\_scaled\_pressure\_seeded\_clause\_of\_one}
+and
+\texttt{WeightedObservable.windowedColeHopfHeat\_realizes\_scaled\_pressure\_seeded\_clause\_of\_zero\_vorticity}.
 In \texttt{WindowedColeHopfHeatSelfCompatibilityObstruction.lean}, Lean proves
 that if this scaled descendant is forced back through the original
 self-compatibility mouth on a genuinely nonzero vorticity state, then the
@@ -1046,6 +1996,13 @@ u(t,x)=P(\omega(1,x),\omega(t,x)).
 \]
 The first file proves that the scaled, affine seed-blend, saturated, and
 frozen-gate descendants are exact specializations of this one generic shell.
+It also now exposes the honest same-route theorem surface for that concrete
+shell itself: if the profile already equals the live input pointwise, then the
+original compatibility mouth closes directly; and if the underlying windowed
+vorticity tendril vanishes identically and \(P(0,0)=0\), then the same
+pressure-seeded clause closes again on that zero state.  The same concrete file
+also exports the retained uniform-vorticity bound from the descendant-route
+\texttt{TopDownFeffermanBridge}.
 The second proves the shared witness law: at any nonzero live witness,
 \[
   P(\omega(1,y),\omega(t,y))=\omega(t,y).
@@ -1064,6 +2021,22 @@ u(t,x)=O(\omega(1,\cdot),\omega(t,\cdot),x).
 The first file proves that the pointwise profile shell, the finite
 sampled-kernel shell, and the finite shift-kernel shell are all exact
 specializations of this same concrete operator frontier on the windowed route.
+It also now exposes the honest same-route theorem surface for the operator
+shell itself: if the operator already returns the live slice pointwise, then
+the original compatibility mouth closes directly; and if the underlying
+windowed vorticity tendril vanishes identically while the operator sends the
+zero seeded/live pair to zero, then the same pressure-seeded clause closes
+again on that zero state.  The same concrete file also exports the retained
+uniform-vorticity bound from the descendant-route
+\texttt{TopDownFeffermanBridge}.  These concrete operator theorems are backed
+by the corresponding generic route lemmas in
+\texttt{FeffermanSeedLiveOperatorFrontier.lean}.  Lean now also records the
+dual stationary closure regime on that shell: if the operator returns the
+seeded slice pointwise and the concrete windowed vorticity tendril is
+stationary between the seeded slice and every live slice, then the same
+pressure-seeded clause closes again.  So the non-pointwise operator frontier
+now has three honest same-route closure mouths at theorem surface: live-return,
+seed-return under stationarity, and zero-vorticity collapse.
 The second proves the shared same-route law:
 \[
   O(\omega(1,\cdot),\omega(t,\cdot),y)=\omega(t,y).
@@ -1109,7 +2082,21 @@ now connects downward into the abstract ladder not only through the generic
 seed-blend frontier, but also through the finite sampled-kernel layer.  This
 matters because the older affine same-route obstruction now survives inside a
 first finite non-pointwise family, not only inside the pointwise seed-blend
-shell.
+shell.  The same concrete file now also exposes the direct same-route theorem
+surface inherited from the operator shell: arbitrary sampled kernels admit a
+direct clause theorem once self-compatibility is supplied, the live-return
+regime closes that route immediately, the zero-vorticity regime closes that
+same-route mouth automatically, and the same sampled-kernel route now also
+records the seed-return stationary regime inherited from the operator shell.
+The descendant-route bridge still exports the original windowed
+uniform-vorticity envelope.  In addition, the diagonal specialization
+now re-exports that finite-kernel route
+directly on the older seed-blend target: Lean packages a direct clause theorem
+for the diagonal sampled kernel, a seed-blend-self-compatible same-route
+closure theorem, a direct live-endpoint closure theorem at `(a,b)=(1,0)`, a
+direct stationary seed-return closure theorem at the `(a,b)=(0,1)` seed
+endpoint, and the corresponding zero-vorticity closure theorem, all with the
+seed-blend initial slice as the visible boundary data.
 
 In \texttt{WindowedColeHopfHeatShiftKernelFrontier.lean}, Lean pushes this one
 rung further upward into genuinely spatial descendants.  On additive-monoid
@@ -1119,7 +2106,17 @@ u(t,x)=a\,\omega(t,x)+b\,\omega(1,x+s)+d\,\omega(t,x+s)
 \]
 is proved to be exactly a finite translation-kernel instance.  So the concrete
 windowed route now reaches the abstract shift-kernel layer too, not merely the
-one-point sampled-kernel shell.
+one-point sampled-kernel shell.  The same concrete shift-kernel file now also
+packages the direct same-route clause theorem under self-compatibility, the
+inherited live-return regime, the automatic zero-vorticity closure on that
+shell, the inherited seed-return stationary regime, and the retained
+uniform-vorticity bound on the descendant-route bridge.  The anchored
+translation specialization now also re-exports those same-route theorems on
+the anchored three-term descendant itself: Lean gives direct anchored-shift
+clause wrappers from anchored self-compatibility, from any live-return regime
+that makes the specialized operator collapse back to the live slice, from any
+seed-return stationary regime that makes the specialized operator collapse back
+to the seeded slice, and from the zero-vorticity regime.
 
 The next file,
 \texttt{WindowedColeHopfHeatShiftKernelObstruction.lean}, makes that spatial
@@ -1352,7 +2349,10 @@ top-down bridge from the full finite shift-kernel shell back to the nonlinear
 saturated descendant itself.  This is useful because it shows the nonlinear
 story is no longer purely negative: the current shell really does have a narrow
 surviving corridor, and the surrounding obstruction theorems are now cutting
-around that corridor rather than merely around empty space.
+around that corridor rather than merely around empty space.  The same file now
+also exports that survivor directly at theorem surface: under the same
+constant-magnitude hypothesis, Lean packages the resulting saturated clause as a
+direct corollary rather than leaving the route only in existential bridge form.
 
 The new file
 \texttt{WindowedColeHopfHeatSaturatedShiftKernelInvariantFrontier.lean}
@@ -1367,7 +2367,11 @@ finite shift kernel with total coefficient mass
 realizes the saturated candidate.  So the nonlinear full shift-kernel shell is
 not merely nonempty at one hand-picked zero-shift point: it contains a whole
 invariant finite-kernel corridor.  That is still highly rigid, but it is a
-real constructive shell theorem rather than just a surviving singleton.
+real constructive shell theorem rather than just a surviving singleton.  Lean
+now also exposes the same corridor directly on the nonlinear saturated target:
+once the finite kernel has the right total mass and the concrete windowed
+tendril is shift-invariant with constant magnitude, the saturated clause
+follows immediately via that finite shift-kernel route.
 
 The companion file
 \texttt{WindowedColeHopfHeatSaturatedShiftKernelInvariantObstruction.lean}
@@ -1403,7 +2407,9 @@ Lean proves that this anchored spatial candidate is exactly the nonlinear
 saturated descendant itself, and therefore yields a concrete top-down bridge
 through the anchored translation shell.  So the new positive corridor is no
 longer merely abstract full-shell data: it already reaches a genuinely spatial
-windowed descendant.
+windowed descendant.  The same file now also exports the direct clause-level
+corollary on the saturated target, so the anchored spatial corridor is usable
+without unpacking an existential bridge witness first.
 
 The companion file
 \texttt{WindowedColeHopfHeatSaturatedAnchoredShiftInvariantObstruction.lean}
@@ -1436,6 +2442,22 @@ obstruction.  The proof also exposes the exact caveat: when \(s = 0\), the
 base mass and the new shell-level zero-shift mass are no longer the same
 quantity.
 
+The positive side now exists there too.  The new file
+\texttt{WindowedColeHopfHeatSaturatedMaskedShiftKernelFrontier.lean}
+packages the constructive corridor on that masked route directly at theorem
+surface: if the total coefficient mass of the masked common-shift kernel is
+\[
+  \frac{a}{1+r},
+\]
+the concrete windowed vorticity tendril is invariant under the single common
+shift \(x \mapsto x + s\), and \(|\omega(t,x)| = r\), then the masked route
+already realizes the nonlinear saturated clause.  With the additional
+stationarity hypothesis between the seeded and live slices, Lean upgrades the
+same route to a proof-carrying top-down bridge whose candidate is exactly the
+nonlinear saturated descendant.  So the masked specialization is no longer only
+an obstruction corollary of the full shell: its constant-magnitude survivor is
+now exposed directly too.
+
 The next file
 \texttt{WindowedColeHopfHeatSaturatedShiftKernelIdentitySampleSpecialization.lean}
 does the nonlinear identity-anchor job as well.  It packages any identity-anchor
@@ -1450,6 +2472,213 @@ and the corresponding constant-magnitude impossibility corollary directly from
 the top nonlinear shell.  So even the older identity-anchor sampled-kernel
 saturated rigidity is no longer a parallel low-rung argument; it is now an
 explicit specialization of the full finite nonlinear shift-kernel theorem.
+
+That route now also has the matching constructive theorem surface.  The file
+\texttt{WindowedColeHopfHeatSaturatedIdentitySampleKernelFrontier.lean}
+proves that if both anchor families are the identity, the total seed/live mass
+is
+\[
+  a_{\mathrm{seed}} + a_{\mathrm{live}} = \frac{a}{1+r},
+\]
+and the concrete windowed vorticity tendril has constant absolute magnitude
+\(|\omega(t,x)| = r\), then the finite sampled-kernel route already realizes
+the nonlinear saturated initial slice itself.  With the additional stationarity
+hypothesis between the seeded slice and the live slice, Lean upgrades that
+specialization to a proof-carrying sampled-kernel bridge whose candidate is
+exactly the nonlinear saturated descendant.  So the identity-anchor shell now
+has both sides too: the old impossibility law remains, but the constant-
+magnitude corridor is now exposed directly at theorem surface rather than only
+through the ambient shift-kernel file.
+
+The diagonal one-sample shell now has that same positive nonlinear surface too.
+The new file
+\texttt{WindowedColeHopfHeatSaturatedDiagonalSampleKernelFrontier.lean}
+simply instantiates the identity-anchor corridor on
+\texttt{diagonalSampleKernel}: if
+\[
+  p + q = \frac{a}{1+r}
+\]
+and the concrete windowed vorticity tendril has constant absolute magnitude
+\(|\omega(t,x)| = r\), then the diagonal sampled route already realizes the
+nonlinear saturated clause; with stationarity, Lean upgrades it to a
+proof-carrying diagonal sampled-kernel bridge whose candidate is exactly the
+nonlinear saturated descendant.  So the old affine one-point shell now has a
+direct constructive saturated wrapper in addition to its exactness laws.
+
+\section{Bounded-Energy Finite-Mode Schwartz Cell}
+
+The finite-mode linear and matrix-linear whole-space candidates were useful as
+obstruction tests, but their spatial profiles grow at infinity and Lean now
+formally rejects them from the finite-energy witness class.  The positive
+replacement is to keep the finite-dimensional mode idea while changing the
+spatial basis: \texttt{NavierStokesFiniteModeBoundedEnergy.lean} introduces
+\texttt{twoModeSchwartzVelocity}
+\[
+  u(t,x)=a(t) f(x)+b(t) g(x),
+\]
+where \(f,g\in\mathcal{S}(\mathbb{R}^3,\mathbb{R}^3)\), together with the
+initial slice \texttt{twoModeSchwartzInitialVelocity} and the pressure class
+\texttt{affineAddScalarSchwartzPressure}.  Lean proves that this two-mode
+Schwartz ansatz is finite-energy in the precise local sense whenever the scalar
+amplitudes are uniformly bounded:
+\texttt{finiteInitialKineticEnergy\_twoModeSchwartzInitialVelocity},
+\texttt{MatchesInitialVelocity\_twoModeSchwartzVelocity},
+\texttt{boundedKineticEnergy\_twoModeSchwartzVelocity\_of\_abs\_le}, and
+\texttt{boundedKineticEnergyUpTo\_twoModeSchwartzVelocity\_of\_abs\_le}.
+The packaged theorem
+\texttt{twoModeSchwartzVelocity\_finiteInitial\_matches\_boundedEnergyUpTo\_of\_abs\_le}
+records the exact constructive status: bounded-energy finite-mode exploration
+is now possible without leaving the whole-space finite-energy domain.
+
+The latest obstruction pass makes the old matrix-linear boundary exact at the
+initial-energy interface.  In
+\texttt{NavierStokesFiniteModeEnergyObstruction.lean}, Lean proves
+\texttt{finiteInitialKineticEnergy\_finiteModeLinearMatrixTimeVelocity\_initial\_iff}:
+the time-zero slice \(x\mapsto g(0)Ax\) has finite initial kinetic energy if
+and only if either every entry of \(A\) is zero or \(g(0)=0\).  Thus the
+whole-space matrix-linear ansatz cannot be repaired into the Clay-style
+finite-energy input class while it remains an active nonzero linear-growth
+profile; a repair must genuinely localize or decay the spatial modes.
+
+The same file now also discharges the basic smoothness side conditions for
+this cell.  The theorem
+\texttt{smoothSpaceTimeVelocity\_twoModeSchwartzVelocity} proves that smooth
+scalar amplitudes \(a,b\) and Schwartz spatial profiles \(f,g\) give a
+smooth velocity field on \(\mathbb{R}\times\mathbb{R}^3\), while
+\texttt{smoothSpaceTimePressure\_affineAddScalarSchwartzPressure} packages the
+corresponding affine-plus-localized Schwartz pressure smoothness.  The stronger
+package
+\texttt{twoModeSchwartzVelocity\_finiteInitial\_smooth\_matches\_boundedEnergyUpTo\_of\_abs\_le}
+therefore gives finite initial energy, smoothness, initial matching, and
+slab-bounded energy from smooth bounded amplitudes.
+
+The next Lean pass also closes the incompressibility side condition for this
+finite-mode cell.  The theorem
+\texttt{spatialDivergence\_twoModeSchwartzVelocity} identifies the spatial
+divergence of \(a(t)f(x)+b(t)g(x)\) as the amplitude-weighted sum of the
+initial divergences of \(f\) and \(g\).  Consequently
+\texttt{spatialDivergence\_twoModeSchwartzVelocity\_zero} proves that
+divergence-free Schwartz profiles produce an incompressible two-mode
+space-time velocity.  The package
+\texttt{twoModeSchwartzVelocity\_finiteInitial\_smooth\_matches\_divergenceFree\_boundedEnergyUpTo\_of\_abs\_le}
+now records finite initial energy, smoothness, initial matching,
+incompressibility, and slab-bounded energy together.
+
+This is not yet a Navier--Stokes existence theorem for arbitrary Schwartz
+data.  The constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_twoModeSchwartzVelocity\_affineAddScalarSchwartzPressure}
+only produces a finite-time witness after the smoothness, momentum,
+incompressibility, and initial-condition hypotheses are supplied.  Its value is
+that the energy slot is no longer the obstruction for this finite-mode family;
+the remaining burden is the real PDE closure of the chosen modes and pressure.
+The companion constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_twoModeSchwartzVelocity\_affineAddScalarSchwartzPressure\_smoothCoefficients}
+removes the smoothness hypotheses from that witness interface by deriving them
+from coefficient smoothness, leaving the pointwise momentum equation,
+incompressibility, initial match, viscosity sign, derivative witnesses, and
+amplitude bounds as the explicit remaining assumptions.
+The stronger constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_twoModeSchwartzVelocity\_affineAddScalarSchwartzPressure\_smoothDivergenceFree}
+also derives incompressibility from the two profile-level divergence-free
+assumptions.  At that point the only genuinely PDE-specific remaining
+assumption in this finite-mode witness lane is the pointwise momentum equation,
+together with bookkeeping data for the initial match, viscosity, scalar
+derivatives, and amplitude bounds.
+
+The next time-dependent cleanup removes two of those bookkeeping obligations
+from the typed two-mode surface.  Lean now proves
+\texttt{hasDerivAt\_deriv\_of\_contDiff}, extracting
+\(\mathrm{HasDerivAt}\,a\,(\mathrm{deriv}\,a(t))\,t\) from a smooth scalar
+amplitude, and
+\texttt{timeVelocityDerivative\_twoModeSchwartzVelocity\_deriv}, identifying
+the concrete time derivative of \(a(t)f(x)+b(t)g(x)\) as
+\((\mathrm{deriv}\,a(t)) f(x)+(\mathrm{deriv}\,b(t))g(x)\).  The constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_twoModeSchwartzVelocity\_affineAddScalarSchwartzPressure\_canonicalInitial}
+then uses those derivative witnesses and the canonical initial slice
+internally.  Thus, on the smooth divergence-free bounded two-mode Schwartz
+surface, the external finite-time witness inputs have been narrowed to the
+pointwise momentum equation, viscosity sign, and amplitude bounds, plus the
+smoothness and profile divergence-free assumptions that define the cell.
+
+The latest Lean pass closes that momentum slot for a concrete finite-energy
+member of the same Schwartz family.  For the zero-amplitude specialization
+\(a=b=0\), Lean proves
+\texttt{twoModeSchwartzVelocity\_zero\_zero}, so the velocity is literally the
+zero velocity field independently of the Schwartz profiles \(f,g\).  It also
+proves \texttt{affineAddScalarSchwartzPressure\_zero\_timeOnly}, identifying
+the pressure class with a time-only gauge when the affine spatial coefficient
+and localized Schwartz amplitude vanish.  Using the existing zero-velocity
+Navier--Stokes theorem, this yields
+\texttt{momentumEquation\_zeroTwoModeSchwartzVelocity\_affineTimeOnlyPressure},
+an actual pointwise proof of
+\[
+  \partial_t u + (u\cdot\nabla)u + \nabla p = \nu\,\Delta u
+\]
+inside the bounded-energy two-mode Schwartz construction.  This is still the
+degenerate zero-amplitude case rather than a nonzero finite-dimensional
+Schwartz heat closure, but it removes the previous external \texttt{heq}
+placeholder for at least one genuine Schwartz member of the cell.
+
+The follow-up Lean pass moves the momentum work to genuinely nonzero two-mode
+amplitudes.  Lean now proves
+\texttt{spatialLaplacian\_twoModeSchwartzVelocity}, expanding \(\Delta u\)
+modewise, and \texttt{spatialConvection\_twoModeSchwartzVelocity}, expanding
+\((u\cdot\nabla)u\) into the two self-interaction terms and the two mixed
+directional-derivative terms.  Combining those expansions with the time
+derivative identity yields
+\texttt{momentumEquation\_twoModeSchwartzVelocity\_of\_explicitClosure}: for
+arbitrary smooth amplitudes \(a,b\), the pointwise Navier--Stokes momentum
+equation follows once the affine-plus-Schwartz pressure gradient closes the
+fully expanded finite-mode residual.  The specialization
+\texttt{momentumEquation\_oneOneTwoModeSchwartzVelocity\_of\_explicitClosure}
+records the constant nonzero-amplitude case \(a(t)=b(t)=1\), and
+\texttt{oneOneTwoModeSchwartzVelocity\_nonzero\_of\_exists\_profile\_sum\_ne\_zero}
+shows that this velocity is genuinely nonzero whenever the two profiles do not
+cancel everywhere.  This still leaves the harder constructive task of producing
+a nonzero Schwartz profile pair and affine-plus-Schwartz pressure satisfying
+the explicit residual closure, but the PDE momentum proof is no longer the
+zero-field tautology and no longer hides the nonlinear term.
+
+The next Lean pass specializes this nonzero-amplitude momentum result to the
+inviscid zero-pressure boundary case.  The theorem
+\texttt{momentumEquation\_oneOneTwoModeSchwartzVelocity\_inviscid\_zeroPressure\_of\_convectionClosure}
+states that, for \(a(t)=b(t)=1\) and \(\nu=0\), the pointwise equation
+\[
+  \partial_t u + (u\cdot\nabla)u + \nabla p = 0\,\Delta u
+\]
+with \(p=0\) follows directly from the vanishing of the explicit
+self-plus-mixed convection expansion.  Lean also packages this as
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_oneOneTwoModeSchwartzVelocity\_inviscidZeroPressure},
+which discharges smoothness, initial matching, incompressibility, bounded
+energy, amplitude bounds, and viscosity sign for the constant-one two-mode
+Schwartz cell.  Finally,
+\texttt{oneOneTwoModeSchwartzVelocity\_nonzero\_inviscidWitness\_of\_convectionClosure}
+records the nonzero side condition via
+\(\exists x,\ f(x)+g(x)\ne 0\).  This is deliberately weaker than a
+positive-viscosity Navier--Stokes construction: it isolates a usable exact
+nonzero finite-energy momentum witness at the Euler boundary while keeping the
+profile-level convection closure explicit.
+
+The current Lean pass then returns to positive viscosity and constructs a
+concrete residual-closure baseline with nonzero Schwartz profiles.  It imports
+the Mathlib smooth bump-function API and defines
+\texttt{nsUnitBumpSchwartzVelocity}, a compactly supported smooth
+first-coordinate bump converted to a Schwartz velocity profile.  Lean proves
+\texttt{nsUnitBumpSchwartzVelocity\_nonzero} by evaluating the bump at the
+origin.  Pairing this profile with its negative gives the anti-profile identity
+\texttt{oneOneAntiProfileSchwartzVelocity\_zero}; hence the total two-mode
+velocity cancels even though both spatial profiles are nonzero.  Using the
+zero-velocity momentum theorem, Lean proves
+\texttt{momentumEquation\_oneOneAntiProfileSchwartzVelocity\_affineTimeOnlyPressure\_of\_posViscosity}
+and then expands it back to the profile-level residual in
+\texttt{explicitClosure\_oneOneAntiProfileSchwartzVelocity\_zeroPressure\_of\_posViscosity}.
+The resulting existential theorem
+\texttt{exists\_nonzeroSchwartzProfiles\_pressure\_explicitClosure\_fullViscousNS\_of\_posViscosity}
+states that, for every \(\nu>0\), there exist nonzero Schwartz profiles
+\(f,g\) and a pressure field \(p\) (in the proof, \(p=0\)) satisfying the fully
+expanded viscous residual closure.  This is an exact Lean construction, but it
+is still a cancellation construction: it does not yet provide a non-cancelling
+positive-viscosity finite-energy flow.
 
 \section{Current Boundary}
 
@@ -1470,6 +2699,8 @@ The following are \emph{not} yet formalized in Lean in the present NS lane:
   bounds, zero pressure, and a distinguished initial slice;
   \item the local hypotheses \((H1)\), \((H2)\);
   \item the manuscript's claimed identity-only propagation lemma;
+  \item a non-cancelling positive-viscosity two-mode Schwartz profile and
+  pressure satisfying the expanded residual closure;
   \item the BKM-closing bridge for the full infinite-dimensional argument.
 \end{enumerate}
 
@@ -1491,6 +2722,13 @@ lake build Mettapedia.FluidDynamics.NavierStokes.\
 WindowedColeHopfHeatSaturatedAnchoredShiftInvariantObstruction
 lake build Mettapedia.FluidDynamics.NavierStokes.\
 WindowedColeHopfHeatSaturatedShiftKernelInvariantAnchoredSpecialization
+\end{verbatim}
+The newest bounded-energy finite-mode Schwartz step was checked directly with:
+\begin{verbatim}
+lake build Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergy
+lake build Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergyRegression
 \end{verbatim}
 The full active \texttt{NavierStokes} lane was then rechecked with the grouped
 build command

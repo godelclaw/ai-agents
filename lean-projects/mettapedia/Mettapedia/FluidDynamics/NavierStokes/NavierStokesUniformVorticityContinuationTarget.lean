@@ -170,6 +170,13 @@ def ExplicitFiniteEnergyUniformVorticityContinuationTarget : Prop :=
   ∀ ν : ℝ, ∀ u₀ : NSInitialVelocity, ∀ T : ℝ,
     ExplicitFiniteEnergyUniformVorticityContinuationClause ν u₀ T
 
+/-- Corrected repaired continuation target: only nonnegative horizons are
+admissible. This rules out the degenerate negative-horizon witness loophole
+while retaining the intended finite-energy continuation surface. -/
+def ExplicitFiniteEnergyUniformVorticityContinuationTargetOnNonnegHorizons : Prop :=
+  ∀ ν : ℝ, ∀ u₀ : NSInitialVelocity, ∀ ⦃T : ℝ⦄,
+    0 ≤ T → ExplicitFiniteEnergyUniformVorticityContinuationClause ν u₀ T
+
 /-- The repaired uniform-vorticity continuation clause is vacuous outside the
 finite-energy input domain: once `u₀` fails the repaired hypothesis, the clause
 holds for purely logical reasons. -/
@@ -7245,6 +7252,61 @@ theorem ExplicitUniformVorticityContinuationTarget_implies_zeroGlobalOutput_cons
       (fun t x => spatialPressureGradient_const c t x)
       le_rfl
 
+/-- If the horizon is negative, the slab conditions `0 ≤ t ≤ T` are empty, so
+steady linear shear itself furnishes a formal finite-time witness. This
+exposes the missing `0 ≤ T` hypothesis in the unrepaired continuation target.
+-/
+def explicitFiniteTimeRegularityWitness_linearShearInitialVelocity_of_lt_zero
+    {ν T a : ℝ}
+    (hT : T < 0) :
+    ExplicitFiniteTimeRegularityWitness ν (linearShearInitialVelocity a) T where
+  velocity := linearShearVelocityField a
+  pressure := 0
+  smooth_velocity := smoothSpaceTimeVelocity_linearShearVelocityField a
+  smooth_pressure := by
+    simpa [smoothSpaceTimePressure, spaceTimePressureMap] using
+      (contDiff_const : ContDiff ℝ ∞ (fun _ : NSSpacetime => (0 : ℝ)))
+  momentum_equation_on := by
+    intro t x ht0 htT'
+    exfalso
+    linarith
+  incompressible_on := by
+    intro t x ht0 htT'
+    exfalso
+    linarith
+  initial_condition := matchesInitialVelocity_linearShearVelocityField a
+  bounded_energy_on := by
+    refine ⟨0, le_rfl, ?_⟩
+    intro t ht0 htT'
+    exfalso
+    linarith
+
+/-- The unrepaired uniform-vorticity continuation target is false as stated.
+For a negative horizon, nonzero linear shear admits a formal finite-time witness
+with uniform vorticity bound, while the required global bounded-energy output is
+already impossible on `ℝ^3`. -/
+theorem not_ExplicitUniformVorticityContinuationTarget :
+    ¬ ExplicitUniformVorticityContinuationTarget := by
+  intro hTarget
+  have hν : 0 < (1 : ℝ) := by positivity
+  have hdiv :
+      ∀ x, initialSpatialDivergence (linearShearInitialVelocity 1) x = 0 := by
+    intro x
+    simpa using initialSpatialDivergence_linearShearInitialVelocity 1 x
+  let W : ExplicitFiniteTimeRegularityWitness 1 (linearShearInitialVelocity 1) (-1) :=
+    explicitFiniteTimeRegularityWitness_linearShearInitialVelocity_of_lt_zero
+      (ν := 1) (T := -1) (a := 1) (by norm_num)
+  have hω : ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity (-1) B := by
+    refine ⟨1, ?_⟩
+    simpa [W, explicitFiniteTimeRegularityWitness_linearShearInitialVelocity_of_lt_zero] using
+      (uniformVorticityBoundUpTo_linearShearVelocityField (a := (1 : ℝ)) (-1))
+  exact
+    not_ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity one_ne_zero
+      (hTarget 1 (linearShearInitialVelocity 1) (-1)
+        hν
+        (smoothInitialVelocityData_linearShearInitialVelocity 1)
+        hdiv W hω)
+
 /-- Clause-level operational consequence for the repaired finite-energy
 uniform-vorticity layer: zero initial data satisfy the repaired input
 hypothesis directly, so a repaired clause instance can be applied to the
@@ -7545,6 +7607,29 @@ theorem ExplicitFiniteEnergyUniformVorticityContinuationTarget_implies_uniformVo
 
 /-- The repaired uniform-vorticity target also forgets to the unrepaired
 uniform clause family on every nonnegative horizon. -/
+theorem
+    ExplicitFiniteEnergyUniformVorticityContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_allNonnegHorizons
+    (hUniform : ExplicitFiniteEnergyUniformVorticityContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} :
+    ∀ ⦃T : ℝ⦄, 0 ≤ T → ExplicitUniformVorticityContinuationClause ν u₀ T := by
+  intro T hT
+  exact
+    ExplicitFiniteEnergyUniformVorticityContinuationClause_implies_uniformVorticityContinuationClause_of_nonneg_horizon
+      (hClause := hUniform ν u₀ hT) hT
+
+/-- The repaired explicit finite-energy theorem surface proves the corrected
+nonnegative-horizon continuation target directly. -/
+theorem
+    ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyUniformVorticityContinuationTargetOnNonnegHorizons
+    (h : ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget) :
+    ExplicitFiniteEnergyUniformVorticityContinuationTargetOnNonnegHorizons := by
+  intro ν u₀ T _hT
+  exact
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_implies_ExplicitFiniteEnergyUniformVorticityContinuationClause_allHorizons
+      (h ν u₀)) T
+
+/-- The repaired uniform-vorticity target also forgets to the unrepaired
+uniform clause family on every nonnegative horizon. -/
 theorem ExplicitFiniteEnergyUniformVorticityContinuationTarget_implies_uniformVorticityContinuationClause_allNonnegHorizons
     (hUniform : ExplicitFiniteEnergyUniformVorticityContinuationTarget)
     {ν : ℝ} {u₀ : NSInitialVelocity} :
@@ -7666,9 +7751,9 @@ theorem ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_unifo
     {ν : ℝ} {u₀ : NSInitialVelocity} :
     ∀ ⦃T : ℝ⦄, 0 ≤ T → ExplicitUniformVorticityContinuationClause ν u₀ T := by
   exact
-    ExplicitFiniteEnergyUniformVorticityContinuationTarget_implies_uniformVorticityContinuationClause_allNonnegHorizons
+    ExplicitFiniteEnergyUniformVorticityContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_allNonnegHorizons
       (ν := ν) (u₀ := u₀)
-      (ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyUniformVorticityContinuationTarget
+      (ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyUniformVorticityContinuationTargetOnNonnegHorizons
         h)
 
 /-- The repaired explicit finite-energy theorem surface still implies the

@@ -35,6 +35,13 @@ theorem periodizationShift_zero (L : ℝ) :
   ext i
   simp [periodizationShift]
 
+/-- Lattice periodization shifts are additive in the lattice index. -/
+theorem periodizationShift_add (L : ℝ) (m n : NSLatticeIndex) :
+    periodizationShift L (m + n) =
+      periodizationShift L m + periodizationShift L n := by
+  ext i
+  simp [periodizationShift, mul_add]
+
 /-- Translate initial data by a spatial vector. -/
 def translateInitialVelocity (u₀ : NSInitialVelocity) (a : NSSpace) : NSInitialVelocity :=
   fun x => u₀ (x + a)

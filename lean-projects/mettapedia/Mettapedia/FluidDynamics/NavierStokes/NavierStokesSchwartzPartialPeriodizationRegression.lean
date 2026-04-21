@@ -28,6 +28,12 @@ theorem singleton_zero_partialPeriodization_regression
   ext x
   simp [periodizationShift_zero]
 
+theorem periodizationShift_add_regression
+    (L : ℝ) (m n : NSLatticeIndex) :
+    periodizationShift L (m + n) =
+      periodizationShift L m + periodizationShift L n :=
+  periodizationShift_add L m n
+
 theorem singleton_zero_partialPeriodization_divergenceFree_regression
     (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity) :
     finitePartialPeriodizationSchwartzDivergenceFreeInitialVelocity
