@@ -34,7 +34,8 @@ surface needed to test one brittle central link.
    The repair target is a sequential conditional half-success theorem.  In the
    fixed-field instantiation layer, this becomes a per-cell balance theorem:
    every named history cell must contain at least as many next-failure points as
-   next-success points.
+   next-success points.  A field that already determines the next success bit
+   can satisfy that balance only in the zero-success case.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

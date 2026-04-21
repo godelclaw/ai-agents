@@ -175,6 +175,52 @@ theorem field_prefix_certificate_iff_success_le_failure_regression
           v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
   exact v13FieldPrefixInstantiation_iff_success_le_failure
 
+theorem no_field_prefix_certificate_from_success_gt_failure_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (cell : field.Cell)
+    (hbad :
+      v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact not_v13FieldPrefixInstantiation_of_success_gt_failure cell hbad
+
+theorem field_determines_success_failure_count_zero_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (cell : field.Cell)
+    (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell = 0 := by
+  exact
+    v13ConcreteFailureCount_eq_zero_of_fieldDeterminesSuccess_of_success_pos
+      hdet cell hpos
+
+theorem no_field_prefix_certificate_from_determined_success_cell_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (cell : field.Cell)
+    (hpos : 0 < v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_cell_success
+      hdet cell hpos
+
+theorem no_field_prefix_certificate_from_determined_success_positive_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact
+    not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
+      hdet hpos
+
 theorem no_field_prefix_certificate_from_bad_cell_regression
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω}
@@ -185,6 +231,11 @@ theorem no_field_prefix_certificate_from_bad_cell_regression
         v13ConcretePrefixCount (Ω := Ω) hist field.cellOf cell) :
     ¬ V13FieldPrefixInstantiation field hist step := by
   exact not_v13FieldPrefixInstantiation_of_cell_half_violation cell hbad
+
+theorem success_history_field_determines_success_regression
+    {Ω : Type u} (step : V13SwitchedStep Ω) :
+    V13HistoryFieldDeterminesSuccess (v13SuccessHistoryField step) step := by
+  exact v13SuccessHistoryField_determinesSuccess step
 
 theorem success_history_field_true_cell_count_regression
     {Ω : Type u} [Fintype Ω]
@@ -318,6 +369,17 @@ theorem failed_field_prefix_blocks_field_instantiation_regression
     not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
       hfail
 
+theorem determined_success_field_blocks_field_suffix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    {rest : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (item :: rest) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccess_positive_success
+      hdet hpos
+
 theorem success_revealing_field_blocks_field_suffix_regression
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -448,10 +510,21 @@ theorem first_coordinate_field_failure_true_count_regression :
       v13BoolPairFirstCoordinateField.cellOf true = 0 := by
   decide
 
+theorem first_coordinate_field_determines_success_regression :
+    V13HistoryFieldDeterminesSuccess v13BoolPairFirstCoordinateField
+      v13BoolPairRepeatedStep := by
+  exact v13BoolPairFirstCoordinateField_determinesSuccess
+
 theorem no_fixed_first_coordinate_field_certificate_regression :
     ¬ V13FieldPrefixInstantiation v13BoolPairFirstCoordinateField
       ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
   exact not_v13FieldPrefixInstantiation_firstCoordinateField_empty
+
+theorem no_fixed_first_coordinate_field_certificate_by_determined_success_regression :
+    ¬ V13FieldPrefixInstantiation v13BoolPairFirstCoordinateField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact
+    not_v13FieldPrefixInstantiation_firstCoordinateField_empty_by_determined_success
 
 theorem prefix_half_without_fixed_first_coordinate_certificate_regression :
     PrefixHalfStep ([] : List (FiniteEvent (Bool × Bool)))

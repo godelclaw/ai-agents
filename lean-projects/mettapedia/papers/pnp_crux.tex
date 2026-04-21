@@ -235,7 +235,15 @@ reveals the next success event itself, then a fixed-field certificate can exist 
 success prefix has zero mass.  The latest necessary-condition theorem gives the same fact in
 positive form: under any valid fixed-field certificate, every cell containing a successful point
 must also contain an unsuccessful prefix point.  A singleton successful atom is therefore already
-fatal.
+fatal.  The newest strengthening generalizes the success-revealing-field blocker:
+\texttt{V13HistoryFieldDeterminesSuccess} says that every field cell is homogeneous for the next
+success event, and
+\texttt{not\_v13FieldPrefixInstantiation\_of\_fieldDeterminesSuccess\_positive\_success} proves
+that any such field is certifiable only when the next-success prefix has zero mass.  Thus a proposed
+v13 history field cannot already decide the next success bit on any positive-mass prefix; it must
+leave enough same-cell counterexamples to satisfy the success-versus-failure balance.  The Boolean
+first-coordinate field now fails by this general theorem, not only by an arithmetic calculation on
+one named cell.
 The same v13-specific module also checks the smallest
 positive-mass failure mode for sequential repetition: if the second switched step repeats the first
 exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
@@ -1968,7 +1976,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   More generally, a positive-mass fixed-field cell that is entirely successful already blocks the
   certificate, so a field that exposes the next success event is admissible only in the vacuous
   zero-success case.  Equivalently, every successful atom in a valid fixed-field certificate must
-  be mixed with at least one unsuccessful prefix point.
+  be mixed with at least one unsuccessful prefix point.  The same conclusion now holds for any
+  supplied field that determines the next success bit cellwise: on a positive-mass success prefix,
+  such a field blocks the whole fielded suffix.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the
