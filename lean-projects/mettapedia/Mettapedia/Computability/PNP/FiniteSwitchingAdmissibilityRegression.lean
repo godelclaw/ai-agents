@@ -33,6 +33,33 @@ theorem prefix_half_step_of_zero_history_regression
     PrefixHalfStep hist E := by
   exact prefixHalfStep_of_historyCount_eq_zero E hzero
 
+theorem finite_history_count_repeated_event_idempotent_regression
+    {Ω : Type u} [Fintype Ω]
+    (hist : List (FiniteEvent Ω)) (E : FiniteEvent Ω) :
+    finiteHistoryCount Ω ((hist ++ [E]) ++ [E]) =
+      finiteHistoryCount Ω (hist ++ [E]) := by
+  exact finiteHistoryCount_append_duplicate_singleton hist E
+
+theorem repeated_positive_event_not_second_prefix_half_step_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [E])) :
+    ¬ PrefixHalfStep (hist ++ [E]) E := by
+  exact not_prefixHalfStep_repeated_of_positive hpos
+
+theorem repeated_positive_event_not_sequential_half_from_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [E])) :
+    ¬ SequentialHalfAdmissibleFrom hist [E, E] := by
+  exact not_sequentialHalfAdmissibleFrom_repeated_pair_of_positive hpos
+
+theorem repeated_positive_event_not_sequential_half_regression
+    {Ω : Type u} [Fintype Ω] {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω [E]) :
+    ¬ SequentialHalfAdmissible [E, E] := by
+  exact not_sequentialHalfAdmissible_repeated_pair_of_positive hpos
+
 theorem finite_history_product_bound_from_prefix_regression
     {Ω : Type u} [Fintype Ω]
     (hist rest : List (FiniteEvent Ω))

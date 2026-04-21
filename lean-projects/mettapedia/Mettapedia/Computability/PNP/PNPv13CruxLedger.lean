@@ -65,6 +65,10 @@ surface needed to test one brittle central link.
    localizes further to a concrete supplied cell whose next-failure count is
    strictly smaller than its next-success count; in the repeated one-cell
    model that concrete cell has failure count `0` and success count `2`.
+   The newest generic theorem removes the Boolean-square specialness: after a
+   positive-mass event has occurred once, repeating the same event is never a
+   valid second conditional half-step.  The v13 wrappers lift this to abstract,
+   concrete-cell, fixed-field, and recursive matching interfaces.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

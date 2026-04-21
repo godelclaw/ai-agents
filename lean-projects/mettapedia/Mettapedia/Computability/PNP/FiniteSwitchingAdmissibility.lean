@@ -86,6 +86,56 @@ theorem prefixHalfStep_of_historyCount_eq_zero {Ω : Type u} [Fintype Ω]
     exact Nat.eq_zero_of_le_zero (by simpa [hzero] using hle)
   simp [PrefixHalfStep, hzero, hz]
 
+/-- Once an event has already been imposed, imposing the same event again adds
+no new constraint at the level of pointwise history satisfaction. -/
+theorem allEvents_append_duplicate_singleton {Ω : Type u}
+    (hist : List (FiniteEvent Ω)) (E : FiniteEvent Ω) {ω : Ω}
+    (h : allEvents (hist ++ [E]) ω) :
+    allEvents ((hist ++ [E]) ++ [E]) ω := by
+  induction hist with
+  | nil =>
+      exact ⟨h.1, h.1, trivial⟩
+  | cons F hist ih =>
+      exact ⟨h.1, ih h.2⟩
+
+/-- Repeating the same event after it has already been imposed leaves the
+finite history count unchanged. -/
+theorem finiteHistoryCount_append_duplicate_singleton
+    {Ω : Type u} [Fintype Ω]
+    (hist : List (FiniteEvent Ω)) (E : FiniteEvent Ω) :
+    finiteHistoryCount Ω ((hist ++ [E]) ++ [E]) =
+      finiteHistoryCount Ω (hist ++ [E]) := by
+  apply le_antisymm
+  · exact finiteHistoryCount_append_le (Ω := Ω) (hist ++ [E]) [E]
+  · simpa [finiteHistoryCount] using
+      finiteEventCount_le_of_imp (Ω := Ω)
+        (fun ω h => allEvents_append_duplicate_singleton hist E h)
+
+/-- A positive-mass repeated event cannot be a conditional half-step the second
+time: after conditioning on the first copy, the second copy has conditional
+mass `1`. -/
+theorem not_prefixHalfStep_repeated_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [E])) :
+    ¬ PrefixHalfStep (hist ++ [E]) E := by
+  intro hhalf
+  have hlt :
+      finiteHistoryCount Ω (hist ++ [E]) <
+        2 * finiteHistoryCount Ω (hist ++ [E]) := by
+    nth_rewrite 1 [← Nat.one_mul (finiteHistoryCount Ω (hist ++ [E]))]
+    exact Nat.mul_lt_mul_of_pos_right (by decide : 1 < 2) hpos
+  have hle :
+      2 * finiteHistoryCount Ω (hist ++ [E]) ≤
+        finiteHistoryCount Ω (hist ++ [E]) := by
+    have hdup :
+        finiteHistoryCount Ω (hist ++ [E, E]) =
+          finiteHistoryCount Ω (hist ++ [E]) := by
+      simpa using finiteHistoryCount_append_duplicate_singleton
+        (Ω := Ω) hist E
+    simpa [PrefixHalfStep, hdup] using hhalf
+  exact (not_le_of_gt hlt) hle
+
 /-- Sequential half-admissibility from an existing history: each next event cuts
 the current history class by at most a factor of two, in finite counting form. -/
 def SequentialHalfAdmissibleFrom {Ω : Type u} [Fintype Ω]
@@ -128,6 +178,27 @@ theorem not_sequentialHalfAdmissible_pair_of_not_second_prefixHalfStep
     ¬ SequentialHalfAdmissible [E, F] := by
   intro h
   exact hfail (prefixHalfStep_of_sequentialHalfAdmissibleFrom_cons h.2)
+
+/-- Repeating a positive-mass event twice blocks sequential half-admissibility
+at the second conditional cut. -/
+theorem not_sequentialHalfAdmissibleFrom_repeated_pair_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [E])) :
+    ¬ SequentialHalfAdmissibleFrom hist [E, E] := by
+  intro h
+  exact not_prefixHalfStep_repeated_of_positive hpos
+    (prefixHalfStep_of_sequentialHalfAdmissibleFrom_cons h.2)
+
+/-- Empty-history form of the positive-mass repeated-event obstruction. -/
+theorem not_sequentialHalfAdmissible_repeated_pair_of_positive
+    {Ω : Type u} [Fintype Ω] {E : FiniteEvent Ω}
+    (hpos : 0 < finiteHistoryCount Ω [E]) :
+    ¬ SequentialHalfAdmissible [E, E] := by
+  simpa [SequentialHalfAdmissible] using
+    not_sequentialHalfAdmissibleFrom_repeated_pair_of_positive
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω))) (E := E)
+      (by simpa using hpos)
 
 lemma finiteHistoryCount_append_cons {Ω : Type u} [Fintype Ω]
     (hist : List (FiniteEvent Ω)) (E : FiniteEvent Ω)

@@ -536,6 +536,32 @@ theorem sequential_half_from_field_instantiation_regression
     SequentialHalfAdmissibleFrom hist (v13FieldedSuccessEvents items) := by
   exact sequentialHalfAdmissibleFrom_of_v13FieldSwitchingInstantiatedFrom h
 
+theorem no_field_instantiation_for_repeated_item_positive_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist [item, item] := by
+  exact not_v13FieldSwitchingInstantiatedFrom_repeated_item_of_positive hpos
+
+theorem no_field_instantiation_for_repeated_item_empty_positive_regression
+    {Ω : Type u} [Fintype Ω] {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [item.step.successEvent]) :
+    ¬ V13FieldSwitchingInstantiated [item, item] := by
+  exact not_v13FieldSwitchingInstantiated_repeated_item_of_positive hpos
+
+theorem no_failure_matching_for_repeated_item_positive_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist [item, item] := by
+  exact not_v13FieldSwitchingFailureMatchingFrom_repeated_item_of_positive hpos
+
+theorem no_failure_matching_for_repeated_item_empty_positive_regression
+    {Ω : Type u} [Fintype Ω] {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [item.step.successEvent]) :
+    ¬ V13FieldSwitchingFailureMatching [item, item] := by
+  exact not_v13FieldSwitchingFailureMatching_repeated_item_of_positive hpos
+
 theorem product_bound_from_field_instantiation_regression
     {Ω : Type u} [Fintype Ω]
     (items : List (V13FieldedStep Ω))
@@ -955,6 +981,32 @@ theorem concrete_v13_instantiation_empty_iff_sequential_half_regression
     V13ConcreteSwitchingInstantiated steps ↔
       SequentialHalfAdmissible (v13SuccessEvents steps) := by
   exact v13ConcreteSwitchingInstantiated_iff_sequentialHalfAdmissible
+
+theorem no_v13_instantiation_for_repeated_step_positive_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13SwitchingInstantiatedFrom hist [step, step] := by
+  exact not_v13SwitchingInstantiatedFrom_repeated_step_of_positive hpos
+
+theorem no_v13_instantiation_for_repeated_step_empty_positive_regression
+    {Ω : Type u} [Fintype Ω] {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [step.successEvent]) :
+    ¬ V13SwitchingInstantiated [step, step] := by
+  exact not_v13SwitchingInstantiated_repeated_step_of_positive hpos
+
+theorem no_concrete_v13_instantiation_for_repeated_step_positive_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13ConcreteSwitchingInstantiatedFrom hist [step, step] := by
+  exact not_v13ConcreteSwitchingInstantiatedFrom_repeated_step_of_positive hpos
+
+theorem no_concrete_v13_instantiation_for_repeated_step_empty_positive_regression
+    {Ω : Type u} [Fintype Ω] {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [step.successEvent]) :
+    ¬ V13ConcreteSwitchingInstantiated [step, step] := by
+  exact not_v13ConcreteSwitchingInstantiated_repeated_step_of_positive hpos
 
 theorem product_bound_from_v13_instantiation_regression
     {Ω : Type u} [Fintype Ω]

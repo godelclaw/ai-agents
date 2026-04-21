@@ -278,12 +278,15 @@ accumulated-history cell contains only successes already blocks both the matchin
 the fixed-field certificate.  The diagonal Boolean-square example now also fails by this pointwise
 criterion, not only by count arithmetic.
 The same v13-specific module also checks the smallest
-positive-mass failure mode for sequential repetition: if the second switched step repeats the first
-exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
-still has count \(2\), and the second prefix half-step is false.  Thus no v13 switching certificate
-can exist for this repeated two-step switching claim.  The same example also fails the global
-product-bound audit: two identical half-mass success events still have half-mass intersection, so
-the required quarter-mass tower bound is false.  The product-bound contrapositive now reaches the
+positive-mass failure mode for sequential repetition, and this is now a general finite theorem
+rather than only a Boolean-square calculation: if an event has positive mass after the current
+history and the next switched step repeats that same exact-success event, then the second prefix
+half-step is false.  In the Boolean-square instance the first success prefix has count \(2\), the
+repeated-success prefix still has count \(2\), and the second prefix half-step is false.  Thus no
+v13 switching certificate can exist for any positive-mass repeated two-step switching claim.  The
+Boolean-square example also fails the global product-bound audit: two identical half-mass success
+events still have half-mass intersection, so the required quarter-mass tower bound is false.  The
+product-bound contrapositive now reaches the
 operational fixed-field matching layer as well: a tower-product violation rules out the recursive
 same-cell matching proof directly.  In particular, even using the non-revealing one-cell field for
 both repeated Boolean-square cuts cannot instantiate the fixed-field route; the fielded product
@@ -2039,10 +2042,11 @@ The present crux-first formal work yields a clean conditional diagnosis.
   prefix point must have a same-cell failed prefix point; a single successful point whose supplied
   field cell contains only successes is already enough to rule out the matching and certificate.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
-  obligation: the second repeated step has conditional success \(1\), so no v13 switching
-  instantiation exists for the two-step repeated Boolean-square model.  It also violates the
-  global tower-product inequality, blocking both abstract and concrete v13 certificates by the new
-  product-bound contrapositive.  The fixed-field version is now blocked at the same level: when
+  obligation: after any positive-mass first occurrence, the second repeated step has conditional
+  success \(1\), so no abstract, concrete-cell, fixed-field, or recursive same-cell matching v13
+  instantiation exists for the repeated two-step claim.  The Boolean-square instance also violates
+  the global tower-product inequality, blocking both abstract and concrete v13 certificates by the
+  product-bound contrapositive.  The fixed-field version is blocked at the same level: when
   both repeated cuts use the one-cell field, the fielded tower-product bound fails and therefore no
   recursive same-cell matching proof can exist.  This failure is no longer only global: Lean
   localizes any such failure to a concrete fielded position and then to a bad supplied cell whose

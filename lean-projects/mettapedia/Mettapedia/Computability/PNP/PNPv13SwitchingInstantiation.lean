@@ -1595,6 +1595,53 @@ theorem sequentialHalfAdmissibleFrom_of_v13FieldSwitchingInstantiatedFrom
         simpa [PrefixHalfStep] using
           prefixHalfStep_of_v13FieldPrefixInstantiation hitem, ih hrest⟩
 
+/-- No choice of fixed fields can make a positive-mass repeated fielded step
+sequentially admissible: the second copy has conditional success mass `1`. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_repeated_item_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist [item, item] := by
+  intro h
+  have hadm :
+      SequentialHalfAdmissibleFrom hist
+        [item.step.successEvent, item.step.successEvent] := by
+    simpa [v13FieldedSuccessEvents] using
+      sequentialHalfAdmissibleFrom_of_v13FieldSwitchingInstantiatedFrom h
+  exact
+    not_sequentialHalfAdmissibleFrom_repeated_pair_of_positive hpos hadm
+
+/-- Empty-history form of the repeated-fielded-step obstruction. -/
+theorem not_v13FieldSwitchingInstantiated_repeated_item_of_positive
+    {Ω : Type u} [Fintype Ω] {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [item.step.successEvent]) :
+    ¬ V13FieldSwitchingInstantiated [item, item] := by
+  simpa [V13FieldSwitchingInstantiated] using
+    not_v13FieldSwitchingInstantiatedFrom_repeated_item_of_positive
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω))) (item := item)
+      (by simpa using hpos)
+
+/-- The same repeated-fielded-step obstruction blocks the operational
+same-cell matching formulation. -/
+theorem not_v13FieldSwitchingFailureMatchingFrom_repeated_item_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist [item, item] := by
+  intro hmatch
+  exact not_v13FieldSwitchingInstantiatedFrom_repeated_item_of_positive hpos
+    (v13FieldSwitchingInstantiatedFrom_iff_failureMatchingFrom.mpr hmatch)
+
+/-- Empty-history form of the repeated-fielded-step matching obstruction. -/
+theorem not_v13FieldSwitchingFailureMatching_repeated_item_of_positive
+    {Ω : Type u} [Fintype Ω] {item : V13FieldedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [item.step.successEvent]) :
+    ¬ V13FieldSwitchingFailureMatching [item, item] := by
+  simpa [V13FieldSwitchingFailureMatching] using
+    not_v13FieldSwitchingFailureMatchingFrom_repeated_item_of_positive
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω))) (item := item)
+      (by simpa using hpos)
+
 /-- Fixed-field v13 certificates imply the finite tower product bound from an
 arbitrary existing success history. -/
 theorem v13_product_bound_of_fieldInstantiatedFrom
@@ -2087,6 +2134,54 @@ theorem v13ConcreteSwitchingInstantiated_iff_sequentialHalfAdmissible
     V13ConcreteSwitchingInstantiated steps ↔
       SequentialHalfAdmissible (v13SuccessEvents steps) := by
   exact v13ConcreteSwitchingInstantiatedFrom_iff_sequentialHalfAdmissibleFrom
+
+/-- A positive-mass switched step cannot be repeated in the abstract v13
+switching interface: after the first success event, the same event cannot halve
+the current history again. -/
+theorem not_v13SwitchingInstantiatedFrom_repeated_step_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13SwitchingInstantiatedFrom hist [step, step] := by
+  intro h
+  have hadm :
+      SequentialHalfAdmissibleFrom hist
+        [step.successEvent, step.successEvent] := by
+    simpa [v13SuccessEvents] using
+      sequentialHalfAdmissibleFrom_of_v13SwitchingInstantiatedFrom h
+  exact
+    not_sequentialHalfAdmissibleFrom_repeated_pair_of_positive hpos hadm
+
+/-- Empty-history form of the repeated switched-step obstruction. -/
+theorem not_v13SwitchingInstantiated_repeated_step_of_positive
+    {Ω : Type u} [Fintype Ω] {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [step.successEvent]) :
+    ¬ V13SwitchingInstantiated [step, step] := by
+  simpa [V13SwitchingInstantiated] using
+    not_v13SwitchingInstantiatedFrom_repeated_step_of_positive
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω))) (step := step)
+      (by simpa using hpos)
+
+/-- The repeated-step obstruction also blocks the existential concrete-cell
+v13 interface. -/
+theorem not_v13ConcreteSwitchingInstantiatedFrom_repeated_step_of_positive
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13ConcreteSwitchingInstantiatedFrom hist [step, step] := by
+  intro h
+  exact not_v13SwitchingInstantiatedFrom_repeated_step_of_positive hpos
+    (v13SwitchingInstantiatedFrom_of_concreteSwitchingInstantiatedFrom h)
+
+/-- Empty-history form for the existential concrete-cell v13 interface. -/
+theorem not_v13ConcreteSwitchingInstantiated_repeated_step_of_positive
+    {Ω : Type u} [Fintype Ω] {step : V13SwitchedStep Ω}
+    (hpos : 0 < finiteHistoryCount Ω [step.successEvent]) :
+    ¬ V13ConcreteSwitchingInstantiated [step, step] := by
+  simpa [V13ConcreteSwitchingInstantiated] using
+    not_v13ConcreteSwitchingInstantiatedFrom_repeated_step_of_positive
+      (Ω := Ω) (hist := ([] : List (FiniteEvent Ω))) (step := step)
+      (by simpa using hpos)
 
 /-- V13 atom-ledger certificates imply the finite tower product bound from an
 arbitrary existing success history. -/
