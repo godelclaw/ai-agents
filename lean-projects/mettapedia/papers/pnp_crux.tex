@@ -254,7 +254,9 @@ cell, an injection from successful prefix points into unsuccessful prefix points
 Lean proves this matching interface equivalent to the fixed-field certificate, and the recursive
 fielded version is equivalent to the whole fixed-field switching instantiation.  Thus a proposed
 repair can now be asked for an explicit same-cell matching at each switched position, not merely a
-global counting slogan.
+global counting slogan.  The matching interface also gives the contrapositive in the form needed
+for audit: if the accumulated next-success prefix has positive mass and the recursive matching
+proof exists, then the supplied field at that position cannot determine the next success bit.
 The same v13-specific module also checks the smallest
 positive-mass failure mode for sequential repetition: if the second switched step repeats the first
 exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
@@ -1992,7 +1994,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   be mixed with at least one unsuccessful prefix point.  The same conclusion now holds for any
   supplied field that determines the next success bit cellwise: on a positive-mass success prefix,
   such a field blocks the whole fielded suffix, and the theorem applies at any later fielded
-  position after the preceding success-event history has been accumulated.
+  position after the preceding success-event history has been accumulated.  In the operational
+  matching formulation, any recursive matching proof on such a positive-mass prefix directly
+  proves that the supplied field is not success-determining.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the

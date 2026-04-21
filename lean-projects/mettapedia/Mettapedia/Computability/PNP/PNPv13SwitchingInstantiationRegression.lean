@@ -209,6 +209,28 @@ theorem no_field_prefix_certificate_from_no_failure_matching_regression
     ¬ V13FieldPrefixInstantiation field hist step := by
   exact not_v13FieldPrefixInstantiation_of_not_failureMatching hfail
 
+theorem no_failure_matching_from_determined_success_positive_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldFailureMatching field hist step := by
+  exact
+    not_v13FieldFailureMatching_of_fieldDeterminesSuccess_positive_success
+      hdet hpos
+
+theorem failure_matching_blocks_determined_success_positive_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccess field step := by
+  exact
+    not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
+      hmatch hpos
+
 theorem no_field_prefix_certificate_from_success_gt_failure_regression
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω}
@@ -430,6 +452,47 @@ theorem failed_failure_matching_blocks_field_instantiation_regression
     (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
     ¬ V13FieldSwitchingInstantiatedFrom hist items := by
   exact not_v13FieldSwitchingInstantiatedFrom_of_not_failureMatchingFrom hfail
+
+theorem extract_failure_matching_after_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hmatch :
+      V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix)) :
+    V13FieldFailureMatching item.field
+      (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  exact
+    v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom hmatch
+
+theorem failure_matching_after_prefix_blocks_determined_success_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hmatch :
+      V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix))
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccess item.field item.step := by
+  exact
+    not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFrom_positive_success
+      hmatch hpos
+
+theorem determined_success_field_blocks_failure_matching_after_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+      hdet hpos
 
 theorem determined_success_field_blocks_field_suffix_regression
     {Ω : Type u} [Fintype Ω]
@@ -659,6 +722,19 @@ theorem no_failure_matching_for_unit_then_first_coordinate_regression :
   intro hmatch
   exact unitField_first_step_then_firstCoordinateField_second_blocked.2
     (v13FieldSwitchingInstantiated_iff_failureMatching.mpr hmatch)
+
+theorem no_failure_matching_for_unit_then_first_coordinate_by_determined_success_regression :
+    ¬ V13FieldSwitchingFailureMatching
+      [v13BoolPairUnitFieldedStep, v13BoolPairFirstCoordinateFieldedStep] := by
+  exact
+    not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+      (hist := ([] : List (FiniteEvent (Bool × Bool))))
+      (pre := [v13BoolPairUnitFieldedStep])
+      (item := v13BoolPairFirstCoordinateFieldedStep)
+      (suffix := [])
+      v13BoolPairFirstCoordinateField_determinesSuccess
+      (by
+        decide)
 
 theorem no_success_revealing_field_certificate_bool_pair_regression :
     ¬ V13FieldPrefixInstantiation

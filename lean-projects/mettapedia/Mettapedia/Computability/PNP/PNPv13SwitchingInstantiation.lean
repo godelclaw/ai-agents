@@ -911,6 +911,33 @@ theorem not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_succe
   exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_cell_success
     hdet cell hcellpos
 
+/-- A success-determining field with positive next-success mass cannot satisfy
+the operational same-cell failure-matching obligation. -/
+theorem not_v13FieldFailureMatching_of_fieldDeterminesSuccess_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hdet : V13HistoryFieldDeterminesSuccess field step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13FieldFailureMatching field hist step := by
+  intro hmatch
+  exact not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
+    hdet hpos (v13FieldPrefixInstantiation_of_failureMatching hmatch)
+
+/-- Conversely, a valid same-cell failure matching on a positive next-success
+prefix proves that the supplied field does not determine the next success bit. -/
+theorem not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step)
+    (hpos : 0 < finiteHistoryCount Ω (hist ++ [step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccess field step := by
+  intro hdet
+  exact
+    not_v13FieldFailureMatching_of_fieldDeterminesSuccess_positive_success
+      hdet hpos hmatch
+
 /-- A fixed-field certificate induces the existential concrete-cell certificate. -/
 def v13ConcretePrefixInstantiation_of_fieldPrefixInstantiation
     {Ω : Type u} [Fintype Ω]
@@ -1206,6 +1233,63 @@ theorem not_v13FieldSwitchingInstantiated_of_not_failureMatching
     (hfail : ¬ V13FieldSwitchingFailureMatching items) :
     ¬ V13FieldSwitchingInstantiated items := by
   exact not_v13FieldSwitchingInstantiatedFrom_of_not_failureMatchingFrom hfail
+
+/-- Extract the same-cell matching obligation for any later fielded step from
+the recursive fielded matching proof. -/
+theorem v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (h : V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix)) :
+    V13FieldFailureMatching item.field
+      (hist ++ v13FieldedSuccessEvents pre) item.step := by
+  induction pre generalizing hist with
+  | nil =>
+      simpa [v13FieldedSuccessEvents] using h.1
+  | cons head tail ih =>
+      have htail :
+          V13FieldSwitchingFailureMatchingFrom
+            (hist ++ [head.step.successEvent]) (tail ++ item :: suffix) := h.2
+      have hitem := ih (hist := hist ++ [head.step.successEvent]) htail
+      simpa [v13FieldedSuccessEvents, List.append_assoc] using hitem
+
+/-- At any later fielded position, a recursive matching proof on a positive
+next-success prefix rules out a supplied field that already determines the next
+success bit. -/
+theorem not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFrom_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hmatch :
+      V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix))
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13HistoryFieldDeterminesSuccess item.field item.step := by
+  exact
+    not_v13HistoryFieldDeterminesSuccess_of_failureMatching_positive_success
+      (v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
+        (hist := hist) (pre := pre) (item := item) (suffix := suffix) hmatch)
+      hpos
+
+/-- A success-determining later field with positive next-success mass blocks
+the recursive same-cell matching obligation itself. -/
+theorem not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix) := by
+  intro hmatch
+  exact
+    not_v13HistoryFieldDeterminesSuccess_at_append_cons_of_failureMatchingFrom_positive_success
+      hmatch hpos hdet
 
 /-- Fixed-field v13 certificates instantiate the generic sequential
 half-admissibility interface. -/

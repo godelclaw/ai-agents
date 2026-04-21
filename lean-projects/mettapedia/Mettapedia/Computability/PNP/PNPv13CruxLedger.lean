@@ -39,7 +39,9 @@ surface needed to test one brittle central link.
    cell.  A field that already determines the next success bit can satisfy that
    balance only in the zero-success case.  This is not merely a head-step
    issue: the same blocker applies at any later fielded position after
-   extending the history by the preceding success events.
+   extending the history by the preceding success events.  In matching form,
+   a valid recursive proof on a positive-mass next-success prefix proves the
+   supplied field at that position does not determine the next success bit.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the
