@@ -1269,6 +1269,27 @@ theorem unit_field_repeated_success_cell_has_no_failure_regression :
             v13BoolPairRepeatedStep.successEvent.pred ω' := by
   exact v13BoolPairUnitField_repeatedSuccess_cell_has_no_failure
 
+theorem unit_field_repeated_success_success_count_regression :
+    v13ConcreteSuccessCount (Ω := Bool × Bool)
+      [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep
+      v13BoolPairUnitField.cellOf PUnit.unit = 2 := by
+  exact v13BoolPairUnitField_repeatedSuccess_success_count
+
+theorem unit_field_repeated_success_failure_count_regression :
+    v13ConcreteFailureCount (Ω := Bool × Bool)
+      [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep
+      v13BoolPairUnitField.cellOf PUnit.unit = 0 := by
+  exact v13BoolPairUnitField_repeatedSuccess_failure_count
+
+theorem unit_field_repeated_success_bad_cell_regression :
+    v13ConcreteFailureCount (Ω := Bool × Bool)
+        [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep
+        v13BoolPairUnitField.cellOf PUnit.unit <
+      v13ConcreteSuccessCount (Ω := Bool × Bool)
+        [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep
+        v13BoolPairUnitField.cellOf PUnit.unit := by
+  exact v13BoolPairUnitField_repeatedSuccess_bad_cell
+
 theorem no_unit_field_failure_matching_after_repeated_success_regression :
     ¬ V13FieldFailureMatching v13BoolPairUnitField
       [v13BoolPairRepeatedStep.successEvent] v13BoolPairRepeatedStep := by
@@ -1285,6 +1306,36 @@ theorem unit_field_repeated_two_steps_second_step_blocked_regression :
       ¬ V13FieldSwitchingInstantiated
         [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] := by
   exact unitField_repeatedTwoSteps_second_step_blocked
+
+theorem unit_field_repeated_two_steps_second_step_bad_cell_regression :
+    ∃ cell : v13BoolPairUnitFieldedStep.field.Cell,
+      v13ConcreteFailureCount (Ω := Bool × Bool)
+          (([] : List (FiniteEvent (Bool × Bool))) ++
+            v13FieldedSuccessEvents [v13BoolPairUnitFieldedStep])
+          v13BoolPairUnitFieldedStep.step
+          v13BoolPairUnitFieldedStep.field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Bool × Bool)
+          (([] : List (FiniteEvent (Bool × Bool))) ++
+            v13FieldedSuccessEvents [v13BoolPairUnitFieldedStep])
+          v13BoolPairUnitFieldedStep.step
+          v13BoolPairUnitFieldedStep.field.cellOf cell := by
+  exact v13BoolPairUnitFieldedRepeatedTwoSteps_second_step_bad_cell
+
+theorem bad_cell_position_for_unit_field_repeated_two_steps_regression :
+    ∃ pre item suffix,
+      [v13BoolPairUnitFieldedStep, v13BoolPairUnitFieldedStep] =
+        pre ++ item :: suffix ∧
+        ∃ cell : item.field.Cell,
+          v13ConcreteFailureCount (Ω := Bool × Bool)
+              (([] : List (FiniteEvent (Bool × Bool))) ++
+                v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell <
+            v13ConcreteSuccessCount (Ω := Bool × Bool)
+              (([] : List (FiniteEvent (Bool × Bool))) ++
+                v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell := by
+  exact
+    v13BoolPairUnitFieldedRepeatedTwoSteps_product_failure_bad_cell_position
 
 theorem no_concrete_v13_instantiation_for_repeated_two_steps_by_product_bound_regression :
     ¬ V13ConcreteSwitchingInstantiated

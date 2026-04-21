@@ -291,8 +291,9 @@ bound and the recursive matching obligation both fail.  The newest localization 
 turns either a failed recursive matching proof or a tower-product violation into a concrete failed
 fielded position \(pre ++ item :: suffix\), with the accumulated history computed from \(pre\).
 For the repeated one-cell Boolean-square model, Lean identifies the exact obstruction: after the
-first success event, the one-cell field's only accumulated-history cell contains no failed point
-for the second repeated success test.
+first success event, the one-cell field's only accumulated-history cell has next-failure count
+\(0\) and next-success count \(2\), so it is the concrete bad cell for the second repeated success
+test.
 
 Assessment after the v13 switching packets: the formal work does not prove that no conceivable
 v13-style switching strategy can work, because one residual positive target remains--name the
@@ -2046,7 +2047,8 @@ The present crux-first formal work yields a clean conditional diagnosis.
   recursive same-cell matching proof can exist.  This failure is no longer only global: Lean
   localizes any such failure to a concrete fielded position and then to a bad supplied cell whose
   failures are fewer than successes.  In the one-cell repeated model the second conditioned cut is
-  explicitly the failed same-cell matching/certificate obligation.
+  explicitly the failed same-cell matching/certificate obligation, with the unique bad cell
+  carrying failure count \(0\) and success count \(2\).
 \end{enumerate}
 
 These are currently the sharpest formally checked cruxes we have in Lean.

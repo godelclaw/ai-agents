@@ -63,7 +63,8 @@ surface needed to test one brittle central link.
    repeated one-cell example, the exact failed position is the second cut after
    conditioning on the first success event.  At the fixed-field layer this now
    localizes further to a concrete supplied cell whose next-failure count is
-   strictly smaller than its next-success count.
+   strictly smaller than its next-success count; in the repeated one-cell
+   model that concrete cell has failure count `0` and success count `2`.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the
