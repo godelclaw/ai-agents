@@ -174,8 +174,12 @@ just by changing its leaf labels.
 
 The v13 crux ledger adds two smaller but sharper obligations.  A \(P=NP\) upper-bound decoder that
 uses an arbitrary SAT-search output cannot recover a hidden message unless every satisfying witness
-has the same message readout.  Bare satisfiability plus a readout map is not enough: the two-point
-Boolean model already has two satisfying witnesses with different readouts.  Separately,
+has the same message readout.  The current Lean interface packages a SAT-search output as an
+arbitrary satisfying witness and proves that correctness for every valid SAT-search output is
+exactly the fixed-message readout theorem; in the satisfiable case, this is equivalent to
+single-message readout constancy.  Bare satisfiability plus a readout map is not enough: the
+two-point Boolean model already has two valid SAT-search outputs with different readouts, so no
+message can be correct for all valid outputs.  Separately,
 unconditional one-coordinate half-success estimates do not imply a product small-success bound.
 Two identical half-mass events have half-mass intersection, not quarter-mass intersection.  Thus the
 product theorem needs a genuinely sequential conditional hypothesis over admissible histories.  The
@@ -1984,7 +1988,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   \item Therefore the program needs a separate theorem proving exceptional compressibility
   of the particular switched predictors it generates.
   \item The v13 \(P=NP\) upper-bound decoder also needs a single-message theorem for arbitrary
-  satisfying SAT-search outputs.
+  satisfying SAT-search outputs.  In Lean this is not just a slogan: correctness for all valid
+  SAT-search outputs is equivalent to the fixed-message readout obligation, and with one satisfying
+  witness it is equivalent to single-message constancy.
   \item The v13 product-success step also needs a sequential conditional admissibility theorem;
   unconditional half-success marginals are insufficient, while the checked sequential conditional
   interface is strong enough for the two-step finite product bound.

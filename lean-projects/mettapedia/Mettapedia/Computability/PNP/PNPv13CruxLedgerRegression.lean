@@ -32,6 +32,31 @@ theorem single_message_with_witness_implies_fixed_message_regression
     FixedMessageReadout sat readout (readout w₀) := by
   exact fixedMessageReadout_of_singleMessageReadout hw₀ h
 
+theorem search_outputs_correct_iff_fixed_message_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message} :
+    CorrectForAllSatSearchOutputs sat readout msg ↔
+      FixedMessageReadout sat readout msg := by
+  exact correctForAllSatSearchOutputs_iff_fixedMessageReadout
+
+theorem search_outputs_correct_implies_single_message_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message}
+    (h : CorrectForAllSatSearchOutputs sat readout msg) :
+    SingleMessageReadout sat readout := by
+  exact singleMessageReadout_of_correctForAllSatSearchOutputs h
+
+theorem search_outputs_correct_iff_single_message_with_witness_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₀ : Witness}
+    (hw₀ : sat w₀) :
+    CorrectForAllSatSearchOutputs sat readout (readout w₀) ↔
+      SingleMessageReadout sat readout := by
+  exact correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness hw₀
+
 theorem bool_true_id_not_single_message_regression :
     ¬ SingleMessageReadout (fun _ : Bool => True) (fun w : Bool => w) := by
   exact not_singleMessageReadout_bool_true_id
@@ -43,10 +68,21 @@ theorem bool_true_id_has_distinct_satisfying_readouts_regression :
       (fun w : Bool => w) w₁ ≠ (fun w : Bool => w) w₂ := by
   exact exists_two_satisfying_outputs_with_distinct_readouts_bool_true_id
 
+theorem bool_true_id_has_distinct_sat_search_outputs_regression :
+    ∃ out₁ out₂ : SatSearchOutput (fun _ : Bool => True),
+      (fun w : Bool => w) out₁.witness ≠ (fun w : Bool => w) out₂.witness := by
+  exact exists_two_satSearchOutputs_with_distinct_readouts_bool_true_id
+
 theorem bool_true_id_no_fixed_message_regression :
     ¬ ∃ msg : Bool,
       FixedMessageReadout (fun _ : Bool => True) (fun w : Bool => w) msg := by
   exact not_exists_fixedMessageReadout_bool_true_id
+
+theorem bool_true_id_no_search_output_message_regression :
+    ¬ ∃ msg : Bool,
+      CorrectForAllSatSearchOutputs
+        (fun _ : Bool => True) (fun w : Bool => w) msg := by
+  exact not_exists_correctForAllSatSearchOutputs_bool_true_id
 
 theorem bool_success_event_count_regression :
     boolEventCount boolSuccessEvent = 1 := by

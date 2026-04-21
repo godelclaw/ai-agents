@@ -11,7 +11,10 @@ surface needed to test one brittle central link.
    Endpoint claim: SAT decision gives SAT search, and SAT search plus the
    realization recovers the hidden message.  Crux: a SAT search procedure may
    return any satisfying witness, so the realization must prove that all
-   satisfying witnesses have the same message readout.
+   satisfying witnesses have the same message readout.  The operational
+   SAT-search interface below makes this exact: correctness for every valid
+   SAT-search output is equivalent to a fixed-message readout theorem, and in
+   the satisfiable case that is equivalent to single-message readout constancy.
 
 2. CD evidence normalization.
    Crux statement still needed: every target-relevant non-neutral trace leaf is
@@ -85,6 +88,18 @@ def FixedMessageReadout {Witness : Type u} {Message : Type v}
     (sat : Witness → Prop) (readout : Witness → Message) (msg : Message) : Prop :=
   ∀ w, sat w → readout w = msg
 
+/-- The output contract of a SAT-search subroutine on one satisfiable
+realization: it may return any witness, but must return a satisfying one. -/
+structure SatSearchOutput {Witness : Type u} (sat : Witness → Prop) where
+  witness : Witness
+  isSat : sat witness
+
+/-- A decoder is correct for all valid SAT-search outputs when every satisfying
+output witness decodes to the claimed message. -/
+def CorrectForAllSatSearchOutputs {Witness : Type u} {Message : Type v}
+    (sat : Witness → Prop) (readout : Witness → Message) (msg : Message) : Prop :=
+  ∀ out : SatSearchOutput sat, readout out.witness = msg
+
 /-- Correctness for one fixed message and arbitrary satisfying SAT-search output
 implies readout constancy across all satisfying witnesses. -/
 theorem singleMessageReadout_of_fixedMessageReadout
@@ -108,6 +123,47 @@ theorem fixedMessageReadout_of_singleMessageReadout
   intro w hw
   exact (h w w₀ hw hw₀)
 
+/-- Correctness for all possible satisfying SAT-search outputs is exactly the
+fixed-message readout obligation.  Thus a proof that uses SAT search cannot
+hide behind a particular witness-selection policy. -/
+theorem correctForAllSatSearchOutputs_iff_fixedMessageReadout
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message} :
+    CorrectForAllSatSearchOutputs sat readout msg ↔
+      FixedMessageReadout sat readout msg := by
+  constructor
+  · intro h w hw
+    exact h ⟨w, hw⟩
+  · intro h out
+    exact h out.witness out.isSat
+
+/-- Any claimed correctness theorem for all SAT-search outputs immediately
+forces readout constancy across satisfying witnesses. -/
+theorem singleMessageReadout_of_correctForAllSatSearchOutputs
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message}
+    (h : CorrectForAllSatSearchOutputs sat readout msg) :
+    SingleMessageReadout sat readout := by
+  exact singleMessageReadout_of_fixedMessageReadout
+    (correctForAllSatSearchOutputs_iff_fixedMessageReadout.mp h)
+
+/-- In the satisfiable case, correctness for all SAT-search outputs at the
+message read from one satisfying witness is equivalent to readout constancy. -/
+theorem correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₀ : Witness} (hw₀ : sat w₀) :
+    CorrectForAllSatSearchOutputs sat readout (readout w₀) ↔
+      SingleMessageReadout sat readout := by
+  constructor
+  · intro h
+    exact singleMessageReadout_of_correctForAllSatSearchOutputs h
+  · intro h
+    exact correctForAllSatSearchOutputs_iff_fixedMessageReadout.mpr
+      (fixedMessageReadout_of_singleMessageReadout hw₀ h)
+
 /-- The smallest finite obstruction: a satisfiable relation with two satisfying
 witnesses and identity readout does not have the single-message property. -/
 theorem not_singleMessageReadout_bool_true_id :
@@ -129,6 +185,15 @@ theorem exists_two_satisfying_outputs_with_distinct_readouts_bool_true_id :
     intro h
     cases h⟩
 
+/-- The same two Boolean witnesses can be packaged as two valid SAT-search
+outputs with different message readouts. -/
+theorem exists_two_satSearchOutputs_with_distinct_readouts_bool_true_id :
+    ∃ out₁ out₂ : SatSearchOutput (fun _ : Bool => True),
+      (fun w : Bool => w) out₁.witness ≠ (fun w : Bool => w) out₂.witness := by
+  exact ⟨⟨false, trivial⟩, ⟨true, trivial⟩, by
+    intro h
+    cases h⟩
+
 /-- Therefore the fixed-message correctness condition is impossible for the
 unconstrained two-witness Boolean realization.  This is the finite formal
 obstruction to replacing the v13 single-message promise by bare SAT
@@ -141,6 +206,17 @@ theorem not_exists_fixedMessageReadout_bool_true_id :
   | intro msg hmsg =>
       exact not_singleMessageReadout_bool_true_id
         (singleMessageReadout_of_fixedMessageReadout hmsg)
+
+/-- Equivalently, no message is correct for all valid SAT-search outputs in the
+unconstrained two-witness Boolean realization. -/
+theorem not_exists_correctForAllSatSearchOutputs_bool_true_id :
+    ¬ ∃ msg : Bool,
+      CorrectForAllSatSearchOutputs
+        (fun _ : Bool => True) (fun w : Bool => w) msg := by
+  intro h
+  rcases h with ⟨msg, hmsg⟩
+  exact not_exists_fixedMessageReadout_bool_true_id
+    ⟨msg, correctForAllSatSearchOutputs_iff_fixedMessageReadout.mp hmsg⟩
 
 /-- Count the number of points of `Bool` satisfying an event.  This is a
 two-point finite probability numerator, avoiding any probability-library
