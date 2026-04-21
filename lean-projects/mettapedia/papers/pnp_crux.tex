@@ -262,7 +262,12 @@ repair can now be asked for an explicit same-cell matching at each switched posi
 global counting slogan.  The matching interface also gives the contrapositive in the form needed
 for audit: if the accumulated next-success prefix has positive mass and the recursive matching
 proof exists, then the supplied field at that position cannot determine the next success bit on the
-accumulated history support.
+accumulated history support.  The newest pointwise extraction theorem makes the same obligation
+more operational: for every successful prefix point, a recursive matching proof yields an actual
+failed prefix point in the same supplied field cell.  Consequently, one successful point whose
+accumulated-history cell contains only successes already blocks both the matching formulation and
+the fixed-field certificate.  The diagonal Boolean-square example now also fails by this pointwise
+criterion, not only by count arithmetic.
 The same v13-specific module also checks the smallest
 positive-mass failure mode for sequential repetition: if the second switched step repeats the first
 exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
@@ -2005,7 +2010,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   model has a second-coordinate field that is not globally success-determining but becomes
   success-determining after conditioning.  In the operational matching formulation, any recursive
   matching proof on such a positive-mass prefix directly proves that the supplied field is not
-  success-determining on the accumulated history support.
+  success-determining on the accumulated history support.  Even more concretely, every successful
+  prefix point must have a same-cell failed prefix point; a single successful point whose supplied
+  field cell contains only successes is already enough to rule out the matching and certificate.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the

@@ -44,7 +44,10 @@ surface needed to test one brittle central link.
    supplied field at that position does not determine the next success bit on
    the accumulated history support.  This prefix-relative form is stronger
    than the earlier global blocker: a field can be harmless globally but become
-   success-revealing after conditioning on the current history.
+   success-revealing after conditioning on the current history.  The matching
+   obligation is also pointwise: every successful prefix point must have an
+   explicit same-cell failed prefix point, so one successful point whose
+   accumulated-history cell contains only successes already blocks the route.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

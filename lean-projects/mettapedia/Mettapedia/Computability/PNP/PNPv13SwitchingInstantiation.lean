@@ -782,6 +782,43 @@ def V13FieldFailureMatching {Ω : Type u} [Fintype Ω]
     (V13CellSuccessFiber field hist step cell ↪
       V13CellFailureFiber field hist step cell)
 
+/-- A same-cell failure matching gives an explicit failed prefix point in the
+same supplied field cell for every successful prefix point. -/
+theorem exists_sameCell_failure_of_fieldFailureMatching_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hmatch : V13FieldFailureMatching field hist step)
+    {ω : Ω} (hhist : allEvents hist ω)
+    (hsucc : step.successEvent.pred ω) :
+    ∃ ω' : Ω,
+      allEvents hist ω' ∧
+        field.cellOf ω' = field.cellOf ω ∧
+          ¬ step.successEvent.pred ω' := by
+  rcases hmatch (field.cellOf ω) with ⟨emb⟩
+  rcases emb ⟨ω, hhist, rfl, hsucc⟩ with ⟨ω', hω'⟩
+  exact ⟨ω', hω'.1, hω'.2.1, hω'.2.2⟩
+
+/-- If one successful prefix point has no failed prefix point in its supplied
+field cell, the same-cell failure matching obligation is impossible. -/
+theorem not_v13FieldFailureMatching_of_success_without_sameCell_failure
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} {ω : Ω}
+    (hhist : allEvents hist ω)
+    (hsucc : step.successEvent.pred ω)
+    (hnoFailure :
+      ∀ ⦃ω' : Ω⦄,
+        allEvents hist ω' →
+          field.cellOf ω' = field.cellOf ω →
+            step.successEvent.pred ω') :
+    ¬ V13FieldFailureMatching field hist step := by
+  intro hmatch
+  rcases exists_sameCell_failure_of_fieldFailureMatching_success
+      hmatch hhist hsucc with
+    ⟨ω', hhist', hcell', hfail'⟩
+  exact hfail' (hnoFailure hhist' hcell')
+
 /-- The same-cell failure matching interface is exactly the per-cell
 success-versus-failure count balance. -/
 theorem v13FieldFailureMatching_iff_success_le_failure
@@ -833,6 +870,23 @@ def v13FieldPrefixInstantiation_of_failureMatching
     V13FieldPrefixInstantiation field hist step :=
   v13FieldPrefixInstantiation_iff_failureMatching.mpr hmatch
 
+/-- A fixed-field prefix certificate gives an explicit failed prefix point in
+the same supplied field cell for every successful prefix point. -/
+theorem exists_sameCell_failure_of_fieldPrefixInstantiation_success
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (cert : V13FieldPrefixInstantiation field hist step)
+    {ω : Ω} (hhist : allEvents hist ω)
+    (hsucc : step.successEvent.pred ω) :
+    ∃ ω' : Ω,
+      allEvents hist ω' ∧
+        field.cellOf ω' = field.cellOf ω ∧
+          ¬ step.successEvent.pred ω' := by
+  exact
+    exists_sameCell_failure_of_fieldFailureMatching_success
+      (v13FieldPrefixInstantiation_iff_failureMatching.mp cert) hhist hsucc
+
 /-- Failure of the same-cell matching obligation blocks the fixed-field prefix
 certificate. -/
 theorem not_v13FieldPrefixInstantiation_of_not_failureMatching
@@ -843,6 +897,24 @@ theorem not_v13FieldPrefixInstantiation_of_not_failureMatching
     ¬ V13FieldPrefixInstantiation field hist step := by
   intro cert
   exact hfail (v13FieldPrefixInstantiation_iff_failureMatching.mp cert)
+
+/-- If one successful prefix point has no failed prefix point in its supplied
+field cell, the fixed-field prefix certificate is impossible. -/
+theorem not_v13FieldPrefixInstantiation_of_success_without_sameCell_failure
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω} {ω : Ω}
+    (hhist : allEvents hist ω)
+    (hsucc : step.successEvent.pred ω)
+    (hnoFailure :
+      ∀ ⦃ω' : Ω⦄,
+        allEvents hist ω' →
+          field.cellOf ω' = field.cellOf ω →
+            step.successEvent.pred ω') :
+    ¬ V13FieldPrefixInstantiation field hist step := by
+  exact not_v13FieldPrefixInstantiation_of_not_failureMatching
+    (not_v13FieldFailureMatching_of_success_without_sameCell_failure
+      hhist hsucc hnoFailure)
 
 /-- If a field cell has more next-success points than next-failure points, the
 fixed-field prefix certificate is impossible. -/
@@ -1349,6 +1421,50 @@ theorem v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
       have hitem := ih (hist := hist ++ [head.step.successEvent]) htail
       simpa [v13FieldedSuccessEvents, List.append_assoc] using hitem
 
+/-- At any later fielded position, recursive same-cell matching supplies an
+explicit failed prefix point in the same field cell for every successful prefix
+point. -/
+theorem exists_sameCell_failure_at_append_cons_of_failureMatchingFrom_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hmatch :
+      V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix))
+    {ω : Ω}
+    (hhist : allEvents (hist ++ v13FieldedSuccessEvents pre) ω)
+    (hsucc : item.step.successEvent.pred ω) :
+    ∃ ω' : Ω,
+      allEvents (hist ++ v13FieldedSuccessEvents pre) ω' ∧
+        item.field.cellOf ω' = item.field.cellOf ω ∧
+          ¬ item.step.successEvent.pred ω' := by
+  exact
+    exists_sameCell_failure_of_fieldFailureMatching_success
+      (v13FieldFailureMatching_at_append_cons_of_failureMatchingFrom
+        (hist := hist) (pre := pre) (item := item) (suffix := suffix) hmatch)
+      hhist hsucc
+
+/-- A single successful point whose accumulated-history field cell contains no
+failed point blocks the recursive same-cell matching obligation. -/
+theorem not_v13FieldSwitchingFailureMatchingFrom_append_cons_of_success_without_sameCell_failure
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)} {ω : Ω}
+    (hhist : allEvents (hist ++ v13FieldedSuccessEvents pre) ω)
+    (hsucc : item.step.successEvent.pred ω)
+    (hnoFailure :
+      ∀ ⦃ω' : Ω⦄,
+        allEvents (hist ++ v13FieldedSuccessEvents pre) ω' →
+          item.field.cellOf ω' = item.field.cellOf ω →
+            item.step.successEvent.pred ω') :
+    ¬ V13FieldSwitchingFailureMatchingFrom hist (pre ++ item :: suffix) := by
+  intro hmatch
+  rcases exists_sameCell_failure_at_append_cons_of_failureMatchingFrom_success
+      hmatch hhist hsucc with
+    ⟨ω', hhist', hcell', hfail'⟩
+  exact hfail' (hnoFailure hhist' hcell')
+
 /-- At any later fielded position, a recursive matching proof on a positive
 next-success prefix rules out a supplied field that determines the next success
 bit on the accumulated history support. -/
@@ -1585,6 +1701,28 @@ theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInst
                 v13FieldedSuccessEvents tail) item.step := by
         simpa [v13FieldedSuccessEvents, List.append_assoc] using hfail
       exact ih (hist := hist ++ [head.step.successEvent]) hfail' h.2
+
+/-- A single successful point whose accumulated-history field cell contains no
+failed point blocks the whole fixed-field switching instantiation. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_success_without_sameCell_failure
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)} {ω : Ω}
+    (hhist : allEvents (hist ++ v13FieldedSuccessEvents pre) ω)
+    (hsucc : item.step.successEvent.pred ω)
+    (hnoFailure :
+      ∀ ⦃ω' : Ω⦄,
+        allEvents (hist ++ v13FieldedSuccessEvents pre) ω' →
+          item.field.cellOf ω' = item.field.cellOf ω →
+            item.step.successEvent.pred ω') :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
+      (hist := hist) (pre := pre) (item := item) (suffix := suffix)
+      (not_v13FieldPrefixInstantiation_of_success_without_sameCell_failure
+        (field := item.field) (hist := hist ++ v13FieldedSuccessEvents pre)
+        (step := item.step) hhist hsucc hnoFailure)
 
 /-- If any later supplied field determines its next success event on the
 accumulated history support and the corresponding next-success prefix has
