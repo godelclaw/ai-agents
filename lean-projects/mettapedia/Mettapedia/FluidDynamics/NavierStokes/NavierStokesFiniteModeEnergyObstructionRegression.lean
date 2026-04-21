@@ -67,6 +67,33 @@ theorem boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff_regression
       (∀ i j : Fin 3, A i j = 0) ∨ ∀ t : NSTime, g t = 0 :=
   boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff A g
 
+/-- The global smooth matrix-linear PDE package has an exact bounded-energy
+boundary: bounded energy is equivalent to a zero matrix mode or an identically
+zero scalar amplitude. -/
+theorem finiteModeLinearMatrix_timeDependent_global_smooth_momentum_incompressible_boundedEnergy_iff_exists_regression
+    (ν : ℝ) (A : Fin 3 → Fin 3 → ℝ) (g gdot : NSTime → ℝ)
+    (hA : ∀ i j, A i j = A j i)
+    (htrace : ∑ i : Fin 3, A i i = 0)
+    (hg : ContDiff ℝ ∞ g) (hgdot : ContDiff ℝ ∞ gdot)
+    (hderiv : ∀ t : NSTime, HasDerivAt g (gdot t) t) :
+    ∃ b : ℝ → FiniteModeState FiniteModeAffineQuadraticPressureIndex,
+      ∃ u : NSVelocityField, ∃ p : NSPressureField,
+      b = finiteModeLinearMatrixTimePressureCoefficients A g gdot ∧
+        u = finiteModeLinearMatrixTimeVelocity A g ∧
+          p = finiteModeReconstructedPressure finiteModeAffineQuadraticPressureMode b ∧
+            smoothSpaceTimeVelocity u ∧
+              smoothSpaceTimePressure p ∧
+                (∀ t x,
+                  timeVelocityDerivative u t x +
+                      spatialConvection u t x +
+                        spatialPressureGradient p t x =
+                    ν • spatialLaplacian u t x) ∧
+                (∀ t x, spatialDivergence u t x = 0) ∧
+                  (boundedKineticEnergy u ↔
+                    (∀ i j : Fin 3, A i j = 0) ∨ ∀ t : NSTime, g t = 0) :=
+  finiteModeLinearMatrix_timeDependent_global_smooth_momentum_incompressible_boundedEnergy_iff_exists
+    ν A g gdot hA htrace hg hgdot hderiv
+
 /-- The smooth active matrix-linear finite-mode package exposes the exact slab
 energy obstruction. -/
 theorem finiteModeLinearMatrix_timeDependent_smooth_momentum_incompressible_without_boundedEnergyUpTo_exists_regression

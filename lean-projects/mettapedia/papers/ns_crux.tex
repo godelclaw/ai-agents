@@ -2556,6 +2556,17 @@ every time \(t\in\mathbb{R}\).  This rules out repairs that preserve a nonzero
 linear-growth matrix mode but try to move its activity outside the chosen slab;
 the global finite-energy slot sees every active time slice.
 
+The exact boundary now reaches the whole smooth PDE package rather than only
+the velocity predicate.  Lean proves
+\texttt{finiteModeLinearMatrix\_timeDependent\_global\_smooth\_momentum\_incompressible\_boundedEnergy\_iff\_exists}:
+for symmetric trace-free \(A\), smooth \(g,g'\), and the derivative relation
+between them, the affine-quadratic pressure construction yields smooth
+\((u,p)\), pointwise momentum, and incompressibility at all times, while
+\texttt{boundedKineticEnergy} for the constructed \(u\) is equivalent to
+\(A=0\) entrywise or \(g\equiv 0\).  This is still not analytic existence
+progress; it is an exact incompatibility certificate for the polynomial
+matrix-linear finite-mode route.
+
 The same file now also discharges the basic smoothness side conditions for
 this cell.  The theorem
 \texttt{smoothSpaceTimeVelocity\_twoModeSchwartzVelocity} proves that smooth

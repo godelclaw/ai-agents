@@ -194,6 +194,49 @@ theorem boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff
     · simp [hfield]
     · simp [kineticEnergyAt, hfield]
 
+/-- Exact global finite-energy status of the smooth matrix-linear finite-mode
+PDE package.  Symmetric trace-free matrix-linear candidates can be closed by an
+explicit smooth affine-quadratic pressure and satisfy the pointwise momentum
+equation and incompressibility everywhere, but their global bounded-energy slot
+is equivalent to genuine degeneracy of the velocity: either the matrix mode is
+zero, or the scalar amplitude is identically zero. -/
+theorem finiteModeLinearMatrix_timeDependent_global_smooth_momentum_incompressible_boundedEnergy_iff_exists
+    (ν : ℝ) (A : Fin 3 → Fin 3 → ℝ) (g gdot : NSTime → ℝ)
+    (hA : ∀ i j, A i j = A j i)
+    (htrace : ∑ i : Fin 3, A i i = 0)
+    (hg : ContDiff ℝ ∞ g) (hgdot : ContDiff ℝ ∞ gdot)
+    (hderiv : ∀ t : NSTime, HasDerivAt g (gdot t) t) :
+    ∃ b : ℝ → FiniteModeState FiniteModeAffineQuadraticPressureIndex,
+      ∃ u : NSVelocityField, ∃ p : NSPressureField,
+      b = finiteModeLinearMatrixTimePressureCoefficients A g gdot ∧
+        u = finiteModeLinearMatrixTimeVelocity A g ∧
+          p = finiteModeReconstructedPressure finiteModeAffineQuadraticPressureMode b ∧
+            smoothSpaceTimeVelocity u ∧
+              smoothSpaceTimePressure p ∧
+                (∀ t x,
+                  timeVelocityDerivative u t x +
+                      spatialConvection u t x +
+                        spatialPressureGradient p t x =
+                    ν • spatialLaplacian u t x) ∧
+                (∀ t x, spatialDivergence u t x = 0) ∧
+                  (boundedKineticEnergy u ↔
+                    (∀ i j : Fin 3, A i j = 0) ∨ ∀ t : NSTime, g t = 0) := by
+  refine
+    ⟨finiteModeLinearMatrixTimePressureCoefficients A g gdot,
+      finiteModeLinearMatrixTimeVelocity A g,
+      finiteModeLinearMatrixTimePressure A g gdot,
+      rfl, rfl, rfl, ?_, ?_, ?_, ?_, ?_⟩
+  · exact finiteModeLinearMatrix_timeDependent_smoothSpaceTimeVelocity A g hg
+  · simpa [finiteModeLinearMatrixTimePressure] using
+      finiteModeLinearMatrix_timeDependent_smoothSpaceTimePressure
+        A g gdot hg hgdot
+  · simpa [finiteModeLinearMatrixTimePressure] using
+      finiteModeLinearMatrix_timeDependent_pointwise_momentum_eq
+        ν A g gdot hA hderiv
+  · exact finiteModeLinearMatrix_timeDependent_spatialDivergence_zero_of_trace
+      A g htrace
+  · exact boundedKineticEnergy_finiteModeLinearMatrixTimeVelocity_iff A g
+
 /-- Smooth matrix-linear finite-mode candidates give the exact finite-time
 status on an active slab: smooth velocity, smooth pressure, pointwise momentum,
 and incompressibility are available on the slab, while finite-time bounded
