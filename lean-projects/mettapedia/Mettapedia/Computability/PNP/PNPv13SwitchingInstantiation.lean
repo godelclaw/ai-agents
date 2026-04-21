@@ -1136,6 +1136,57 @@ theorem not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccess_pos
     (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
       hdet hpos)
 
+/-- A failed fixed-field prefix certificate at any later position blocks the
+whole fielded switching list.  The history at the failed item is exactly the
+incoming history extended by the success events of the preceding fielded
+prefix. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hfail :
+      ¬ V13FieldPrefixInstantiation item.field
+          (hist ++ v13FieldedSuccessEvents pre) item.step) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  induction pre generalizing hist with
+  | nil =>
+      have hfail' :
+          ¬ V13FieldPrefixInstantiation item.field hist item.step := by
+        simpa [v13FieldedSuccessEvents] using hfail
+      simpa using
+        (not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
+          (hist := hist) (item := item) (rest := suffix) hfail')
+  | cons head tail ih =>
+      intro h
+      have hfail' :
+          ¬ V13FieldPrefixInstantiation item.field
+              ((hist ++ [head.step.successEvent]) ++
+                v13FieldedSuccessEvents tail) item.step := by
+        simpa [v13FieldedSuccessEvents, List.append_assoc] using hfail
+      exact ih (hist := hist ++ [head.step.successEvent]) hfail' h.2
+
+/-- If any later supplied field determines its next success event and the
+corresponding next-success prefix has positive mass, the whole fielded
+switching list is blocked. -/
+theorem not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
+      (hist := hist) (pre := pre) (item := item) (suffix := suffix)
+      (not_v13FieldPrefixInstantiation_of_fieldDeterminesSuccess_positive_success
+        (Ω := Ω) (field := item.field)
+        (hist := hist ++ v13FieldedSuccessEvents pre) (step := item.step)
+        hdet hpos)
+
 /-- A success-revealing fielded step with positive next-success mass blocks the
 entire fixed-field switching suffix. -/
 theorem not_v13FieldSwitchingInstantiatedFrom_successField_cons_of_positive_success
@@ -1432,6 +1483,18 @@ def v13BoolPairFirstCoordinateFieldedStep : V13FieldedStep (Bool × Bool) where
   field := v13BoolPairFirstCoordinateField
   step := v13BoolPairRepeatedStep
 
+/-- The one-cell field on the Boolean square.  It is the honest finite field
+that certifies the first global half-success cut for the repeated-coordinate
+test case. -/
+def v13BoolPairUnitField : V13HistoryField (Bool × Bool) where
+  Cell := PUnit
+  cellOf := fun _ => PUnit.unit
+
+/-- The repeated-coordinate switched step paired with the one-cell field. -/
+def v13BoolPairUnitFieldedStep : V13FieldedStep (Bool × Bool) where
+  field := v13BoolPairUnitField
+  step := v13BoolPairRepeatedStep
+
 /-- The repeated-step success event has numerator `2` over the four-point
 Boolean square. -/
 theorem v13BoolPairRepeatedStep_success_count :
@@ -1443,6 +1506,17 @@ theorem prefixHalfStep_v13BoolPairRepeatedStep_empty :
     PrefixHalfStep ([] : List (FiniteEvent (Bool × Bool)))
       v13BoolPairRepeatedStep.successEvent := by
   rw [PrefixHalfStep]
+  decide
+
+/-- The one-cell field certifies the first repeated-coordinate step from the
+empty history: the first-coordinate success event has exactly half the four
+Boolean-square points. -/
+theorem v13FieldPrefixInstantiation_unitField_empty :
+    V13FieldPrefixInstantiation v13BoolPairUnitField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  refine v13FieldPrefixInstantiation_of_cellHalf ?_
+  intro cell
+  cases cell
   decide
 
 /-- In the first-coordinate field, the `true` cell has two points before the
@@ -1501,6 +1575,25 @@ theorem not_v13FieldSwitchingInstantiated_firstCoordinateOneStep :
   exact
     not_v13FieldSwitchingInstantiatedFrom_cons_of_not_fieldPrefixInstantiation
       not_v13FieldPrefixInstantiation_firstCoordinateField_empty
+
+/-- Even after a valid one-cell certificate for the first cut, using the
+first-coordinate field for the repeated second cut is blocked because that
+later field determines the next success event on a positive-mass prefix. -/
+theorem unitField_first_step_then_firstCoordinateField_second_blocked :
+    V13FieldPrefixInstantiation v13BoolPairUnitField
+        ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep ∧
+      ¬ V13FieldSwitchingInstantiated
+        [v13BoolPairUnitFieldedStep, v13BoolPairFirstCoordinateFieldedStep] := by
+  refine ⟨v13FieldPrefixInstantiation_unitField_empty, ?_⟩
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+      (hist := ([] : List (FiniteEvent (Bool × Bool))))
+      (pre := [v13BoolPairUnitFieldedStep])
+      (item := v13BoolPairFirstCoordinateFieldedStep)
+      (suffix := [])
+      v13BoolPairFirstCoordinateField_determinesSuccess
+      (by
+        decide)
 
 /-- Repeating the same success event does not cut the already-successful
 history class at all. -/

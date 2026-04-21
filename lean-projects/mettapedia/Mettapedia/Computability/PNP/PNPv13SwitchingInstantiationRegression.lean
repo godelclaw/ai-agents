@@ -380,6 +380,33 @@ theorem determined_success_field_blocks_field_suffix_regression
     not_v13FieldSwitchingInstantiatedFrom_cons_of_fieldDeterminesSuccess_positive_success
       hdet hpos
 
+theorem failed_field_prefix_blocks_field_instantiation_after_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hfail :
+      ¬ V13FieldPrefixInstantiation item.field
+          (hist ++ v13FieldedSuccessEvents pre) item.step) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_not_fieldPrefixInstantiation
+      hfail
+
+theorem determined_success_field_blocks_field_instantiation_after_prefix_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)}
+    {pre : List (V13FieldedStep Ω)} {item : V13FieldedStep Ω}
+    {suffix : List (V13FieldedStep Ω)}
+    (hdet : V13HistoryFieldDeterminesSuccess item.field item.step)
+    (hpos :
+      0 < finiteHistoryCount Ω
+        ((hist ++ v13FieldedSuccessEvents pre) ++ [item.step.successEvent])) :
+    ¬ V13FieldSwitchingInstantiatedFrom hist (pre ++ item :: suffix) := by
+  exact
+    not_v13FieldSwitchingInstantiatedFrom_append_cons_of_fieldDeterminesSuccess_positive_success
+      hdet hpos
+
 theorem success_revealing_field_blocks_field_suffix_regression
     {Ω : Type u} [Fintype Ω]
     {hist : List (FiniteEvent Ω)}
@@ -492,6 +519,11 @@ theorem first_step_global_half_regression :
       v13BoolPairRepeatedStep.successEvent := by
   exact prefixHalfStep_v13BoolPairRepeatedStep_empty
 
+theorem unit_field_first_step_certificate_regression :
+    V13FieldPrefixInstantiation v13BoolPairUnitField
+      ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep := by
+  exact v13FieldPrefixInstantiation_unitField_empty
+
 theorem first_coordinate_field_prefix_true_count_regression :
     v13ConcretePrefixCount (Ω := Bool × Bool)
       ([] : List (FiniteEvent (Bool × Bool)))
@@ -537,6 +569,13 @@ theorem no_field_instantiation_for_first_coordinate_one_step_regression :
     ¬ V13FieldSwitchingInstantiated
       [v13BoolPairFirstCoordinateFieldedStep] := by
   exact not_v13FieldSwitchingInstantiated_firstCoordinateOneStep
+
+theorem unit_field_then_first_coordinate_field_second_blocked_regression :
+    V13FieldPrefixInstantiation v13BoolPairUnitField
+        ([] : List (FiniteEvent (Bool × Bool))) v13BoolPairRepeatedStep ∧
+      ¬ V13FieldSwitchingInstantiated
+        [v13BoolPairUnitFieldedStep, v13BoolPairFirstCoordinateFieldedStep] := by
+  exact unitField_first_step_then_firstCoordinateField_second_blocked
 
 theorem no_success_revealing_field_certificate_bool_pair_regression :
     ¬ V13FieldPrefixInstantiation

@@ -35,7 +35,9 @@ surface needed to test one brittle central link.
    fixed-field instantiation layer, this becomes a per-cell balance theorem:
    every named history cell must contain at least as many next-failure points as
    next-success points.  A field that already determines the next success bit
-   can satisfy that balance only in the zero-success case.
+   can satisfy that balance only in the zero-success case.  This is not merely
+   a head-step issue: the same blocker applies at any later fielded position
+   after extending the history by the preceding success events.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

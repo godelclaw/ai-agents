@@ -243,7 +243,12 @@ that any such field is certifiable only when the next-success prefix has zero ma
 v13 history field cannot already decide the next success bit on any positive-mass prefix; it must
 leave enough same-cell counterexamples to satisfy the success-versus-failure balance.  The Boolean
 first-coordinate field now fails by this general theorem, not only by an arithmetic calculation on
-one named cell.
+one named cell.  The blocker has also been lifted from the head of a fielded suffix to an arbitrary
+later position: a failed fixed-field prefix certificate after any preceding fielded list blocks the
+whole original list, with the current history equal to the old history extended by the preceding
+success events.  In the Boolean square, the one-cell field certifies the first half-success cut, but
+the first-coordinate field is still impossible as the second repeated-coordinate field because it
+determines the repeated success event on a positive-mass prefix.
 The same v13-specific module also checks the smallest
 positive-mass failure mode for sequential repetition: if the second switched step repeats the first
 exact-success event, then the first success prefix has count \(2\), the repeated-success prefix
@@ -1978,7 +1983,8 @@ The present crux-first formal work yields a clean conditional diagnosis.
   zero-success case.  Equivalently, every successful atom in a valid fixed-field certificate must
   be mixed with at least one unsuccessful prefix point.  The same conclusion now holds for any
   supplied field that determines the next success bit cellwise: on a positive-mass success prefix,
-  such a field blocks the whole fielded suffix.
+  such a field blocks the whole fielded suffix, and the theorem applies at any later fielded
+  position after the preceding success-event history has been accumulated.
   \item A repeated exact-success event gives a checked positive-mass obstruction to that atom-ledger
   obligation: the second repeated step has conditional success \(1\), so no v13 switching
   instantiation exists for the two-step repeated Boolean-square model.  It also violates the
