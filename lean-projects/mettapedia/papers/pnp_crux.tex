@@ -2014,7 +2014,11 @@ The present crux-first formal work yields a clean conditional diagnosis.
   proof that every supplied cell has at least as many next-failure prefix points as next-success
   prefix points.  Equivalently, after the field is fixed, each successful prefix point must be
   injectively matched to an unsuccessful prefix point in the same field cell.  This fixed-field
-  premise is strictly stronger than global half-success:
+  premise is now also diagnostic in the negative direction: if the matching or prefix certificate
+  fails, Lean extracts a supplied cell whose next-failure count is strictly smaller than its
+  next-success count.  Product-bound violations therefore localize not only to a fielded position
+  but to a concrete bad cell in that position.  This fixed-field premise is strictly stronger than
+  global half-success:
   a field that reveals the successful Boolean coordinate already fails cellwise at the first step.
   The ordered fielded-switching interface now gives the positive bridge as well: if every supplied
   field certificate is proved, the tower product bound follows; if one fixed-field prefix
@@ -2040,8 +2044,9 @@ The present crux-first formal work yields a clean conditional diagnosis.
   product-bound contrapositive.  The fixed-field version is now blocked at the same level: when
   both repeated cuts use the one-cell field, the fielded tower-product bound fails and therefore no
   recursive same-cell matching proof can exist.  This failure is no longer only global: Lean
-  localizes any such failure to a concrete fielded position, and in the one-cell repeated model the
-  second conditioned cut is explicitly the failed same-cell matching/certificate obligation.
+  localizes any such failure to a concrete fielded position and then to a bad supplied cell whose
+  failures are fewer than successes.  In the one-cell repeated model the second conditioned cut is
+  explicitly the failed same-cell matching/certificate obligation.
 \end{enumerate}
 
 These are currently the sharpest formally checked cruxes we have in Lean.

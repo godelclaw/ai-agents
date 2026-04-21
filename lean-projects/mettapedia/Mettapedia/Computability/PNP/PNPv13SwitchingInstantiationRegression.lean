@@ -185,6 +185,16 @@ theorem field_failure_matching_iff_success_le_failure_regression
           v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
   exact v13FieldFailureMatching_iff_success_le_failure
 
+theorem bad_cell_from_failed_field_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldFailureMatching field hist step) :
+    ∃ cell : field.Cell,
+      v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell := by
+  exact exists_bad_cell_of_not_v13FieldFailureMatching hfail
+
 theorem field_prefix_certificate_iff_failure_matching_regression
     {Ω : Type u} [Fintype Ω]
     {field : V13HistoryField Ω}
@@ -257,6 +267,16 @@ theorem no_field_prefix_certificate_from_no_failure_matching_regression
     (hfail : ¬ V13FieldFailureMatching field hist step) :
     ¬ V13FieldPrefixInstantiation field hist step := by
   exact not_v13FieldPrefixInstantiation_of_not_failureMatching hfail
+
+theorem bad_cell_from_failed_field_prefix_certificate_regression
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω}
+    {hist : List (FiniteEvent Ω)} {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldPrefixInstantiation field hist step) :
+    ∃ cell : field.Cell,
+      v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell := by
+  exact exists_bad_cell_of_not_v13FieldPrefixInstantiation hfail
 
 theorem no_field_prefix_certificate_from_success_without_same_cell_failure_regression
     {Ω : Type u} [Fintype Ω]
@@ -613,6 +633,39 @@ theorem failed_field_failure_matching_position_from_product_bound_violation_regr
   exact
     exists_failed_fieldFailureMatching_at_append_cons_of_product_bound_violation
       hbad
+
+theorem bad_cell_position_from_not_failure_matching_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ∃ cell : item.field.Cell,
+          v13ConcreteFailureCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell <
+            v13ConcreteSuccessCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell := by
+  exact exists_bad_cell_at_append_cons_of_not_failureMatchingFrom hfail
+
+theorem bad_cell_position_from_product_bound_violation_regression
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ∃ cell : item.field.Cell,
+          v13ConcreteFailureCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell <
+            v13ConcreteSuccessCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell := by
+  exact exists_bad_cell_at_append_cons_of_product_bound_violation hbad
 
 theorem failed_field_prefix_position_from_product_bound_violation_regression
     {Ω : Type u} [Fintype Ω]

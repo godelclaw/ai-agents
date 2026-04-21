@@ -61,7 +61,9 @@ surface needed to test one brittle central link.
    turns any failed recursive matching proof, and any product-bound failure,
    into a concrete failed fielded position `pre ++ item :: suffix`; in the
    repeated one-cell example, the exact failed position is the second cut after
-   conditioning on the first success event.
+   conditioning on the first success event.  At the fixed-field layer this now
+   localizes further to a concrete supplied cell whose next-failure count is
+   strictly smaller than its next-success count.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

@@ -842,6 +842,27 @@ theorem v13FieldFailureMatching_iff_success_le_failure
       v13ConcreteSuccessCount, v13ConcreteFailureCount, finiteEventCount]
       using hbalance cell
 
+/-- If fixed-field same-cell matching fails, then some supplied cell has more
+next-success prefix points than next-failure prefix points. -/
+theorem exists_bad_cell_of_not_v13FieldFailureMatching
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldFailureMatching field hist step) :
+    ∃ cell : field.Cell,
+      v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell := by
+  by_contra hno
+  have hbalance :
+      ∀ cell,
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell ≤
+          v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell := by
+    intro cell
+    exact le_of_not_gt (by
+      intro hbad
+      exact hno ⟨cell, hbad⟩)
+  exact hfail (v13FieldFailureMatching_iff_success_le_failure.mpr hbalance)
+
 /-- A fixed-field v13 prefix certificate is equivalent to an explicit
 same-cell injection from successful prefix points to unsuccessful prefix
 points.  This is the constructive interface a proof of v13 sequential
@@ -897,6 +918,20 @@ theorem not_v13FieldPrefixInstantiation_of_not_failureMatching
     ¬ V13FieldPrefixInstantiation field hist step := by
   intro cert
   exact hfail (v13FieldPrefixInstantiation_iff_failureMatching.mp cert)
+
+/-- If a fixed-field prefix certificate fails, then some supplied cell has more
+next-success prefix points than next-failure prefix points. -/
+theorem exists_bad_cell_of_not_v13FieldPrefixInstantiation
+    {Ω : Type u} [Fintype Ω]
+    {field : V13HistoryField Ω} {hist : List (FiniteEvent Ω)}
+    {step : V13SwitchedStep Ω}
+    (hfail : ¬ V13FieldPrefixInstantiation field hist step) :
+    ∃ cell : field.Cell,
+      v13ConcreteFailureCount (Ω := Ω) hist step field.cellOf cell <
+        v13ConcreteSuccessCount (Ω := Ω) hist step field.cellOf cell := by
+  exact exists_bad_cell_of_not_v13FieldFailureMatching
+    (field := field) (hist := hist) (step := step)
+    (fun hmatch => hfail (v13FieldPrefixInstantiation_of_failureMatching hmatch))
 
 /-- If one successful prefix point has no failed prefix point in its supplied
 field cell, the fixed-field prefix certificate is impossible. -/
@@ -1704,6 +1739,50 @@ theorem exists_failed_fieldFailureMatching_at_append_cons_of_product_bound_viola
           (hist ++ v13FieldedSuccessEvents pre) item.step := by
   exact
     exists_failed_fieldFailureMatching_at_append_cons_of_not_failureMatchingFrom
+      (not_v13FieldSwitchingFailureMatchingFrom_of_product_bound_violation hbad)
+
+/-- Failure of recursive same-cell matching localizes further to a concrete
+fielded position and one bad supplied cell at that position. -/
+theorem exists_bad_cell_at_append_cons_of_not_failureMatchingFrom
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfail : ¬ V13FieldSwitchingFailureMatchingFrom hist items) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ∃ cell : item.field.Cell,
+          v13ConcreteFailureCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell <
+            v13ConcreteSuccessCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell := by
+  rcases exists_failed_fieldFailureMatching_at_append_cons_of_not_failureMatchingFrom
+      hfail with
+    ⟨pre, item, suffix, hitems, hbad⟩
+  rcases exists_bad_cell_of_not_v13FieldFailureMatching hbad with
+    ⟨cell, hcell⟩
+  exact ⟨pre, item, suffix, hitems, cell, hcell⟩
+
+/-- A tower-product violation localizes all the way to a concrete supplied cell
+whose next-success count exceeds its next-failure count. -/
+theorem exists_bad_cell_at_append_cons_of_product_bound_violation
+    {Ω : Type u} [Fintype Ω]
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hbad :
+      ¬ 2 ^ items.length *
+          finiteHistoryCount Ω (hist ++ v13FieldedSuccessEvents items) ≤
+        finiteHistoryCount Ω hist) :
+    ∃ pre item suffix,
+      items = pre ++ item :: suffix ∧
+        ∃ cell : item.field.Cell,
+          v13ConcreteFailureCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell <
+            v13ConcreteSuccessCount (Ω := Ω)
+              (hist ++ v13FieldedSuccessEvents pre)
+              item.step item.field.cellOf cell := by
+  exact
+    exists_bad_cell_at_append_cons_of_not_failureMatchingFrom
       (not_v13FieldSwitchingFailureMatchingFrom_of_product_bound_violation hbad)
 
 /-- A tower-product violation also localizes to a failed fixed-field prefix
