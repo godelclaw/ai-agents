@@ -73,7 +73,10 @@ surface needed to test one brittle central link.
    blocked under the explicit repeated-positive-pivot or bad-cell hypotheses;
    if the manuscript construction does not force those hypotheses, the repair
    target is the named recursive same-cell matching theorem, together with
-   proofs that the repeated-pivot and bad-cell audit targets are absent.
+   proofs that the repeated-pivot and bad-cell audit targets are absent.  A
+   refinement theorem now blocks one natural escape hatch: subdividing a bad
+   supplied field cell preserves a bad refined cell, so refinement alone cannot
+   turn a failed cellwise balance into a valid fixed-field certificate.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

@@ -313,6 +313,16 @@ current conclusion is a decision tree: either the construction satisfies the rep
 bad-cell hypotheses and is blocked, or it must provide the explicit cellwise same-cell matching
 repair theorem.
 
+One natural refinement repair is now tested separately.  The module
+\texttt{PNPv13FieldRefinement.lean} defines a genuine finite field refinement as a projection from
+fine cells to coarse cells commuting with the pointwise cell maps.  It proves that a coarse bad cell
+cannot be hidden by such a refinement: if the coarse cell has fewer next-failure points than
+next-success points, then some fine cell over it has the same strict imbalance.  Consequently,
+subdividing a bad supplied cell cannot produce a fixed-field prefix certificate for the same
+history and switched step.  This does not rule out changing to a non-refining adaptive field, but
+that move is now exactly the stronger repair theorem already named above: prove the recursive
+same-cell matching obligation for the actual new fielded list.
+
 Assessment after the v13 switching packets: the formal work does not prove that no conceivable
 v13-style switching strategy can work, because one residual positive target remains--name the
 actual manuscript history fields and prove their recursive cellwise half-success bounds.  But it
@@ -407,6 +417,8 @@ The current Lean modules under
 \texttt{PNPv13SwitchingInstantiationRegression.lean} & regression checks for the v13 switching-instantiation interfaces \\
 \texttt{PNPv13RouteSynthesis.lean} & precise v13 fixed-field route blockers and named repair obligations \\
 \texttt{PNPv13RouteSynthesisRegression.lean} & regression checks for the v13 route synthesis layer \\
+\texttt{PNPv13FieldRefinement.lean} & field refinements preserve bad-cell fixed-field obstructions \\
+\texttt{PNPv13FieldRefinementRegression.lean} & regression checks for the v13 field-refinement blocker \\
 \bottomrule
 \end{tabular}
 \end{center}
