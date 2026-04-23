@@ -68,7 +68,12 @@ surface needed to test one brittle central link.
    The newest generic theorem removes the Boolean-square specialness: after a
    positive-mass event has occurred once, repeating the same event is never a
    valid second conditional half-step.  The v13 wrappers lift this to abstract,
-   concrete-cell, fixed-field, and recursive matching interfaces.
+   concrete-cell, fixed-field, and recursive matching interfaces.  The route
+   synthesis layer keeps the conclusion precise: the fixed-field route is
+   blocked under the explicit repeated-positive-pivot or bad-cell hypotheses;
+   if the manuscript construction does not force those hypotheses, the repair
+   target is the named recursive same-cell matching theorem, together with
+   proofs that the repeated-pivot and bad-cell audit targets are absent.
 
 6. Compression-from-success.
    Crux statement still needed: the product small-success bound yields the

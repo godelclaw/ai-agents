@@ -298,6 +298,21 @@ first success event, the one-cell field's only accumulated-history cell has next
 \(0\) and next-success count \(2\), so it is the concrete bad cell for the second repeated success
 test.
 
+The route synthesis module now separates this blocker from the stronger claim that every possible
+v13 repair is dead.  It names the exact route-class assumptions:
+\texttt{V13RepeatedPositivePivotFrom} for an abstract switched list,
+\texttt{V13RepeatedPositiveFieldedPivotFrom} for a fixed-field list, and
+\texttt{V13FieldedBadCellFrom} for a localized same-cell balance failure.  Under those hypotheses
+Lean proves that the corresponding abstract, fixed-field, and recursive matching formulations are
+blocked.  Conversely, if a proposed manuscript instantiation avoids the repeated-positive-pivot
+pattern, Lean now names the repair theorem it owes: prove the recursive
+\texttt{V13FieldSwitchingFailureMatchingFrom} obligation for the actual ordered fielded list.  That
+theorem entails both \texttt{V13NoRepeatedPositiveFieldedPivotFrom} and
+\texttt{V13NoFieldedBadCellFrom}, and it also supplies the finite tower product bound.  Thus the
+current conclusion is a decision tree: either the construction satisfies the repeated-pivot or
+bad-cell hypotheses and is blocked, or it must provide the explicit cellwise same-cell matching
+repair theorem.
+
 Assessment after the v13 switching packets: the formal work does not prove that no conceivable
 v13-style switching strategy can work, because one residual positive target remains--name the
 actual manuscript history fields and prove their recursive cellwise half-success bounds.  But it
@@ -390,6 +405,8 @@ The current Lean modules under
 \texttt{FiniteSwitchingAdmissibilityRegression.lean} & regression checks for the generic switching interface \\
 \texttt{PNPv13SwitchingInstantiation.lean} & v13 summary/concrete equivalences, fixed history-field and ordered fielded switching interfaces, and product bridge \\
 \texttt{PNPv13SwitchingInstantiationRegression.lean} & regression checks for the v13 switching-instantiation interfaces \\
+\texttt{PNPv13RouteSynthesis.lean} & precise v13 fixed-field route blockers and named repair obligations \\
+\texttt{PNPv13RouteSynthesisRegression.lean} & regression checks for the v13 route synthesis layer \\
 \bottomrule
 \end{tabular}
 \end{center}
