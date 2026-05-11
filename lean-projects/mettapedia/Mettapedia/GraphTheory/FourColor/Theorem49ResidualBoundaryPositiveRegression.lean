@@ -69,6 +69,99 @@ theorem nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState :
       twoTriangleTaitEdgeColoring red blue
       (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)⟩
 
+def twoTriangleOuterFaceDartSuccessor (d : twoTriangleAnnulusGraph.Dart) :
+    twoTriangleAnnulusGraph.Dart :=
+  if d = ttaDart01 then ttaDart12
+  else if d = ttaDart12 then ttaDart20
+  else ttaDart01
+
+def twoTriangleInnerFaceDartSuccessor (d : twoTriangleAnnulusGraph.Dart) :
+    twoTriangleAnnulusGraph.Dart :=
+  if d = ttaDart34 then ttaDart45
+  else if d = ttaDart45 then ttaDart53
+  else ttaDart34
+
+def twoTriangleOuterFaceDartSuccessorCycle
+    (hf : (0 : TwoTriangleAnnulusFace) ∈ twoTriangleAnnulusEmbedding.faces) :
+    PlaneEmbeddingWithBoundary.FaceBoundaryDartSuccessorCycle
+      twoTriangleAnnulusEmbedding ⟨(0 : TwoTriangleAnnulusFace), hf⟩ where
+  darts := [ttaDart01, ttaDart12, ttaDart20]
+  hnonempty := by simp
+  successor := twoTriangleOuterFaceDartSuccessor
+  hsuccessor_order := by
+    simp [twoTriangleOuterFaceDartSuccessor, ttaDart01, ttaDart12, ttaDart20]
+  hsuccessor_adj := by
+    intro d hd
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hd
+    rcases hd with rfl | rfl | rfl <;>
+      simp [SimpleGraph.DartAdj, twoTriangleOuterFaceDartSuccessor,
+        ttaDart01, ttaDart12, ttaDart20]
+  hnodup_edges := by decide
+  hedge_sub := by
+    intro d hd
+    exact (twoTriangleOuterFacePureDartCycle hf).hedge_sub d hd
+  hface_sub := by
+    intro e he
+    exact (twoTriangleOuterFacePureDartCycle hf).hface_sub e he
+
+def twoTriangleInnerFaceDartSuccessorCycle
+    (hf : (1 : TwoTriangleAnnulusFace) ∈ twoTriangleAnnulusEmbedding.faces) :
+    PlaneEmbeddingWithBoundary.FaceBoundaryDartSuccessorCycle
+      twoTriangleAnnulusEmbedding ⟨(1 : TwoTriangleAnnulusFace), hf⟩ where
+  darts := [ttaDart34, ttaDart45, ttaDart53]
+  hnonempty := by simp
+  successor := twoTriangleInnerFaceDartSuccessor
+  hsuccessor_order := by
+    simp [twoTriangleInnerFaceDartSuccessor, ttaDart34, ttaDart45, ttaDart53]
+  hsuccessor_adj := by
+    intro d hd
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hd
+    rcases hd with rfl | rfl | rfl <;>
+      simp [SimpleGraph.DartAdj, twoTriangleInnerFaceDartSuccessor,
+        ttaDart34, ttaDart45, ttaDart53]
+  hnodup_edges := by decide
+  hedge_sub := by
+    intro d hd
+    exact (twoTriangleInnerFacePureDartCycle hf).hedge_sub d hd
+  hface_sub := by
+    intro e he
+    exact (twoTriangleInnerFacePureDartCycle hf).hface_sub e he
+
+def twoTriangleDartSuccessorCycleGeometry :
+    PlanarBoundaryDartSuccessorCycleEmbeddingData twoTriangleAnnulusEmbedding where
+  faceBoundaryDartSuccessorCycle := by
+    intro f
+    rcases f with ⟨f, hfmem⟩
+    change TwoTriangleAnnulusFace at f
+    by_cases h0 : f = (0 : TwoTriangleAnnulusFace)
+    · subst f
+      exact twoTriangleOuterFaceDartSuccessorCycle hfmem
+    · have h1 : f = (1 : TwoTriangleAnnulusFace) := by
+        fin_cases f
+        · exact False.elim (h0 rfl)
+        · rfl
+      subst f
+      exact twoTriangleInnerFaceDartSuccessorCycle hfmem
+
+theorem twoTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace :
+    ∀ f : AmbientFace twoTriangleAnnulusEmbedding.faces,
+      (twoTriangleDartSuccessorCycleGeometry.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f := by
+  intro f
+  rcases twoTriangleAnnulusFace_cases f with rfl | rfl
+  ·
+    refine ⟨[tta01, tta12, tta20], ?_, ?_⟩
+    · decide
+    · intro e
+      rcases twoTriangleAnnulus_edge_eq e with rfl | rfl | rfl | rfl | rfl | rfl <;>
+        decide
+  ·
+    refine ⟨[tta34, tta45, tta53], ?_, ?_⟩
+    · decide
+    · intro e
+      rcases twoTriangleAnnulus_edge_eq e with rfl | rfl | rfl | rfl | rfl | rfl <;>
+        decide
+
 /-- Positive exact-v23 coexistence benchmark on the honest closed-walk no-interior shell: the
 two-triangle source simultaneously carries the exact Step~2 seed, the source-fixed root-cover
 facts, and empty interior edge support. -/
@@ -190,6 +283,56 @@ theorem
         (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData twoTriangleAnnulusEmbedding) := by
   exact
     ⟨⟨twoTriangleClosedWalkAnnulusBoundarySource⟩,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData⟩
+
+/-- The exact-v23 two-triangle benchmark also reaches the residual selector surface on the actual
+successor-cycle boundary-order shell. -/
+theorem
+    twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundarySelectorData
+    :
+    ∃ _boundaryData :
+        PlanarBoundaryAnnulusBoundaryReachabilityData twoTriangleAnnulusEmbedding,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData twoTriangleAnnulusEmbedding,
+        (∀ f : AmbientFace twoTriangleAnnulusEmbedding.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+          Nonempty
+            (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+              (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+          Nonempty (ResidualBoundarySelectorData twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨twoTriangleAnnulusBoundaryReachabilityData,
+      twoTriangleDartSuccessorCycleGeometry,
+      twoTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
+
+/-- The same exact-v23 two-triangle benchmark reaches the residual face-peel witness surface on
+the actual successor-cycle boundary-order shell. -/
+theorem
+    twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData
+    :
+    ∃ _boundaryData :
+        PlanarBoundaryAnnulusBoundaryReachabilityData twoTriangleAnnulusEmbedding,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData twoTriangleAnnulusEmbedding,
+        (∀ f : AmbientFace twoTriangleAnnulusEmbedding.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+          Nonempty
+            (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+              (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+          Nonempty
+            (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData
+              twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨twoTriangleAnnulusBoundaryReachabilityData,
+      twoTriangleDartSuccessorCycleGeometry,
+      twoTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
       twoTriangleTaitEdgeColoring_isTait,
       nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
       nonempty_twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData⟩
