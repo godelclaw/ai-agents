@@ -283,6 +283,28 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         (G := G) (emb := emb) hInteriorCarrier)
       C0 hC0
 
+/-- Honest closed-walk source data, explicit well-founded parent witness-cover data,
+endpoint-support separation, a nonempty interior edge, and a Tait coloring also reach the
+route-facing raw Definition 4.8 quotient/error package for every Kirchhoff chain on the same
+embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryWellFoundedFacePeelWitnessData emb)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hInteriorCarrier : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+      source data hEndpointDisjoint hInteriorCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Existential honest closed-walk source data plus same-embedding well-founded parent
 witness-cover data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier
 reaches the current nonempty projected theorem-4.9 synthesis endpoint. -/
@@ -1086,6 +1108,28 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
       (interiorEdgeEndpointSupport_nonempty_of_interiorEdgeSupport_nonempty
         (G := G) (emb := emb) hInteriorCarrier)
       C0 hC0
+
+/-- Honest closed-walk source data, generic boundary-root interior-dual parent data,
+endpoint-support separation, a nonempty interior edge, and a Tait coloring also reach the
+route-facing raw Definition 4.8 quotient/error package for every Kirchhoff chain on the same
+embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hInteriorCarrier : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+      source interiorData hEndpointDisjoint hInteriorCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
 parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier
@@ -2100,6 +2144,28 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         (G := G) (emb := emb) hInteriorCarrier)
       C0 hC0
 
+/-- Honest closed-walk source data, generic boundary-root interior-dual adjacency-distance data,
+endpoint-support separation, a nonempty interior edge, and a Tait coloring also reach the
+route-facing raw Definition 4.8 quotient/error package for every Kirchhoff chain on the same
+embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootAdjDistancePeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hInteriorCarrier : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+      source interiorData hEndpointDisjoint hInteriorCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
 adjacency-distance data, endpoint-support separation, and a nonempty raw interior-edge endpoint
 carrier reaches the current nonempty projected theorem-4.9 synthesis endpoint. -/
@@ -2202,6 +2268,31 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
       (interiorEdgeEndpointSupport_nonempty_of_interiorEdgeSupport_nonempty
         (G := G) (emb := emb) hInteriorCarrier)
       C0 hC0
+
+/-- Honest closed-walk source data, generic boundary-root interior-dual adjacency-distance data,
+peeled-face endpoint no-touch on the root-distance annulus construction, a nonempty interior
+edge, and a Tait coloring also reach the route-facing raw Definition 4.8 quotient/error package
+for every Kirchhoff chain on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_of_rootDistance_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootAdjDistancePeelData emb.faces emb.faceBoundary)
+    (hPeelNoTouch : ∀ f ∈
+      (planarBoundaryAnnulusConstruction_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData_rootDistance
+        source.boundaryReachability interiorData).peelFaces,
+      Disjoint (edgeEndpointSupport (emb.faceBoundary f.1))
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hInteriorCarrier : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_of_rootDistance_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeSupport
+      source interiorData hPeelNoTouch hInteriorCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
 adjacency-distance data, root-distance peeled-face endpoint no-touch, and a nonempty raw
