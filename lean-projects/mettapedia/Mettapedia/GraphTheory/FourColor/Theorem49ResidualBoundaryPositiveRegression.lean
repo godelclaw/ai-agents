@@ -134,6 +134,66 @@ theorem
       nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
       nonempty_boundaryFreeIncidentFaceSelector_twoTriangleAnnulusEmbedding⟩
 
+/-- The same exact-v23 seed is compatible with the residual/current-boundary selector surface on
+the same degenerate source benchmark. -/
+noncomputable def twoTriangleClosedWalkSourceResidualBoundarySelectorData :
+    ResidualBoundarySelectorData twoTriangleAnnulusEmbedding :=
+  Classical.choice
+    (nonempty_residualBoundarySelectorData_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      twoTriangleClosedWalkAnnulusBoundarySource
+      rootSetCovers_twoTriangleAnnulusBoundaryFaceRoots
+      rootSetSeparated_twoTriangleAnnulusBoundaryFaceRoots
+      twoTriangleAnnulus_interiorEdgeSupport_eq_empty)
+
+theorem nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData :
+    Nonempty (ResidualBoundarySelectorData twoTriangleAnnulusEmbedding) :=
+  ⟨twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
+
+/-- The exact-v23 two-triangle benchmark also reaches the residual/current-boundary selector
+package. -/
+theorem
+    twoTriangle_closedWalkSource_tait_and_v23ResidualBoundaryInitialState_and_residualBoundarySelectorData
+    :
+    Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource twoTriangleAnnulusEmbedding) ∧
+      IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+          (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+      Nonempty (ResidualBoundarySelectorData twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨⟨twoTriangleClosedWalkAnnulusBoundarySource⟩,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
+
+/-- Residual/current-boundary face-peel witness data extracted from the concrete exact-v23
+two-triangle selector package. -/
+noncomputable def twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData :
+    PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData twoTriangleAnnulusEmbedding :=
+  twoTriangleClosedWalkSourceResidualBoundarySelectorData.toResidualBoundaryLayerFacePeelWitnessData
+
+theorem nonempty_twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData :
+    Nonempty (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData twoTriangleAnnulusEmbedding) :=
+  ⟨twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData⟩
+
+/-- The exact-v23 two-triangle benchmark reaches the residual/current-boundary witness interface
+itself, not just the upstream source-fixed or selector shells. -/
+theorem
+    twoTriangle_closedWalkSource_tait_and_v23ResidualBoundaryInitialState_and_residualBoundaryLayerFacePeelWitnessData
+    :
+    Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource twoTriangleAnnulusEmbedding) ∧
+      IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+          (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+      Nonempty
+        (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨⟨twoTriangleClosedWalkAnnulusBoundarySource⟩,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourceResidualBoundaryLayerFacePeelWitnessData⟩
+
 end Theorem49ResidualBoundaryPositiveRegression
 
 end Mettapedia.GraphTheory.FourColor
