@@ -101,6 +101,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         source data hEndpoint)
       C0 hC0
 
+/-- Honest closed-walk source data, annulus collar geometry, a local unblocked endpoint, and a
+Tait coloring also reach the route-facing raw Definition 4.8 quotient/error package for every
+Kirchhoff chain on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+      source data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition
+      hx
+
 /-- Honest closed-walk source data, repaired previous-boundary witness geometry, and a local
 unblocked endpoint package the fixed-embedding route-facing replacement source. -/
 theorem theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
@@ -130,6 +148,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         source data hEndpoint)
       C0 hC0
 
+/-- Honest closed-walk source data, repaired previous-boundary witness geometry, a local
+unblocked endpoint, and a Tait coloring also reach the route-facing raw Definition 4.8
+quotient/error package for every Kirchhoff chain on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+      source data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition
+      hx
+
 /-- Honest closed-walk source data, explicit well-founded parent witness-cover data, a local
 unblocked endpoint, and a Tait coloring reach the nonempty projected theorem-4.9 synthesis
 endpoint directly.  The source is retained in the statement for route traceability, while the
@@ -145,6 +181,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
   exact
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
       data hEndpoint C0 hC0
+
+/-- Honest closed-walk source data, explicit well-founded parent witness-cover data, a local
+unblocked endpoint, and a Tait coloring also reach the route-facing raw Definition 4.8
+quotient/error package for every Kirchhoff chain on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryWellFoundedFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      source data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition
+      hx
 
 /-- Existential honest closed-walk source data plus same-embedding well-founded parent
 witness-cover data and a local unblocked endpoint reaches the current nonempty projected
@@ -249,6 +303,28 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityD
   exact
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
       source data hEndpoint C0 hC0
+
+/-- Successor-cycle source data, explicit well-founded parent witness-cover data, a local
+unblocked endpoint, and a Tait coloring also reach the route-facing raw Definition 4.8
+quotient/error package through the induced honest closed-walk source. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryWellFoundedFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      boundaryData dartCycles hboundaryArc data hEndpoint C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Existential successor-cycle source data plus same-embedding well-founded parent witness-cover
 data and a local unblocked endpoint reaches the current nonempty projected theorem-4.9 synthesis
@@ -2618,6 +2694,27 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         hEndpointDisjoint hRawCarrier)
       C0 hC0
 
+/-- Honest closed-walk source data, annulus collar geometry, endpoint-support separation, a
+nonempty raw interior-edge endpoint carrier, and a Tait coloring also reach the route-facing raw
+Definition 4.8 quotient/error package for every Kirchhoff chain on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      source data hEndpointDisjoint hRawCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Honest closed-walk source data, annulus collar geometry, endpoint-support separation, and a
 nonempty raw interior-edge endpoint carrier package the fixed-embedding route-facing replacement
 source. -/
@@ -2679,6 +2776,30 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
       (data.hasUnblockedInteriorEndpoint_of_peelFaces_endpoint_disjoint_selectedBoundarySupport
         hPeelNoTouch hRawCarrier)
       C0 hC0
+
+/-- Honest closed-walk source data, annulus collar geometry, peeled-face endpoint no-touch on the
+canonical collar construction, a nonempty raw interior-edge endpoint carrier, and a Tait coloring
+also reach the route-facing raw Definition 4.8 quotient/error package for every Kirchhoff chain
+on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hPeelNoTouch : ∀ f ∈
+      (planarBoundaryAnnulusConstruction_of_annulusCollarGeometry data).peelFaces,
+      Disjoint (edgeEndpointSupport (emb.faceBoundary f.1))
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+      source data hPeelNoTouch hRawCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Honest closed-walk source data, annulus collar geometry, peeled-face endpoint no-touch on the
 canonical collar construction, and a nonempty raw interior-edge endpoint carrier package the
@@ -3083,6 +3204,28 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityD
         boundaryData dartCycles data hselected hEndpoint)
       C0 hC0
 
+/-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
+a local unblocked endpoint, and a Tait coloring also reach the route-facing raw Definition 4.8
+quotient/error package through the induced honest closed-walk source. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+      boundaryData dartCycles data hselected hEndpoint C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Existential route-facing successor-cycle annulus data reaches the current nonempty projected
 theorem-4.9 synthesis endpoint. -/
 theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
@@ -3149,6 +3292,32 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityD
       (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
         hEndpointDisjoint hRawCarrier)
       C0 hC0
+
+/-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
+endpoint-support separation, a nonempty raw interior-edge endpoint carrier, and a Tait coloring
+also reach the route-facing raw Definition 4.8 quotient/error package through the induced honest
+closed-walk source. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      boundaryData dartCycles data hselected hEndpointDisjoint hRawCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
 endpoint-support separation, and a nonempty raw interior-edge endpoint carrier package the
@@ -3225,6 +3394,34 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityD
       (data.hasUnblockedInteriorEndpoint_of_peelFaces_endpoint_disjoint_selectedBoundarySupport
         hPeelNoTouch hRawCarrier)
       C0 hC0
+
+/-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
+peeled-face endpoint no-touch on the canonical collar construction, a nonempty raw interior-edge
+endpoint carrier, and a Tait coloring also reach the route-facing raw Definition 4.8
+quotient/error package through the induced honest closed-walk source. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hPeelNoTouch : ∀ f ∈
+      (planarBoundaryAnnulusConstruction_of_annulusCollarGeometry data).peelFaces,
+      Disjoint (edgeEndpointSupport (emb.faceBoundary f.1))
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+      boundaryData dartCycles data hselected hPeelNoTouch hRawCarrier C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
 peeled-face endpoint no-touch on the canonical collar construction, and a nonempty raw
