@@ -556,6 +556,268 @@ theorem nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySo
   ⟨boundaryFreeIncidentFaceSelectorOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
     source hcoverRoots hsepRoots hnoInterior⟩
 
+/-- The degenerate source-fixed `NoInteriorEdges` shell is already incompatible with the named
+local endpoint witness: `HasUnblockedInteriorEndpoint` would force a live interior edge. -/
+theorem not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (_hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (_hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ HasUnblockedInteriorEndpoint emb := by
+  intro hEndpoint
+  have hInterior : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty :=
+    interiorEdgeSupport_nonempty_of_hasUnblockedInteriorEndpoint hEndpoint
+  rw [hnoInterior] at hInterior
+  simp at hInterior
+
+/-- The same degenerate closed-walk shell rules out a nonempty purified selected-boundary
+interior-edge endpoint carrier. -/
+theorem not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  intro hCarrier
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior
+      ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).2 hCarrier)
+
+/-- The older raw endpoint-support shell is likewise incompatible with the degenerate
+source-fixed `NoInteriorEdges` branch. -/
+theorem not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ (Disjoint (interiorEdgeEndpointSupport emb)
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+      (interiorEdgeEndpointSupport emb).Nonempty) := by
+  rintro ⟨hEndpointDisjoint, hRawCarrier⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior
+      (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+        hEndpointDisjoint hRawCarrier)
+
+/-- The actual theorem-4.9 boundary-order `NoInteriorEdges` shell inherits the same endpoint
+obstruction on the same embedding. -/
+theorem not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ HasUnblockedInteriorEndpoint emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior
+
+/-- The theorem-4.9 boundary-order `NoInteriorEdges` shell likewise rules out a nonempty
+purified selected-boundary carrier. -/
+theorem not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  intro hCarrier
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+      boundaryData dartCycles hboundaryArc hcoverRoots hsepRoots hnoInterior
+      ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).2 hCarrier)
+
+/-- The actual theorem-4.9 boundary-order raw endpoint-support shell is equally incompatible
+with the degenerate `NoInteriorEdges` branch. -/
+theorem not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hnoInterior : interiorEdgeSupport emb.faceBoundary emb.faces = ∅) :
+    ¬ (Disjoint (interiorEdgeEndpointSupport emb)
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+      (interiorEdgeEndpointSupport emb).Nonempty) := by
+  rintro ⟨hEndpointDisjoint, hRawCarrier⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+      boundaryData dartCycles hboundaryArc hcoverRoots hsepRoots hnoInterior
+      (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+        hEndpointDisjoint hRawCarrier)
+
+/-- Graph-level impossibility form for the honest closed-walk `NoInteriorEdges` shell together
+with the named local endpoint witness. -/
+theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        HasUnblockedInteriorEndpoint emb := by
+  rintro ⟨emb, source, hcoverRoots, hsepRoots, hnoInterior, hEndpoint⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior hEndpoint
+
+/-- Graph-level impossibility form for the honest closed-walk `NoInteriorEdges` shell together
+with a nonempty purified selected-boundary carrier. -/
+theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  rintro ⟨emb, source, hcoverRoots, hsepRoots, hnoInterior, hCarrier⟩
+  exact
+    not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior hCarrier
+
+/-- Graph-level impossibility form for the honest closed-walk `NoInteriorEdges` shell together
+with the older raw endpoint-support surface. -/
+theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        (interiorEdgeEndpointSupport emb).Nonempty := by
+  rintro ⟨emb, source, hcoverRoots, hsepRoots, hnoInterior, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges
+      source hcoverRoots hsepRoots hnoInterior
+      ⟨hEndpointDisjoint, hRawCarrier⟩
+
+/-- Graph-level impossibility form for the actual theorem-4.9 boundary-order `NoInteriorEdges`
+shell together with the named local endpoint witness. -/
+theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        HasUnblockedInteriorEndpoint emb := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, hcoverRoots, hsepRoots,
+    hnoInterior, hEndpoint⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+      boundaryData dartCycles hboundaryArc hcoverRoots hsepRoots hnoInterior hEndpoint
+
+/-- Graph-level impossibility form for the actual theorem-4.9 boundary-order `NoInteriorEdges`
+shell together with a nonempty purified selected-boundary carrier. -/
+theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, hcoverRoots, hsepRoots,
+    hnoInterior, hCarrier⟩
+  exact
+    not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+      boundaryData dartCycles hboundaryArc hcoverRoots hsepRoots hnoInterior hCarrier
+
+/-- Graph-level impossibility form for the actual theorem-4.9 boundary-order `NoInteriorEdges`
+shell together with the older raw endpoint-support surface. -/
+theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ ∧
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        (interiorEdgeEndpointSupport emb).Nonempty := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, hcoverRoots, hsepRoots,
+    hnoInterior, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsNoInteriorEdges
+      boundaryData dartCycles hboundaryArc hcoverRoots hsepRoots hnoInterior
+      ⟨hEndpointDisjoint, hRawCarrier⟩
+
 /-- Honest closed-walk sources cannot instantiate the nonempty raw source-fixed canonical-parent
 cover constructor.  The constructor would induce a height-ordered terminal peeled face whose
 non-witness boundary edges all lie on the selected-boundary support.  Since peeled faces are
