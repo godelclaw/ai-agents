@@ -1006,12 +1006,26 @@ show that even this exact Step 2 initial state, together with honest closed-walk
 Tait coloring, and `HasUnblockedInteriorEndpoint`, still does not force any residual positive
 geometry on the same embedding.
 
+The same benchmark now also blocks the stronger upstream source-fixed raw-cover shell itself.
+`sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover`
+packages the exact Step 2 seed together with failure of the closed-walk raw canonical-parent
+shared-edge-cover package on that same embedding, and
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+shows that no universal theorem of the form “honest source + Tait + endpoint + exact v23 seed
+forces some source-fixed raw canonical-parent cover witness” can hold.
+
 The same calibration now reaches the actual route-facing boundary-order shell:
 `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryPositiveProjectedGeometryOn_sharedInteriorPair`
 and
 `not_forall_residualBoundaryPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
 show that successor-cycle source data plus selected-boundary arcs, the exact v23 seed, a Tait
 coloring, and `HasUnblockedInteriorEndpoint` still do not force residual positive geometry.
+The stronger route-facing raw-cover shell is now blocked too:
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover_sharedInteriorPair`
+and
+`not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+show that successor-cycle boundary-order data plus the exact v23 seed still do not force even the
+raw canonical-parent shared-edge-cover shell on the same embedding.
 
 The same exact v23 seed also fails to repair any previously known same-embedding witness route.
 `sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_knownSameEmbeddingGeometry`
@@ -1024,8 +1038,9 @@ and
 `not_forall_some_knownSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
 show that this gap already persists on both the honest closed-walk and the actual successor-cycle
 boundary-order shells.  So the missing v23.5 theorem is not a way to re-enter one of the older
-same-embedding geometry ladders from the exact Step~2 algebraic seed; it is a genuinely new
-source-to-residual geometric bridge or live-boundary cancellation certificate.
+same-embedding geometry ladders, or even to recover the upstream raw-cover shell, from the exact
+Step~2 algebraic seed; it is a genuinely new source-to-residual geometric bridge or live-boundary
+cancellation certificate.
 
 `Theorem49ResidualBoundaryObstruction.lean` then calibrates that gap on the live
 shared-interior-pair source benchmark.  The theorems
