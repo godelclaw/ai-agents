@@ -292,6 +292,37 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
         source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren)
       hEndpoint C0 hC0
 
+/-- Source-fixed raw canonical-parent shared-edge cover route through the boundary-free selector.
+The parent child-membership field is derived internally from the raw cover plus the ambient
+two-incidence bound, so these are the minimal current source-side canonical-parent hypotheses. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData_via_boundaryFreeSelector
+      source.toPlanarBoundaryAnnulusBoundaryData
+      (interiorDualBoundaryRootParentPeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover)
+      hEndpoint C0 hC0
+
 /-- Source-fixed canonical-parent hypotheses, a local endpoint witness, and a Tait coloring
 also expose the raw Definition 4.8 quotient/error package carried by the projected synthesis
 endpoint.  This is the fixed-embedding downstream form of the selector-based positive route. -/
@@ -332,6 +363,36 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySou
   exact
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector
       source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+      hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- The same raw-cover source-fixed canonical-parent hypotheses also expose the raw
+Definition 4.8 quotient/error package through the boundary-free selector route. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
       hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level source-fixed canonical-parent route through the boundary-free selector.  The
@@ -377,6 +438,40 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedW
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector
         source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+        hEndpoint C0 hC0⟩
+
+/-- Graph-level source-fixed raw canonical-parent shared-edge cover route through the
+boundary-free selector.  This is the source-side positive endpoint corresponding to the raw-cover
+constructor where child-membership is derived internally. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases hG with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior,
+      hcover, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
         hEndpoint C0 hC0⟩
 
 end Theorem49ForcingInteriorEdgeObstruction
