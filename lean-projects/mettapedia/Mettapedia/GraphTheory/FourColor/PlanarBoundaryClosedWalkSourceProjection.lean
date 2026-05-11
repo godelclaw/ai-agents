@@ -99,6 +99,22 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryHeightO
           (G := G) data C0 hC0
       carrier_nonempty := hCarrier }
 
+/-- Height-ordered witness-cover data also give the route-facing raw quotient/error conclusion as
+soon as the selected-boundary-purified carrier is nonempty. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryHeightOrderedFacePeelWitnessData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryHeightOrderedFacePeelWitnessData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryHeightOrderedFacePeelWitnessData
+      data C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Finite collar-layer witness-cover data gives the positive same-embedding endpoint as soon as
 the selected-boundary-purified carrier is nonempty. -/
 theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData
@@ -123,6 +139,22 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarL
           (G := G) data C0 hC0
       carrier_nonempty := hCarrier }
 
+/-- Finite collar-layer witness-cover data also give the route-facing raw quotient/error
+conclusion as soon as the selected-boundary-purified carrier is nonempty. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryCollarLayerFacePeelWitnessData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryCollarLayerFacePeelWitnessData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData
+      data C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Canonical-parent boundary-root interior-dual data gives the positive projected endpoint on
 the same embedding. The construction passes through the height-ordered witness surface induced by
 the parent package, keeping the selected-boundary carrier hypothesis explicit. -/
@@ -141,6 +173,22 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryInterio
         data.toInteriorDualHeightParentPeelData)
       C0 hC0 hCarrier
 
+/-- Canonical-parent boundary-root interior-dual data also give the route-facing raw quotient/
+error conclusion once the purified carrier is nonempty. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryInteriorDualBoundaryRootParentPeelData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryInteriorDualBoundaryRootParentPeelData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryInteriorDualBoundaryRootParentPeelData
+      data C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Two-sided annulus-root parent data gives the same positive projected endpoint on the same
 embedding.  The annulus boundary split is retained in the input surface, but the proved endpoint
 still depends only on the induced interior parent payload together with a nonempty purified
@@ -156,6 +204,22 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulus
   exact
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryInteriorDualBoundaryRootParentPeelData
       (G := G) data.interiorData C0 hC0 hCarrier
+
+/-- Two-sided annulus-root parent data also give the route-facing raw quotient/error conclusion
+once the purified carrier is nonempty. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootParentPeelData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData
+      data C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Primitive same-embedding projected endpoint from an annulus boundary split plus generic
 boundary-root interior-dual parent data. -/
