@@ -444,6 +444,129 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundar
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
         boundaryData dartCycles hboundaryArc interiorData hEndpoint C0 hC0⟩
 
+/-- Honest closed-walk source data, generic boundary-root interior-dual parent data,
+endpoint-support separation, a nonempty raw interior-edge endpoint carrier, and a Tait coloring
+reach the nonempty projected theorem-4.9 synthesis endpoint.  This is the endpoint-separation
+strengthening of the parent route at the honest source shell. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  have hEq :
+      selectedBoundaryInteriorEdgeEndpointVertices emb =
+        interiorEdgeEndpointSupport emb :=
+    (selectedBoundaryInteriorEdgeEndpointVertices_eq_interiorEdgeEndpointSupport_iff_endpointSupport_disjoint
+      emb).2 hEndpointDisjoint
+  have hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+    rcases hRawCarrier with ⟨v, hv⟩
+    refine ⟨v, ?_⟩
+    simpa [hEq] using hv
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
+      source interiorData C0 hC0 hCarrier
+
+/-- Honest closed-walk source data, generic boundary-root interior-dual parent data,
+endpoint-support separation, a nonempty interior edge, and a Tait coloring reach the nonempty
+projected theorem-4.9 synthesis endpoint.  This is the edge-level carrier form of the parent
+route strengthening. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hInteriorCarrier : (interiorEdgeSupport emb.faceBoundary emb.faces).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      source interiorData hEndpointDisjoint
+      (interiorEdgeEndpointSupport_nonempty_of_interiorEdgeSupport_nonempty
+        (G := G) (emb := emb) hInteriorCarrier)
+      C0 hC0
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier
+reaches the current nonempty projected theorem-4.9 synthesis endpoint. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_with_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, source, interiorData, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        source interiorData hEndpointDisjoint hRawCarrier C0 hC0⟩
+
+/-- Successor-cycle source data, generic boundary-root interior-dual parent data,
+endpoint-support separation, a nonempty raw interior-edge endpoint carrier, and a Tait coloring
+reach the nonempty projected theorem-4.9 synthesis endpoint through the induced honest
+closed-walk source. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      source interiorData hEndpointDisjoint hRawCarrier C0 hC0
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier
+reaches the current nonempty projected theorem-4.9 synthesis endpoint. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_with_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Disjoint (interiorEdgeEndpointSupport emb)
+            (edgeEndpointSupport
+              (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+            (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with
+    ⟨emb, boundaryData, interiorData, dartCycles, hboundaryArc, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        boundaryData dartCycles hboundaryArc interiorData hEndpointDisjoint hRawCarrier C0 hC0⟩
+
 /-- Honest closed-walk source data, generic boundary-root interior-dual adjacency-distance data,
 a local unblocked endpoint, and a Tait coloring reach the nonempty projected theorem-4.9
 synthesis endpoint.  The root-distance annulus construction supplies the acyclic parent
