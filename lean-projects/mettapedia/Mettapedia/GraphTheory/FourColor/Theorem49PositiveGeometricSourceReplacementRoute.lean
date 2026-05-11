@@ -72,6 +72,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusColl
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
       data hCarrier C0 hC0
 
+/-- The route-facing closed-walk annulus package also reaches the route-facing raw Definition 4.8
+quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusCollarPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusCollarPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Honest closed-walk source data, annulus collar geometry, and a local unblocked endpoint
 package the fixed-embedding route-facing replacement source. -/
 theorem theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
@@ -533,6 +547,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusWell
         emb).2 hCarrier)
       C0 hC0
 
+/-- The route-facing closed-walk well-founded package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusWellFoundedPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusWellFoundedPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusWellFoundedPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Graph-level route-facing replacement package for honest closed-walk source data with
 same-embedding well-founded parent witness-cover data and a surviving purified carrier. -/
 structure Theorem49ClosedWalkAnnulusWellFoundedPositiveProjectedGeometry (G : SimpleGraph V)
@@ -737,6 +765,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulus
       (theorem49ClosedWalkAnnulusWellFoundedPositiveProjectedGeometryOn_of_successorCycleAnnulusWellFoundedPositiveProjectedGeometryOn
         geom)
       C0 hC0
+
+/-- The route-facing successor-cycle well-founded package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_successorCycleAnnulusWellFoundedPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusWellFoundedPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusWellFoundedPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level route-facing replacement package for successor-cycle source data with
 same-embedding well-founded parent witness-cover data and a surviving purified carrier. -/
@@ -1555,6 +1597,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRoot
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
       source interiorData C0 hC0 hCarrier
 
+/-- The route-facing closed-walk annulus-parent package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Graph-level route-facing replacement package for honest closed-walk source data with
 same-embedding boundary-root interior-dual parent data and a surviving purified carrier. -/
 structure Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry (G : SimpleGraph V)
@@ -1763,6 +1819,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulus
       (theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
         geom)
       C0 hC0
+
+/-- The route-facing successor-cycle annulus-parent package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level route-facing replacement package for successor-cycle source data with
 same-embedding boundary-root interior-dual parent data and a surviving purified carrier. -/
@@ -2538,6 +2608,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRoot
         emb).2 hCarrier)
       C0 hC0
 
+/-- The route-facing closed-walk annulus root-distance package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Graph-level route-facing replacement package for honest closed-walk source data with
 same-embedding boundary-root interior-dual adjacency-distance data and a surviving purified
 carrier. -/
@@ -2746,6 +2830,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulus
       (theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_successorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn
         geom)
       C0 hC0
+
+/-- The route-facing successor-cycle annulus root-distance package also reaches the route-facing
+raw Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_successorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level route-facing replacement package for successor-cycle source data with
 same-embedding boundary-root interior-dual adjacency-distance data and a surviving purified
@@ -3454,6 +3552,20 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulus
       (theorem49CollarLayerPositiveProjectedGeometryOn_of_successorCycleAnnulusCollarPositiveProjectedGeometryOn
         geom)
       C0 hC0
+
+/-- The route-facing successor-cycle annulus package also reaches the route-facing raw
+Definition 4.8 quotient/error endpoint on the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_successorCycleAnnulusCollarPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusCollarPositiveProjectedGeometryOn
+      geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Successor-cycle boundary-order source data, annulus collar geometry, selected-boundary arcs,
 and a local unblocked endpoint package the fixed-embedding route-facing replacement source. -/
