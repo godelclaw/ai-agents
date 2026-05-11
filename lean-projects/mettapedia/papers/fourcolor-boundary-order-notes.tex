@@ -1856,11 +1856,14 @@ boundary-free-selector route files expose the same raw-cover lowering to their
 own theorem-4.9 endpoints, so the downstream side of this stronger source-fixed
 package is now completely explicit.  However,
 \path{Theorem49ForcingInteriorEdgeObstruction.lean} now proves
+\path{exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
+\path{interiorEdgeSupport\_eq\_empty\_of\_boundaryReachabilityData\_and\_dartSuccessorCycleEmbeddingData\_and\_selectedBoundaryArc\_and\_boundaryFaceRootsCanonicalParentSharedEdgeCover},
 \path{not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
 \path{not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
 \path{not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
 and the matching successor-cycle / graph-level boundary-order variants.  The
 same raw-cover hypotheses force \path{interiorEdgeSupport = \emptyset}, so they
+already collapse to the previously isolated \path{NoInteriorEdges} branch and
 cannot coexist with either \path{HasUnblockedInteriorEndpoint}, the older raw
 endpoint-support-disjoint carrier shell, or a nonempty purified
 selected-boundary carrier on the same embedding.  Therefore the raw
@@ -1868,8 +1871,9 @@ canonical-parent cover lowerings to the parent, selector, and residual
 theorem-4.9 endpoints are presently vacuous on the live endpoint semantics.
 The open route question is no longer how to derive that package together with
 \path{HasUnblockedInteriorEndpoint} from honest source data or from the exact
-v23 seed, but whether the route must change the source interface / endpoint
-notion or prove impossibility directly on that live shell;
+v23 seed: even before any live carrier is added, the shell has already
+degenerated to empty interior support.  So the route must change the source
+interface / endpoint notion or prove impossibility directly on that live shell;
 \item the same negative calibration now reaches the exact v23 Step~2 seed
 itself.  In \path{Theorem49ResidualBoundaryObstruction.lean},
 \path{nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary}

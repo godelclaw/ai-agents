@@ -512,10 +512,14 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      `admitsPlanarBoundaryInteriorDualBoundaryRootParentPeelData_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges`
      build the same source-fixed parent package with `peelFaces = ∅` whenever the source
      boundary-face roots cover/separate and `interiorEdgeSupport = ∅`.  Thus the remaining
-     nondegenerate parent-source burden is now the production of the existing pairwise-unique
-     shared-edge selector input, cover/separated source roots, boundary-free peeled faces, and
-     rooted shared-edge coverage of actual interior edges, not an additional hidden base-case or
-     parent-child-membership problem.  The empty-support case also proves its own shared-edge uniqueness via
+     no-interior-edge branch is fully explicit.  The forcing file now sharpens this further:
+     `exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`
+     and
+     `interiorEdgeSupport_eq_empty_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover`
+     show that under the current honest closed-walk or successor-cycle source semantics, the raw
+     canonical-parent cover shell itself already collapses to `interiorEdgeSupport = ∅`.  So this
+     source-fixed raw-cover package is no longer a live nondegenerate parent-source target unless
+     the route changes the source interface.  The empty-support case also proves its own shared-edge uniqueness via
      `pairwiseUniqueSharedInteriorEdges_of_interiorEdgeSupport_eq_empty`, so this degenerate
      branch has no separate pairwise-uniqueness input.
      The nonempty branch now has a constructor-side sanity theorem rather than only downstream
@@ -987,8 +991,10 @@ nonempty purified selected-boundary carrier on the same embedding.
 So the parent, selector, and residual theorem-4.9 lowerings from the raw canonical-parent cover
 package are now calibrated as vacuous on the current live endpoint semantics.  The remaining live
 question is no longer how to derive that package together with `HasUnblockedInteriorEndpoint`
-from honest source data or from the exact v23 seed; it is whether the route must change the
-source interface / endpoint notion, or else prove impossibility directly on the live shell.
+from honest source data or from the exact v23 seed.  Even before any live carrier is added, the
+same raw-cover shell has already collapsed to the no-interior-edge branch.  So the route must
+either change the source interface / endpoint notion or prove impossibility directly on the live
+shell.
 
 The obstruction file now ties that gap directly to the exact v23 algebraic seed.
 `nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary` builds

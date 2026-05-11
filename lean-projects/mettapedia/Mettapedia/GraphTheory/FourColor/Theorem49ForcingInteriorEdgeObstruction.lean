@@ -650,6 +650,142 @@ theorem interiorEdgeSupport_eq_empty_of_closedWalkAnnulusBoundarySourceBoundaryF
       source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
       (Finset.nonempty_iff_ne_empty.2 hnonempty)
 
+/-- Graph-level degeneracy lowering for the honest closed-walk raw canonical-parent shared-edge
+cover shell: every such witness already lies in the `NoInteriorEdges` branch. -/
+theorem exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge)) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ := by
+  rcases hG with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover⟩
+  exact
+    ⟨emb, source, hcoverRoots, hsepRoots,
+      interiorEdgeSupport_eq_empty_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover⟩
+
+/-- The actual theorem-4.9 boundary-order raw canonical-parent shared-edge-cover shell is
+degenerate already before adding any endpoint witness: it forces `interiorEdgeSupport = ∅` on
+the same embedding. -/
+theorem interiorEdgeSupport_eq_empty_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge)) :
+    interiorEdgeSupport emb.faceBoundary emb.faces = ∅ := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    interiorEdgeSupport_eq_empty_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
+
+/-- Graph-level degeneracy lowering for the actual theorem-4.9 boundary-order raw canonical-parent
+shared-edge-cover shell: every such witness already has empty interior-edge support. -/
+theorem exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_interiorEdgeSupport_eq_empty_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge)) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces = ∅ := by
+  rcases hG with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover⟩
+  exact
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover,
+      interiorEdgeSupport_eq_empty_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+        boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+        hpeelInterior hcover⟩
+
 /-- Under the current source-fixed raw canonical-parent shared-edge-cover contract, an honest
 closed-walk source cannot also have the named local unblocked endpoint witness: the raw-cover
 hypotheses force `interiorEdgeSupport = ∅`, while `HasUnblockedInteriorEndpoint` produces a live
