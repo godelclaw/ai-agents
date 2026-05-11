@@ -849,6 +849,425 @@ theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_bound
         hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
           hEndpointDisjoint hRawCarrier⟩
 
+/-- Fixed-embedding route-facing replacement package: honest closed-walk source data,
+boundary-root interior-dual parent data, and a nonempty purified selected-boundary carrier. -/
+def Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G) : Prop :=
+  ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+    ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+      (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+/-- The route-facing closed-walk annulus-parent package gives the fixed-embedding finite-collar
+replacement source. -/
+theorem theorem49CollarLayerPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb) :
+    Theorem49CollarLayerPositiveProjectedGeometryOn emb := by
+  rcases geom with ⟨_source, interiorData, hCarrier⟩
+  exact
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier
+
+/-- The route-facing closed-walk annulus-parent package also gives the fixed-embedding
+height-ordered replacement source. -/
+theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb) :
+    Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  rcases geom with ⟨_source, interiorData, hCarrier⟩
+  exact
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier
+
+/-- The route-facing closed-walk annulus-parent package reaches the nonempty projected theorem-4.9
+synthesis endpoint. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases geom with ⟨source, interiorData, hCarrier⟩
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
+      source interiorData C0 hC0 hCarrier
+
+/-- Graph-level route-facing replacement package for honest closed-walk source data with
+same-embedding boundary-root interior-dual parent data and a surviving purified carrier. -/
+structure Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry (G : SimpleGraph V)
+    where
+  emb : PlaneEmbeddingWithBoundary G
+  source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb
+  interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary
+  carrier_nonempty : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+namespace Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry
+
+/-- Forget the graph-level closed-walk annulus-parent package to its fixed-embedding predicate. -/
+theorem on
+    {G : SimpleGraph V}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn geom.emb := by
+  exact ⟨geom.source, geom.interiorData, geom.carrier_nonempty⟩
+
+/-- The graph-level closed-walk annulus-parent package is exactly existence of the
+fixed-embedding predicate. -/
+theorem nonempty_iff_exists_on
+    {G : SimpleGraph V} :
+    Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) ↔
+      ∃ emb : PlaneEmbeddingWithBoundary G,
+        Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb := by
+  constructor
+  · rintro ⟨geom⟩
+    exact ⟨geom.emb, geom.on⟩
+  · rintro ⟨emb, source, interiorData, hCarrier⟩
+    exact
+      ⟨{ emb := emb,
+          source := source,
+          interiorData := interiorData,
+          carrier_nonempty := hCarrier }⟩
+
+/-- Route-facing closed-walk annulus-parent data canonically yields the graph-level finite-collar
+replacement package. -/
+noncomputable def toCollarLayerPositiveProjectedGeometry
+    {G : SimpleGraph V}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49CollarLayerPositiveProjectedGeometry G := by
+  classical
+  let h :=
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on
+  exact
+    { emb := geom.emb
+      data := Classical.choose h
+      carrier_nonempty := Classical.choose_spec h }
+
+/-- Route-facing closed-walk annulus-parent data canonically yields the graph-level
+height-ordered replacement package. -/
+noncomputable def toHeightOrderedPositiveProjectedGeometry
+    {G : SimpleGraph V}
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49HeightOrderedPositiveProjectedGeometry G := by
+  classical
+  let h :=
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on
+  exact
+    { emb := geom.emb
+      data := Classical.choose h
+      carrier_nonempty := Classical.choose_spec h }
+
+/-- The route-facing closed-walk annulus-parent package reaches the nonempty projected synthesis
+endpoint. -/
+theorem exists_nonemptyProjectedSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 :=
+  ⟨geom.emb,
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on C0 hC0⟩
+
+end Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier packages into the graph-level closed-walk
+annulus-parent replacement source. -/
+theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, interiorData, hCarrier⟩
+  exact
+    ⟨{ emb := emb,
+        source := source,
+        interiorData := interiorData,
+        carrier_nonempty := hCarrier }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a local unblocked endpoint packages into the graph-level closed-walk
+annulus-parent replacement source. -/
+theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, interiorData, hEndpoint⟩
+  exact
+    ⟨{ emb := emb,
+        source := source,
+        interiorData := interiorData,
+        carrier_nonempty :=
+          (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+            emb).1 hEndpoint }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier
+packages into the graph-level closed-walk annulus-parent replacement source. -/
+theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, interiorData, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, source, interiorData,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Fixed-embedding route-facing replacement package: successor-cycle boundary-order source data,
+boundary-root interior-dual parent data, selected-boundary arcs, and a nonempty purified
+selected-boundary carrier. -/
+def Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G) : Prop :=
+  ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+    ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+/-- The route-facing successor-cycle annulus-parent package lowers to the closed-walk
+annulus-parent package on the same embedding. -/
+theorem theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb) :
+    Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn emb := by
+  rcases geom with ⟨boundaryData, dartCycles, interiorData, hselected, hCarrier⟩
+  exact
+    ⟨PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hselected,
+      interiorData, hCarrier⟩
+
+/-- The route-facing successor-cycle annulus-parent package gives the fixed-embedding
+finite-collar replacement source. -/
+theorem theorem49CollarLayerPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb) :
+    Theorem49CollarLayerPositiveProjectedGeometryOn emb := by
+  exact
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      (theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+        geom)
+
+/-- The route-facing successor-cycle annulus-parent package also gives the fixed-embedding
+height-ordered replacement source. -/
+theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb) :
+    Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  exact
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      (theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+        geom)
+
+/-- The route-facing successor-cycle annulus-parent package reaches the nonempty projected
+theorem-4.9 synthesis endpoint. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusRootParentPositiveProjectedGeometryOn
+      (theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+        geom)
+      C0 hC0
+
+/-- Graph-level route-facing replacement package for successor-cycle source data with
+same-embedding boundary-root interior-dual parent data and a surviving purified carrier. -/
+structure Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry
+    (G : SimpleGraph V) where
+  emb : PlaneEmbeddingWithBoundary G
+  boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb
+  dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb
+  interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary
+  selectedBoundaryArc :
+    ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f
+  carrier_nonempty : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+namespace Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry
+
+/-- Forget the graph-level successor-cycle annulus-parent package to its fixed-embedding
+predicate. -/
+theorem on
+    {G : SimpleGraph V}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn geom.emb := by
+  exact
+    ⟨geom.boundaryData, geom.dartCycles, geom.interiorData, geom.selectedBoundaryArc,
+      geom.carrier_nonempty⟩
+
+/-- The graph-level successor-cycle annulus-parent package is exactly existence of the
+fixed-embedding predicate. -/
+theorem nonempty_iff_exists_on
+    {G : SimpleGraph V} :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) ↔
+      ∃ emb : PlaneEmbeddingWithBoundary G,
+        Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometryOn emb := by
+  constructor
+  · rintro ⟨geom⟩
+    exact ⟨geom.emb, geom.on⟩
+  · rintro ⟨emb, boundaryData, dartCycles, interiorData, hselected, hCarrier⟩
+    exact
+      ⟨{ emb := emb,
+          boundaryData := boundaryData,
+          dartCycles := dartCycles,
+          interiorData := interiorData,
+          selectedBoundaryArc := hselected,
+          carrier_nonempty := hCarrier }⟩
+
+/-- Lower the route-facing successor-cycle annulus-parent package to the honest closed-walk
+source shell. -/
+def toClosedWalkAnnulusBoundarySource
+    {G : SimpleGraph V}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) :
+    PlanarBoundaryClosedWalkAnnulusBoundarySource geom.emb :=
+  PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+    geom.boundaryData geom.dartCycles geom.selectedBoundaryArc
+
+/-- Route-facing successor-cycle annulus-parent data canonically yields the graph-level
+closed-walk annulus-parent replacement package. -/
+def toClosedWalkAnnulusRootParentPositiveProjectedGeometry
+    {G : SimpleGraph V}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G where
+  emb := geom.emb
+  source := geom.toClosedWalkAnnulusBoundarySource
+  interiorData := geom.interiorData
+  carrier_nonempty := geom.carrier_nonempty
+
+/-- Route-facing successor-cycle annulus-parent data canonically yields the graph-level
+finite-collar replacement package. -/
+noncomputable def toCollarLayerPositiveProjectedGeometry
+    {G : SimpleGraph V}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49CollarLayerPositiveProjectedGeometry G := by
+  classical
+  let h :=
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on
+  exact
+    { emb := geom.emb
+      data := Classical.choose h
+      carrier_nonempty := Classical.choose_spec h }
+
+/-- Route-facing successor-cycle annulus-parent data canonically yields the graph-level
+height-ordered replacement package. -/
+noncomputable def toHeightOrderedPositiveProjectedGeometry
+    {G : SimpleGraph V}
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) :
+    Theorem49HeightOrderedPositiveProjectedGeometry G := by
+  classical
+  let h :=
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on
+  exact
+    { emb := geom.emb
+      data := Classical.choose h
+      carrier_nonempty := Classical.choose_spec h }
+
+/-- The route-facing successor-cycle annulus-parent package reaches the nonempty projected
+synthesis endpoint. -/
+theorem exists_nonemptyProjectedSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 :=
+  ⟨geom.emb,
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusRootParentPositiveProjectedGeometryOn
+      geom.on C0 hC0⟩
+
+end Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry
+
+/-- Existential successor-cycle annulus-parent data with a surviving purified carrier packages
+into the graph-level successor-cycle annulus-parent replacement source. -/
+theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, boundaryData, dartCycles, interiorData, hselected, hCarrier⟩
+  exact
+    ⟨{ emb := emb,
+        boundaryData := boundaryData,
+        dartCycles := dartCycles,
+        interiorData := interiorData,
+        selectedBoundaryArc := hselected,
+        carrier_nonempty := hCarrier }⟩
+
+/-- Existential successor-cycle annulus-parent data with a local unblocked endpoint packages into
+the graph-level successor-cycle annulus-parent replacement source. -/
+theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, boundaryData, dartCycles, interiorData, hselected, hEndpoint⟩
+  exact
+    ⟨{ emb := emb,
+        boundaryData := boundaryData,
+        dartCycles := dartCycles,
+        interiorData := interiorData,
+        selectedBoundaryArc := hselected,
+        carrier_nonempty :=
+          (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+            emb).1 hEndpoint }⟩
+
+/-- Existential successor-cycle annulus-parent data, endpoint-support separation, and a nonempty
+raw interior-edge endpoint carrier package into the graph-level successor-cycle annulus-parent
+replacement source. -/
+theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Disjoint (interiorEdgeEndpointSupport emb)
+            (edgeEndpointSupport
+              (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+            (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, boundaryData, dartCycles, interiorData, hselected, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, boundaryData, dartCycles, interiorData, hselected,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
 /-- Honest closed-walk source data, generic boundary-root interior-dual adjacency-distance data,
 a local unblocked endpoint, and a Tait coloring reach the nonempty projected theorem-4.9
 synthesis endpoint.  The root-distance annulus construction supplies the acyclic parent
