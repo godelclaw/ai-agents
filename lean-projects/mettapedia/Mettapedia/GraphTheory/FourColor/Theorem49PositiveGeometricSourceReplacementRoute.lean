@@ -567,6 +567,288 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundar
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
         boundaryData dartCycles hboundaryArc interiorData hEndpointDisjoint hRawCarrier C0 hC0⟩
 
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier gives the graph-level finite-collar replacement
+source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _source, interiorData, hCarrier⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier with
+    ⟨data, hCarrier'⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier gives the graph-level height-ordered replacement
+source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _source, interiorData, hCarrier⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier with
+    ⟨data, hCarrier'⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier reaches the graph-level nonempty projected theorem-4.9
+synthesis endpoint for any supplied Tait coloring. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, _source, interiorData, hCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData
+        interiorData hCarrier C0 hC0⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a local unblocked endpoint gives the graph-level finite-collar replacement source
+package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _source, interiorData, hEndpoint⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      interiorData hEndpoint with
+    ⟨data, hCarrier⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data and a local unblocked endpoint gives the graph-level height-ordered replacement
+source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _source, interiorData, hEndpoint⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      interiorData hEndpoint with
+    ⟨data, hCarrier⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier gives
+the graph-level finite-collar replacement source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, interiorData, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, source, interiorData,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Existential honest closed-walk source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier gives
+the graph-level height-ordered replacement source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, interiorData, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, source, interiorData,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier gives the graph-level finite-collar replacement
+source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _boundaryData, dartCycles, interiorData, _hboundaryArc, hCarrier⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier with
+    ⟨data, hCarrier'⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier gives the graph-level height-ordered replacement
+source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _boundaryData, dartCycles, interiorData, _hboundaryArc, hCarrier⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
+      interiorData hCarrier with
+    ⟨data, hCarrier'⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data and a surviving purified carrier reaches the graph-level nonempty projected theorem-4.9
+synthesis endpoint for any supplied Tait coloring. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, _boundaryData, dartCycles, interiorData, _hboundaryArc, hCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData
+        interiorData hCarrier C0 hC0⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data and a local unblocked endpoint gives the graph-level finite-collar replacement source
+package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _boundaryData, dartCycles, interiorData, _hboundaryArc, hEndpoint⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      interiorData hEndpoint with
+    ⟨data, hCarrier⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier }⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data and a local unblocked endpoint gives the graph-level height-ordered replacement
+source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, _boundaryData, dartCycles, interiorData, _hboundaryArc, hEndpoint⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      interiorData hEndpoint with
+    ⟨data, hCarrier⟩
+  exact ⟨{ emb := emb, data := data, carrier_nonempty := hCarrier }⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier gives
+the graph-level finite-collar replacement source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Disjoint (interiorEdgeEndpointSupport emb)
+            (edgeEndpointSupport
+              (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+            (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, boundaryData, dartCycles, interiorData, hboundaryArc, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, boundaryData, dartCycles, interiorData, hboundaryArc,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Existential successor-cycle source data plus same-embedding boundary-root interior-dual
+parent data, endpoint-support separation, and a nonempty raw interior-edge endpoint carrier gives
+the graph-level height-ordered replacement source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Disjoint (interiorEdgeEndpointSupport emb)
+            (edgeEndpointSupport
+              (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+            (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, boundaryData, dartCycles, interiorData, hboundaryArc, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, boundaryData, dartCycles, interiorData, hboundaryArc,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
 /-- Honest closed-walk source data, generic boundary-root interior-dual adjacency-distance data,
 a local unblocked endpoint, and a Tait coloring reach the nonempty projected theorem-4.9
 synthesis endpoint.  The root-distance annulus construction supplies the acyclic parent
