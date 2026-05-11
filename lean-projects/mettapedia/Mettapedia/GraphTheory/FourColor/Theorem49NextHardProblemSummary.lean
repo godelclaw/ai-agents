@@ -978,10 +978,11 @@ unfinished upstream target on the live endpoint surface.  `Theorem49ForcingInter
 now proves
 `not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`,
 `not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`,
+`not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`,
 and the matching successor-cycle / graph-level route-shell theorems.  The same raw-cover
 hypotheses force `interiorEdgeSupport = ∅`, hence they cannot coexist with either
-`HasUnblockedInteriorEndpoint` or a nonempty purified selected-boundary carrier on the same
-embedding.
+`HasUnblockedInteriorEndpoint`, the older endpoint-support-disjoint raw carrier shell, or a
+nonempty purified selected-boundary carrier on the same embedding.
 
 So the parent, selector, and residual theorem-4.9 lowerings from the raw canonical-parent cover
 package are now calibrated as vacuous on the current live endpoint semantics.  The remaining live
