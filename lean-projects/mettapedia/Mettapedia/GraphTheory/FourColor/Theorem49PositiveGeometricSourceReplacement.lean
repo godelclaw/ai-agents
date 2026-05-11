@@ -239,6 +239,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWi
         data hEndpoint)
       C0 hC0
 
+/-- A well-founded parent witness-cover package and a local unblocked endpoint also give the
+route-facing raw quotient/error conclusion at the same embedding. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryWellFoundedFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- A well-founded parent witness-cover package plus endpoint-support separation and a nonempty
 raw interior-edge endpoint carrier gives the height-ordered replacement source. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
@@ -291,6 +306,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWi
         hEndpointDisjoint hRawCarrier)
       C0 hC0
 
+/-- A well-founded parent witness-cover package plus endpoint-support separation and a nonempty
+raw interior-edge endpoint carrier also give the route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryWellFoundedFacePeelWitnessData emb)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      data hEndpointDisjoint hRawCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Boundary-root interior-dual parent data is already a height-ordered replacement source once
 the purified selected-boundary carrier is nonempty on the same embedding. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
@@ -329,6 +362,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryR
       (theorem49HeightOrderedPositiveProjectedGeometryOn_of_interiorDualBoundaryRootParentPeelData
         data hCarrier)
       C0 hC0
+
+/-- Boundary-root interior-dual parent data with a surviving purified carrier also give the
+route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_interiorDualBoundaryRootParentPeelData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Boundary-root interior-dual parent data plus a local unblocked endpoint gives the
 height-ordered replacement source without separately repackaging carrier nonemptiness. -/
@@ -371,6 +419,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryR
       ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
         emb).1 hEndpoint)
       C0 hC0
+
+/-- Boundary-root interior-dual parent data and a local unblocked endpoint also give the
+route-facing raw quotient/error conclusion directly. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Boundary-root interior-dual parent data plus endpoint-support separation and a nonempty raw
 interior-edge endpoint carrier gives the height-ordered replacement source. -/
@@ -423,6 +486,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryR
       (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
         hEndpointDisjoint hRawCarrier)
       C0 hC0
+
+/-- Boundary-root interior-dual parent data plus endpoint-support separation and a nonempty raw
+interior-edge endpoint carrier also give the route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      data hEndpointDisjoint hRawCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Two-sided annulus-root parent data is already a height-ordered replacement source once the
 purified selected-boundary carrier is nonempty on the same embedding. -/
@@ -481,6 +562,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulus
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData_and_hasUnblockedInteriorEndpoint
       data.interiorData hEndpoint C0 hC0
 
+/-- Two-sided annulus-root parent data and a local unblocked endpoint also give the route-facing
+raw quotient/error conclusion directly. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootParentPeelData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Two-sided annulus-root parent data plus endpoint-support separation and a nonempty raw
 interior-edge endpoint carrier gives the height-ordered replacement source. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
@@ -526,6 +622,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulus
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
       data.interiorData hEndpointDisjoint hRawCarrier C0 hC0
 
+/-- Two-sided annulus-root parent data plus endpoint-support separation and a nonempty raw
+interior-edge endpoint carrier also give the route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootParentPeelData emb)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      data hEndpointDisjoint hRawCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- A BFS annulus construction is already a height-ordered replacement source once the purified
 selected-boundary carrier is live on the same embedding. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction
@@ -549,6 +663,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulus
       (theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction
         data hCarrier)
       C0 hC0
+
+/-- A BFS annulus construction with a surviving purified carrier also gives the route-facing raw
+quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstruction
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstruction emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- A BFS annulus construction plus a local unblocked endpoint gives the height-ordered
 replacement source without separately repackaging carrier nonemptiness. -/
@@ -578,6 +707,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulus
       ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
         emb).1 hEndpoint)
       C0 hC0
+
+/-- A BFS annulus construction and a local unblocked endpoint also give the route-facing raw
+quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstruction emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- The same annulus-construction hypotheses that feed the positive endpoint also expose a
 terminal peeled face whose non-witness remainders already lie on the ambient annulus boundary. -/
@@ -698,6 +842,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
       (theorem49CollarLayerPositiveProjectedGeometryOn_of_annulusCollarGeometry data hCarrier)
       C0 hC0
 
+/-- A geometry-facing annulus collar package and a surviving purified carrier also give the
+route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Annulus collar geometry, a local unblocked endpoint, and a Tait coloring reach the corrected
 nonempty projected theorem-4.9 synthesis endpoint directly. -/
 theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
@@ -712,6 +871,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
       ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
         emb).1 hEndpoint)
       C0 hC0
+
+/-- Annulus collar geometry and a local unblocked endpoint also give the route-facing raw
+quotient/error conclusion directly. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Annulus collar geometry plus endpoint-support separation, a nonempty raw interior-edge
 endpoint carrier, and a Tait coloring reach the corrected nonempty projected theorem-4.9
@@ -732,6 +906,24 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
       (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
         hEndpointDisjoint hRawCarrier)
       C0 hC0
+
+/-- Annulus collar geometry plus endpoint-support separation and a nonempty raw interior-edge
+endpoint carrier also give the route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpointDisjoint : Disjoint (interiorEdgeEndpointSupport emb)
+      (edgeEndpointSupport
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+      data hEndpointDisjoint hRawCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level replacement package using finite collar-layer witness-cover data and a nonempty
 purified selected-boundary carrier on the same embedding. -/
@@ -1337,6 +1529,27 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
         hPeelNoTouch hRawCarrier)
       C0 hC0
 
+/-- Annulus collar geometry plus peeled-face endpoint no-touch on its canonical construction and
+a nonempty raw interior-edge endpoint carrier also give the route-facing raw quotient/error
+conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hPeelNoTouch : ∀ f ∈
+      (planarBoundaryAnnulusConstruction_of_annulusCollarGeometry data).peelFaces,
+      Disjoint (edgeEndpointSupport (emb.faceBoundary f.1))
+        (edgeEndpointSupport
+          (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)))
+    (hRawCarrier : (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+      data hPeelNoTouch hRawCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Existential annulus collar geometry plus peeled-face endpoint no-touch on its canonical
 construction and a nonempty raw interior-edge endpoint carrier gives the graph-level finite-collar
 replacement source package. -/
@@ -1431,6 +1644,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBounda
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
       data.toPlanarBoundaryAnnulusCollarGeometry hCarrier C0 hC0
 
+/-- Repaired previous-boundary witness geometry with a surviving purified carrier also gives the
+route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusPreviousBoundaryWitnessGeometry
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBoundaryWitnessGeometry
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Repaired previous-boundary witness geometry plus a local unblocked endpoint gives the
 fixed-embedding finite-collar replacement package. -/
 theorem theorem49CollarLayerPositiveProjectedGeometryOn_of_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
@@ -1467,6 +1695,21 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBounda
       (theorem49CollarLayerPositiveProjectedGeometryOn_of_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
         data hEndpoint)
       C0 hC0
+
+/-- Repaired previous-boundary witness geometry and a local unblocked endpoint also give the
+route-facing raw quotient/error conclusion. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+      data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Existential repaired previous-boundary witness geometry plus a surviving carrier gives the
 graph-level finite-collar replacement package. -/
