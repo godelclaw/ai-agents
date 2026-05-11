@@ -1077,6 +1077,19 @@ Step~2 algebraic seed, or even its boundary-free-selector / degenerate no-interi
 it is a genuinely new source-to-residual geometric bridge or live-boundary cancellation
 certificate.
 
+At the same time, the exact Step~2 seed is not globally incompatible with the degenerate
+source-fixed no-interior branch.  The new module
+`Theorem49ResidualBoundaryPositiveRegression.lean` equips the existing two-triangle no-interior
+source with a proper nonzero Tait edge coloring `twoTriangleTaitEdgeColoring`, proves
+`nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState`, and then packages the same exact
+seed together with the honest closed-walk source, the root-cover / root-separation facts, empty
+`interiorEdgeSupport`, the resulting
+`InteriorDualBoundaryRootParentPeelData`, and even a
+`BoundaryFreeIncidentFaceSelector` on that embedding.  So the shared-interior-pair exact-seed
+obstructions are not exposing an outright incompatibility between v23 Step~2 algebra and the
+degenerate no-interior source surfaces; they isolate a genuine non-forcing gap on the live
+endpoint benchmark.
+
 `Theorem49ResidualBoundaryObstruction.lean` then calibrates that gap on the live
 shared-interior-pair source benchmark.  The theorems
 `not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_sharedInteriorPair`,

@@ -1969,6 +1969,21 @@ obligation is a genuinely new source-to-residual bridge, not a return to any
 existing same-embedding geometry ladder, to the upstream raw-cover shell, or
 even to its boundary-free-selector / degenerate \path{NoInteriorEdges}
 shadows;
+\item this does not mean the exact Step~2 seed is intrinsically incompatible
+with the degenerate no-interior source-fixed branch.  The new module
+\path{Theorem49ResidualBoundaryPositiveRegression.lean} equips the existing
+two-triangle no-interior source with a proper nonzero Tait edge coloring
+\path{twoTriangleTaitEdgeColoring}, proves
+\path{nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState}, and then
+packages that exact seed together with the honest closed-walk source, the
+root-cover and root-separation facts, empty \path{interiorEdgeSupport}, the
+resulting parent package
+\path{InteriorDualBoundaryRootParentPeelData}, and even a
+\path{BoundaryFreeIncidentFaceSelector} on the same embedding.  So the
+shared-interior-pair obstruction family is not exposing an outright
+inconsistency between v23 Step~2 algebra and the degenerate no-interior
+surfaces; it isolates a genuine non-forcing gap on the live endpoint
+benchmark;
 \item the annulus witness file now exposes the actual parent-carrying geometry
 that had previously been hidden inside the previous-boundary witness endpoint.
 \path{PlanarBoundaryAnnulusDecomposition.layerOf} gives the canonical collar
