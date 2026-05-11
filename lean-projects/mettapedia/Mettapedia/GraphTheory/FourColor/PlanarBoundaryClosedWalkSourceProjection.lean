@@ -240,6 +240,24 @@ theorem
         boundaryData interiorData)
       C0 hC0 hCarrier
 
+/-- Primitive same-embedding raw quotient/error endpoint from an annulus boundary split plus
+generic boundary-root interior-dual parent data. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_boundaryData_and_interiorDualBoundaryRootParentPeelData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryData emb)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryData_and_interiorDualBoundaryRootParentPeelData
+      boundaryData interiorData C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Closed-walk source lowering for the carrier-based projected endpoint on the parent route. -/
 theorem
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
@@ -257,6 +275,24 @@ theorem
       (planarBoundaryAnnulusRootParentPeelData_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
         source interiorData)
       C0 hC0 hCarrier
+
+/-- Closed-walk source lowering for the carrier-based raw quotient/error endpoint on the parent
+route. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (interiorData : InteriorDualBoundaryRootParentPeelData emb.faces emb.faceBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
+      source interiorData C0 hC0 hCarrier).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level primitive projected endpoint from an annulus boundary split plus generic
 boundary-root interior-dual parent data, together with a nonempty purified carrier on that
@@ -342,6 +378,49 @@ theorem
         source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren)
       C0 hC0 hCarrier
 
+/-- Fixed-embedding source-to-Theorem-4.9 raw quotient/error composition for the parent-oriented
+sufficiency branch. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            source.boundaryFaceRoots hcoverRoots hsepRoots)
+          source.fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          parentTowardsRoot (interiorDualSpanningForest emb.faceBoundary emb.faces)
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots) g = some f ∧
+          e ∈ emb.faceBoundary g.1)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_direct
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+      hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Graph-level source-to-Theorem-4.9 composition for the parent-oriented sufficiency branch.
 The hypotheses are the same concrete source-fixed parent obligations as the fixed-embedding
 version, with the selected-boundary purified carrier nonempty on that embedding. -/
@@ -415,6 +494,26 @@ theorem
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData
       (G := G) previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 hCarrier
 
+/-- Canonical source witness choice also gives the route-facing raw quotient/error conclusion. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source hchoice hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
 /-- Graph-level positive endpoint from an honest closed-walk source with canonical witness choice
 and a nonempty selected-boundary-purified carrier. -/
 theorem
@@ -458,6 +557,28 @@ theorem
   exact
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData
       (G := G) previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 hCarrier
+
+/-- Same-boundary one-collar source geometry also gives the route-facing raw quotient/error
+conclusion. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum hboundary hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
 /-- Graph-level positive endpoint from an honest closed-walk source with same-boundary one-collar
 geometry and a nonempty selected-boundary-purified carrier. -/
