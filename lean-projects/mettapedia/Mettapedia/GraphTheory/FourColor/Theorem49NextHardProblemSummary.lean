@@ -1014,6 +1014,15 @@ shared-edge-cover package on that same embedding, and
 shows that no universal theorem of the form “honest source + Tait + endpoint + exact v23 seed
 forces some source-fixed raw canonical-parent cover witness” can hold.
 
+The same exact seed now fails even to recover the weaker degenerate branch to which that raw-cover
+shell collapses.  The theorem
+`sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsNoInteriorEdges`
+packages the exact Step 2 seed together with failure of the closed-walk root-cover plus
+`interiorEdgeSupport = ∅` shell itself, and
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+shows that no universal theorem of the form “honest source + Tait + endpoint + exact v23 seed
+forces some no-interior-edge boundary-root witness” can hold either.
+
 The same calibration now reaches the actual route-facing boundary-order shell:
 `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryPositiveProjectedGeometryOn_sharedInteriorPair`
 and
@@ -1027,6 +1036,13 @@ and
 show that successor-cycle boundary-order data plus the exact v23 seed still do not force even the
 raw canonical-parent shared-edge-cover shell on the same embedding.
 
+The same successor-cycle shell also fails already at the weaker degenerate source branch:
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsNoInteriorEdges_sharedInteriorPair`
+and
+`not_forall_some_successorCycleBoundaryFaceRootsNoInteriorEdges_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+show that the exact seed does not even force the route-facing boundary-root plus
+`interiorEdgeSupport = ∅` shell on the same embedding.
+
 The same exact v23 seed also fails to repair any previously known same-embedding witness route.
 `sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_knownSameEmbeddingGeometry`
 packages the honest source, Tait coloring, endpoint witness, and exact seed together with failure
@@ -1039,8 +1055,8 @@ and
 show that this gap already persists on both the honest closed-walk and the actual successor-cycle
 boundary-order shells.  So the missing v23.5 theorem is not a way to re-enter one of the older
 same-embedding geometry ladders, or even to recover the upstream raw-cover shell, from the exact
-Step~2 algebraic seed; it is a genuinely new source-to-residual geometric bridge or live-boundary
-cancellation certificate.
+Step~2 algebraic seed, or even its degenerate no-interior-edge shadow; it is a genuinely new
+source-to-residual geometric bridge or live-boundary cancellation certificate.
 
 `Theorem49ResidualBoundaryObstruction.lean` then calibrates that gap on the live
 shared-interior-pair source benchmark.  The theorems
