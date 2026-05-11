@@ -1494,6 +1494,147 @@ theorem
   · exact not_nonempty_planarBoundaryWellFoundedFacePeelWitnessData_sharedInteriorPair hWellFounded
   · exact not_nonempty_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair hAnnulus
 
+theorem
+    sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_any_replacementPositiveProjectedGeometryOn
+    :
+    Nonempty
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource sharedInteriorPairAnnulusEmbedding) ∧
+      IsTaitEdgeColoring sharedInteriorPairAnnulusGraph sharedInteriorPairTaitEdgeColoring ∧
+      HasUnblockedInteriorEndpoint sharedInteriorPairAnnulusEmbedding ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState sharedInteriorPairTaitEdgeColoring red blue
+          (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)) ∧
+      ¬ Theorem49HeightOrderedPositiveProjectedGeometryOn sharedInteriorPairAnnulusEmbedding ∧
+      ¬ Theorem49CollarLayerPositiveProjectedGeometryOn sharedInteriorPairAnnulusEmbedding ∧
+      ¬ Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn
+        sharedInteriorPairAnnulusEmbedding ∧
+      ¬ Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn
+        sharedInteriorPairAnnulusEmbedding := by
+  exact
+    ⟨nonempty_sharedInteriorPairClosedWalkAnnulusBoundarySource,
+      sharedInteriorPairTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_sharedInteriorPair,
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary,
+      not_theorem49HeightOrderedPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49CollarLayerPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair⟩
+
+theorem
+    not_forall_any_replacementPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair
+    :
+    ¬ ∀ (emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph)
+        (C : sharedInteriorPairAnnulusGraph.EdgeColoring Color)
+        (a b : Color) (faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet),
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C →
+            HasUnblockedInteriorEndpoint emb →
+              Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                Theorem49HeightOrderedPositiveProjectedGeometryOn emb ∨
+                  Theorem49CollarLayerPositiveProjectedGeometryOn emb ∨
+                    Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn emb ∨
+                      Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn emb := by
+  intro h
+  have hAny :=
+    h sharedInteriorPairAnnulusEmbedding
+      sharedInteriorPairTaitEdgeColoring
+      red blue
+      (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)
+      nonempty_sharedInteriorPairClosedWalkAnnulusBoundarySource
+      sharedInteriorPairTaitEdgeColoring_isTait
+      hasUnblockedInteriorEndpoint_sharedInteriorPair
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary
+  rcases hAny with hHeight | hRest
+  · exact not_theorem49HeightOrderedPositiveProjectedGeometryOn_sharedInteriorPair hHeight
+  · rcases hRest with hCollar | hRest
+    · exact not_theorem49CollarLayerPositiveProjectedGeometryOn_sharedInteriorPair hCollar
+    · rcases hRest with hClosedWalk | hSuccessorCycle
+      · exact
+          not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair
+            hClosedWalk
+      · exact
+          not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair
+            hSuccessorCycle
+
+theorem
+    exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_any_replacementPositiveProjectedGeometryOn_sharedInteriorPair
+    :
+    ∃ emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        (∃ C : sharedInteriorPairAnnulusGraph.EdgeColoring Color,
+          IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Theorem49HeightOrderedPositiveProjectedGeometryOn emb ∧
+                  ¬ Theorem49CollarLayerPositiveProjectedGeometryOn emb ∧
+                  ¬ Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn emb ∧
+                  ¬ Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn emb) := by
+  exact
+    ⟨sharedInteriorPairAnnulusEmbedding,
+      sharedInteriorPairAnnulusBoundaryReachabilityData,
+      sharedInteriorPairDartSuccessorCycleGeometry,
+      sharedInteriorPairDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      sharedInteriorPairTaitEdgeColoring,
+      sharedInteriorPairTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_sharedInteriorPair,
+      red, blue,
+      (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1),
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary,
+      not_theorem49HeightOrderedPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49CollarLayerPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair,
+      not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair⟩
+
+theorem
+    not_forall_any_replacementPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair
+    :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph,
+        ∀ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) →
+          ∀ C : sharedInteriorPairAnnulusGraph.EdgeColoring Color,
+            IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Theorem49HeightOrderedPositiveProjectedGeometryOn emb ∨
+                        Theorem49CollarLayerPositiveProjectedGeometryOn emb ∨
+                          Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn emb ∨
+                            Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn
+                              emb := by
+  intro h
+  have hAny :=
+    h sharedInteriorPairAnnulusEmbedding
+      sharedInteriorPairAnnulusBoundaryReachabilityData
+      sharedInteriorPairDartSuccessorCycleGeometry
+      sharedInteriorPairDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+      sharedInteriorPairTaitEdgeColoring
+      sharedInteriorPairTaitEdgeColoring_isTait
+      hasUnblockedInteriorEndpoint_sharedInteriorPair
+      red blue
+      (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary
+  rcases hAny with hHeight | hRest
+  · exact not_theorem49HeightOrderedPositiveProjectedGeometryOn_sharedInteriorPair hHeight
+  · rcases hRest with hCollar | hRest
+    · exact not_theorem49CollarLayerPositiveProjectedGeometryOn_sharedInteriorPair hCollar
+    · rcases hRest with hClosedWalk | hSuccessorCycle
+      · exact
+          not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair
+            hClosedWalk
+      · exact
+          not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair
+            hSuccessorCycle
+
 end Theorem49ResidualBoundaryObstruction
 
 end Mettapedia.GraphTheory.FourColor
