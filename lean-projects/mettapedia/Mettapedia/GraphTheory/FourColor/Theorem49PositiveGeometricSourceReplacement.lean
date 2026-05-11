@@ -1346,6 +1346,24 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarB
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData
         data C0 hC0 hCarrier⟩
 
+/-- Existential two-sided annulus-root parent data plus a surviving carrier and a Kirchhoff chain
+on that same embedding reach the graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_planarBoundaryAnnulusRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData
+        data C0 hC0 hCarrier hx⟩
+
 /-- Existential two-sided annulus-root parent data plus a local unblocked interior endpoint
 reaches the graph-level nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait
 coloring. -/
@@ -1362,6 +1380,25 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarB
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
         data hEndpoint C0 hC0⟩
+
+/-- Existential two-sided annulus-root parent data plus a local unblocked endpoint and a
+Kirchhoff chain on that same embedding reach the graph-level raw theorem-4.9 quotient/error
+endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        HasUnblockedInteriorEndpoint emb ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpoint, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+        data hEndpoint C0 hC0 hx⟩
 
 /-- Existential two-sided annulus-root parent data plus endpoint-support separation and a
 nonempty raw interior-edge endpoint carrier reaches the graph-level nonempty projected theorem-4.9
@@ -1383,6 +1420,28 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarB
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
         data hEndpointDisjoint hRawCarrier C0 hC0⟩
 
+/-- Existential two-sided annulus-root parent data plus endpoint-support separation, a nonempty
+raw interior-edge endpoint carrier, and a Kirchhoff chain on that same embedding reach the
+graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        data hEndpointDisjoint hRawCarrier C0 hC0 hx⟩
+
 /-- Existential annulus collar geometry plus a surviving carrier reaches the graph-level
 nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait coloring. -/
 theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulusCollarGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
@@ -1398,6 +1457,24 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulus
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry
         data hCarrier C0 hC0⟩
+
+/-- Existential annulus collar geometry plus a surviving carrier and a Kirchhoff chain on that
+same embedding reach the graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_annulusCollarGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusCollarGeometry emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry
+        data hCarrier C0 hC0 hx⟩
 
 /-- Existential annulus collar geometry plus a local unblocked interior endpoint reaches the
 graph-level nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait coloring. -/
@@ -1415,6 +1492,24 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulus
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
         data hEndpoint C0 hC0⟩
 
+/-- Existential annulus collar geometry plus a local unblocked endpoint and a Kirchhoff chain on
+that same embedding reach the graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusCollarGeometry emb,
+        HasUnblockedInteriorEndpoint emb ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpoint, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+        data hEndpoint C0 hC0 hx⟩
+
 /-- Existential well-founded parent witness data plus a local unblocked endpoint reaches the
 graph-level nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait coloring. -/
 theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint_direct
@@ -1430,6 +1525,24 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_wellFou
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
         data hEndpoint C0 hC0⟩
+
+/-- Existential well-founded parent witness data plus a local unblocked endpoint and a Kirchhoff
+chain on that same embedding reach the graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryWellFoundedFacePeelWitnessData emb,
+        HasUnblockedInteriorEndpoint emb ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpoint, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+        data hEndpoint C0 hC0 hx⟩
 
 /-- Existential well-founded parent witness data plus endpoint-support separation and a nonempty
 raw interior-edge endpoint carrier reaches the graph-level nonempty projected theorem-4.9
@@ -1451,6 +1564,28 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_wellFou
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
         data hEndpointDisjoint hRawCarrier C0 hC0⟩
 
+/-- Existential well-founded parent witness data plus endpoint-support separation, a nonempty
+raw interior-edge endpoint carrier, and a Kirchhoff chain on that same embedding reach the
+graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryWellFoundedFacePeelWitnessData emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        data hEndpointDisjoint hRawCarrier C0 hC0 hx⟩
+
 /-- Existential annulus collar geometry plus endpoint-support separation and a nonempty raw
 interior-edge endpoint carrier reaches the graph-level nonempty projected theorem-4.9 synthesis
 endpoint for any supplied Tait coloring. -/
@@ -1470,6 +1605,28 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulus
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
         data hEndpointDisjoint hRawCarrier C0 hC0⟩
+
+/-- Existential annulus collar geometry plus endpoint-support separation, a nonempty raw
+interior-edge endpoint carrier, and a Kirchhoff chain on that same embedding reach the
+graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusCollarGeometry emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        data hEndpointDisjoint hRawCarrier C0 hC0 hx⟩
 
 /-- Annulus collar geometry plus peeled-face endpoint no-touch on its canonical construction and
 a nonempty raw interior-edge endpoint carrier gives the finite-collar replacement package. -/
@@ -1610,6 +1767,29 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulus
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
         data hPeelNoTouch hRawCarrier C0 hC0⟩
+
+/-- Existential annulus collar geometry plus peeled-face endpoint no-touch on its canonical
+construction, a nonempty raw interior-edge endpoint carrier, and a Kirchhoff chain on that same
+embedding reach the graph-level raw theorem-4.9 quotient/error endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ data : PlanarBoundaryAnnulusCollarGeometry emb,
+        (∀ f ∈ (planarBoundaryAnnulusConstruction_of_annulusCollarGeometry data).peelFaces,
+          Disjoint (edgeEndpointSupport (emb.faceBoundary f.1))
+            (edgeEndpointSupport
+              (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hPeelNoTouch, hRawCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_annulusCollarGeometry_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport
+        data hPeelNoTouch hRawCarrier C0 hC0 hx⟩
 
 /-- Repaired previous-boundary witness geometry is a special annulus-collar source for the
 finite-collar replacement package once the purified carrier survives. -/
@@ -1752,5 +1932,24 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulus
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBoundaryWitnessGeometry
         data hCarrier C0 hC0⟩
+
+/-- Existential repaired previous-boundary witness geometry plus a surviving carrier and a
+Kirchhoff chain on that same embedding reach the graph-level raw theorem-4.9 quotient/error
+endpoint. -/
+theorem exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_annulusPreviousBoundaryWitnessGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {x : G.edgeSet → Color}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty ∧
+          x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  rcases h with ⟨emb, data, hCarrier, hx⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRawQuotientErrorPackage_of_annulusPreviousBoundaryWitnessGeometry
+        data hCarrier C0 hC0 hx⟩
 
 end Mettapedia.GraphTheory.FourColor
