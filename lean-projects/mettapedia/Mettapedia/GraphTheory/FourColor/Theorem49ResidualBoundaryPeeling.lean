@@ -1,0 +1,372 @@
+import Mettapedia.GraphTheory.FourColor.Theorem49BoundaryFreeSelectorPositiveRoute
+import Mettapedia.GraphTheory.FourColor.PlanarBoundaryClosedWalkSourceProjection
+import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryCollarPeeling
+import Mettapedia.GraphTheory.FourColor.Theorem49SpanningGap
+import Mettapedia.GraphTheory.FourColor.PlanarBoundaryFaceIncidence
+
+namespace Mettapedia.GraphTheory.FourColor
+
+open SimpleGraph
+open Theorem49ForcingInteriorEdgeObstruction
+
+variable {V F : Type*} [DecidableEq V] [DecidableEq F]
+
+/-- Residual/current-boundary peeling data. The present implementation is intentionally thin: it
+reuses the already formalized local explicit-remainder collar package and exposes the residual
+boundary as the union of selected ambient boundary support with the relative boundary of the
+current remainder. -/
+abbrev ResidualBoundaryLayerFacePeelWitnessData {G : SimpleGraph V}
+    (allFaces : Finset F) (faceBoundary : F → Finset G.edgeSet) :=
+  LocalRemainderBoundaryCollarLayerFacePeelWitnessData allFaces faceBoundary
+
+def ResidualBoundaryLayerFacePeelWitnessData.currentBoundary
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    (i : Fin data.numLayers) : Finset G.edgeSet :=
+  selectedBoundarySupport faceBoundary allFaces allFaces ∪
+    relativeBoundarySupport faceBoundary (data.remainderFaces i)
+
+theorem ResidualBoundaryLayerFacePeelWitnessData.mem_currentBoundary_of_mem_selectedBoundary
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {e : G.edgeSet}
+    (he :
+      e ∈ selectedBoundarySupport faceBoundary allFaces allFaces) :
+    e ∈ data.currentBoundary i := by
+  exact Finset.mem_union.2 (Or.inl he)
+
+theorem ResidualBoundaryLayerFacePeelWitnessData.mem_currentBoundary_of_mem_relativeBoundary
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {e : G.edgeSet}
+    (he :
+      e ∈ relativeBoundarySupport faceBoundary (data.remainderFaces i)) :
+    e ∈ data.currentBoundary i := by
+  exact Finset.mem_union.2 (Or.inr he)
+
+theorem
+    ResidualBoundaryLayerFacePeelWitnessData.currentBoundary_or_laterWitness_of_hrest
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {f : F}
+    (hf : f ∈ data.layerFaces i)
+    {e : G.edgeSet} (he : e ∈ (faceBoundary f).erase (data.witnessEdge f)) :
+    e ∈ data.currentBoundary i ∨
+      ∃ j : Fin data.numLayers, i < j ∧ ∃ g ∈ data.layerFaces j,
+        data.witnessEdge g = e := by
+  rcases data.hrest i f hf e he with hboundary | ⟨j, hij, g, hgj, hge, hrel⟩
+  · exact Or.inl (data.mem_currentBoundary_of_mem_selectedBoundary hboundary)
+  · exact Or.inr ⟨j, hij, g, hgj, hge⟩
+
+theorem ResidualBoundaryLayerFacePeelWitnessData.laterWitness_mem_currentBoundary_of_hrest
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {f : F}
+    (hf : f ∈ data.layerFaces i)
+    {e : G.edgeSet} (he : e ∈ (faceBoundary f).erase (data.witnessEdge f))
+    (_hg :
+      ∃ j : Fin data.numLayers, i < j ∧ ∃ g' ∈ data.layerFaces j,
+        data.witnessEdge g' = e) :
+    e ∈ data.currentBoundary i := by
+  rcases data.hrest i f hf e he with hboundary | ⟨j, hij, g', hgj, hge, hrel⟩
+  · exact data.mem_currentBoundary_of_mem_selectedBoundary hboundary
+  · exact data.mem_currentBoundary_of_mem_relativeBoundary hrel
+
+def LocalRemainderBoundaryCollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : LocalRemainderBoundaryCollarLayerFacePeelWitnessData allFaces faceBoundary) :
+    ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary :=
+  data
+
+def RemainderBoundaryCollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : RemainderBoundaryCollarLayerFacePeelWitnessData allFaces faceBoundary)
+    (hlayerSubset : ∀ i, data.layerFaces i ⊆ allFaces) :
+    ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary :=
+  data.toLocalRemainderBoundaryCollarLayerFacePeelWitnessData hlayerSubset
+
+def CollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : CollarLayerFacePeelWitnessData allFaces faceBoundary)
+    (hlayerSubset : ∀ i, data.layerFaces i ⊆ allFaces)
+    (hall : ∀ e, totalIncidenceCount faceBoundary allFaces e ≤ 2) :
+    ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary :=
+  data.toLocalRemainderBoundaryCollarLayerFacePeelWitnessData hlayerSubset hall
+
+/-- Embedding-facing residual/current-boundary witness data. -/
+abbrev PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G) :=
+  ResidualBoundaryLayerFacePeelWitnessData emb.faces.attach
+    (ambientFaceBoundary (allFaces := emb.faces) emb.faceBoundary)
+
+/-- Forget the boundary-aware collar layer to the generic attached-face collar interface. -/
+noncomputable def
+    genericCollarLayerFacePeelWitnessData_of_planarBoundaryCollarLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryCollarLayerFacePeelWitnessData emb) :
+    CollarLayerFacePeelWitnessData emb.faces.attach
+      (ambientFaceBoundary (allFaces := emb.faces) emb.faceBoundary) := by
+  refine
+    { numLayers := data.numLayers
+      layerFaces := data.layerFaces
+      witnessEdge := data.witnessEdge
+      hdisjoint := data.hdisjoint
+      hcover := ?_
+      hwitness := ?_
+      hrest := ?_ }
+  · simpa [interiorEdgeSupport_ambientFaceBoundary_eq
+      (faceBoundary := emb.faceBoundary) (allFaces := emb.faces)] using data.hcover
+  · intro i f hf
+    simpa [ambientFaceBoundary] using data.hwitness i f hf
+  · intro i f hf e he
+    rcases data.hrest i f hf e (by simpa [ambientFaceBoundary] using he) with
+      hboundary | ⟨j, hij, g, hgj, hge⟩
+    · exact Or.inl <| by
+        simpa [selectedBoundarySupport_ambientFaceBoundary_eq
+          (faceBoundary := emb.faceBoundary) (allFaces := emb.faces)] using hboundary
+    · exact Or.inr ⟨j, hij, g, hgj, hge⟩
+
+noncomputable def
+    PlanarBoundaryCollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryCollarLayerFacePeelWitnessData emb) :
+    PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb := by
+  let generic :=
+    genericCollarLayerFacePeelWitnessData_of_planarBoundaryCollarLayerFacePeelWitnessData data
+  have hall :
+      ∀ e,
+        totalIncidenceCount
+            (ambientFaceBoundary (allFaces := emb.faces) emb.faceBoundary)
+            emb.faces.attach e ≤ 2 := by
+    intro e
+    simpa [totalIncidenceCount_ambientFaceBoundary_eq
+      (faceBoundary := emb.faceBoundary) (allFaces := emb.faces)] using
+      planeEmbeddingWithBoundary_totalIncidenceCount_le_two emb e
+  exact
+    generic.toResidualBoundaryLayerFacePeelWitnessData
+      (hlayerSubset := by
+        intro _ f _hf
+        exact Finset.mem_attach _ _)
+      hall
+
+noncomputable def PlanarBoundaryAnnulusConstruction.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstruction emb) :
+    PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb :=
+  data.toPlanarBoundaryCollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
+
+theorem
+    nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_iff_nonempty_planarBoundaryCollarLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G} :
+    Nonempty (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb) ↔
+      Nonempty (PlanarBoundaryCollarLayerFacePeelWitnessData emb) := by
+  constructor
+  · rintro ⟨data⟩
+    exact
+      ⟨planarBoundaryCollarLayerFacePeelWitnessData_of_genericLocalRemainderBoundaryCollarLayerFacePeelWitnessData
+        data⟩
+  · rintro ⟨data⟩
+    exact ⟨data.toResidualBoundaryLayerFacePeelWitnessData⟩
+
+theorem
+    zero_on_ambientFaceSupport_of_residualBoundaryLayerFacePeelWitnessData_of_annihilatesKempeClosureGeneratorFamily
+    {G : SimpleGraph V}
+    (C : G.EdgeColoring Color) (htait : IsTaitEdgeColoring G C) (z : G.edgeSet → Color)
+    (allFaces : Finset F) (faceBoundary : F → Finset G.edgeSet)
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    (hall : ∀ e, totalIncidenceCount faceBoundary allFaces e ≤ 2)
+    (hzeroBoundary : ∀ e ∈ selectedBoundarySupport faceBoundary allFaces allFaces, z e = 0)
+    (horth : ∀ i f, f ∈ data.layerFaces i →
+      ∀ γ, γ ≠ 0 → γ ≠ C (data.witnessEdge f) →
+        chainDot
+            (boundaryBicoloredEdges C (C (data.witnessEdge f)) (C (data.witnessEdge f) + γ)
+              (faceBoundary f))
+            z
+            (polarizedFaceGenerator C (C (data.witnessEdge f)) (C (data.witnessEdge f) + γ)
+              (faceBoundary f)) = 0) :
+    ∀ e ∈ allFaces.biUnion faceBoundary, z e = 0 := by
+  exact
+    zero_on_ambientFaceSupport_of_localRemainderBoundaryCollarLayerFacePeelWitnessData
+      C htait z allFaces faceBoundary data hall hzeroBoundary horth
+
+theorem boundaryZeroAnnihilatorTrivialForEmbedding_of_residualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G)
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    BoundaryZeroAnnihilatorTrivialForEmbedding emb C₀ := by
+  exact
+    boundaryZeroAnnihilatorTrivialForEmbedding_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData
+      emb data C₀ hC₀
+
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C₀ := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData
+      (planarBoundaryCollarLayerFacePeelWitnessData_of_genericLocalRemainderBoundaryCollarLayerFacePeelWitnessData
+        data)
+      C₀ hC₀ hCarrier
+
+theorem
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C₀ := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryLayerFacePeelWitnessData
+      data C₀ hC₀
+      ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).1 hEndpoint)
+
+/-- Fixed-embedding positive route using residual/current-boundary witness data and a surviving
+purified endpoint carrier. -/
+def Theorem49ResidualBoundaryPositiveProjectedGeometryOn {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G) : Prop :=
+  ∃ _data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb,
+    (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryPositiveProjectedGeometryOn
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C₀ := by
+  rcases geom with ⟨data, hCarrier⟩
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryLayerFacePeelWitnessData
+      data C₀ hC₀ hCarrier
+
+theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
+  exact
+    ⟨data,
+      (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).1 hEndpoint⟩
+
+theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
+  exact
+    theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      data.toLocalRemainderBoundaryCollarLayerFacePeelWitnessData hEndpoint
+
+theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G} :
+    Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb ↔
+      Theorem49CollarLayerPositiveProjectedGeometryOn emb := by
+  constructor
+  · rintro ⟨data, hCarrier⟩
+    exact
+      ⟨planarBoundaryCollarLayerFacePeelWitnessData_of_genericLocalRemainderBoundaryCollarLayerFacePeelWitnessData
+        data, hCarrier⟩
+  · rintro ⟨data, hCarrier⟩
+    exact ⟨data.toResidualBoundaryLayerFacePeelWitnessData, hCarrier⟩
+
+theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_heightOrderedPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G} :
+    Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb ↔
+      Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  constructor
+  · intro hResidual
+    exact
+      (heightOrderedPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn).2
+        ((theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn).1
+          hResidual)
+  · intro hHeight
+    exact
+      (theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn).2
+        ((heightOrderedPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn).1
+          hHeight)
+
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint_via_residualBoundary
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C₀ := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryPositiveProjectedGeometryOn
+      (theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+        data hEndpoint)
+      C₀ hC₀
+
+/-- Selector-facing residual/current-boundary route data. This is the strict-descent selector
+surface together with the chosen annulus boundary split and witness/height functions. -/
+structure ResidualBoundarySelectorData {G : SimpleGraph V}
+    (emb : PlaneEmbeddingWithBoundary G) where
+  boundaryData : PlanarBoundaryAnnulusBoundaryData emb
+  selector : BoundaryFreeIncidentFaceSelector emb
+  fallbackEdge : AmbientFace emb.faces → G.edgeSet
+  faceDistance : AmbientFace emb.faces → ℕ
+  hinjective :
+    ∀ {e₁ e₂ : G.edgeSet}
+      (he₁ : e₁ ∈ interiorEdgeSupport emb.faceBoundary emb.faces)
+      (he₂ : e₂ ∈ interiorEdgeSupport emb.faceBoundary emb.faces),
+        selector.faceOf e₁ he₁ = selector.faceOf e₂ he₂ → e₁ = e₂
+  hrest :
+    ∀ f ∈ selector.peelFaces,
+      ∀ e ∈ (emb.faceBoundary f.1).erase (selector.selectedWitnessEdge fallbackEdge f),
+        e ∈ boundaryData.outerAmbientBoundary ∪ boundaryData.innerAmbientBoundary ∨
+          ∃ g ∈ selector.peelFaces,
+            selector.selectedWitnessEdge fallbackEdge g = e ∧
+              faceDistance f < faceDistance g
+
+noncomputable def ResidualBoundarySelectorData.toPlanarBoundaryAnnulusConstruction
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : ResidualBoundarySelectorData emb) :
+    PlanarBoundaryAnnulusConstruction emb :=
+  data.selector.toPlanarBoundaryAnnulusConstruction
+    data.boundaryData data.fallbackEdge data.faceDistance data.hinjective data.hrest
+
+noncomputable def ResidualBoundarySelectorData.toResidualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : ResidualBoundarySelectorData emb) :
+    PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb :=
+  data.toPlanarBoundaryAnnulusConstruction.toResidualBoundaryLayerFacePeelWitnessData
+
+theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : ResidualBoundarySelectorData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  exact
+    data.selector.theorem49HeightOrderedPositiveProjectedGeometryOn_of_strictDescent_and_hasUnblockedInteriorEndpoint
+      data.boundaryData data.fallbackEdge data.faceDistance data.hinjective data.hrest hEndpoint
+
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : ResidualBoundarySelectorData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C₀ := by
+  exact
+    data.selector.theorem49BoundaryRootNonemptyProjectedSynthesis_of_strictDescent_and_hasUnblockedInteriorEndpoint
+      data.boundaryData data.fallbackEdge data.faceDistance data.hinjective data.hrest
+      hEndpoint C₀ hC₀
+
+end Mettapedia.GraphTheory.FourColor

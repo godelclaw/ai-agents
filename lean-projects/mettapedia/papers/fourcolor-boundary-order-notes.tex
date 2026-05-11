@@ -1,0 +1,2662 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{hyperref}
+\geometry{margin=1in}
+
+\title{Four-Color Boundary-Order Notes}
+\author{Oruzi / Codex}
+\date{April 23, 2026}
+
+\begin{document}
+\maketitle
+\sloppy
+
+\begin{abstract}
+This note records the current status of the boundary-order layer in the Lean
+formalization of the Goertzel four-color proof route. The key point is now
+formalized as an explicit regression: the present
+\path{PlaneEmbeddingWithBoundary} API only exposes unordered face-boundary
+incidence, and this is too weak to recover the ordered face-boundary geometry
+used downstream by the selected-boundary and annulus arguments. Moreover, even
+the current cyclic edge-list and cyclic edge/vertex-walk surrogates are still
+strictly weaker than an honest actual facial closed-walk source interface.
+The newest obstruction goes in the opposite direction: once the honest
+closed-walk source is used to extract a separated two-component annulus
+boundary split, the current all-roots-on-the-outer-boundary peel package cannot
+use that same split.  A later diamond-with-triangle forcing-edge calibration
+now also shows that repaired previous-boundary witness geometry does not imply
+the interior-dual root-distance package.
+\end{abstract}
+
+\section{Current source interfaces}
+
+The development now distinguishes ten source-facing or immediately derived
+boundary-order layers above
+\path{PlaneEmbeddingWithBoundary}:
+\begin{enumerate}
+\item \path{OrderedFaceBoundaryData}: each ambient face boundary is listed as a
+linear chain of distinct edges with shared endpoints between consecutive edges.
+\item \path{OrderedFaceBoundaryVertexData}: the same linear edge order together
+with one explicit chosen shared primal endpoint for each adjacent pair of
+boundary edges.
+\item \path{OrderedFaceBoundaryVertexSequenceData}: the same linear edge order
+together with one explicit ordered list of shared primal vertices, aligned with
+the boundary edge list itself.
+\item \path{CyclicOrderedFaceBoundaryData}: the same linear data, plus a wrap
+condition saying the last and first boundary edges also share an endpoint.
+\item \path{CyclicOrderedFaceBoundaryVertexData}: the cyclic edge order together
+with one explicit chosen shared primal endpoint for each adjacent pair in the
+closed cycle.
+\item \path{CyclicOrderedFaceBoundaryVertexSequenceData}: the same cyclic edge
+order together with one explicit cyclic list of shared primal vertices, again
+stored in boundary order.
+\item \path{FaceBoundaryClosedVertexWalkGeometry}: a bundled cyclic alternating
+edge/vertex walk, where each boundary edge is incident both to its own listed
+vertex and to the next listed vertex in cyclic order.
+\item \path{FaceBoundaryClosedRunGeometry}: the same cyclic information
+repackaged as one explicit closed boundary run per ambient face, i.e. a pure
+boundary-walk layer.
+\item \path{FaceBoundaryClosedWalkGeometry}: a stronger bundled source object
+recording for each face an actual nonempty closed trail in the graph whose
+traversed edges are exactly the face boundary.
+\item FourColor specializations of these structures, together with selected
+boundary arc data.
+\end{enumerate}
+
+These interfaces are intentional temporary surrogates for honest embedding-side
+face-boundary walk order. They isolate exactly what the current weak API fails
+to provide.
+
+\section{Negative examples}
+
+Three explicit regressions are now in Lean.
+
+First, the disconnected two-edge example shows that unordered face-boundary
+incidence alone does not determine any endpoint-sharing order at all. This lives
+in
+\path{Mettapedia/GraphTheory/OrderedPlanarEmbeddingWithBoundaryRegression.lean}
+and is reused in
+\path{Mettapedia/GraphTheory/FourColor/PlanarBoundaryFaceBoundaryRunRegression.lean}.
+
+Second, the three-edge path example shows that linear ordered data is strictly
+weaker than cyclic ordered data and than the equivalent pure closed-run layer.
+The unique face boundary can be listed as \texttt{[p01, p12, p23]} or its
+reverse, so linear ordered data exists. But the path endpoints do not share a
+primal endpoint, so no cyclic closure is possible. This proves that the cyclic
+source layer is a genuine strengthening rather than just a repackaging.
+
+Third, the three-edge star example shows that the current cyclic source layers
+are still weaker than an honest facial closed-walk source. The unique face
+boundary can be listed cyclically as the three spokes, because every
+consecutive pair shares the hub vertex. So cyclic ordered data exists, and
+hence also the equivalent bundled cyclic closed-run and cyclic edge/vertex-walk
+surrogates. But the star graph is acyclic, so it admits no nonempty actual
+closed trail at all. This proves that the new
+\path{FaceBoundaryClosedWalkGeometry} target is a genuine strengthening over
+the current cyclic surrogates on the weak embedding API.
+
+On the FourColor side, the same star example now also lifts to the cyclic
+selected-boundary shells
+\path{PlanarBoundaryCyclicOrderedFaceArcEmbeddingData} and
+\path{PlanarBoundarySelectedBoundaryArcGeometry}, because in the one-face
+embedding every boundary edge is selected. So even these route-facing cyclic
+selected-boundary interfaces are still weaker than the honest actual facial
+closed-walk source. In particular, no generic theorem of the form ``current
+cyclic selected-boundary shell implies honest facial closed-walk geometry'' can
+hold over the present weak embedding API.
+
+\section{Architectural consequence}
+
+The current proof-route architecture is now sharper:
+\begin{itemize}
+\item unordered face-boundary incidence is too weak;
+\item linear ordered face-boundary data is enough for the present run-geometry
+and bundled selected-arc shells;
+\item the new proof-relevant linear and cyclic boundary-step vertex layers are
+equivalent theorem surfaces over the current ordered and cyclic edge-order
+layers, but they remember the actual shared primal vertices between successive
+boundary edges;
+\item the new ordered and cyclic boundary-step vertex sequence layers go one
+step further by storing those chosen shared vertices in the same order as the
+boundary walk itself, making them a closer source proxy to an honest embedding
+side facial walk than the pair-indexed chooser interface;
+\item the new bundled cyclic edge/vertex walk layer is equivalent to the cyclic
+vertex-sequence interface, but packages the same information in the explicit
+alternating walk form that future honest embedding-side derivations are most
+likely to target directly;
+\item the new honest face-boundary closed-walk layer is strictly stronger than
+the cyclic ordered / cyclic closed-run / cyclic edge/vertex-walk surrogate
+layers over the current weak API;
+\item cyclic ordered data is a closer proxy to genuine planar face-boundary
+order and is strictly stronger;
+\item the new pure closed-run layer gives an equivalent ``boundary walk''
+presentation of the cyclic source data, while the new edge/vertex walk layer
+refines that presentation by keeping the shared primal vertices explicitly in
+cyclic order;
+\item the annulus boundary-connectivity and construction shells now also accept
+the split same-embedding interface ``cyclic alternating edge/vertex
+face-boundary walk + selected-boundary arc on each induced linear run''
+directly, so downstream theorem endpoints no longer have to manually unwrap the
+cyclic walk layer before using the current selected-arc reductions;
+\item the stronger honest source surface ``facial closed walk +
+selected-boundary arc on each induced linear run'' now also lowers directly to
+the current cyclic ordered face-arc shell and to the same annulus
+boundary-connectivity / boundary-support / positive-frontier / construction
+endpoints, so future work can target actual facial walks without first
+repackaging them by hand as cyclic surrogate data;
+\item the honest facial closed-walk lowering now constructs the cyclic
+edge/vertex boundary-walk layer directly from the actual walk darts: the
+boundary edges are the dart edges in order, and the shared vertices are the
+dart terminal vertices. This removes an avoidable detour through the cyclic
+edge-order surrogate and makes the proof-relevant vertex data traceable to the
+source walk itself;
+\item the current same-embedding annulus theorem surfaces ``ordered face-arc
+data'', ``cyclic ordered face-arc data'', ``cyclic edge/vertex walk +
+selected-boundary arc'', and ``honest facial closed walk +
+selected-boundary arc'', each combined with the live interior-dual
+adjacency-distance peel data and the current positive-frontier hypotheses, now
+also lower directly to the pure annulus decomposition endpoint, removing one
+more manual construction-to-decomposition composition step from the theorem-4.9
+route;
+\item on the construction side, the same four honest boundary-order source
+surfaces now also lower directly to the weaker
+``FacePartitionData'' shell, replacing the stronger per-face non-peeled
+selected-boundary-contact hypothesis by the more honest finite-set face-cover
+obligation;
+\item on the live boundary-root adjacency-distance source route, that finite
+face-cover obligation is now discharged internally: the interior-dual root
+package already proves that every non-peeled face is a boundary-root face and
+hence meets selected boundary support. The generic construction bridge now
+lowers boundary-component reachability plus this interior-dual package directly
+to the boundary-support, face-partition, and positive-frontier shells, leaving
+the positive current-frontier facts as the explicit remaining frontier-side
+inputs;
+\item the positive-frontier package now has a checked finite-descent
+consequence: whenever one annulus stage is strictly later than another, the
+surviving current-face set has strictly smaller cardinality. Adjacent stages
+therefore form a genuine finite decreasing chain, so the current-frontier
+assumptions are not merely interface markers but yield a measurable progress
+invariant. Since the final current-face set is nonempty and stage zero covers
+all ambient faces under the face-partition hypothesis, the package also proves
+the global finite bound that the number of collars is at most the number of
+ambient faces;
+\item the shifted boundary-root adjacency-distance construction now also has an
+exact obstruction theorem for parent-witness orientation: failure of strict
+parent orientation is equivalent to the existence of a peeled face with shifted
+annulus distance zero. This records precisely why the first collar must be
+excluded before the parent-oriented well-founded witness surface can be used;
+\item the same boundary-root adjacency-distance source now also has a checked
+constructive repair: a root-distance annulus construction that keeps the
+unshifted interior-dual distance. On peeled faces, the shifted collar-indexing
+distance plus one is exactly this root-distance height, and the root-distance
+construction reaches the parent-oriented well-founded witness surface without
+any first-collar exclusion. Thus the formal route separates the collar-indexing
+construction from the parent-orientation construction instead of trying to make
+one shifted distance serve both purposes;
+\item on the outer-boundary-root side, the formal interface now also proves
+that every chosen root face already lies in the ambient outer-boundary face
+set. So the unresolved face-cover obstruction is genuinely about non-root
+faces, not about localizing the root set itself;
+\item the honest closed-walk source now also exposes a structural obstruction
+to the current all-outer-root route: if
+\path{PlanarBoundaryOuterBoundaryRootAdjDistancePeelData} uses the same
+two-component boundary split extracted from
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource}, then it is inconsistent.
+The theorem
+\path{false_of_closedWalkAnnulusBoundarySource_and_outerBoundaryRootAdjDistancePeelData_sameBoundaryData}
+proves the fixed-embedding contradiction, and
+\path{not_exists_embedding_closedWalkAnnulusBoundarySource_and_outerBoundaryRootAdjDistancePeelData_sameBoundaryData}
+packages it at graph level. This means the surviving root-distance route needs
+a two-sided/root-per-boundary formulation or a different boundary split before
+it can be honestly sourced from closed facial walks;
+\item the two-sided replacement formulation is now a Lean interface, not just
+an instruction for future work.  The file
+\path{Theorem49PlanarBoundaryAnnulusRootInteriorDual.lean} introduces
+\path{PlanarBoundaryAnnulusRootAdjDistancePeelData}, whose roots may touch
+either extracted boundary component.  The constructor from
+\path{PlanarBoundaryAnnulusBoundaryData} plus generic
+\path{InteriorDualBoundaryRootAdjDistancePeelData} and the raw
+cover/separated-root constructor over
+\path{outerAmbientBoundary} union \path{innerAmbientBoundary} both lower to the
+existing boundary-root pipeline.  The same file also has direct closed-walk
+constructors from \path{PlanarBoundaryClosedWalkAnnulusBoundarySource} plus
+generic interior-dual data into the two-sided target, so this is the current
+positive target for closed-walk sourcing;
+\item the theorem-4.9 synthesis layer now factors through that same generic
+interior-dual route.  The file \path{Theorem49Synthesis.lean} defines the core
+\path{Theorem49BoundaryRootSynthesis} package directly from generic
+\path{PlanarBoundaryInteriorDualBoundaryRootAdjDistancePeelData}, and then
+re-exports it as both \path{Theorem49OuterBoundaryRootSynthesis} and
+\path{Theorem49AnnulusRootSynthesis}.  So once boundary-order work supplies the
+generic interior-dual route, the purified theorem-4.9 endpoint is already
+available on the two-sided annulus-root surface without any extra synthesis
+repackaging;
+\item the route file \path{PlanarBoundaryClosedWalkSourceRoute.lean} now closes
+that positive interface explicitly for the honest source objects already used
+in this note: theorems
+\path{exists_theorem49AnnulusRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_direct}
+and
+\path{exists_theorem49AnnulusRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootAdjDistancePeelData_direct}
+show that explicit closed-walk or successor-cycle boundary-order data plus
+generic interior-dual data already reaches the two-sided theorem-4.9 synthesis
+endpoint directly.  The same route file now also exposes the more direct
+certificate-side corollaries
+\path{admitsPlanarBoundaryAttachedRootedFacePeelCertificate_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_direct},
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_direct},
+and the corresponding successor-cycle versions, so once the generic
+boundary-root interior-dual package is in hand the honest source shells can
+land directly on the attached-certificate and boundary-root synthesis surfaces
+without going back through annulus-construction parent orientation;
+\item the annulus-root surface now also proves the missing two-sided geometric
+forcing fact: any ambient face meeting either distinguished annulus boundary
+component is automatically non-peeled and hence a root face for the generic
+interior-dual adjacency-distance package.  In particular,
+\path{exists_root_mem_outerBoundaryFaces_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData}
+and
+\path{exists_root_mem_innerBoundaryFaces_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData}
+show that honest closed-walk annulus source data plus generic interior-dual
+data already forces one chosen root face on each extracted annulus boundary
+component;
+\item the same source file now also exposes the upstream parent-orientation
+surface explicitly.  The same-embedding theorem
+\path{parentWitnessOrientation_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_rootDistance}
+and the graph-level theorems
+\path{admitsPlanarBoundaryAnnulusConstructionParentWitnessOrientation_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_direct}
+and
+\path{admitsPlanarBoundaryAnnulusConstructionParentWitnessOrientation_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootAdjDistancePeelData_direct}
+show that honest closed-walk and successor-cycle boundary-order data already
+yield \path{PlanarBoundaryAnnulusConstruction.ParentWitnessOrientation}
+through the root-distance annulus construction, before any annihilator or
+synthesis packaging is applied;
+\item the synthesis layer is now also exposed one step earlier, at the raw
+annulus-split interface itself:
+\path{exists_theorem49AnnulusRootSynthesis_of_exists_boundaryData_and_interiorDualBoundaryRootAdjDistancePeelData}
+and its nonempty counterpart show that once a single embedding already carries
+\path{PlanarBoundaryAnnulusBoundaryData} and generic interior-dual rooted peel
+data, the theorem-4.9 endpoint is available without first repackaging the same
+data through closed-walk source fields;
+\item the concrete annulus-construction route now also reaches the algebraic
+theorem-4.9 bridge directly.  The new file
+\path{Theorem49PlanarBoundaryAnnulusConstructionSpanning.lean} proves
+\path{boundaryZeroAnnihilatorTrivialForEmbedding_of_planarBoundaryAnnulusConstruction_of_parentWitness}:
+construction data plus the explicit \path{ParentWitnessOrientation} hypothesis
+already implies the fixed-embedding annihilator endpoint ``boundary-zero plus
+Definition~4.8 orthogonality implies zero''.  From that generic bridge
+hypothesis it derives the corrected span identity on the projected generator
+subspace, the corresponding theorem-4.9 target equality and inclusion,
+pointwise separation on the purified endpoint carrier, kernel-triviality of the
+pairing map, the resulting finrank inequality, and a raw Kempe-span preimage
+theorem.  So once boundary-order work delivers honest parent-witness
+orientation on the annulus construction, the route can already enter the
+algebraic theorem-4.9 bridge without rebuilding the older interior-dual
+boundary-root package;
+\item the same algebraic bridge has now been pushed down to the boundary-aware
+witness-cover surfaces themselves.  \path{Theorem49SpanningGap.lean} proves
+\path{boundaryZeroAnnihilatorTrivialForEmbedding_of_planarBoundaryHeightOrderedFacePeelWitnessData}
+and
+\path{boundaryZeroAnnihilatorTrivialForEmbedding_of_planarBoundaryCollarLayerFacePeelWitnessData}.
+\path{Theorem49SpanningGap.lean} also exposes graph-level height-ordered and
+collar-layer wrappers for the ordinary and relative submodule-duality
+interfaces; the chain-dot versions build the duality package directly from the
+same-embedding target/source subspaces and their identification lemmas.
+\path{Theorem49KempeGeneratorSpan.lean} fixes the canonical Definition~4.8
+generator side for both surfaces.  Its graph-level wrappers
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_admitsPlanarBoundaryHeightOrderedFacePeelWitnessData}
+and
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_admitsPlanarBoundaryCollarLayerFacePeelWitnessData}
+instantiate the concrete submodule-duality package using the actual
+Kempe-closure generator subspace, removing the separate
+orthogonality-to-annihilator obligation from this canonical source path.  Then
+\path{Theorem49BoundaryProjection.lean} proves the corresponding projected-source
+equalities
+\path{projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_planarBoundaryHeightOrderedFacePeelWitnessData}
+and
+\path{projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_planarBoundaryCollarLayerFacePeelWitnessData},
+with matching boundary-zero Kirchhoff target equality and inclusion theorems.
+Thus height-ordered or finite collar-layer witness-cover data is enough to enter
+the corrected projected-generator theorem-4.9 source statement directly.  The
+same projection file now also provides finite projected-generator
+representations, raw Definition~4.8 generator preimages before boundary erasure,
+and graph-level wrappers from
+\path{AdmitsPlanarBoundaryHeightOrderedFacePeelWitnessData} and
+\path{AdmitsPlanarBoundaryCollarLayerFacePeelWitnessData}.  Those wrappers now
+cover the explicit-family target identity, projected and explicit-family
+inclusion forms, raw Definition~4.8 generator-span preimages, and finite
+raw-generator projection witnesses for every boundary-zero Kirchhoff target
+chain.  They now also include the chain-dot separation theorem
+\[
+  W_0(H) \cap (\mathrm{projectedKempeClosureGeneratorSubspace})^\perp
+  = 0,
+\]
+plus detector and pointwise orthogonality iff forms, for height-ordered and
+finite collar-layer data.  Thus the downstream route can use those witness
+surfaces without rebuilding the interior-dual rooted package or assuming the
+extra raw-source quotient disjointness hypotheses.  The weakest explicit
+local-remainder collar surface now has the same kind of direct annihilator
+access: \path{Theorem49PlanarBoundaryCollarPeeling.lean} proves
+\path{zero_on_allEdges_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData_of_annihilatesKempeClosureGeneratorFamily}
+and
+\path{zero_on_allEdges_of_exists_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData_of_annihilatesKempeClosureGeneratorFamily}.
+So local-remainder data can consume Definition~4.8 generator-family
+orthogonality directly, before being forgotten to ordinary collar-layer data.
+\path{Theorem49SpanningGap.lean} and \path{Theorem49BoundaryProjection.lean}
+now keep that local-remainder surface visible through the algebraic projection
+step.  In particular
+\path{span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+identifies the projected Definition~4.8 span with the selected-boundary-zero
+subspace, and
+\path{exists_projectedKempeClosureGeneratorFamily_finset_sum_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_admitsPlanarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+packages the graph-level finite-combination theorem for the concrete
+boundary-zero Kirchhoff target.
+The same file now records the raw Definition~4.8 source projection too:
+\path{exists_kempeClosureGeneratorSubspace_preimage_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+gives a raw generator-subspace preimage, while
+\path{exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+gives a finite unprojected generator-family sum whose boundary-erased projection
+is the target chain.
+It now also has the matching Kirchhoff-retaining raw source theorem
+\path{exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_and_mem_kirchhoffSubmodule_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}:
+under the selected-boundary avoidance hypothesis, the same kind of raw finite
+Definition~4.8 sum can be chosen inside the Kirchhoff submodule at the chosen
+target vertices.  The graph-level admissibility theorem exposes this endpoint
+without converting the local-remainder witness into interior-dual root-distance
+data.
+The local-remainder source has also been pushed to the raw quotient/error form.
+\path{exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_eq_boundaryZeroProjection_of_mem_kirchhoffSubmodule_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+represents every raw Kirchhoff chain, after selected-boundary erasure, by a
+finite raw Definition~4.8 generator-family sum that is itself Kirchhoff.  The
+boundary-supported and kernel-decomposition forms then isolate the remaining
+error as a Kirchhoff chain supported on the selected boundary, equivalently in
+the kernel of the boundary-erasure map restricted to the Kirchhoff submodule.
+The same raw representative plus quotient/error package is now available at the
+positive projected synthesis endpoint itself via
+\path{Theorem49BoundaryRootNonemptyProjectedSynthesis.rawKirchhoffRepresentative_and_boundaryKernelDecomposition}.
+This theorem simply exposes the two relevant fields already inside the nested
+\path{Theorem49BoundaryRootSynthesis}, so downstream boundary-order source
+arguments can consume them through the same-embedding projected endpoint rather
+than importing another raw-projection theorem directly.
+The package is now named
+\path{Theorem49BoundaryRawQuotientErrorPackage}, and the current replacement
+positive geometry surfaces consume it directly.  The fixed-embedding theorems
+\path{theorem49BoundaryRawQuotientErrorPackage_of_heightOrderedPositiveProjectedGeometryOn}
+and
+\path{theorem49BoundaryRawQuotientErrorPackage_of_collarLayerPositiveProjectedGeometryOn}
+thread the endpoint through height-ordered and finite collar-layer witness-cover
+data, and the graph-level methods on
+\path{Theorem49HeightOrderedPositiveProjectedGeometry} and
+\path{Theorem49CollarLayerPositiveProjectedGeometry} expose the same conclusion
+on the packaged embedding.  This is the current non-vacuous replacement route's
+raw quotient/error consumption point.
+At the core synthesis surface this has been strengthened to a submodule
+equality:
+\path{Theorem49BoundaryRootSynthesis.kirchhoffSubmodule_eq_rawSource_sup_boundaryKernel}.
+It identifies the purified Kirchhoff submodule with the supremum of the
+Kirchhoff-valid raw Definition~4.8 Kempe-source submodule and the
+selected-boundary projection kernel error submodule.  Thus the quotient/error
+reading is no longer only a family of finite witnesses; Lean now records the
+global raw-source-plus-kernel decomposition forced by any completed
+\path{Theorem49BoundaryRootSynthesis}.
+The same synthesis layer now also records the quotient form
+\path{Theorem49BoundaryRootSynthesis.rawSource_mkQ_eq_top}: inside the purified
+Kirchhoff submodule, after quotienting by the kernel of the selected-boundary
+projection restricted to that submodule, the Kirchhoff-valid raw
+Definition~4.8 source maps onto the whole quotient.  This is the exact
+surjectivity statement needed by the quotient/error interpretation, and it
+avoids replacing the purified Kirchhoff quotient by a stronger ambient-space
+quotient.
+The theorem
+\path{Theorem49BoundaryRootSynthesis.finrank_quotient_le_rawSource} records the
+corresponding finite-dimensional consequence: the purified Kirchhoff quotient by
+the restricted selected-boundary kernel has finrank no larger than the raw
+Definition~4.8 source submodule that surjects onto it.
+The target-side bound
+\path{Theorem49BoundaryRootSynthesis.finrank_target_le_rawSource} also lives at
+the same surface: the concrete boundary-zero Kirchhoff target has finrank no
+larger than the Kirchhoff-valid raw Definition~4.8 source whose projection is
+that target.
+The actual quotient-target identification is now available as
+\path{Theorem49BoundaryRootSynthesis.boundaryProjectionQuotientEquivTarget},
+with
+\path{Theorem49BoundaryRootSynthesis.boundaryProjectionQuotientEquivTarget_apply_mk}
+recording that a quotient class represented by a purified Kirchhoff chain maps
+to its selected-boundary-erased chain in the concrete target.
+The raw-source quotient version
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientEquivTarget} now
+identifies the Kirchhoff-valid raw Definition~4.8 source quotient, modulo the
+selected-boundary projection kernel on that source, with the same concrete
+target; its \path{...rawSourceQuotientEquivTarget_apply_mk} theorem gives the
+corresponding representative computation rule.
+The raw and purified quotient models are now connected by
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientEquivKirchhoffQuotient}.
+This linearly identifies the raw-source quotient with the purified Kirchhoff
+quotient through their common concrete theorem-4.9 target, and
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientEquivKirchhoffQuotient_apply_mk}
+records the representative computation: a raw Kirchhoff-valid source class maps
+to the same edge-chain class in the purified Kirchhoff quotient.  This is a
+genuine comparison map between the quotient/error surfaces, not another package
+threading variant.
+The same synthesis layer now also records the finite representative form
+\path{Theorem49BoundaryRootSynthesis.exists_rawGeneratorSum_for_kirchhoffQuotientClass}:
+each purified Kirchhoff quotient class admits a representative lying in the raw
+Definition~4.8 source and given as a finite linear combination of raw
+generator-family terms.  The conclusion already includes equality in the
+purified Kirchhoff quotient, so the selected-boundary projection kernel
+conversion is discharged once at the synthesis surface.
+The quotient/error surface now carries the separation test as well:
+\path{Theorem49BoundaryRootSynthesis.kirchhoffQuotientClass_eq_zero_iff_projectedGenerator_orthogonal}
+identifies zero purified Kirchhoff quotient classes with classes whose
+selected-boundary-erased representatives are orthogonal to all projected
+Definition~4.8 generators.  Its detector companion
+\path{Theorem49BoundaryRootSynthesis.exists_projectedGenerator_chainDot_ne_zero_of_ne_zero_kirchhoffQuotientClass}
+extracts a projected generator with nonzero chain-dot pairing from any nonzero
+purified quotient class.  This makes projected-generator separation usable
+directly modulo selected-boundary kernel error.
+The combined theorem
+\path{Theorem49BoundaryRootSynthesis.exists_rawGeneratorSum_and_projectedGenerator_chainDot_ne_zero_of_ne_zero_kirchhoffQuotientClass}
+now gives, for every nonzero purified quotient class, a finite raw
+Definition~4.8 generator-sum representative together with a projected generator
+that detects that representative after selected-boundary erasure.  This is the
+usable synthesis-surface form for nonzero quotient classes.
+The quotient surface also now has a named linear-map form:
+\path{Theorem49BoundaryRootSynthesis.kirchhoffQuotientProjectedGeneratorPairingMap}
+pairs purified Kirchhoff quotient classes with projected Definition~4.8
+generators after selected-boundary erasure.  Its \path{..._apply_mk} theorem
+computes the pairing on representatives, and
+\path{Theorem49BoundaryRootSynthesis.ker_kirchhoffQuotientProjectedGeneratorPairingMap_eq_bot}
+records the quotient-level trivial-kernel statement.
+\path{Theorem49BoundaryRootSynthesis.kirchhoffQuotientProjectedGeneratorPairingMap_eq_zero_iff}
+and
+\path{Theorem49BoundaryRootSynthesis.exists_projectedGenerator_pairingMap_ne_zero_of_ne_zero_kirchhoffQuotientClass}
+turn that kernel statement into the map-level detector for arbitrary purified
+quotient classes.
+\path{Theorem49BoundaryRootSynthesis.finrank_kirchhoffQuotient_le_projectedGeneratorSubspace}
+then extracts the corresponding finite-dimensional bound for the purified
+Kirchhoff quotient from that named pairing map, rather than appealing only to
+the older target-side finrank field, and
+\path{Theorem49BoundaryRootSynthesis.finrank_range_kirchhoffQuotientProjectedGeneratorPairingMap}
+identifies the pairing-map image dimension with the purified quotient
+dimension.  The new equivalence
+\path{Theorem49BoundaryRootSynthesis.kirchhoffQuotientEquivPairingMapRange}
+then uses this same injective map to model purified quotient classes as
+functionals in the pairing-map image, with
+\path{Theorem49BoundaryRootSynthesis.kirchhoffQuotientEquivPairingMapRange_apply_mk}
+retaining the representative-level chain-dot computation.
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientEquivPairingMapRange}
+now gives the parallel image model for the raw Definition~4.8 source quotient
+itself, and
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientEquivPairingMapRange_apply_mk}
+computes raw-source quotient representatives by selected-boundary erasure and
+chain-dot pairing.  The raw-source quotient also has its own projected-generator
+separation test:
+\path{Theorem49BoundaryRootSynthesis.rawSourceQuotientClass_eq_zero_iff_projectedGenerator_orthogonal}
+and
+\path{Theorem49BoundaryRootSynthesis.exists_projectedGenerator_chainDot_ne_zero_of_ne_zero_rawSourceQuotientClass}
+characterize zero raw-source classes and detect nonzero ones without leaving
+the quotient/error surface.  The finite representative theorem
+\path{Theorem49BoundaryRootSynthesis.exists_rawGeneratorSum_and_projectedGenerator_chainDot_ne_zero_of_ne_zero_rawSourceQuotientClass}
+keeps the same raw-source quotient class while choosing an explicit finite raw
+Definition~4.8 generator-family sum and a projected generator that detects it.
+The concrete target-level theorem
+\path{Theorem49BoundaryRootSynthesis.exists_rawGeneratorSum_and_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+now combines the raw projection representation and pointwise separation: every
+nonzero boundary-zero Kirchhoff target has a finite raw generator-family
+preimage and a projected generator that detects that same target.
+The sharpened theorem
+\path{Theorem49BoundaryRootSynthesis.exists_nonempty_rawGeneratorSum_and_nonzero_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+records the non-vacuity content of the same conclusion: the finite raw
+generator-family representative is not the empty sum, and the projected
+detector is itself nonzero.
+The strengthened support-sensitive theorem
+\path{Theorem49BoundaryRootSynthesis.exists_nonzero_rawGeneratorSum_and_nonempty_coeffSupport_and_nonzero_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+adds that this raw representative is a nonzero chain and that the coefficient
+support is nonempty, not only the ambient term finset.
+The term-level witness theorem
+\path{Theorem49BoundaryRootSynthesis.exists_rawGenerator_with_nonzero_coeff_and_nonzero_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+extracts a concrete raw Definition~4.8 generator-family chain from that support
+with nonzero coefficient, while keeping the same nonzero raw representative and
+projected detector data.
+\path{Theorem49BoundaryRootSynthesis.exists_nonzero_rawGenerator_with_nonzero_coeff_and_nonzero_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+removes the last degeneracy in this witness: the extracted support chain can be
+chosen nonzero, so the target-level detector is now tied to an actual nonzero
+raw Definition~4.8 generator-family chain.
+\path{Theorem49BoundaryRootSynthesis.exists_rawGenerator_with_nonzero_boundaryZeroProjection_and_nonzero_coeff_and_nonzero_projectedGenerator_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace}
+adds the boundary-facing non-vacuity condition: the extracted support chain can
+be chosen with nonzero selected-boundary erasure, so a nonzero theorem-4.9
+target is not represented only by support terms killed by
+\(\mathrm{boundaryZeroProjection}\).
+The raw-source quotient now also has the rank
+consequences of that image model:
+\path{Theorem49BoundaryRootSynthesis.finrank_rawSourceQuotient_eq_pairingMapRange}
+identifies its dimension with the pairing-map image dimension, and
+\path{Theorem49BoundaryRootSynthesis.finrank_rawSourceQuotient_le_projectedGeneratorSubspace}
+bounds it by the projected Definition~4.8 generator subspace.
+This separation layer has
+now been lowered through \path{PlanarBoundaryClosedWalkSourceProjection.lean}
+to the actual source shells: canonical witness choice, the local at-most-one
+criterion, and same-boundary one-collar geometry, for both closed-walk sources
+and successor-cycle boundary-order sources, give the same chain-dot separation
+endpoint through height-ordered and finite collar-layer witness data.  The
+source file now lowers the matching pointwise detector and orthogonality iff
+forms too, so these same source shells can test each nonzero boundary-zero
+Kirchhoff chain by a projected Definition~4.8 generator; it now also lowers the
+raw preimage and finite raw-generator sum forms, so each such chain has a raw
+Definition~4.8 generator-span representative and a finite raw-generator
+combination projecting to it.  The positive non-vacuous lane now has a single
+same-embedding package,
+\path{Theorem49BoundaryRootNonemptyProjectedSynthesis}, combining
+\path{Theorem49BoundaryRootNonemptySynthesis} with the corrected projected
+subspace and projected-family span equalities.  Height-ordered and finite
+collar-layer witness data construct the package under nonempty purified
+carrier, and the closed-walk and successor-cycle source wrappers expose it for
+canonical witness choice and same-boundary one-collar geometry.  The
+at-most-one/nonempty-carrier branch is intentionally absent from this positive
+package because the current purified carrier makes that branch inconsistent;
+\item \path{Theorem49PositiveGeometricSource.lean} names the candidate
+geometric source packages that were isolated for testing:
+\path{Theorem49ClosedWalkCanonicalPositiveGeometry},
+\path{Theorem49ClosedWalkOneCollarPositiveGeometry},
+\path{Theorem49SuccessorCycleCanonicalPositiveGeometry}, and
+\path{Theorem49SuccessorCycleOneCollarPositiveGeometry}.  These packages keep
+the source data, canonical witness choice or source-preserving one-collar
+geometry, and nonempty purified carrier on the same embedding, then lower to
+\path{Theorem49BoundaryRootNonemptyProjectedSynthesis} for any Tait coloring.
+The fixed-embedding predicate forms now lower directly to the same endpoint on
+the same embedding;
+\item \path{Theorem49PositiveGeometricSourceRegression.lean} supplies that
+focused obstruction for the wheel-with-inner-triangle benchmark.  The fixed
+embedding retains \path{wheelWithInnerTriangleTaitEdgeColoring_isTait} and
+\path{selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle},
+but Lean proves the four package-level failures
+\path{not_theorem49ClosedWalkCanonicalPositiveGeometryOn_wheelWithInnerTriangle},
+\path{not_theorem49ClosedWalkOneCollarPositiveGeometryOn_wheelWithInnerTriangle},
+\path{not_theorem49SuccessorCycleCanonicalPositiveGeometryOn_wheelWithInnerTriangle},
+and
+\path{not_theorem49SuccessorCycleOneCollarPositiveGeometryOn_wheelWithInnerTriangle}.
+Thus the wheel benchmark is no longer just an informal separator between
+carrier and geometry: it is a fixed-embedding regression test for the current
+positive package layer;
+\item \path{Theorem49PositiveGeometricSourceImpossibility.lean} upgrades that
+benchmark calibration to a structural route correction.  Canonical witness
+choice implies facewise at-most-one interior edge, and honest closed-walk data
+plus facewise at-most-one empties the purified carrier.  Same-boundary
+one-collar geometry induces canonical witness choice, so
+\path{not_nonempty_currentTheorem49PositiveGeometricSourcePackages} refutes all
+four current graph-level positive package structures.  The boundary-order next
+step is therefore no longer to instantiate these packages, but to replace the
+source surface or carrier condition so that the nonempty projected endpoint is
+not forced empty.  The same obstruction now has direct live-endpoint forms:
+\path{not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice}
+and
+\path{not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySource_and_oneCollarGeometry_with_sourceBoundaryData}
+say that canonical choice and source-preserving one-collar geometry rule out
+the local endpoint witness itself.  Equivalently,
+\path{not_nonempty_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_hasUnblockedInteriorEndpoint}
+blocks canonical choice from an honest source plus
+\path{HasUnblockedInteriorEndpoint}, and
+\path{not_exists_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_of_closedWalkAnnulusBoundarySource_and_hasUnblockedInteriorEndpoint}
+blocks same-boundary one-collar geometry;
+\item \path{Theorem49PositiveGeometricSourceReplacement.lean} now records the
+direct replacement surface.  The fixed-embedding predicates
+\path{Theorem49HeightOrderedPositiveProjectedGeometryOn} and
+\path{Theorem49CollarLayerPositiveProjectedGeometryOn} pair the corresponding
+boundary-aware witness-cover data with nonempty purified carrier on the same
+embedding and lower directly to
+\path{Theorem49BoundaryRootNonemptyProjectedSynthesis}.  The graph-level
+packages \path{Theorem49HeightOrderedPositiveProjectedGeometry} and
+\path{Theorem49CollarLayerPositiveProjectedGeometry} expose the same endpoint,
+and the theorem
+\path{heightOrderedPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn}
+identifies the two fixed-embedding forms using the existing height/collar
+conversions.  The construction task has therefore been sharpened to building
+one of these direct witness-data packages from boundary-order geometry, while
+the file's compatibility lemmas prevent silently reintroducing canonical-choice
+or source-preserving one-collar fields on a nonempty carrier embedding.  The
+same file now exposes the graph-level annulus bridge explicitly:
+\path{theorem49CollarLayerPositiveProjectedGeometry_of_annulusCollarGeometry}
+and
+\path{theorem49HeightOrderedPositiveProjectedGeometry_of_annulusCollarGeometry}
+turn annulus collar geometry plus nonempty purified carrier into the
+replacement packages, with existential versions and repaired
+previous-boundary-witness specializations.  The same minimal hypotheses now
+also reach the nonempty projected synthesis endpoint directly via
+\path{exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulusCollarGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct}.
+The repaired previous-boundary-witness lane now has the endpoint-witness
+version as well:
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint}
+uses \path{HasUnblockedInteriorEndpoint} directly, and the route file adds the
+closed-walk source-facing bridge
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint}.
+The acyclic witness-cover lane now has the same direct endpoint:
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint}
+uses well-founded parent witness-cover data plus
+\path{HasUnblockedInteriorEndpoint} to reach the projected synthesis surface,
+and the source-facing route theorem
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_hasUnblockedInteriorEndpoint}
+keeps the honest closed-walk source visible while making the acyclic data the
+actual geometric input.
+This direct acyclic lane now also consumes endpoint-support separation and raw
+endpoint-carrier nonemptiness without first manufacturing the named endpoint
+witness.  The generic theorem
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport}
+has height-ordered, finite-collar, graph-level, and existential variants, while
+the source-facing wrappers
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport}
+and
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_wellFoundedFacePeelWitnessData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport}
+show that honest closed-walk and successor-cycle source shells can use the
+same endpoint-support bridge once explicit well-founded witness-cover data is
+available.  This is a packaging advance, not a derivation of the acyclic
+witness-cover datum itself.
+The root-distance interior-dual route now produces that acyclic input on the
+same embedding:
+\path{planarBoundaryWellFoundedFacePeelWitnessData_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData}
+turns honest source data plus generic boundary-root interior-dual
+adjacency-distance data into explicit well-founded witness-cover data, and
+\path{planarBoundaryHeightOrderedFacePeelWitnessData_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData}
+turns the same root-distance parent order into the height-ordered
+witness-cover surface directly.  The graph-level source theorem is
+\path{admitsPlanarBoundaryHeightOrderedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_direct}.
+The obstruction side has also been factored at this same witness-cover
+interface.  In \path{Theorem49PlanarBoundaryPeeling.lean}, a non-boundary
+remainder edge whose value is another peeled face's witness edge forces a
+parent edge in the well-founded package, or a strict height inequality in the
+height-ordered package, provided the witness choice is injective on peeled
+faces.  The resulting two- and three-cycle lemmas rule out directed cycles of
+these non-boundary remainder-witness dependencies before any wheel-specific
+argument is used.  This has now been generalized to arbitrary nonempty finite
+closed dependency chains through
+\path{false_of_isChain_height_lt_and_getLast_lt_head} and the well-founded and
+height-ordered
+\path{false_of_witnessRemainderDependency_cycle_of_injective_witness} lemmas.
+The wheel-with-inner-triangle regression now exercises that list-level lemma
+directly: the two possible orientations of the height-ordered spoke chase are
+closed as explicit three-face finite cycles, not as separate ad hoc
+irreflexivity arguments.
+The well-founded parent side has also been separated from this height
+presentation.  The certificate builder proves
+\path{false_of_isChain_parentRel_and_getLast_parent_head}, saying that a
+well-founded parent map has no nonempty finite closed \path{ParentRel} chain,
+and the witness-cover finite-cycle blocker now uses that parent-chain theorem
+after extracting the actual parent edges.
+Thus the minimal upstream lemma for deriving acyclic witness-cover data from
+raw closed-walk or successor-cycle boundary-order source hypotheses is now
+precise: construct \path{InteriorDualBoundaryRootAdjDistancePeelData} on the
+same embedding, or construct an equivalent cycle-breaking well-founded parent
+witness.  The source-side primitive constructor
+\path{interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceCoverSeparatedAnnulusBoundaryRootsCanonicalRootedSharedEdgeFaceMembershipCover}
+now spells out the first option: starting from a
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource}, it is enough to supply
+cover/separated annulus-boundary roots, boundary-free peeled faces, canonical
+rooted shared-edge coverage of every interior edge, child-face membership with
+strict root-distance increase, and the ambient two-incidence bound.  The
+graph-level theorem
+\path{admitsPlanarBoundaryInteriorDualBoundaryRootAdjDistancePeelData_of_exists_closedWalkAnnulusBoundarySource_and_coverSeparatedAnnulusBoundaryRootsCanonicalRootedSharedEdgeFaceMembershipCover}
+records the same source-side obligation.  The refined constructor
+\path{interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover}
+then fixes the roots to the source's outer-or-inner boundary faces, fixes the
+fallback edge to the honest closed-walk fallback, and uses the embedding's
+two-incidence theorem.  Consequently the live source-side obligation is
+cover/separation of the source boundary-face roots, boundary-free peeled faces,
+rooted shared-edge coverage of the interior support, and strict root-distance
+child membership.  The parent-oriented sufficiency option is now formalized:
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource.wellFounded_parentRel_boundaryFaceRoots_parentTowardsRoot}
+proves the acyclic orientation part of the sufficiency direction: once the
+source boundary-face roots cover and separate the interior-dual components, the
+canonical shortest-path parent map toward those roots is well founded.  Lean
+also packages the parent-oriented fixed-root route as
+\path{interiorDualBoundaryRootParentPeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover}
+and its graph-level theorem
+\path{admitsPlanarBoundaryInteriorDualBoundaryRootParentPeelData_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover}.
+Thus the source-fixed sufficiency target can now be attacked as IDBRAD from the
+raw rooted shared-edge cover; canonical parent child-membership is derived
+internally by
+\path{canonicalParentChildMembership_of_canonicalParentCover}.  The older
+\path{admitsPlanarBoundaryInteriorDualBoundaryRootParentPeelData_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover}
+theorem remains a compatibility endpoint for callers already carrying the
+derived child-membership field.  The same layer
+now has a proved empty-interior-edge base case:
+\path{interiorDualBoundaryRootParentPeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges}
+and
+\path{admitsPlanarBoundaryInteriorDualBoundaryRootParentPeelData_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges}
+construct the source-fixed parent package with \path{peelFaces = \emptyset}
+whenever the source boundary-face roots cover and separate and
+\path{interiorEdgeSupport = \emptyset}.  Hence the nondegenerate burden is
+now precisely the pairwise-unique shared-edge selector input, root
+cover/separation, boundary-free peeled faces, and rooted shared-edge coverage
+of actual interior edges.  The empty-support case obtains the required shared-edge
+uniqueness internally from
+\path{pairwiseUniqueSharedInteriorEdges_of_interiorEdgeSupport_eq_empty}, so it
+does not assume pairwise uniqueness as an independent source hypothesis.
+The nonempty-support branch now has a constructor-side witness theorem instead
+of only selector-level consequences.  The generic lemma
+\path{exists_nonroot_peelFace_parent_rootedSharedInteriorEdge_eq_of_canonicalParentCover_of_mem_interiorEdgeSupport}
+shows that any actual interior edge covered by the canonical rooted shared-edge
+image is covered by a peeled non-root face with a real shortest-path parent,
+and that the rooted shared edge on that face is exactly the original interior
+edge.  Its nonempty-support version
+\path{exists_nonroot_peelFace_parent_rootedSharedInteriorEdge_eq_of_canonicalParentCover_of_interiorEdgeSupport_nonempty}
+makes the nondegenerate forest branch explicit.  The closed-walk source
+specializations
+\path{exists_nonroot_peelFace_parent_rootedSharedInteriorEdge_eq_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_of_mem_interiorEdgeSupport}
+and
+\path{exists_nonroot_peelFace_parent_rootedSharedInteriorEdge_eq_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_of_interiorEdgeSupport_nonempty}
+instantiate the witness with the source boundary-face roots and source fallback
+edge.  Therefore a nonempty canonical-parent cover cannot hide in the fallback
+case.  The constructor layer now also has parent-side membership for canonical
+shared edges and
+\path{canonicalParentChildMembership_of_canonicalParentCover}, which turns the
+raw cover plus the two-incidence bound into the parent child-membership field.
+The remaining hard source task is the actual boundary-order proof of the
+pairwise-unique shared-edge selector input, root cover/separation,
+boundary-free peeled faces, and rooted shared-edge cover.
+The nondegenerate raw-cover constructor has now been tested directly on the
+larger chained-diamonds honest source.  The regression
+\path{chainedDiamondsWithTriangle_interiorEdgeSupport_nonempty} records genuine
+interior support, and
+\path{chainedDiamondsWithTriangleForcingInteriorEdgeWitness} packages
+\path{cdt12} as an interior edge all of whose incident faces already touch
+selected-boundary support.  The theorem
+\path{false_of_chainedDiamondsClosedWalkSourceBoundaryFaceRootsCanonicalParentSharedEdgeCover}
+then calls
+\path{interiorDualBoundaryRootParentPeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover}
+on the canonical chained-diamonds source and derives a contradiction from the
+forcing-edge obstruction.  Thus this concrete nonempty-interior closed-walk
+benchmark cannot instantiate the source-fixed raw parent constructor: the
+missing datum is a genuine boundary-free incident peeled face, not another
+downstream selector or quotient wrapper.
+The obstruction is now source-level rather than merely benchmark-specific.
+\path{PlaneEmbeddingWithBoundary.FaceBoundaryClosedWalk.three_le_faceBoundary_card}
+proves that every honest nonempty simple facial closed walk has at least three
+boundary edges.  Combining that lower bound with the terminal-face theorem for
+\path{PlanarBoundaryHeightOrderedFacePeelWitnessData}, Lean proves
+\path{false_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_interiorEdgeSupport_nonempty}.
+Indeed, the raw source-fixed constructor lowers to a height-ordered witness
+cover; any nonempty interior support gives a terminal peeled face whose
+non-witness boundary edges already lie in selected-boundary support.  Since
+the raw cover also requires peeled faces to be disjoint from selected-boundary
+support, the terminal face boundary is contained in the singleton witness edge,
+contradicting the closed-walk lower bound.  Therefore the current honest
+closed-walk source plus boundary-free peeled-face interface has no positive
+nondegenerate raw-cover instantiation; the sufficiency route must change this
+source-side contract or replace the terminal parent condition before a genuine
+nonempty benchmark can exist.
+The degeneracy is also exposed as a usable route theorem:
+\path{interiorEdgeSupport_eq_empty_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover}
+concludes \path{interiorEdgeSupport = \emptyset} from the same raw cover
+hypotheses.  This makes the existing no-interior constructor the only possible
+honest closed-walk source-fixed instance of that raw-cover contract, rather
+than merely a base case next to an open nonempty branch.
+The obstruction has also been lifted to the adjacent-distance/root-parent
+interface itself.  The theorem
+\path{InteriorDualBoundaryRootAdjDistancePeelData.false_of_mem_interiorEdgeSupport_of_faceBoundaryClosedWalkGeometry}
+instantiates the existing terminal-card obstruction from
+\path{PlaneEmbeddingWithBoundary.FaceBoundaryClosedWalkGeometry}: a covered
+interior edge would force a peeled face with at most one boundary edge, but
+the honest closed-walk lower bound gives at least three boundary edges on
+every face.  Consequently
+\path{not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_interiorEdgeSupport_nonempty_of_faceBoundaryClosedWalkGeometry}
+rules out any IDBRAD package on an honest closed-walk embedding with genuine
+interior support.  Thus the defect is not merely a bad source-fixed raw-cover
+constructor; the current boundary-free terminal peeling interface must be
+changed before it can support a nondegenerate sufficiency route.
+This base case is now instantiated concretely in
+\path{Theorem49PlanarBoundaryAnnulusRootInteriorDualPositiveRegression.lean}.
+The finite witness \path{twoTriangleAnnulusGraph} has two disjoint triangular
+closed-walk boundary components, source boundary-face roots equal to all faces
+by \path{twoTriangleAnnulusBoundaryFaceRoots_eq_univ}, an empty interior dual,
+and empty \path{interiorEdgeSupport}.  Consequently
+\path{twoTriangleClosedWalkSourceInteriorDualBoundaryRootParentPeelData} and
+\path{admitsPlanarBoundaryInteriorDualBoundaryRootParentPeelData_twoTriangleAnnulusGraph}
+are genuine positive source-fixed sufficiency checks, complementary to the
+two-band obstruction where separation and boundary-free cover fail.  The same
+base case now reaches the selector surface used by the replacement-construction
+lane:
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData}
+extracts a \path{BoundaryFreeIncidentFaceSelector} from any canonical-parent
+payload while retaining the parent cover data:
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_faceOf_mem_peelFaces}
+keeps every selected face inside the parent package's \path{peelFaces}, and
+\path{rootedSharedInteriorEdge_boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_faceOf_eq}
+identifies the selected face's rooted shared edge with the original interior
+edge.  The construction-layer compatibility theorem
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_peelFaces_subset}
+shows that the selector's finite image introduces no extra peeled faces.
+\path{boundaryFreeIncidentFaceSelectorOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsNoInteriorEdges}
+is the source-fixed empty-support specialization, and
+\path{twoTriangleClosedWalkSourceBoundaryFreeIncidentFaceSelector} instantiates
+that selector on the concrete two-triangle source.
+The bridge is now strict-descent compatible as well:
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_injective}
+proves injectivity on interior edges,
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_selectedWitnessEdge_eq}
+identifies the selector's inverted witness with the canonical rooted shared
+edge, and
+\path{boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_strictDescent}
+turns parent child-membership into selector \path{hrest} using root distance.
+The route theorem
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector}
+therefore composes the source-fixed parent hypotheses through the
+selector-to-construction lane directly.  The selector path now also has the
+route-facing raw quotient/error corollary
+\path{theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector}
+and the graph-level endpoint wrapper
+\path{exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector},
+where the carrier side is the local \path{HasUnblockedInteriorEndpoint}
+witness.
+The parent-oriented source packet now also reaches the route endpoint:
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_direct}
+packages the fixed source, source boundary-face roots, canonical parent
+child-membership, and a nonempty purified carrier into
+\path{Theorem49BoundaryRootNonemptyProjectedSynthesis}; the graph-level
+counterpart is
+\path{exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct}.
+The wheel-with-inner-triangle regression now instantiates this source-fixed
+parent bridge at the actual endpoint:
+\path{wheelWithInnerTriangle_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkSourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover}
+specializes the direct theorem to the concrete wheel embedding and its explicit
+Tait coloring.  The companion theorem
+\path{wheelWithInnerTriangle_source_to_theorem49_and_height_cycle_contradiction_of_closedWalkSourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover}
+lowers the same parent hypotheses back to height-ordered witness-cover data and
+therefore contradicts the existing wheel height-cycle obstruction.  Thus
+\path{not_exists_wheelWithInnerTriangle_closedWalkSourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_theorem49BoundaryRootNonemptyProjectedSynthesis}
+is the endpoint-level soundness check for this parent route: the wheel keeps
+its honest source, Tait coloring, and unblocked endpoint, but cannot instantiate
+the source-fixed canonical-parent hypotheses.
+The coverage sub-obligation is now separately accounted for:
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource.rootSetCovers_boundaryFaceRoots_of_interiorDualBoundaryRootAdjDistancePeelData}
+proves that any generic boundary-root IDBRAD datum already makes the source
+boundary-face roots cover all interior-dual components.  The separation
+sub-obligation is not automatic:
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource.not_rootSetSeparated_boundaryFaceRoots_of_reachable_outerBoundaryFace_innerBoundaryFace}
+shows that an outer-to-inner interior-dual reachability path refutes separated
+source boundary-face roots.  The stronger source-side obstruction
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource.not_reachable_outerBoundaryFace_innerBoundaryFace_of_interiorDualBoundaryRootAdjDistancePeelData}
+shows that any generic IDBRAD datum on the closed-walk source already rules out
+such a path, and
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource.not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_reachable_outerBoundaryFace_innerBoundaryFace}
+packages this as nonexistence of the generic datum under outer-to-inner
+interior-dual reachability.  The same obstruction is now exposed in route-facing
+form by
+\path{not_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_reachable_outerBoundaryFace_innerBoundaryFace}
+and
+\path{not_forall_interiorDualBoundaryRootAdjDistancePeelData_of_exists_closedWalkAnnulusBoundarySource_and_reachable_outerBoundaryFace_innerBoundaryFace}.
+This is now a concrete regression, not just an abstract no-coexistence theorem.
+\path{Theorem49PlanarBoundaryAnnulusRootInteriorDualObstructionRegression.lean}
+defines the two-band triangular annulus
+\path{twoBandAnnulusGraph}, proves its closed-walk source
+\path{twoBandClosedWalkAnnulusBoundarySource}, and proves that the selected
+outer face \(0\) and selected inner face \(3\) are adjacent in the interior
+dual through the middle edge \path{tbaM01}.  Consequently
+\path{not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_twoBandAnnulus_via_source_reachability}
+instantiates the source-side IDBRAD obstruction on a finite graph with an
+honest closed-walk annulus source.  The same concrete source now proves the
+fixed-root calibration directly:
+\path{twoBandAnnulusBoundaryFaceRoots_eq_univ} identifies the source
+\path{boundaryFaceRoots} with all six faces,
+\path{rootSetCovers_twoBandAnnulusBoundaryFaceRoots} proves coverage, and
+\path{not_rootSetSeparated_twoBandAnnulusBoundaryFaceRoots} proves separation
+false using the shared middle edge \path{tbaM01}.  Any future derivation from
+the source shell must therefore add or prove an actual outer/inner
+face-separation condition.  The same regression now proves the lower-level
+peel obstruction
+\path{twoBandAnnulus_peelFaces_eq_empty_of_boundaryFree}: every face touches
+selected boundary support, so a boundary-free peel-face set is empty.  Since
+\path{tbaM01} is still an interior edge,
+\path{not_interiorEdgeSupport_subset_boundaryFreePeelImage_twoBandAnnulus}
+rules out an interior-edge-support cover by any image of those faces.  The
+same obstruction is now registered in the common forcing-edge interface:
+\path{twoBandAnnulusForcingInteriorEdgeWitness} packages \path{tbaM01},
+\path{not_nonempty_boundaryFreeIncidentFaceSelector_twoBandAnnulus} rules out
+the selector surface, and
+\path{not_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_twoBandAnnulus_via_forcingInteriorEdgeWitness}
+rules out the annulus-root adjacency-distance package on this embedding.
+The same forcing-edge guard now covers the parent-oriented sufficiency target:
+\path{everyInteriorEdgeHasBoundaryFreeIncidentFace_of_interiorDualBoundaryRootParentPeelData}
+extracts a boundary-free incident face from any canonical-parent boundary-root
+package, while
+\path{not_nonempty_interiorDualBoundaryRootParentPeelData_twoBandAnnulus_via_forcingInteriorEdgeWitness}
+and
+\path{not_nonempty_planarBoundaryAnnulusRootParentPeelData_twoBandAnnulus_via_forcingInteriorEdgeWitness}
+instantiate the failure on the same two-band source.
+The generic IDBRAD layer now has a source-side terminal obstruction independent
+of the concrete annuli.  In \path{Theorem49PlanarBoundaryPeeling.lean},
+\path{PlanarBoundaryHeightOrderedFacePeelWitnessData.exists_terminal_face_selectedBoundary_remainders}
+shows that any nonempty height-ordered witness cover has a terminal peeled face
+whose non-witness remainders are all selected-boundary edges.  The IDBRAD
+boundary-free peeled-face invariant then forces those remainders to be empty:
+\path{InteriorDualBoundaryRootAdjDistancePeelData.exists_terminal_peelFace_witness_erase_eq_empty_of_mem_interiorEdgeSupport}.
+Consequently
+\path{InteriorDualBoundaryRootAdjDistancePeelData.exists_peelFace_card_le_one_of_mem_interiorEdgeSupport}
+says that any IDBRAD datum covering even one interior edge contains a peeled
+face of boundary cardinality at most one.  Future source-side derivations must
+therefore produce this terminal singleton-edge face, or replace IDBRAD by a
+different witness-ownership surface.
+The same criterion is now instantiated on the wheel-with-inner-triangle source
+without passing through the forcing-edge API.  The regression proves
+\path{wheelWithInnerTriangleFaceBoundary_card_eq_three} and
+\path{wheelWithInnerTriangle_two_le_faceBoundary_card}; together with
+\path{wit01_mem_interiorEdgeSupport}, these give
+\path{not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle_via_terminal_card_lower_bound}.
+The packaged source bridge
+\path{wheelWithInnerTriangle_closedWalkSource_tait_hasUnblockedEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData_via_terminal_card}
+keeps the honest closed-walk source, Tait coloring, and local unblocked endpoint
+while deriving IDBRAD nonexistence from the terminal-card lower-bound
+obstruction.
+This is now tied to the real projected Theorem 4.9 endpoint on the same
+benchmark.  The wheel file supplies
+\path{wheelWithInnerTriangleGraph_edgeSet_fintype}, and the regression names
+\path{hasUnblockedInteriorEndpoint_wheelWithInnerTriangle}.  With those facts,
+\path{wheelWithInnerTriangle_theorem49BoundaryRootNonemptyProjectedSynthesis_of_interiorDualBoundaryRootAdjDistancePeelData}
+instantiates the closed-walk source--IDBRAD bridge for the concrete wheel Tait
+coloring, and
+\path{wheelWithInnerTriangle_theorem49BoundaryRawQuotientErrorPackage_of_interiorDualBoundaryRootAdjDistancePeelData}
+instantiates the raw Definition 4.8 quotient/error endpoint.  The theorem
+\path{wheelWithInnerTriangle_source_to_theorem49_and_terminal_card_contradiction_of_interiorDualBoundaryRootAdjDistancePeelData}
+then records that the same hypothetical IDBRAD datum would also contradict the
+terminal-card obstruction.
+The endpoint-level form is now explicit:
+\path{not_exists_wheelWithInnerTriangle_closedWalkSource_and_interiorDualBoundaryRootAdjDistancePeelData_and_theorem49BoundaryRootNonemptyProjectedSynthesis}
+rules out coexistence of the closed-walk source, same-embedding IDBRAD datum,
+and projected Theorem 4.9 endpoint on the wheel.  The packaged positive-source
+statement
+\path{wheelWithInnerTriangle_closedWalkSource_tait_hasUnblockedEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData_based_projectedSynthesis}
+retains the honest source, Tait coloring, and unblocked endpoint while ruling
+out an IDBRAD-based projected endpoint instantiation.
+The same regression now performs the analogous check for the source-fixed
+canonical-parent route:
+\path{wheelWithInnerTriangle_closedWalkSource_tait_hasUnblockedEndpoint_without_boundaryFaceRootsCanonicalParent_based_projectedSynthesis}
+keeps those positive source facts while ruling out a projected endpoint
+obtained from the source boundary-face roots and canonical parent
+child-membership.
+With the resulting acyclic datum in hand,
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_hasUnblockedInteriorEndpoint}
+reaches the projected endpoint once the local endpoint witness is supplied.
+The successor-cycle source version is
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootAdjDistancePeelData_and_hasUnblockedInteriorEndpoint}.
+The route file now also exposes the raw quotient/error form of this same
+source-side bridge:
+\path{theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_hasUnblockedInteriorEndpoint}
+and
+\path{theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootAdjDistancePeelData_and_hasUnblockedInteriorEndpoint}
+return the raw Definition 4.8 representative plus selected-boundary-kernel
+decomposition for any Kirchhoff chain on the same embedding.
+The same root-distance source layer now also accepts the older carrier-side
+repairs directly: endpoint-support separation plus raw
+\path{interiorEdgeEndpointSupport} nonemptiness, or peeled-face endpoint
+no-touch on
+\path{planarBoundaryAnnulusConstruction_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData_rootDistance}
+plus the same raw nonemptiness.  Thus the source/interior-dual projected
+endpoint no longer has to be called only with a prepackaged
+\path{HasUnblockedInteriorEndpoint}; it can consume the more geometric
+separation or root-distance no-touch obligations itself.
+That raw carrier can now be supplied at the edge-support level:
+\path{interiorEdgeEndpointSupport_nonempty_of_interiorEdgeSupport_nonempty}
+turns nonempty \path{interiorEdgeSupport} into nonempty raw endpoint support,
+and the closed-walk root-distance bridge has direct projected-synthesis
+variants for both endpoint-support separation and root-distance peeled-face
+no-touch with this edge-level carrier hypothesis.
+The same bridge family now also accepts
+\path{HasUnblockedInteriorEndpoint}, with fixed-embedding, graph-level,
+nonempty-package, and projected-synthesis constructors from annulus collar
+geometry plus a local unblocked endpoint.  Thus the remaining source-side
+burden is to derive those geometry-plus-carrier hypotheses, or directly the
+unblocked endpoint witness, not to repack the downstream endpoint;
+\item \path{Theorem49PositiveGeometricSourceReplacementRoute.lean} connects
+the replacement surface to both the honest closed-walk annulus source shell and
+the successor-cycle boundary-order source shell.  It defines
+\path{Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometry}, which carries
+an honest source, same-embedding annulus collar geometry, and nonempty purified
+carrier, and it defines
+\path{Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometry}, which
+carries boundary reachability, successor-cycle facial data, selected-boundary
+arcs, same-embedding annulus collar geometry, and nonempty purified carrier.
+The successor-cycle package lowers to the closed-walk route package for
+traceability; both packages lower to the replacement graph packages and
+directly to the nonempty projected synthesis endpoint.  The constructive
+source-facing target is now explicit without canonical-choice or one-collar
+fields.  The same route file also gives direct closed-walk and successor-cycle
+projected-synthesis constructors from \path{HasUnblockedInteriorEndpoint}, so
+future source examples can supply the carrier side by exhibiting one local
+endpoint disjoint from selected ambient-boundary support.  The older
+endpoint-separation surface now supplies this witness directly:
+\path{hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty}
+turns raw \path{interiorEdgeEndpointSupport} nonemptiness plus disjointness
+from selected-boundary endpoint support into
+\path{HasUnblockedInteriorEndpoint}, and the route file has closed-walk and
+successor-cycle projected-synthesis wrappers for that raw endpoint-support
+form.  The closed-walk and successor-cycle annulus-collar package constructors
+now also accept the same raw endpoint-support-separated input directly, so this
+is available before choosing a Tait coloring;
+\item the same endpoint-support bridge is now connected to the concrete collar
+geometry layer.  The theorem
+\path{PlanarBoundaryAnnulusCollarGeometry.hasUnblockedInteriorEndpoint_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}
+turns peeled-face endpoint no-touch on
+\path{planarBoundaryAnnulusConstruction_of_annulusCollarGeometry data}, plus
+raw \path{interiorEdgeEndpointSupport} nonemptiness, into the named
+\path{HasUnblockedInteriorEndpoint} witness.  The replacement positive package
+therefore has direct finite-collar, height-ordered, and projected-synthesis
+constructors from annulus collar geometry plus this construction-level
+no-touch surface.  The route-facing replacement file now exposes the same
+input at the honest source layer: closed-walk and successor-cycle source data
+plus same-embedding annulus collar geometry, canonical peeled-face endpoint
+no-touch, and raw endpoint-support nonemptiness directly package the
+source-facing annulus-collar positive predicates and reach the nonempty
+projected synthesis endpoint.  The same source-layer wrappers now also produce
+the graph-level finite-collar and height-ordered replacement packages directly,
+so the peeled-face no-touch input can be consumed by the replacement API
+without an intermediate route-package lowering step;
+\item \path{Theorem49PositiveGeometricSourceReplacementRegression.lean}
+calibrates the new direct target against the shared-interior-pair annulus.  The
+same model has boundary reachability, successor-cycle selected arcs, a Tait
+coloring, and nonempty purified carrier, but it has neither
+\path{Theorem49HeightOrderedPositiveProjectedGeometryOn} nor
+\path{Theorem49CollarLayerPositiveProjectedGeometryOn}.  The same file now
+also proves
+\path{not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair}
+and
+\path{not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_sharedInteriorPair},
+so those facts do not universally construct either the direct replacement
+surface or the source-facing closed-walk/successor-cycle annulus-collar
+packages.  The same regression now strengthens the carrier side to the local
+endpoint witness:
+\path{hasUnblockedInteriorEndpoint_sharedInteriorPair} and
+\path{not_forall_any_replacementPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+show that even explicit \path{HasUnblockedInteriorEndpoint} data, together
+with the same source and coloring fields, does not force any direct or
+route-facing replacement package.  The closed-walk-source-level theorem
+\path{not_forall_any_replacementPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+strengthens this further: the honest closed-walk annulus source itself, a Tait
+coloring, and the endpoint witness still do not force any current direct or
+route-facing replacement package.  The companion theorem
+\path{not_forall_some_witnessCoverData_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+rules out an even earlier shortcut: those same hypotheses also do not
+universally produce either raw height-ordered or collar-layer witness-cover
+datum.  The bundled theorem
+\path{not_forall_some_currentSufficientSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+then rules out every current same-embedding synthesis endpoint from those
+hypotheses: height-ordered data, collar-layer data, the attached certificate,
+well-founded witness data, and annulus-collar geometry.  A positive theorem
+must add real annulus-collar, height-ordered, or collar-layer witness-cover
+geometry.  The wheel-with-inner-triangle regression now gives the complementary
+cycle obstruction at the honest-source level:
+\path{wheelWithInnerTriangleClosedWalkAnnulusBoundarySource} inhabits the
+closed-walk annulus source interface on the wheel embedding, while
+\path{not_forall_some_acyclicWitnessCover_or_annulusCollarGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle}
+shows that this source, a Tait coloring, and nonempty purified carrier still
+do not force well-founded, height-ordered, collar-layer, or weak
+annulus-collar geometry.  The same strict height-cycle now reaches the direct
+replacement endpoints themselves:
+\path{not_theorem49HeightOrderedPositiveProjectedGeometryOn_wheelWithInnerTriangle}
+and
+\path{not_theorem49CollarLayerPositiveProjectedGeometryOn_wheelWithInnerTriangle}
+refute the two fixed-embedding positive replacement predicates, while
+\path{not_forall_some_replacementPositiveProjectedGeometry_or_previousBoundaryWitness_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle}
+also rules out deriving either direct replacement package or repaired
+previous-boundary witness geometry from just honest source data, Tait
+colorability, and the purified carrier.  The generic cycle-obstruction lemmas
+in \path{Theorem49PlanarBoundaryPeeling.lean} explain the proof obligation
+exposed by this example: every proposed source-to-witness theorem must either
+put one of the remainder witnesses on selected boundary support, identify two
+witness choices so the apparent finite cycle collapses, or provide a genuine
+well-founded orientation;
+\item \path{Theorem49PositiveGeometricSourceConstruction.lean} gives the first
+positive construction of the direct replacement surface.  On the two-collar
+annulus benchmark, Lean proves
+\path{counterEmbedding_selectedBoundaryInteriorEdgeEndpointVertices_nonempty}
+from the intermediate interior edge.
+\path{Theorem49PositiveGeometricSourceConstruction.lean} now also identifies
+the carrier exactly:
+\path{counterEmbedding_interiorEdgeSupport_eq} says the intermediate edge is
+the whole interior support,
+\path{counterEmbedding_interiorEdgeEndpointSupport_eq} and
+\path{counterEmbedding_selectedBoundaryEndpointSupport_eq} compute the raw
+interior endpoints and selected-boundary endpoints, and
+\path{counterEmbedding_endpointSupport_disjoint_selectedBoundarySupport}
+proves the disjointness that yields the named endpoint witness
+\path{counterEmbedding_hasUnblockedInteriorEndpoint}.  This calibrates the
+benchmark against the first-order carrier obligation used by the replacement
+API.  Lean then combines the carrier with annulus collar geometry to inhabit
+both
+\path{Theorem49CollarLayerPositiveProjectedGeometryOn} and
+\path{Theorem49HeightOrderedPositiveProjectedGeometryOn}, as well as the
+corresponding graph-level packages.  The benchmark now also has an explicit
+constant nonzero Tait coloring, and Lean proves
+\path{counterEmbedding_boundaryRootNonemptyProjectedSynthesis} through the
+minimal annulus-collar/carrier bridge; the concrete two-collar geometry
+therefore reaches the nonempty projected theorem-4.9 endpoint itself.  Lean
+now also exposes this nonvacuous construction at the raw quotient/error
+endpoint:
+\path{counterEmbedding_collarGeometry_explicitTait_nonemptyCarrier_to_theorem49RawQuotientErrorPackage}
+packages the collar geometry, explicit Tait coloring, nonempty purified
+carrier, nonempty projected synthesis, and the raw Definition 4.8
+representative plus selected-boundary-kernel error decomposition for every
+Kirchhoff chain on the same embedding.  The same file now also proves that this
+benchmark is not an honest closed-walk annulus source:
+\path{counterGraph_isAcyclic} identifies the graph as a three-edge matching,
+\path{not_nonempty_closedWalkAnnulusBoundarySource_counterEmbedding} blocks
+source data on the fixed embedding, and
+\path{counterEmbedding_rawQuotientErrorPackage_without_closedWalkAnnulusBoundarySource}
+bundles that source-side obstruction with the raw quotient/error package.  It
+now also carries the
+repaired-witness calibration
+\path{counterEmbedding_previousBoundaryWitness_nonemptyProjectedSynthesis_without_parentWitnessOrientation}:
+repaired previous-boundary witness geometry and the explicit endpoint witness
+coexist with the nonempty projected endpoint, while the stricter
+construction-side parent-witness orientation still fails on the same collar.
+The direct replacement endpoint is therefore non-vacuous, but it is weaker than
+the parent-orientation route; what remains is a general boundary-order
+construction of the same geometry-plus-carrier package.
+The carrier side has now been factored into the named endpoint predicate
+\path{HasUnblockedInteriorEndpoint}, equivalent to nonempty purified carrier by
+\path{hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty}:
+nonemptiness is equivalent to an interior face-incidence edge with one endpoint
+untouched by the selected ambient boundary.  Endpoint-support disjointness
+plus raw \path{interiorEdgeEndpointSupport} nonemptiness is now a proved
+sufficient criterion for this local witness;
+\item this has now been lifted from an algebraic bridge to the actual purified
+theorem-4.9 endpoint.  \path{Theorem49Synthesis.lean} proves
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction_of_parentWitness},
+which packages the full synthesis surface directly from
+\path{PlanarBoundaryAnnulusConstruction} plus
+\path{ParentWitnessOrientation}: raw-source image identity, projected/raw
+finite generator representations, raw Kirchhoff representatives, and the
+boundary-kernel decomposition are now available together with the already
+proved span/separation/kernel/finrank consequences.  The companion graph-level
+theorem
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryAnnulusConstructionParentWitnessOrientation}
+means the live boundary-order task is no longer ``reach some theorem-4.9
+algebraic bridge'' but specifically ``produce honest parent-witness
+orientation on a real annulus construction'';
+\item there is now a checked source-level obstruction showing that honest
+closed-walk annulus-boundary data still does not force even the weakest
+peeled-interior construction shell.  In
+\path{Theorem49InteriorVerticesEndpointObstruction.lean}, the explicit model
+\path{diamondWithTriangleEmbedding} already carries
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource}, but the theorem
+\path{false_of_planarBoundaryAnnulusConstruction_and_hpeelInterior_diamondWithTriangle}
+shows that any annulus construction with the usual peeled-interior disjointness
+field is impossible on that embedding: the unique interior edge must be covered
+by a peeled witness face, yet every face containing it also meets the selected
+boundary support.  Consequently
+\path{closedWalkAnnulusBoundarySource_does_not_imply_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangle},
+\path{not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangle},
+\path{not_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_diamondWithTriangle}
+and
+\path{closedWalkAnnulusBoundarySource_does_not_imply_planarBoundaryAnnulusConstructionBoundarySupportFaceData_diamondWithTriangle}
+record that the honest boundary-order source does not even reach the peeled
+interior-dual shell, let alone the weakest peeled-interior construction shell;
+moreover the same embedding already carries the stronger cyclic ordered
+face-arc witness
+\path{diamondWithTriangleCyclicOrderedFaceArcEmbeddingData}, so the theorems
+\path{annulusBoundaryReachability_and_cyclicOrderedFaceArcEmbeddingData_does_not_imply_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangle}
+and
+\path{annulusBoundaryReachability_and_cyclicOrderedFaceArcEmbeddingData_does_not_imply_planarBoundaryAnnulusConstructionBoundarySupportFaceData_diamondWithTriangle}
+show that upgrading the source to cyclic ordered face-arc data still does not
+start the peeled interior-dual route or even the weakest peeled construction
+shell on this model;
+the same diamond witness now survives after weakening that source shell to the
+bundled \path{PlanarBoundarySelectedBoundaryArcGeometry}.  The theorems
+\path{annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangle}
+and
+\path{annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_planarBoundaryAnnulusConstructionBoundarySupportFaceData_diamondWithTriangle}
+show that even annulus roots plus one contiguous selected-boundary arc on each
+chosen face-boundary run still do not start the peeled interior-dual route or
+its weakest construction shell on this model;
+the explicit two-face model \path{doubleStarEmbedding} now blocks the source
+route strictly earlier.  It carries both
+\path{PlanarBoundaryAnnulusBoundaryReachabilityData} and
+\path{PlanarBoundaryCyclicOrderedFaceArcEmbeddingData}, but
+\path{not_nonempty_planarBoundaryClosedWalkAnnulusBoundarySource_doubleStarEmbedding}
+shows that the same embedding still admits no honest facial closed-walk
+annulus source.  The abstract summary theorem
+\path{not_forall_nonempty_planarBoundaryClosedWalkAnnulusBoundarySource_of_nonempty_planarBoundaryAnnulusBoundaryReachabilityData_and_nonempty_planarBoundaryCyclicOrderedFaceArcEmbeddingData}
+therefore blocks the obvious attempt to derive honest closed walks from
+annulus roots plus cyclic selected-boundary face arcs;
+\item the same double-star witness also carries the weaker bundled shell
+\path{PlanarBoundarySelectedBoundaryArcGeometry}, and the theorems
+\path{exists_embedding_withPlanarBoundaryAnnulusBoundaryReachabilityData_andPlanarBoundarySelectedBoundaryArcGeometry_withoutClosedWalkAnnulusBoundarySource}
+and
+\path{not_forall_nonempty_planarBoundaryClosedWalkAnnulusBoundarySource_of_nonempty_planarBoundaryAnnulusBoundaryReachabilityData_and_nonempty_planarBoundarySelectedBoundaryArcGeometry}
+show that even annulus roots plus one contiguous selected-boundary arc on each
+ambient face still do not recover the honest closed-walk annulus source;
+\item the positive lowering is now explicit in the source file too:
+\path{admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_cyclicOrderedFaceArcEmbeddingData_of_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource}
+and
+\path{admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry_of_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource}
+show that the honest closed-walk annulus source really does imply those weaker
+annulus-rooted source shells on the same embedding, so the double-star
+counterexamples are precise failed converses rather than shell mismatches;
+\item this converse failure is now graph-level too, not only same-embedding:
+\path{doubleStarGraph_isAcyclic} and
+\path{not_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_doubleStarGraph}
+show that the underlying graph itself cannot support the honest closed-walk
+annulus source on any embedding, while still admitting the paired shells
+`annulus reachability + cyclic ordered face arcs' and `annulus reachability +
+selected-boundary arc geometry'; accordingly the new theorems
+\path{not_forall_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_of_admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_cyclicOrderedFaceArcEmbeddingData}
+and
+\path{not_forall_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_of_admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry}
+record those failed converses directly at graph level;
+\item the same graph-level double-star witness now blocks the natural
+rotation-side repairs too.  The file proves
+\path{not_admitsPlanarBoundaryDartCycleEmbeddingData_doubleStarGraph},
+\path{not_admitsPlanarBoundaryPureDartCycleEmbeddingData_doubleStarGraph}, and
+\path{not_admitsPlanarBoundaryDartSuccessorCycleEmbeddingData_doubleStarGraph},
+then packages failed converses such as
+\path{not_forall_admitsPlanarBoundaryDartCycleEmbeddingData_of_admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry},
+\path{not_forall_admitsPlanarBoundaryPureDartCycleEmbeddingData_of_admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry},
+and
+\path{not_forall_admitsPlanarBoundaryDartSuccessorCycleEmbeddingData_of_admitsPlanarBoundaryAnnulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry}.
+So replacing the honest closed-walk annulus source by a dart-cycle, pure
+dart-cycle, or successor-cycle source does not repair the paired
+annulus-reachability plus selected-arc shell;
+\item this graph-level statement is now abstracted at the source interface
+itself: \path{PlanarBoundaryClosedWalkSource.lean} proves generic acyclic
+positive-edge separation theorems for the paired shells
+`annulus reachability + cyclic ordered face arcs' and `annulus reachability +
+selected-boundary arc geometry', plus existential failed-converse criteria;
+the double-star results are now concrete instances of that reusable source
+lemma rather than the only place where the comparison is formalized;
+\item the shared walk layer now abstracts the acyclic source obstruction
+itself.  The theorem
+\path{not_nonempty_faceBoundaryClosedWalkGeometry_of_isAcyclic_of_nonempty_edgeSet}
+in \path{WalkPlanarEmbeddingWithBoundaryAcyclic.lean} shows that any acyclic
+graph with at least one edge cannot carry honest facial closed-walk geometry
+on any boundary-aware embedding, and the FourColor wrapper
+\path{not_nonempty_planarBoundaryClosedWalkEmbeddingData_of_isAcyclic_of_nonempty_edgeSet}
+exposes the same fact on the route-facing source interface.  So the path,
+star, and peeled-endpoint-touch closed-walk impossibility lemmas are now
+instances of one reusable theorem rather than repeated local proofs; the same
+abstraction now reaches the stronger source shells too, via
+\path{not_admitsPlanarBoundaryDartCycleEmbeddingData_of_isAcyclic_of_nonempty_edgeSet},
+\path{not_admitsPlanarBoundaryPureDartCycleEmbeddingData_of_isAcyclic_of_nonempty_edgeSet},
+\path{not_admitsPlanarBoundaryDartSuccessorCycleEmbeddingData_of_isAcyclic_of_nonempty_edgeSet},
+and
+\path{not_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_of_isAcyclic_of_nonempty_edgeSet},
+so acyclic positive-edge models now refute the rotation-side and explicit
+annulus-source interfaces without new witness-specific proofs;
+the same witness pattern is now packaged at the universal failed-converse
+level by
+\path{not_forall_admitsPlanarBoundaryClosedWalkEmbeddingData_of_exists_isAcyclic_of_nonempty_edgeSet_and_property}
+and
+\path{not_forall_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_of_exists_isAcyclic_of_nonempty_edgeSet_and_property},
+so the star/path failures for cyclic ordered arcs, selected-boundary arc
+geometry, cyclic face-boundary vertex walks, and ordered face arcs are now
+instances of one generic acyclic positive-edge witness criterion rather than
+separate local contradiction proofs;
+the interior-dual forcing-edge mechanism is now abstracted as
+\path{false_of_interiorDualBoundaryRootAdjDistancePeelData_of_forcing_interiorEdge},
+and the weaker construction-shell version is abstracted as
+\path{false_of_planarBoundaryAnnulusConstruction_and_hpeelInterior_of_forcing_interiorEdge},
+while the positive construction invariant
+\path{PlanarBoundaryAnnulusConstruction.exists_peelFace_witnessEdge_eq_and_faceBoundary_disjoint_selectedBoundarySupport_of_mem_interiorEdgeSupport}
+now states exactly what the weak boundary-support construction shell supplies:
+each interior edge is witnessed on some peeled face whose whole boundary avoids
+selected-boundary support.  The route-facing obstruction file now packages this
+as the positive predicate
+\path{EveryInteriorEdgeHasBoundaryFreeIncidentFace} and proves
+\path{not_nonempty_forcingInteriorEdgeWitness_iff_everyInteriorEdgeHasBoundaryFreeIncidentFace},
+so ``no forcing interior edge'' is an explicit local face-incidence obligation
+rather than only a failed nonemptiness conclusion.  The theorem
+\path{everyInteriorEdgeHasBoundaryFreeIncidentFace_of_interiorDualBoundaryRootAdjDistancePeelData}
+now shows that the interior-dual boundary-root adjacency-distance package
+already supplies this local obligation directly from its peeled-edge cover and
+peeled-interior disjointness fields.  Consequently
+\path{not_nonempty_forcingInteriorEdgeWitness_of_interiorDualBoundaryRootAdjDistancePeelData}
+is the source-side test for any proposed derivation of that package: a forcing
+interior edge must be impossible before the route reaches the interior-dual
+data surface.  The theorem
+\path{everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData}
+then records that the weak boundary-support construction shell gives exactly
+that obligation.  Its selector form
+\path{BoundaryFreeIncidentFaceSelector} is now also formalized, with
+\path{nonempty_boundaryFreeIncidentFaceSelector_iff_everyInteriorEdgeHasBoundaryFreeIncidentFace}
+showing that selector nonemptiness is exactly the same local no-forcing
+condition.  The construction shell yields the selector through
+\path{boundaryFreeIncidentFaceSelector_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData}.
+The same duality is now named without the intermediate predicate:
+\path{nonempty_boundaryFreeIncidentFaceSelector_iff_not_nonempty_forcingInteriorEdgeWitness}
+and
+\path{not_nonempty_boundaryFreeIncidentFaceSelector_iff_nonempty_forcingInteriorEdgeWitness}
+identify boundary-free selector existence exactly with absence of a forcing
+interior edge.
+This is useful downstream because annulus-construction code can consume a
+function returning a selected-boundary-free incident face for each interior
+edge; it still leaves the harder compatibility requirements between those face
+choices for later work.  The first compatibility bridge is now in
+\path{Theorem49BoundaryFreeSelectorConstruction.lean}.  It forms the selected
+peel-face set
+\path{BoundaryFreeIncidentFaceSelector.peelFaces}, inverts the selector on that
+finite image through
+\path{BoundaryFreeIncidentFaceSelector.selectedWitnessEdge}, and proves that an
+injective selector with a strict-distance remainder condition lowers to
+\path{PlanarBoundaryAnnulusConstruction} by
+\path{BoundaryFreeIncidentFaceSelector.toPlanarBoundaryAnnulusConstruction}.
+The lemma
+\path{BoundaryFreeIncidentFaceSelector.toPlanarBoundaryAnnulusConstruction_hpeelInterior}
+then recovers the selected-boundary-free peeled-face invariant from the
+selector itself.  The strict-descent part of this bridge now has a finite-cycle
+diagnostic on the selector surface:
+\path{BoundaryFreeIncidentFaceSelector.remainderDependency} names the relation
+where the selected witness of one peeled face appears as a non-witness,
+non-boundary remainder edge on another,
+\path{BoundaryFreeIncidentFaceSelector.faceDistance_lt_of_remainderDependency}
+turns each dependency into a strict face-distance inequality, and
+\path{BoundaryFreeIncidentFaceSelector.false_of_remainderDependency_cycle}
+rules out nonempty finite closed chains of those dependencies.  The comparison
+theorem
+\path{BoundaryFreeIncidentFaceSelector.toPlanarBoundaryAnnulusConstruction_remainderDependency_iff}
+now identifies this selector relation with the construction-level
+\path{PlanarBoundaryAnnulusConstruction.remainderDependency} after lowering a
+strict-descent selector to \path{PlanarBoundaryAnnulusConstruction}; the
+construction's strict face-distance field follows from the selector \path{hrest}
+hypothesis.  Consequently, selector-side cycle diagnostics are not merely
+analogous to the construction diagnostics: they transfer across the lowering
+bridge exactly.  The no-dependency terminal condition transfers as well by
+\path{BoundaryFreeIncidentFaceSelector.toPlanarBoundaryAnnulusConstruction_no_remainderDependency_iff}.
+The selector-side terminal condition now has its own iff,
+\path{BoundaryFreeIncidentFaceSelector.no_remainderDependency_iff_boundary_remainders}:
+for a selected face, no outgoing selector dependency is exactly the statement
+that every non-witness remainder edge lies on the outer-or-inner ambient
+boundary.  The maximum-distance
+strengthening
+\path{BoundaryFreeIncidentFaceSelector.false_of_total_remainderDependency}
+rules out a nonempty finite selected-face set where every selected face has an
+outgoing non-boundary remainder dependency, while
+\path{BoundaryFreeIncidentFaceSelector.exists_face_without_remainderDependency}
+extracts a terminal selected face with no such outgoing dependency.  Thus a
+source-to-selector construction must exhibit an actual ambient-boundary break at
+that terminal face or add independent well-founded orientation data.  The
+boundary-break theorem
+\path{BoundaryFreeIncidentFaceSelector.exists_terminal_face_boundary_remainders}
+makes this constructive: for one selected face, every non-witness remainder edge
+is already on the outer-or-inner ambient annulus boundary.  The live-edge
+variants
+\path{BoundaryFreeIncidentFaceSelector.peelFaces_nonempty_of_mem_interiorEdgeSupport},
+\path{BoundaryFreeIncidentFaceSelector.exists_terminal_face_boundary_remainders_of_mem_interiorEdgeSupport},
+and
+\path{BoundaryFreeIncidentFaceSelector.exists_terminal_face_boundary_remainders_of_interiorEdgeSupport_nonempty}
+remove a separate selected-face nonemptiness assumption whenever an interior
+edge remains to be covered.  The construction core
+now also records the non-selector version,
+\path{PlanarBoundaryAnnulusConstruction.exists_terminal_peelFace_boundary_remainders}:
+any nonempty BFS-stratified annulus construction has a maximum-distance peeled
+face whose non-witness remainders are all on the ambient outer or inner boundary.
+This now factors through the central strict dependency relation
+\path{PlanarBoundaryAnnulusConstruction.remainderDependency}: non-boundary
+remainders produce dependencies via
+\path{PlanarBoundaryAnnulusConstruction.exists_remainderDependency_of_nonboundary_remainder},
+finite closed dependency chains are refuted by
+\path{PlanarBoundaryAnnulusConstruction.false_of_remainderDependency_cycle},
+and the total-outgoing obstruction
+\path{PlanarBoundaryAnnulusConstruction.false_of_total_remainderDependency}
+exposes a peeled face with no outgoing dependency through
+\path{PlanarBoundaryAnnulusConstruction.exists_terminal_peelFace_no_remainderDependency}.
+The no-dependency condition has also been tied back to the local boundary break:
+\path{PlanarBoundaryAnnulusConstruction.no_remainderDependency_iff_boundary_remainders}
+says that a peeled face has no outgoing construction dependency exactly when all
+of its non-witness remainders lie on the outer-or-inner ambient annulus
+boundary, with the forward direction named as
+\path{PlanarBoundaryAnnulusConstruction.boundary_remainders_of_no_remainderDependency}.
+The core construction file now proves
+\path{PlanarBoundaryAnnulusConstruction.peelFaces_nonempty_of_mem_interiorEdgeSupport}
+and
+\path{PlanarBoundaryAnnulusConstruction.exists_terminal_peelFace_boundary_remainders_of_mem_interiorEdgeSupport},
+so a live interior edge covered by the construction is enough to trigger the
+terminal boundary break.  This turns the boundary break into a direct invariant
+of the construction's strict-descent field, without carrying peeled-face
+nonemptiness as a separate side condition.  The orientation-obstruction file
+now proves the matching guardrail
+\path{not_forall_live_planarBoundaryAnnulusConstruction_terminalNoDependency_implies_parentWitnessOrientation}:
+even live interior-edge support plus a terminal peeled face with no outgoing
+construction-level \path{remainderDependency} does not force
+\path{PlanarBoundaryAnnulusConstruction.ParentWitnessOrientation}.  Thus the
+terminal dependency break diagnoses unbroken strict remainder cycles, while the
+well-founded parent-witness orientation remains an independent geometric
+burden.  The same concrete counterconstruction now lowers to
+\path{PlanarBoundaryAnnulusConstructionPositiveFrontierData} and
+\path{PlanarBoundaryAnnulusConstructionBoundarySupportFaceData} while still
+refuting parent orientation, through
+\path{not_forall_planarBoundaryAnnulusConstructionPositiveFrontierData_implies_parentWitnessOrientation}
+and
+\path{not_forall_planarBoundaryAnnulusConstructionBoundarySupportFaceData_implies_parentWitnessOrientation}.
+So selected-boundary contact and positive current-frontier bookkeeping are not
+enough to supply the missing well-founded parent witness.  The raw construction
+obstruction is sharper:
+\path{not_forall_planarBoundaryAnnulusConstruction_positive_faceDistance_implies_parentWitnessOrientation}
+uses a variant where every peeled face has positive stored distance but the bad
+witness still has no strictly earlier incident face.  Conversely, positive
+stored distance is not a possible repair to the positive-frontier shell itself:
+\path{PlanarBoundaryAnnulusConstructionPositiveFrontierData.exists_peelFace_faceDistance_zero}
+and
+\path{PlanarBoundaryAnnulusConstructionPositiveFrontierData.not_forall_peelFaces_positive}
+show that positive-frontier data necessarily includes a zero-distance peeled
+stratum.  The construction core now factors this as a stratum-level clash:
+\path{PlanarBoundaryAnnulusConstruction.not_forall_stratumFaces_nonempty_of_parentWitness}
+shows that parent orientation makes the zero stratum empty, while the current
+positive-frontier axioms inhabit every stratum.  The core construction file now
+records the stronger incompatibility as
+\path{PlanarBoundaryAnnulusConstructionPositiveFrontierData.not_parentWitnessOrientation},
+with corresponding face-partition and boundary-support variants.  The missing
+parent-orientation datum is therefore lower-distance incidence, not scalar
+positivity or the current zero-based positive-frontier shell.  The same file now adds
+\path{not_exists_planarBoundaryAnnulusConstructionPositiveFrontierData_with_rootDistanceConstruction_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData},
+which makes the source-side mismatch explicit: the parent-oriented root-distance
+construction produced from boundary reachability plus interior-dual
+boundary-root adjacency-distance data cannot be wrapped in the current
+positive-frontier shell.  Thus the root-distance parent-orientation route and
+the zero-based frontier bookkeeping route are different construction surfaces.
+The same construction file now records the exact reindexing:
+\path{rootDistance_faceDistance_succ_filter_eq_shifted_faceDistance_filter_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData}
+says that root-distance layer \(n+1\) on peeled faces is exactly shifted
+construction layer \(n\), with
+\path{rootDistance_faceDistance_one_filter_eq_shifted_faceDistance_zero_filter_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData}
+as the root-distance layer \(1\) / shifted layer \(0\) specialization.
+\path{rootDistance_faceDistance_one_filter_nonempty_iff_not_shifted_parentWitnessOrientation_of_boundaryReachabilityData_and_interiorDualBoundaryRootAdjDistancePeelData}
+then identifies nonempty root-distance layer \(1\) exactly with failure of
+parent-witness orientation for the shifted construction.
+Separately, the selector-construction file adds
+\path{BoundaryFreeIncidentFaceSelector.toPlanarBoundaryAnnulusConstructionBoundarySupportFaceData},
+which reaches the stronger boundary-support face-data shell when the remaining
+annulus-side obligations are supplied explicitly: non-peeled faces meet
+selected-boundary support, outer and inner boundary faces are separated, and the
+positive current outer frontiers are nonempty and pairwise disjoint.  The
+companion theorem
+\path{BoundaryFreeIncidentFaceSelector.not_nonempty_forcingInteriorEdgeWitness_of_boundarySupportFaceData_conditions}
+then combines that stronger bridge with the forcing-edge obstruction.  Thus the
+unresolved burden is no longer an unspecified witness-choice problem; it is the
+explicit face/frontier geometry needed by the annulus construction shell.  The
+new positive selector endpoint in
+\path{Theorem49BoundaryFreeSelectorPositiveRoute.lean} makes the useful half of
+this lane explicit:
+\path{BoundaryFreeIncidentFaceSelector.theorem49HeightOrderedPositiveProjectedGeometryOn_of_strictDescent}
+turns a boundary-free selector with annulus boundary data, injectivity over
+interior edges, strict-descent remainders, and a nonempty purified carrier into
+\path{Theorem49HeightOrderedPositiveProjectedGeometryOn}, while
+\path{BoundaryFreeIncidentFaceSelector.theorem49BoundaryRootNonemptyProjectedSynthesis_of_strictDescent}
+adds a Tait coloring and reaches the nonempty projected synthesis endpoint.  It
+therefore specifies a concrete positive target for a boundary-order source
+argument without claiming that the source data already supplies the selector,
+strict descent, or frontier side conditions.  The selector endpoint now factors
+through the reusable construction-level bridge
+\path{theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction}
+in \path{Theorem49PositiveGeometricSourceReplacement.lean}: any
+\path{PlanarBoundaryAnnulusConstruction}, together with a live purified carrier
+on the same embedding, already supplies the height-ordered replacement package,
+and
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction}
+adds a Tait coloring to reach the corrected nonempty projected synthesis
+endpoint.  Thus the selector route is one way to inhabit the annulus
+construction endpoint, not a separate positive surface.  The same construction
+and live carrier hypotheses also yield
+\path{theorem49TerminalPeelFaceBoundaryRemainders_of_planarBoundaryAnnulusConstruction},
+which gives a terminal peeled face whose non-witness remainders are already
+ambient-boundary edges.  The same construction bridge now has local
+\path{HasUnblockedInteriorEndpoint} entry points:
+\path{theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint},
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint},
+and
+\path{theorem49TerminalPeelFaceBoundaryRemainders_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint}.
+These keep the construction target in the same local-endpoint language used by
+the source obstructions, instead of forcing a separate carrier-nonemptiness
+repackaging step.  The selector positive route now has the matching local
+forms:
+\path{BoundaryFreeIncidentFaceSelector.theorem49HeightOrderedPositiveProjectedGeometryOn_of_strictDescent_and_hasUnblockedInteriorEndpoint},
+\path{BoundaryFreeIncidentFaceSelector.theorem49BoundaryRootNonemptyProjectedSynthesis_of_strictDescent_and_hasUnblockedInteriorEndpoint},
+and
+\path{BoundaryFreeIncidentFaceSelector.exists_terminal_face_boundary_remainders_of_strictDescent_and_hasUnblockedInteriorEndpoint}.
+The auxiliary
+\path{interiorEdgeSupport_nonempty_of_hasUnblockedInteriorEndpoint} is the
+only bridge needed to feed terminal selected-face diagnostics from a named
+local endpoint witness.  The strengthened terminal diagnostic
+\path{BoundaryFreeIncidentFaceSelector.exists_terminal_face_boundary_remainders_and_disjoint_of_strictDescent_and_hasUnblockedInteriorEndpoint}
+also preserves the selector's full selected-boundary-support avoidance on that
+same terminal face.  Thus the strict-descent endpoint now exposes a single
+selected face carrying both the ambient-boundary remainder break and the
+boundary-free incident-face condition.  The
+wheel-with-inner-triangle benchmark now calibrates that selector burden at the
+source level too.  The theorem
+\path{not_nonempty_boundaryFreeIncidentFaceSelector_wheelWithInnerTriangle}
+shows that this honest-source, Tait-colorable, nonempty-carrier model admits no
+boundary-free incident-face selector by the direct selector/forcing duality,
+while
+\path{wheelWithInnerTriangle_closedWalkSource_tait_hasUnblockedEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData}
+states the same failure at the raw source-IDBRAD bridge boundary: honest source
+data, the explicit Tait coloring, and `HasUnblockedInteriorEndpoint' coexist on
+the fixed embedding, but generic
+\path{InteriorDualBoundaryRootAdjDistancePeelData} is impossible.  The theorem
+\path{not_forall_some_boundaryFreeSelector_or_acyclicEndpoint_of_closedWalkSource_tait_carrier_wheel}
+refutes any universal construction from honest closed-walk source data, a Tait
+coloring, and a nonempty purified carrier to a boundary-free selector or to any
+current acyclic annulus endpoint.
+The same abstract witness now also reaches the weaker paired source shell
+`annulus reachability + selected-boundary arc geometry' via
+\path{annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_interiorDualBoundaryRootAdjDistancePeelData}
+and
+\path{annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_planarBoundaryAnnulusConstructionBoundarySupportFaceData},
+and also the reduced construction-side theorem
+\path{annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_planarBoundaryAnnulusConstructionPositiveFrontierData},
+so this obstruction applies to any embedding with an interior edge that is
+forced to meet selected-boundary support on every incident face, even after
+weakening from cyclic ordered face arcs to the bundled selected-boundary arc
+shell.  The same forcing-edge witness now has a universal failed-converse
+interface:
+\path{not_forall_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness}
+and
+\path{not_forall_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_forcingInteriorEdgeWitness}
+show that any source property coexisting with such a forcing edge cannot by
+itself derive the weakest peeled-interior construction shell; the regression
+file now also phrases this at graph level in same-embedding
+existential form on \path{diamondWithTriangleGraph}: there is an embedding with
+the weaker source shells plus a forcing witness, but no embedding of that same
+graph can combine the witness with the peeled interior-dual package, the
+reduced positive-frontier shell, or the concrete
+\path{PlanarBoundaryAnnulusConstructionFaceLayerData} shell that lowers into
+annulus decomposition; the same forcing witness now also blocks the current
+two-sided annulus-root lane itself, via
+\path{closedWalkAnnulusBoundarySource_does_not_imply_planarBoundaryAnnulusRootAdjDistancePeelData}
+and
+\path{not_exists_embedding_closedWalkAnnulusBoundarySource_and_forcingInteriorEdgeWitness_and_planarBoundaryAnnulusRootAdjDistancePeelData},
+so boundary-split repackaging does not rescue a forcing-edge source embedding;
+this now reaches one step earlier too, since the same forcing witness blocks
+\path{PlanarBoundaryAnnulusRootAdjDistancePeelData} already from
+\path{PlanarBoundaryAnnulusBoundaryReachabilityData +
+PlanarBoundaryCyclicOrderedFaceArcEmbeddingData} and from the weaker bundled
+\path{PlanarBoundarySelectedBoundaryArcGeometry} shell; and this is now
+packaged as a reusable failed-converse surface by
+\path{not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness}
+and its three route-facing specializations, so the forcing-edge blocker is not
+merely a family of diamond-with-triangle regressions but a same-embedding
+``no universal converse'' theorem surface for the current annulus-root lane;
+more sharply, the same file now also proves
+\path{not_forall_not_nonempty_forcingInteriorEdgeWitness_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness}
+and its route-facing specializations, so the current source-side shells do not
+even universally exclude forcing interior edges on one embedding; and
+\path{PlanarBoundaryClosedWalkSource.lean} now makes explicit that an honest
+closed-walk source already lowers on the same embedding to the cyclic ordered
+face-arc and bundled selected-boundary-arc shells, while
+\path{Theorem49ForcingInteriorEdgeObstruction.lean} shows that those stronger
+honest-source shells still do not imply annulus-root data in the presence of a
+forcing interior edge; the same file now also records the graph-level
+same-embedding obstructions for those strengthened honest-source conjunctions,
+so ``closed-walk source + cyclic face-arc shell'' and
+``closed-walk source + bundled selected-boundary arc shell'' are both formally
+blocked from coexisting with annulus-root data when a forcing witness is
+present;
+\path{Theorem49ForcingInteriorEdgeObstruction.lean} now also records that the
+natural face-local repair is insufficient.  The proved failed-converse theorem
+\path{not_forall_not_nonempty_forcingInteriorEdgeWitness_of_exists_embedding_reachability_and_closedWalkEmbedding_and_atMostOneInteriorEdge_and_forcingInteriorEdgeWitness}
+is instantiated in
+\path{Theorem49ForcingInteriorEdgeObstructionRegression.lean} by
+\path{exists_embedding_reachability_and_closedWalkEmbedding_and_atMostOneInteriorEdge_and_forcingInteriorEdgeWitness_diamondWithTriangleGraph}
+and
+\path{not_forall_not_nonempty_forcingInteriorEdgeWitness_of_reachability_and_closedWalkEmbedding_and_atMostOneInteriorEdge_diamondWithTriangle}:
+on \path{diamondWithTriangleEmbedding}, annulus boundary reachability, honest
+facial closed walks, and at most one interior boundary edge on each face coexist
+with the forcing interior edge \path{dt12}.  So the forcing-edge exclusion
+burden cannot be discharged merely by adding an at-most-one interior-edge
+condition to the closed-walk source surface.  The same regression file now also
+records the direct route implication of this model through
+\path{diamondWithTriangle_source_previousBoundaryWitness_and_witnessCover_without_interiorDual_rootDistance}:
+the embedding has honest closed-walk annulus source data, repaired
+previous-boundary witness geometry, and both well-founded and height-ordered
+witness-cover data, while the forcing edge blocks both
+\path{InteriorDualBoundaryRootAdjDistancePeelData} and the two-sided
+\path{PlanarBoundaryAnnulusRootAdjDistancePeelData}.  The failed-converse
+theorems
+\path{not_forall_interiorDualBoundaryRootAdjDistancePeelData_of_previousBoundaryWitnessGeometry_diamondWithTriangle}
+and
+\path{not_forall_planarBoundaryAnnulusRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_previousBoundaryWitnessGeometry_diamondWithTriangle}
+make the route consequence explicit: root-distance interior-dual data cannot
+be derived from the repaired previous-boundary witness surface, even with the
+honest source retained on the same graph;
+\item the later peeled endpoint-touch model is now calibrated against the
+source side too.  Although
+\path{peeledEndpointTouchEmbedding} carries the current outer-boundary-rooted
+peeled annulus package, the graph \path{peeledEndpointTouchGraph} is acyclic,
+so
+\path{not_nonempty_planarBoundaryClosedWalkEmbeddingData_peeledEndpointTouchGraph}
+and
+\path{not_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+show that it cannot carry the honest facial closed-walk source at all.
+Consequently
+\path{admitsPlanarBoundaryOuterBoundaryRootAdjDistancePeelData_withoutClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+and
+\path{admitsPlanarBoundaryHeightOrderedFacePeelWitnessData_withoutClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+and
+\path{admitsPlanarBoundaryWellFoundedFacePeelWitnessData_withoutClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+and the new
+\path{admitsPlanarBoundaryAnnulusRootAdjDistancePeelData_withoutClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+and
+\path{admitsPlanarBoundaryAttachedRootedFacePeelCertificate_withoutClosedWalkAnnulusBoundarySource_peeledEndpointTouchGraph}
+should be read as calibration theorems about later route layers, not as
+source-level counterexamples;
+\item the endpoint-separation package has now reached a natural positive
+completion point.  In
+\path{Theorem49InteriorVertices.lean}, the theorem
+\path{PlanarBoundaryOuterBoundaryRootAdjDistancePeelDataWithEndpointSeparation.selectedBoundaryInteriorEdgeEndpointVertices_eq_interiorEdgeEndpointSupport}
+shows that the packaged endpoint-disjointness field makes selected-boundary
+purification lossless on the raw interior-edge endpoint carrier.  Then
+\path{Theorem49Synthesis.lean} proves
+\path{theorem49OuterBoundaryRootNonemptySynthesis_of_planarBoundaryOuterBoundaryRootAdjDistancePeelDataWithEndpointSeparation}:
+endpoint-separated outer-boundary-rooted annulus data plus nonempty raw
+\path{interiorEdgeEndpointSupport} already yields the non-vacuous
+Theorem~4.9 synthesis package, with graph-level wrapper
+\path{exists_theorem49OuterBoundaryRootNonemptySynthesis_of_exists_planarBoundaryOuterBoundaryRootAdjDistancePeelDataWithEndpointSeparation_with_nonempty_interiorEdgeEndpointSupport}.
+The route now also has the matching construction/source bridge:
+\path{theorem49OuterBoundaryRootNonemptySynthesis_of_planarBoundaryOuterBoundaryRootAdjDistancePeelData_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}
+lowers peeled-face endpoint no-touch directly to that non-vacuous endpoint,
+and \path{PlanarBoundaryClosedWalkSourceRoute.lean} packages the honest
+closed-walk source analogue under explicit outer-root localization and raw
+carrier nonemptiness.
+However, the same file now also proves
+\path{not_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_and_rootsOuterAmbientBoundary_and_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport}
+and the endpoint-level form
+\path{not_exists_closedWalkAnnulusBoundarySource_and_theorem49OuterBoundaryRootNonemptySynthesis_sameBoundaryData}.
+So this outer-root repair line is not a same-split rescue of the honest
+closed-walk route: once the annulus boundary split is fixed to the source's own
+extracted split, the needed outer-root localization witness is already
+inconsistent.
+The replacement positive line is now the two-sided annulus-root surface instead.
+\path{Theorem49Synthesis.lean} proves
+\path{theorem49AnnulusRootNonemptySynthesis_of_planarBoundaryAnnulusRootAdjDistancePeelData_of_endpointSupport_disjoint}
+and
+\path{exists_theorem49AnnulusRootNonemptySynthesis_of_exists_planarBoundaryAnnulusRootAdjDistancePeelData_with_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport},
+and the peeled-face repair has now been lifted to the same generic surface.
+\path{Theorem49InteriorVerticesAnnulusConstruction.lean} defines
+\path{planarBoundaryAnnulusConstruction_of_planarBoundaryAnnulusRootAdjDistancePeelData}
+and proves the annulus-root lossless-purification bridge
+\path{PlanarBoundaryAnnulusRootAdjDistancePeelData.selectedBoundaryInteriorEdgeEndpointVertices_eq_interiorEdgeEndpointSupport_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}.
+\path{Theorem49Synthesis.lean} then proves
+\path{theorem49AnnulusRootNonemptySynthesis_of_planarBoundaryAnnulusRootAdjDistancePeelData_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}
+and the graph-level wrapper
+\path{exists_theorem49AnnulusRootNonemptySynthesis_of_exists_planarBoundaryAnnulusRootAdjDistancePeelData_with_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport}.
+\path{PlanarBoundaryClosedWalkSourceRoute.lean} packages the honest
+closed-walk source specializations
+\path{theorem49AnnulusRootNonemptySynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_of_endpointSupport_disjoint}
+and
+\path{exists_theorem49AnnulusRootNonemptySynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_with_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport}.
+It also keeps the source-facing peeled-face forms
+\path{theorem49AnnulusRootNonemptySynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}
+and
+\path{exists_theorem49AnnulusRootNonemptySynthesis_of_exists_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData_with_peelFaces_endpoint_disjoint_selectedBoundarySupport_and_nonempty_interiorEdgeEndpointSupport}
+as specializations of the generic bridge, deriving global raw-carrier endpoint
+disjointness from
+\path{PlanarBoundaryAnnulusConstruction.endpointSupport_disjoint_of_peelFaces_endpoint_disjoint_selectedBoundarySupport}.
+So the current non-vacuous repair no longer depends on forcing every root to
+the extracted outer boundary, and the peeled-face no-touch route is available
+for any explicit two-sided annulus-root datum, not only data produced from an
+honest closed-walk source.
+This extra hypothesis is not automatic from current annulus-root data alone:
+\path{Theorem49InteriorVerticesEndpointObstruction.lean} now proves
+\path{annulusRootAdjDistancePeelData_does_not_imply_endpointSupport_disjoint_peeledEndpointTouch}
+and the fixed-embedding universal failure
+\path{not_forall_annulusRootAdjDistancePeelData_implies_endpointSupport_disjoint_peeledEndpointTouch}.
+So the new annulus-root repair theorem is formally honest about its missing
+geometric burden instead of hiding it inside the present route data.
+The honest annulus-geometry lane now calibrates the same point from the source
+side: \path{Theorem49PlanarBoundaryAnnulusHonestGeometryRegression.lean}
+proves
+\path{closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_with_nonempty_interiorEdgeEndpointSupport_without_endpointSupport_disjoint_diamondWithTriangle},
+so on \path{diamondWithTriangleEmbedding} an honest closed-walk annulus
+source, weak one-collar annulus geometry, the attached certificate endpoint,
+and nonempty raw \path{interiorEdgeEndpointSupport} already coexist while
+endpoint-support disjointness still fails.  Thus the current endpoint-
+separation repair sits strictly later than the honest collar/certificate lane
+too.  The stronger repaired geometry surface also fails to force it:
+\path{closedWalkAnnulusBoundarySource_and_previousBoundaryWitnessGeometry_and_wellFoundedFacePeelWitnessData_with_nonempty_interiorEdgeEndpointSupport_without_endpointSupport_disjoint_diamondWithTriangle}
+shows that even previous-boundary witness geometry and the derived
+boundary-aware well-founded peel data can coexist with a nonempty raw carrier
+while endpoint-support disjointness still fails on the same honest source
+model.  And the stronger theorem
+\path{closedWalkAnnulusBoundarySource_and_previousBoundaryWitnessGeometry_and_wellFoundedFacePeelWitnessData_with_nonempty_interiorEdgeEndpointSupport_and_empty_selectedBoundaryInteriorEdgeEndpointVertices_diamondWithTriangle}
+now shows that this is not just a failure of equality between the raw and
+purified carriers: on the same honest source model the raw
+\path{interiorEdgeEndpointSupport} is nonempty while the purified
+\path{selectedBoundaryInteriorEdgeEndpointVertices} is exactly empty.
+The same file now pushes this one layer further: the explicit collar-layer data
+\path{diamondWithTriangleOneCollarLayerFacePeelWitnessData} and its induced
+height-ordered peel witness
+\path{diamondWithTriangleOneCollarHeightOrderedFacePeelWitnessData} already
+exist on the same honest source model, yet
+\path{closedWalkAnnulusBoundarySource_and_previousBoundaryWitnessGeometry_and_heightOrderedFacePeelWitnessData_with_nonempty_interiorEdgeEndpointSupport_and_empty_selectedBoundaryInteriorEdgeEndpointVertices_diamondWithTriangle}
+shows that the purified carrier is still empty there.
+So the endpoint-touch obstruction and the endpoint-separation repair line now
+meet cleanly on the same theorem surface;
+\item the theorem-4.9 synthesis layer is now generic above the boundary-aware
+certificate surface.  \path{Theorem49Synthesis.lean} proves
+\path{theorem49BoundaryRootSynthesis_of_boundaryZeroAnnihilatorTrivial}, then
+packages the full purified endpoint directly from
+\path{PlanarBoundaryAttachedRootedFacePeelCertificate} via
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAttachedRootedFacePeelCertificate}
+and from \path{PlanarBoundaryWellFoundedFacePeelWitnessData} via
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryWellFoundedFacePeelWitnessData},
+with matching graph-level wrappers.  The older interior-dual and
+annulus-construction synthesis theorems now reduce through the same generic
+bridge, so once an honest route reaches the attached certificate or
+well-founded peel witness surface, no further theorem-4.9 algebra remains.
+More sharply, \path{Theorem49Synthesis.lean} now proves
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryHeightOrderedFacePeelWitnessData},
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData},
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData},
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusWitnessAssignment},
+and the graph-level wrappers
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryHeightOrderedFacePeelWitnessData},
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryCollarLayerFacePeelWitnessData},
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryLocalRemainderBoundaryCollarLayerFacePeelWitnessData}
+and
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryAnnulusWitnessAssignment},
+so theorem-4.9 synthesis already starts at the boundary-aware height-ordered
+witness-cover surface and even at the weaker finite collar-layer witness-cover
+surface, hence also at the weakest explicit local remainder annulus surface
+and at the split ``annulus decomposition + witness assignment'' surface.
+\path{admitsPlanarBoundaryAttachedRootedFacePeelCertificate_of_admitsPlanarBoundaryAnnulusConstructionParentWitnessOrientation},
+so the repaired parent-orientation route already lands on the certificate
+surface explicitly, and the direct honest-source synthesis corollaries in
+\path{PlanarBoundaryClosedWalkSourceRoute.lean} now factor through that
+certificate surface rather than bypassing it.  The same source file now also
+proves
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_heightOrderedFacePeelWitnessData_direct},
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_collarLayerFacePeelWitnessData_direct},
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusWitnessAssignment_direct}
+and
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_heightOrderedFacePeelWitnessData_direct},
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_collarLayerFacePeelWitnessData_direct},
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusWitnessAssignment_direct},
+so the honest source shell already reaches theorem-4.9 synthesis as soon as
+the same embedding carries either boundary-aware height-sorted witness-cover
+data, the weaker finite collar-layer witness-cover package, or the later pure
+annulus decomposition together with witness-edge ownership.
+The same route file now also proves the matching direct Step~2 vanishing
+corollaries
+\path{zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_heightOrderedFacePeelWitnessData_direct_of_annihilatesKempeClosureGeneratorFamily},
+\path{zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_collarLayerFacePeelWitnessData_direct_of_annihilatesKempeClosureGeneratorFamily},
+\path{zero_on_allEdges_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_heightOrderedFacePeelWitnessData_direct_of_annihilatesKempeClosureGeneratorFamily},
+and
+\path{zero_on_allEdges_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_collarLayerFacePeelWitnessData_direct_of_annihilatesKempeClosureGeneratorFamily}.
+So the positive algebraic boundary now matches the positive synthesis boundary:
+once an honest source shell reaches boundary-aware height-sorted witness-cover
+data, or even just the finite collar-layer witness-cover package, no later
+annulus-geometry packaging is needed either for Step~2 vanishing or for the
+purified theorem-4.9 endpoint.
+\path{Theorem49Synthesis.lean} also proves
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusCollarGeometry},
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry},
+and the graph-level wrappers
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryAnnulusCollarGeometry},
+\path{exists_theorem49BoundaryRootSynthesis_of_admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry},
+and
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_planarBoundaryAnnulusCollarGeometry_and_witnessOnCurrentBoundary}.
+So the synthesis burden itself no longer waits even for bundled collar
+geometry: once the route produces the boundary-aware height-ordered
+witness-cover surface, or even the weaker finite collar-layer witness-cover
+package, the certificate layer and the full current theorem-4.9 endpoint are
+automatic; the live positive burden is now upstream of explicit remainder
+bookkeeping and witness ownership themselves;
+the geometry file \path{Theorem49PlanarBoundaryAnnulusGeometry.lean} now makes
+that burden explicit by constructing the witness-cover surfaces directly from
+annulus geometry itself:
+\path{PlanarBoundaryAnnulusCollarGeometry.toPlanarBoundaryCollarLayerFacePeelWitnessData},
+\path{PlanarBoundaryAnnulusCollarGeometry.toPlanarBoundaryHeightOrderedFacePeelWitnessData},
+and the graph-level wrappers from admitted collar geometry, plus the repaired
+lane
+\path{admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_planarBoundaryAnnulusCollarGeometry_and_witnessOnCurrentBoundary}.
+Then \path{PlanarBoundaryClosedWalkSourceRoute.lean} adds the matching honest
+closed-walk and successor-cycle wrappers from same-embedding annulus collar
+geometry to collar-layer witness-cover, height-ordered witness-cover, and, with
+current-boundary witness placement, the well-founded peel witness surface.  So
+the remaining live route burden is cleanly geometric: derive same-embedding
+annulus collar geometry from honest source hypotheses, and add the repaired
+witness placement only if one wants the well-founded lane;
+\item Lean now isolates one explicit sufficient criterion for that first
+geometric step on the canonical one-collar route.
+\path{Theorem49PlanarBoundaryAnnulusWitness.lean} defines
+\path{PlanarBoundaryCanonicalWitnessChoice boundaryData}, a facewise choice of
+one boundary edge on each ambient face of a fixed annulus boundary split such
+that all interior edges are chosen by some face and every non-witness boundary
+edge already lies on the outer or inner ambient annulus boundary.
+\path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusWitnessAssignment}
+then upgrades the canonical decomposition
+\path{planarBoundaryAnnulusDecomposition_of_boundaryData boundaryData} to a full
+annulus witness assignment, and
+\path{PlanarBoundaryClosedWalkSourceRoute.lean} packages the honest-source
+corollary as
+\path{admitsPlanarBoundaryAnnulusCollarGeometry_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct}.
+So the live one-collar construction burden is now stated on a concrete
+facewise object rather than an opaque bundled collar-geometry shell;
+\item the stronger cyclic ordered face-arc source object is now equivalent, on
+one embedding and at graph level, to that split cyclic walk-plus-contiguity
+shell, so future honest embedding-side work may target either theorem surface
+without changing the downstream annulus route;
+\item on the theorem-4.9 annulus side, the bundled collar geometry object is
+now also exposed as an exact packaging of the split surface ``pure annulus
+decomposition + witness assignment'', both on one embedding and at graph level,
+so downstream work may use whichever form is more convenient without changing
+the annihilator route;
+\item the newer residual/current-boundary wrapper is now calibrated just as
+sharply on the positive side.  The file
+\path{Theorem49ResidualBoundaryPeeling.lean} proves
+\path{nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_iff_nonempty_planarBoundaryCollarLayerFacePeelWitnessData},
+\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn},
+and
+\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_heightOrderedPositiveProjectedGeometryOn}.
+So at the present theorem-4.9 endpoint the residual/current-boundary surface is
+formally conservative: it is exactly the old collar-layer / height-ordered
+witness-cover strength on a fixed embedding, not yet a stronger same-embedding
+source construction theorem;
+\item the same negative calibration now reaches the exact v23 Step~2 seed
+itself.  In \path{Theorem49ResidualBoundaryObstruction.lean},
+\path{nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary}
+builds \path{V23ResidualBoundaryInitialState} on a genuine face boundary of the
+shared-interior-pair source, while
+\path{sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryGeometry}
+shows that this exact algebraic seed, together with honest source data, a Tait
+coloring, and the purified endpoint witness, still does not force residual
+positive geometry on the same embedding.  So the live missing theorem is a real
+source-to-residual geometric bridge, not better packaging of the existing
+single-component purification algebra;
+\item the same sharp failure now holds already on the route-facing
+successor-cycle boundary-order shell.  The theorem
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryPositiveProjectedGeometryOn_sharedInteriorPair}
+packages explicit annulus boundary reachability, selected-boundary arcs from
+successor cycles, the concrete Tait coloring, `HasUnblockedInteriorEndpoint`,
+and the exact v23 residual seed together with failure of residual positive
+geometry on the same embedding.  Its universal converse
+\path{not_forall_residualBoundaryPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+shows that the missing bridge is already absent at the actual boundary-order
+route surface, before any lowering or repackaging to closed-walk source form;
+\item the exact v23 residual seed also fails to recover any previously accepted
+same-embedding geometry surface.  The theorem
+\path{sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_knownSameEmbeddingGeometry}
+packages the honest source, concrete Tait coloring, `HasUnblockedInteriorEndpoint`,
+and exact seed together with failure of residual witness data, residual selector
+data, height-ordered witness data, collar-layer witness data, the attached
+boundary-rooted certificate, well-founded witness data, and weak annulus-collar
+geometry on the same embedding.  The failed universals
+\path{not_forall_some_knownSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+and
+\path{not_forall_some_knownSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+show that this exact-seed gap already persists on both the honest closed-walk
+and the actual successor-cycle boundary-order shells.  So the live v23.5
+obligation is a genuinely new source-to-residual bridge, not a return to any
+existing same-embedding geometry ladder;
+\item the annulus witness file now exposes the actual parent-carrying geometry
+that had previously been hidden inside the previous-boundary witness endpoint.
+\path{PlanarBoundaryAnnulusDecomposition.layerOf} gives the canonical collar
+index of an ambient face, and
+\path{PlanarBoundaryAnnulusWitnessAssignment.exists_parentFace_of_previousBoundaryWitness}
+proves that every positive-collar witness edge placed on the previous annulus
+boundary has an adjacent face in a strictly earlier collar layer.  The chosen
+map \path{PlanarBoundaryAnnulusWitnessAssignment.parentFaceOfPreviousBoundaryWitness}
+is then used directly in the well-founded witness construction.  So the live
+geometric burden is now explicit: prove that previous-boundary witness
+placement, or an honest stronger substitute such as annular no-touch, from
+real boundary-order data;
+\item even this repaired witness-placement surface should not be sent back
+through the canonical BFS construction as if it implied the construction-side
+\path{ParentWitnessOrientation} shell.  The new regression file
+\path{Theorem49PlanarBoundaryAnnulusGeometryRegression.lean} gives a two-face
+model carrying \path{PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry},
+equivalently \path{WitnessOnCurrentBoundary}, whose canonical lowering
+\path{planarBoundaryAnnulusConstruction_of_annulusCollarGeometry} still fails
+\path{ParentWitnessOrientation} because the outer collar face itself has
+construction distance \(0\).  The same repaired model already carries the
+attached boundary-rooted face-peel certificate reached by the direct annulus
+route, so the canonical construction shell is now explicitly shown to be
+strictly unnecessary on that witness.  More sharply, the live Lean route now
+shows that weak collar geometry already reaches the attached certificate
+surface, while the repaired previous-boundary witness condition is only needed
+for the well-founded parent-peeling branch.  So the honest ground-up annulus
+route is the direct geometry \(\to\) certificate bridge together with the
+repaired-geometry \(\to\) well-founded-witness bridge, not ``repaired geometry
+\(\to\) canonical construction \(\to\) parent
+orientation'';
+\item that route picture is now witnessed on an honest source model too.  The
+new file
+\path{Theorem49PlanarBoundaryAnnulusHonestGeometryRegression.lean} equips the
+genuine closed-walk source model \path{diamondWithTriangleEmbedding} with a
+weak one-collar annulus geometry
+\path{diamondWithTriangleOneCollarGeometry}.  On that same embedding the weak
+geometry already yields the attached certificate
+\path{diamondWithTriangleOneCollarGeometry_hasAttachedRootedFacePeelCertificate},
+while the canonical lowering
+\path{diamondWithTriangleOneCollarConstruction} still fails
+\path{ParentWitnessOrientation} by
+\path{not_diamondWithTriangleOneCollarConstructionParentWitnessOrientation}.
+Even more sharply, the theorem
+\path{closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_without_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangle}
+shows that the honest facial closed-walk source, weak annulus geometry, and
+attached certificate coexist on one embedding even though the current
+interior-dual boundary-root adjacency-distance package still fails there.  So
+the direct certificate lane is not merely earlier than canonical parent
+orientation; it is already earlier than the present interior-dual route on a
+genuine cyclic source model;
+\item this source-side annulus lane now reaches the Step~2 annihilator endpoint
+directly as well.  In
+\path{PlanarBoundaryClosedWalkSourceRoute.lean},
+\path{zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_direct_of_annihilatesKempeClosureGeneratorFamily}
+and its successor-cycle analogue
+\path{zero_on_allEdges_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_direct_of_annihilatesKempeClosureGeneratorFamily}
+show that honest source data plus same-embedding weak collar geometry,
+boundary vanishing, and the Kempe-generator annihilation hypothesis already
+force global vanishing, without routing through the present
+\path{InteriorDualBoundaryRootAdjDistancePeelData} package.  The same file now
+also proves
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_direct}
+and
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_direct},
+so once honest source data is paired with same-embedding weak collar
+geometry, the full current theorem-4.9 synthesis endpoint is automatic;
+\item under the current weak API, even pure annulus decomposition is no longer
+an open burden on the honest source lane.  In
+\path{Theorem49PlanarBoundaryAnnulusDecomposition.lean},
+\path{planarBoundaryAnnulusDecomposition_of_boundaryData} builds a trivial
+one-collar decomposition directly from the annulus boundary split, and
+\path{PlanarBoundaryClosedWalkSource.lean} packages that as
+\path{admitsPlanarBoundaryAnnulusDecomposition_of_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource}.
+So the source shell already reaches pure decomposition; the real remaining
+burden is witness-edge ownership and stronger collar geometry, not the naked
+existence of collars;
+\item \path{Theorem49PlanarBoundaryAnnulusWitnessRegression.lean} now shows
+that this is a real extra burden, not just bookkeeping.  The generic theorem
+\path{not_nonempty_planarBoundaryAnnulusWitnessAssignment_of_exists_two_distinct_interior_edges_on_faceBoundary_of_canonicalDecomposition}
+in \path{Theorem49PlanarBoundaryAnnulusWitness.lean} shows that any canonical
+one-collar decomposition with a face carrying two distinct interior edges has
+no witness assignment at all, and the concrete annulus boundary model in
+\path{Theorem49PlanarBoundaryAnnulusWitnessRegression.lean} is an explicit
+instance.  So trivializing pure decomposition from boundary data does not
+trivialize Step~2 witness ownership;
+\item that same obstruction now lives on the honest source surface too.  The
+new theorem
+\path{not_nonempty_planarBoundaryAnnulusWitnessAssignment_of_exists_two_distinct_interior_edges_on_faceBoundary_of_closedWalkAnnulusBoundarySource}
+pushes the canonical one-collar blocker through an honest
+\path{PlanarBoundaryClosedWalkAnnulusBoundarySource}, and the new file
+\path{Theorem49PlanarBoundaryAnnulusHonestWitnessRegression.lean} realizes it
+on a finite source model where two outer faces share the consecutive interior
+edges \path{sip01} and \path{sip12} while a disjoint inner triangle supplies
+the second boundary component.  That model carries the full honest source
+package but its canonical decomposition still has no witness assignment, so
+the repair ``honest source $\Rightarrow$ boundary data $\Rightarrow$ canonical
+decomposition'' is blocked on a genuine same-embedding source witness;
+\item the newer explicit canonical-witness-choice repair is blocked by the
+same geometry.  In \path{Theorem49PlanarBoundaryAnnulusWitness.lean},
+\path{not_nonempty_planarBoundaryCanonicalWitnessChoice_of_exists_two_distinct_interior_edges_on_faceBoundary}
+shows that a face carrying two distinct interior edges cannot support the
+canonical facewise witness choice at all, because such a choice would upgrade
+to the forbidden canonical one-collar witness assignment.  The abstract
+boundary-data failed converse is
+\path{not_forall_planarBoundaryAnnulusBoundaryData_implies_nonempty_canonicalWitnessChoice},
+and the honest source failed converse is
+\path{not_forall_exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_sharedInteriorPair}.
+Thus the positive theorem
+\path{admitsPlanarBoundaryAnnulusCollarGeometry_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct}
+has a Lean-calibrated extra geometric hypothesis, not a hidden consequence of
+the honest source shell.  That positive hypothesis now constructs actual
+one-collar geometry on the same embedding:
+\path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusCollarGeometry}
+turns any canonical witness choice on any annulus boundary split into a
+\path{PlanarBoundaryAnnulusCollarGeometry}, while
+\path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusCollarGeometry_numCollars}
+and
+\path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusCollarGeometry_boundaryData}
+prove that the geometry has exactly one collar and preserves the original
+boundary split.  The honest-source theorem
+\path{exists_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice}
+is the broader class version: every honest closed-walk source whose boundary
+split carries a canonical facewise witness choice has same-embedding
+one-collar collar geometry with that source boundary split.  Lean now also
+constructs the canonical witness choice from a still more local face condition:
+\path{PlanarBoundaryCanonicalWitnessChoice.of_atMostOneInteriorEdgePerFace}
+uses the unique interior edge on a face when one exists and a supplied fallback
+boundary edge otherwise, assuming every face has at most one interior boundary
+edge and every non-interior face-boundary edge lies on the outer or inner
+ambient annulus boundary.  The latter assumption is now discharged by annulus
+boundary data itself:
+\path{PlanarBoundaryAnnulusBoundaryData.mem_outerAmbientBoundary_union_innerAmbientBoundary_of_mem_faceBoundary_of_not_mem_interiorEdgeSupport}
+classifies any non-interior face-boundary edge as selected boundary, hence as
+outer or inner ambient boundary.  Lean now also gets the fallback edge directly
+from the honest facial closed walks:
+\path{PlaneEmbeddingWithBoundary.FaceBoundaryClosedWalk.faceBoundary_nonempty}
+turns each nonempty face-boundary walk into a nonempty face-boundary edge set,
+and \path{PlanarBoundaryClosedWalkAnnulusBoundarySource.fallbackEdge} chooses a
+boundary edge on every ambient face.  Thus
+\path{exists_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_of_exists_closedWalkAnnulusBoundarySource_and_facewiseUniqueInteriorEdge}
+needs only the equality-style facewise uniqueness of interior boundary edges,
+and the route-side cardinal theorem
+\path{exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge}
+needs only the finite at-most-one interior-edge bound.  The older explicit
+source wrapper
+\path{exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace}
+is now complemented by the exact converse criterion in
+\path{PlanarBoundaryClosedWalkSourceCanonicalWitness.lean}:
+\path{nonempty_planarBoundaryCanonicalWitnessChoice_iff_facewiseAtMostOneInteriorEdge_of_closedWalkAnnulusBoundarySource}
+identifies canonical witness existence on an honest closed-walk source with the
+facewise at-most-one bound, and
+\path{exists_closedWalkAnnulusBoundarySource_and_planarBoundaryCanonicalWitnessChoice_iff_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge}
+records the same equivalence at the graph-level source-search surface.  The
+canonical-witness source attack is therefore exactly the at-most-one face
+obligation already isolated by the obstruction files.
+still records the fully expanded fallback/count/boundary-rest package.  The
+same cardinal hypothesis now also reaches fixed-embedding collar geometry:
+\path{exists_oneCollarAnnulusCollarGeometry_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge}
+constructs one-collar
+\path{PlanarBoundaryAnnulusCollarGeometry} preserving the source boundary split
+from an honest source and facewise at-most-one alone.  Thus the minimal extra
+geometric hypothesis at this layer is precisely the finite at-most-one
+condition; fallback and non-interior boundary-rest are source consequences.
+The graph-level endpoint
+\path{exists_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdgeCardinality}
+now packages this as an existential source theorem: an honest closed-walk
+annulus source plus the facewise cardinal bound directly yields same-embedding
+one-collar collar geometry preserving the source boundary split.
+The route file now
+also repairs this branch to the previous-boundary witness surface:
+\path{admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_oneCollarAnnulusCollarGeometry}
+uses the fact that a one-collar geometry has no positive collar index, and
+\path{admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct}
+applies that repair to the honest-source cardinal criterion without fallback or
+boundary-rest assumptions.  Thus the local at-most-one package reaches the
+corrected previous-boundary, height-ordered, and collar-layer witness surfaces
+without another geometric placement hypothesis.
+The same repaired landing is now available directly from the canonical witness
+choice surface:
+\path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry}
+builds \path{PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry} from the
+facewise canonical choice, and
+\path{exists_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice}
+packages the honest-source existential form.  The result is specific to the
+canonical one-collar geometry induced by the source boundary split; arbitrary
+weak collar geometries still have to carry
+\path{WitnessOnCurrentBoundary} explicitly.  The route theorem
+\path{admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct}
+now lands through this repaired geometry theorem directly, so the canonical
+source route no longer needs an intermediate one-collar existence detour at
+this boundary.
+The route file now
+also pushes the cardinal form of this local criterion to the theorem-4.9
+synthesis endpoint:
+\path{exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge}
+constructs canonical witness choice from the cardinal at-most-one hypothesis
+alone, and
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct}
+then produces \path{Theorem49BoundaryRootSynthesis} for any Tait coloring.
+The same source package now has an explicit nonempty-carrier endpoint in the
+caller-clean cardinal form:
+\path{theorem49BoundaryRootNonemptySynthesis_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct}
+adds only
+\path{(selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty}, and
+\path{exists_theorem49BoundaryRootNonemptySynthesis_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct}
+packages the graph-level form.  The positive nonempty burden is therefore a
+Tait-colorable honest source satisfying facewise cardinal at-most-one while
+retaining a nonempty purified carrier, with no caller-supplied fallback or
+boundary-rest proof.
+The same source-side package now reaches the canonical Definition~4.8
+generator spanning bridge.  The direct wrappers
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_heightOrdered_direct}
+and
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_collarLayer_direct}
+compose the repaired one-collar source route with the canonical
+\path{Theorem49KempeGeneratorSpan.lean} wrappers, so the only remaining
+spanning inputs are the target subspace, containment of the raw Kempe-generator
+span, and boundary-zero interpretation.
+The stronger
+one-collar geometry surface also now
+extracts this hypothesis directly:
+\path{PlanarBoundaryAnnulusCollarGeometry.toPlanarBoundaryCanonicalWitnessChoice_of_numCollars_eq_one}
+turns any one-collar collar geometry with the fixed boundary split into the
+canonical facewise witness choice, and
+\path{exists_planarBoundaryCanonicalWitnessChoice_of_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData}
+packages the honest-source form where the geometry preserves the source's
+extracted boundary split.  The route file now pushes both positive surfaces to
+the current theorem-4.9 endpoint:
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct}
+uses the canonical witness choice to feed the split annulus witness-assignment
+synthesis layer, while
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData}
+first extracts that canonical witness choice from same-boundary one-collar
+geometry.  The source-facing construction burden may therefore be carried as
+either the explicit facewise canonical witness choice or the stronger
+one-collar geometry preserving the source boundary split.  The hypothesis is
+now connected to the canonical Definition~4.8 spanning lane too:
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_heightOrdered_direct}
+and
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_collarLayer_direct}
+start from canonical witness choice itself, while
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_heightOrdered_direct}
+and
+\path{exists_theorem49_kempeGeneratorSubspace_spanning_of_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_collarLayer_direct}
+start from same-boundary one-collar geometry.  Each wrapper factors through
+the repaired previous-boundary surface before invoking the height-ordered or
+collar-layer canonical-generator span bridge, so no separate
+\path{Theorem49SubmoduleDualityData} construction remains on these
+source-side one-collar routes.  The corrected boundary-zero target is now
+available directly as well: \path{PlanarBoundaryClosedWalkSourceProjection.lean}
+routes canonical witness choice, the local at-most-one source package, and
+same-boundary one-collar geometry to
+\path{projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule}
+and to the corresponding
+\path{span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule}
+form.  This uses the projected Definition~4.8 generator family, which is the
+generator source that actually lies inside the selected-boundary-zero
+submodule, so the source-side statement no longer needs an arbitrary target
+subspace or raw-generator containment premise.  The same file now lifts this
+endpoint to the route-facing successor-cycle source shell: successor-cycle
+boundary data plus selected-arc contiguity lowers to the honest closed-walk
+source package while preserving canonical witness choice, the local at-most-one
+package, or same-boundary one-collar geometry.  The resulting projected-span
+wrappers include
+\path{exists_projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_heightOrdered_direct}
+and the corresponding finite-collar and explicit-family variants for canonical
+witness choice, at-most-one, and one-collar geometry.
+\path{PlanarBoundaryClosedWalkSourceRoute.lean} now also has the unprojected raw
+Definition~4.8 submodule-spanning wrappers on the same successor-cycle source
+surfaces.  The canonical-choice, at-most-one, and same-boundary one-collar
+successor-cycle packages each feed the height-ordered and finite collar-layer
+\path{kempeClosureGeneratorSubspace} spanning bridge, with the target subspace,
+raw-generator containment, and boundary-zero interpretation still explicit.
+\path{PlanarBoundaryClosedWalkSourceRoute.lean} now pushes the same
+route-facing source shell through the full synthesis package.  The successor-
+cycle canonical-choice and facewise cardinal at-most-one surfaces land directly
+on \path{Theorem49BoundaryRootSynthesis}; either surface plus nonempty
+\path{selectedBoundaryInteriorEdgeEndpointVertices} lands on
+\path{Theorem49BoundaryRootNonemptySynthesis}; and the same-boundary
+one-collar source geometry now has both direct and nonempty synthesis wrappers.
+The facewise at-most-one successor-cycle endpoints are
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct}
+and
+\path{exists_theorem49BoundaryRootNonemptySynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct}.
+These theorems close the packaging gap between the boundary-order source data
+used upstream and the current theorem-4.9 synthesis API, while leaving the
+genuine geometric burden exactly at canonical choice, facewise at-most-one, or
+same-boundary one-collar geometry.  The hypothesis is
+also positively inhabited on the honest diamond-with-triangle source model:
+\path{diamondWithTriangleClosedWalkCanonicalWitnessChoice} constructs the
+canonical facewise witness choice for the boundary split extracted from
+\path{diamondWithTriangleClosedWalkAnnulusBoundarySource},
+\path{exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_diamondWithTriangleGraph}
+packages the corresponding source-level existence, and
+\path{diamondWithTriangleGraph_admitsPlanarBoundaryAnnulusWitnessAssignment_via_closedWalkCanonicalWitnessChoice}
+lowers it to the canonical one-collar witness-assignment endpoint.  This model
+now also has a concrete coloring witness:
+\path{diamondWithTriangleTaitEdgeColoring} is proved by
+\path{diamondWithTriangleTaitEdgeColoring_isTait} to be a proper nonzero
+edge coloring, and
+\path{diamondWithTriangleEmbedding_theorem49BoundaryRootSynthesis_for_explicitTaitColoring}
+therefore reaches the theorem-4.9 synthesis surface for an actual named Tait
+coloring.  The same explicit Tait benchmark now also reaches synthesis via the
+generic at-most-one route:
+\path{exists_closedWalkSource_with_atMostOneInteriorEdgePerFace_diamondWithTriangleGraph}
+packages the local source hypotheses,
+\path{diamondWithTriangleClosedWalkAnnulusBoundarySource_hasCanonicalWitnessChoice_via_atMostOneInteriorEdgePerFace}
+reconstructs canonical witness choice from them, and
+\path{diamondWithTriangleEmbedding_theorem49BoundaryRootSynthesis_for_explicitTaitColoring_via_atMostOneInteriorEdgePerFace}
+proves the fixed-embedding endpoint through that local criterion.  The new
+end-to-end package
+\path{diamondWithTriangle_closedWalkSource_explicitTait_atMostOne_to_theorem49RawQuotientErrorPackage}
+then extracts the raw Definition 4.8 representative and
+selected-boundary-kernel error decomposition for every Kirchhoff chain on that
+same embedding;
+\path{diamondWithTriangle_explicitTait_atMostOne_synthesis_has_empty_selectedBoundaryInteriorCarrier}
+records that this at-most-one derivation still has empty purified
+selected-boundary interior carrier on the diamond benchmark;
+\item the same explicit Tait-positive diamond benchmark is now calibrated
+against the stronger nonempty-carrier target.  Lean packages the whole current
+positive stack as
+\path{diamondWithTriangle_explicitTait_currentSufficientSameEmbeddingGeometry}:
+the honest source, canonical witness choice, explicit Tait coloring,
+one-collar geometry, collar-layer/height/well-founded peel data, attached
+rooted certificate, and current boundary-root synthesis all hold on the same
+embedding.  But
+\path{diamondWithTriangle_explicitTait_synthesis_has_empty_selectedBoundaryInteriorCarrier}
+also proves that the purified selected-boundary interior carrier is empty and
+that this same explicit coloring does not inhabit
+\path{Theorem49BoundaryRootNonemptySynthesis}.  So the remaining positive
+burden is not another current-synthesis witness; it is a Tait-colorable honest
+source whose purified selected-boundary carrier is nonempty.  This is now
+recorded at the projected endpoint as well:
+\path{not_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangle}
+rules out \path{Theorem49BoundaryRootNonemptyProjectedSynthesis} on the
+diamond-with-triangle embedding for every coloring, and
+\path{diamondWithTriangle_explicitTait_synthesis_blocks_nonemptyProjectedSynthesis}
+packages the explicit Tait-colored ordinary synthesis endpoint with that
+projected-endpoint obstruction;
+\item a separate carrier-calibration benchmark now shows that the Tait and
+nonempty purified-carrier conditions can be made concrete without using the
+shared-interior-pair obstruction model as the only positive witness.
+\path{Theorem49PlanarBoundaryAnnulusWheelWitnessRegression.lean} defines
+\path{wheelWithInnerTriangleGraph}, whose three interior spokes meet a central
+vertex while a disjoint inner triangle supplies selected-boundary support.
+The explicit coloring \path{wheelWithInnerTriangleTaitEdgeColoring} is proved
+Tait by \path{wheelWithInnerTriangleTaitEdgeColoring_isTait}, and
+\path{selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle}
+proves that the purified selected-boundary interior carrier is nonempty.  The
+bundle
+\path{wheelWithInnerTriangle_tait_and_nonempty_selectedBoundaryInteriorCarrier}
+is intentionally only a Tait-plus-carrier witness, not a positive canonical
+witness-choice or same-embedding collar-geometry theorem.  Lean now proves the
+negative calibration directly:
+\path{exists_two_distinct_interior_edges_on_wheelWithInnerTriangle_boundary}
+exhibits a wheel face with two distinct interior spokes,
+\path{not_nonempty_planarBoundaryCanonicalWitnessChoice_wheelWithInnerTriangle}
+rules out canonical witness choice for every boundary split on the embedding,
+and
+\path{not_exists_oneCollar_planarBoundaryAnnulusCollarGeometry_wheelWithInnerTriangle}
+rules out one-collar weak annulus geometry.  The bundled theorem
+\path{wheelWithInnerTriangle_tait_and_nonempty_carrier_without_canonical_or_oneCollar}
+therefore records exactly that this model separates the coloring/carrier
+obligations from the stronger witness-ownership burden;
+\item the same wheel benchmark has now been calibrated against the face-local
+at-most-one sufficient condition.  Lean proves
+\path{wheelWithInnerTriangle_face0_interiorEdgeFilter_card}: the interior-edge
+filter on face \(0\) has cardinality \(2\).  Therefore
+\path{not_wheelWithInnerTriangle_atMostOneInteriorEdgePerFace} blocks the
+local premise used by
+\path{PlanarBoundaryCanonicalWitnessChoice.of_atMostOneInteriorEdgePerFace},
+and
+\path{not_exists_closedWalkSource_with_atMostOneInteriorEdgePerFace_wheelWithInnerTriangleEmbedding}
+rules out the full fixed-embedding fallback/at-most-one/boundary-rest package
+for any honest closed-walk source on that embedding.  The sharper theorem
+\path{wheelWithInnerTriangle_tait_and_nonempty_carrier_without_atMostOne_or_canonical_or_oneCollar}
+records the exact status: Tait colorability and nonempty purified carrier
+hold, while the at-most-one premise, canonical witness choice, and one-collar
+geometry all fail;
+\item the wheel obstruction now reaches the raw replacement witness-cover
+interfaces.  Lean proves
+\path{not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_wheelWithInnerTriangle}:
+once a peeled wheel face chooses one central spoke, the other central spoke on
+that face must be witnessed at strictly larger height; following the three
+triangular wheel faces forces a strict height cycle through \path{wit01},
+\path{wit02}, and \path{wit03}.  The same cycle now also blocks the acyclic
+parent-peeling surface: \path{Theorem49PlanarBoundaryPeeling.lean} proves
+\path{PlanarBoundaryWellFoundedFacePeelWitnessData.toPlanarBoundaryHeightOrderedFacePeelWitnessData}
+using the canonical parent-height rank, and the wheel regression applies this
+as
+\path{not_nonempty_planarBoundaryWellFoundedFacePeelWitnessData_wheelWithInnerTriangle}.
+The finite collar-layer interface is blocked by
+\path{not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle},
+because collar-layer data canonically lowers to height-ordered witness-cover
+data.  The same fixed embedding now also blocks weak annulus-collar geometry
+itself:
+\path{not_nonempty_planarBoundaryAnnulusCollarGeometry_wheelWithInnerTriangle}
+composes the collar-to-height lowering with the strict height-cycle
+contradiction, and
+\path{not_forall_some_acyclicWitnessCover_or_annulusCollarGeometry_of_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle}
+records the corresponding failed universal from Tait colorability plus nonempty
+purified carrier.  This identifies a real construction-side requirement: the
+positive route must provide a well-founded orientation or selected-boundary
+break in the interior-face witness dependency relation before even the direct
+well-founded/height/collar witness surfaces, and hence weak annulus-collar
+geometry, can be expected;
+\item the same wheel model now also instantiates the abstract forcing-edge
+obstruction.  In
+\path{Theorem49ForcingInteriorEdgeObstructionRegression.lean},
+\path{wheelWithInnerTriangleForcingInteriorEdgeWitness} chooses the central
+spoke \path{wit01}; the two incident wheel faces contain selected-boundary
+support \path{wit12} and \path{wit31}.  Therefore Lean derives
+\path{not_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness}
+and
+\path{not_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness}.
+The bundle
+\path{wheelWithInnerTriangle_tait_nonempty_carrier_and_forcing_obstruction}
+shows that this Tait-colorable, nonempty-carrier benchmark also carries the
+same obstruction that blocks the current annulus-root and face-layer
+construction routes on the fixed embedding;
+\item the cyclic-source at-most-one derivation attempt has also been converted
+from commentary into a concrete failed universal.  The shared-interior-pair
+honest source now proves
+\path{sharedInteriorPair_sipFace0_interiorEdgeFilter_card}: on
+\path{sipFace0}, the interior-edge filter consists of the two shared interior
+edges \path{sip01} and \path{sip12}.  Therefore
+\path{not_sharedInteriorPair_atMostOneInteriorEdgePerFace} blocks the
+face-local premise, while
+\path{route_impossibility_at_most_one_not_derivable_from_cyclic_source} and
+\path{not_forall_closedWalkSource_implies_atMostOneInteriorEdgePerFace} in
+\path{Theorem49CyclicSourceAtMostOneDerivation.lean} show that even an honest
+closed-walk annulus source does not imply at-most-one.  This records the
+at-most-one condition as an independent sufficient hypothesis rather than a
+consequence of cyclic boundary-order data;
+\item the strengthened-condition derivation note is now theorem-level as well.
+\path{Theorem49StrengthenedConditionAtMostOneDerivation.lean} packages the same
+shared-interior-pair witness with annulus boundary reachability,
+dart-successor facial geometry, and selected-boundary arcs in
+\path{exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_without_atMostOneInteriorEdgePerFace_sharedInteriorPair}.
+The failed universals
+\path{not_forall_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_implies_atMostOneInteriorEdgePerFace_sharedInteriorPair}
+and
+\path{not_forall_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryComponentConstant_implies_atMostOneInteriorEdgePerFace_sharedInteriorPair}
+show that even adding the boundary-component constancy derived from the honest
+source fields does not force at-most-one;
+\item \path{Theorem49DerivationImpossibilitySummary.lean} now packages the
+separate route obstructions as
+\path{theorem49_route_obstruction_matrix}.  The theorem records, in one checked
+bundle, the cyclic-source failure to imply at-most-one, the chained-diamonds
+failure of source plus at-most-one to imply nonempty purified carrier, the
+strengthened successor-cycle failed universal with boundary-component constancy,
+and the wheel-with-inner-triangle Tait/nonempty-carrier forcing-edge obstruction
+to the current annulus-root and face-layer routes;
+\item the positive canonical-witness burden is now inhabited by a second
+concrete honest source model, not merely by another general constructor.
+\path{Theorem49PlanarBoundaryAnnulusHonestGeometryRegression.lean} defines
+\path{chainedDiamondsWithTriangleGraph}: two diamond cells chained along one
+outer boundary component, plus a disjoint triangular inner boundary component.
+The honest source
+\path{chainedDiamondsClosedWalkAnnulusBoundarySource} carries closed facial
+walks and selected-boundary arcs for all five faces.  The direct finite witness
+\path{chainedDiamondsClosedWalkCanonicalWitnessChoice} chooses the two
+interior shared edges \path{cdt12} and \path{cdt45} on the two diamond pairs,
+and one boundary edge on the inner triangle.  Lean now proves
+\path{chainedDiamondsWithTriangle_interiorEdgeSupport_eq}: the interior edge
+support is exactly \(\{\mathtt{cdt12}, \mathtt{cdt45}\}\), and
+\path{chainedDiamondsWithTriangle_atMostOneInteriorEdgePerFace}: each face has
+at most one interior edge on its boundary.  So this model, despite having two
+distinct interior witness edges across five faces, still satisfies the local
+face-wise at-most-one condition enabling the canonical-choice constructor.
+The remaining generic hypotheses are now explicit:
+\path{chainedDiamondsCanonicalWitnessEdge_mem} supplies the fallback edge on
+each face, \path{chainedDiamonds_nonInteriorOnAmbient} proves that every
+non-interior face-boundary edge lies on the extracted ambient boundary, and
+\path{exists_closedWalkSource_with_atMostOneInteriorEdgePerFace_chainedDiamondsWithTriangleGraph}
+packages the full local premise.  Lean then reconstructs canonical witness
+choice via
+\path{chainedDiamondsClosedWalkAnnulusBoundarySource_hasCanonicalWitnessChoice_via_atMostOneInteriorEdgePerFace}
+and derives
+\path{chainedDiamondsWithTriangleGraph_admitsPlanarBoundaryAnnulusWitnessAssignment_via_atMostOneInteriorEdgePerFace}
+and
+\path{chainedDiamondsWithTriangleGraph_admitsPlanarBoundaryAnnulusCollarGeometry_via_atMostOneInteriorEdgePerFace}.
+The route-level endpoint theorem now applies to the same package:
+\path{chainedDiamondsWithTriangleEmbedding_theorem49BoundaryRootSynthesis_via_atMostOneInteriorEdgePerFace}
+and
+\path{exists_theorem49BoundaryRootSynthesis_chainedDiamondsWithTriangleGraph_via_atMostOneInteriorEdgePerFace}
+show that the local criterion reaches the current theorem-4.9 synthesis
+surface, conditional on a Tait coloring, without appealing to the hand-built
+one-collar object.
+The same model has now been calibrated against the stronger nonempty-carrier
+target:
+\path{selectedBoundaryInteriorEdgeEndpointVertices_eq_empty_chainedDiamondsWithTriangle}
+and
+\path{not_selectedBoundaryInteriorEdgeEndpointVertices_nonempty_chainedDiamondsWithTriangle}
+prove that selected-boundary purification deletes all endpoints of
+\path{cdt12} and \path{cdt45}.  Combined with
+\path{not_exists_taitEdgeColoring_chainedDiamondsWithTriangleGraph}, the
+status theorem
+\path{chainedDiamonds_atMostOne_source_has_empty_carrier_and_no_tait}
+records that chainedDiamonds contributes at-most-one source geometry, but not
+the nonempty-carrier or Tait-coloring hypotheses needed by the new endpoint.
+This obstruction is also recorded as an explicit failed universal in
+\path{Theorem49AtMostOneNonemptyCarrierImpossibility}: Lean proves
+\path{route_impossibility_at_most_one_does_not_imply_nonempty_carrier},
+\path{not_forall_atMostOneInteriorEdgePerFace_implies_nonempty_carrier}, and
+\path{not_forall_closedWalkSource_and_atMostOneInteriorEdgePerFace_implies_nonempty_carrier}
+from the same chainedDiamonds honest source, so carrier nonemptiness remains an
+independent hypothesis for the non-vacuous endpoint.
+The route-facing successor-cycle source shell is now sharper than an
+independence result.  The diamond-with-triangle model carries
+\path{diamondWithTriangleDartSuccessorCycleGeometry} with selected-arc
+contiguity proved by
+\path{diamondWithTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace},
+satisfies facewise at-most-one, and still has empty purified carrier.  Lean
+packages this as
+\path{successor_cycle_at_most_one_and_empty_carrier_independent} and the failed
+universal
+\path{not_forall_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_implies_nonempty_carrier}.
+More importantly, Lean now proves this obstruction at the honest closed-walk
+level:
+\path{selectedBoundaryInteriorEdgeEndpointVertices_eq_empty_of_closedWalkEmbeddingData_and_facewiseAtMostOneInteriorEdge}
+says that facial closed-walk data plus facewise cardinal at-most-one forces the
+selected-boundary-purified interior-edge endpoint carrier to be empty on any
+embedding.  Its contradiction forms
+\path{not_exists_closedWalkEmbeddingData_and_facewiseAtMostOneInteriorEdge_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices}
+and
+\path{not_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices}
+therefore rule out the current closed-walk at-most-one non-vacuous endpoint
+outright.  Lean also records the constructive contrapositive as
+\path{exists_two_distinct_interior_edges_on_faceBoundary_of_closedWalkEmbeddingData_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices}
+and the route-facing
+\path{exists_two_distinct_interior_edges_on_faceBoundary_of_closedWalkAnnulusBoundarySource_and_hasUnblockedInteriorEndpoint}:
+any honest closed-walk source carrying the live unblocked endpoint witness must
+have a face boundary with two distinct interior edges.  The route-facing
+positive annulus-collar package now carries the same necessary condition:
+\path{exists_two_distinct_interior_edges_on_faceBoundary_of_closedWalkAnnulusCollarPositiveProjectedGeometryOn}
+consumes
+\path{Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn}, separating
+that positive replacement surface from the facewise at-most-one branch before
+the synthesis endpoint is used.  The successor-cycle theorem
+\path{selectedBoundaryInteriorEdgeEndpointVertices_eq_empty_of_dartSuccessorCycleEmbeddingData_and_facewiseAtMostOneInteriorEdge}
+is now the route-facing specialization, not the deepest obstruction.
+The older direct source existence theorem
+\path{exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_chainedDiamondsWithTriangleGraph}
+and the lowered endpoint
+\path{chainedDiamondsWithTriangleGraph_admitsPlanarBoundaryAnnulusWitnessAssignment_via_closedWalkCanonicalWitnessChoice}
+show that canonical witness choice exists on a larger honest model with two
+separate interior witness edges; the new at-most-one route shows the generic
+local criterion itself is inhabited by that same larger model.  The same
+finite witness now builds the
+named one-collar geometry \path{chainedDiamondsOneCollarGeometry}; Lean proves
+\path{chainedDiamondsOneCollarGeometry_numCollars} and
+\path{chainedDiamondsOneCollarGeometry_boundaryData}, packages the
+source-level one-collar existence theorem
+\path{exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_chainedDiamondsWithTriangleGraph},
+and records the graph-level admissibility endpoint
+\path{chainedDiamondsWithTriangleGraph_admitsPlanarBoundaryAnnulusCollarGeometry_via_closedWalkCanonicalWitnessChoice}.
+The same concrete source now reaches the downstream certificate branch:
+\path{chainedDiamondsOneCollarWitnessOnCurrentBoundary} and
+\path{chainedDiamondsOneCollarPreviousBoundaryWitnessGeometry} record the
+repaired placement surface, and Lean constructs
+\path{chainedDiamondsOneCollarCollarLayerFacePeelWitnessData},
+\path{chainedDiamondsOneCollarHeightOrderedFacePeelWitnessData},
+\path{chainedDiamondsOneCollarWellFoundedFacePeelWitnessData}, and
+\path{chainedDiamondsOneCollarAttachedRootedFacePeelCertificate}.  The
+graph-level endpoints
+\path{chainedDiamondsWithTriangleGraph_admitsPlanarBoundaryAttachedRootedFacePeelCertificate_via_oneCollarGeometry}
+and
+\path{exists_theorem49BoundaryRootSynthesis_chainedDiamondsWithTriangleGraph_via_oneCollarGeometry}
+show that this larger honest-source witness already lands on the current
+certificate and theorem-4.9 boundary-root synthesis surfaces.  The coloring
+side is explicitly calibrated by
+\path{not_exists_taitEdgeColoring_chainedDiamondsWithTriangleGraph}: the
+shared vertex \(3\) has four incident edges, so a Tait coloring would require
+four pairwise distinct nonzero colors although the color space supplies only
+three.  Hence the chained model is a larger positive source/collar/certificate
+witness, while its synthesis theorem is vacuous as a Tait-coloring instance;
+\item that blocker now extends to the whole one-collar weak-geometry branch.
+The new theorem
+\path{not_nonempty_planarBoundaryAnnulusWitnessAssignment_of_numCollars_eq_one_and_exists_two_distinct_interior_edges_on_faceBoundary}
+in \path{Theorem49PlanarBoundaryAnnulusWitness.lean} shows that any one-collar
+witness assignment already fails when one face carries two distinct interior
+edges.  Then \path{Theorem49PlanarBoundaryAnnulusGeometry.lean} lifts this to
+\path{not_exists_planarBoundaryAnnulusCollarGeometry_of_numCollars_eq_one_and_exists_two_distinct_interior_edges_on_faceBoundary},
+and \path{Theorem49PlanarBoundaryAnnulusHonestWitnessRegression.lean}
+instantiates it on the same honest source model as
+\path{not_exists_oneCollar_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair}.
+So the live weak-collar route from honest source data is now blocked on the
+entire one-collar branch, not only on the canonical decomposition recovered
+from the source;
+\item the same witness first blocked the fixed-source-split two- and
+three-collar repairs through the current-boundary bridge
+\path{not_exists_planarBoundaryAnnulusCollarGeometry_of_not_exists_planarBoundaryAnnulusCurrentBoundaryData_of_numCollars_eq_and_boundaryData}.
+That was already enough to show that the source boundary split is not a free
+weak-collar geometry;
+\item the stronger regression no longer fixes the boundary split.  The generic
+terminal-layer theorem
+\path{false_of_mem_terminal_collarFaces_and_exists_two_distinct_interior_edges_on_faceBoundary}
+shows that a terminal collar face cannot carry two distinct interior edges.  On
+\path{sharedInteriorPairAnnulusEmbedding}, both outer faces carry the two
+interior edges \path{sip01} and \path{sip12}, so
+\path{terminal_collarFaces_eq_singleton_sipFace2} forces every terminal collar
+to be exactly the inner triangular face.  Then
+\path{false_of_intermediateBoundary_before_singleton_sipFace2} rules out any
+predecessor stage whose remainder is this singleton, yielding
+\path{not_exists_twoCollar_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair}
+and
+\path{not_exists_threeCollar_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair}
+without requiring the geometry's boundary split to equal
+\path{sharedInteriorPairBoundaryData};
+\item the remaining ``start at four collars'' escape hatch is still closed by
+the finite-face bound
+\path{PlanarBoundaryAnnulusCollarGeometry.numCollars_le_card_faces}.  The honest
+source file specializes it as
+\path{numCollars_le_three_of_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair},
+since \path{sharedInteriorPairAnnulusEmbedding} has exactly three ambient faces.
+Combining that bound with the one-, two-, and three-collar blockers gives
+\path{not_nonempty_planarBoundaryAnnulusCollarGeometry_sharedInteriorPair}.
+Thus
+\path{closedWalkAnnulusBoundarySource_without_annulusCollarGeometry_sharedInteriorPair}
+and
+\path{exists_embedding_closedWalkAnnulusBoundarySource_without_annulusCollarGeometry_sharedInteriorPair}
+now witness an honest closed-walk annulus source with no weak annulus collar
+geometry on the same embedding at all, regardless of how a later repair tries
+to choose the annulus boundary split.  The failed universal same-embedding
+converse is
+\path{not_forall_exists_planarBoundaryAnnulusCollarGeometry_of_closedWalkAnnulusBoundarySource_sharedInteriorPair}.
+The same absence of weak collar geometry now directly refutes the
+source-alone previous-boundary route:
+\path{not_nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_sharedInteriorPair}
+projects a hypothetical repaired previous-boundary witness back to collar
+geometry, while
+\path{closedWalkAnnulusBoundarySource_without_previousBoundaryWitness_sharedInteriorPair}
+and
+\path{not_forall_exists_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_closedWalkAnnulusBoundarySource_sharedInteriorPair}
+package the concrete failed implication.  This does not settle the stronger
+question with weak collar geometry already present; it records that honest
+closed-walk source data alone is insufficient.  The corresponding repaired
+source-plus-collar investigation now has no placeholder theorem: Lean proves
+\path{honest_source_plus_collar_geometry_extending_previous_boundary_witness_iff_witnessOnCurrentBoundary},
+which identifies the exact remaining fixed-collar obligation as
+\path{WitnessOnCurrentBoundary}.  That obligation is now known not to follow
+from an arbitrary weak collar on an honest source embedding.  The connected
+chained-diamonds source admits the deliberately mismatched two-collar geometry
+\path{chainedDiamondsBadTwoCollarGeometry}: the terminal triangular face
+chooses \path{cdt97} while its previous intermediate boundary is
+the singleton \path{cdt45}.  Lean proves
+\path{not_witnessOnCurrentBoundary_chainedDiamondsBadTwoCollarGeometry},
+packages the source-plus-bad-collar witness as
+\path{exists_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_without_witnessOnCurrentBoundary_chainedDiamonds},
+and refutes the universal implication as
+\path{not_forall_honest_source_plus_collar_geometry_forces_previous_boundary_witness}.
+It also proves
+\path{not_nonempty_previousBoundaryWitnessGeometry_extending_chainedDiamondsBadTwoCollarGeometry},
+so this exact weak collar cannot be repaired without changing the collar
+geometry.  Thus the repaired lane must use a collar geometry tied to the source
+boundary split, carry \path{WitnessOnCurrentBoundary} explicitly, or derive the
+collar from stronger annular geometry.  The same module now proves the sharper
+source-side calibration
+\path{exists_atMostOne_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_without_witnessOnCurrentBoundary_chainedDiamonds},
+\path{not_forall_atMostOne_source_plus_collar_geometry_forces_previous_boundary_witness},
+and
+\path{not_forall_canonicalWitnessChoice_source_plus_collar_geometry_forces_previous_boundary_witness}:
+the local at-most-one criterion and source-level canonical witness choice are
+not enough when the weak collar is supplied independently rather than built
+from that source data;
+\item the obstruction now reaches the weaker witness-cover surfaces that no
+longer require annulus collar geometry.  In the same regression file,
+\path{not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_sharedInteriorPair}
+shows that the shared interior pair creates a strict height cycle: a peeled face
+choosing \path{sip01} needs a strictly later peeled face choosing \path{sip12},
+and that face needs a strictly later peeled face choosing \path{sip01}, but only
+\path{sipFace0} and \path{sipFace1} can choose either shared edge.  The finite
+collar-layer witness-cover form is blocked by
+\path{not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_sharedInteriorPair},
+because it canonically lowers to the height-ordered surface.  The same prefix
+cycle has now been abstracted as
+\path{not_exists_mem_of_twoWitnessPrefixCycle}, which allows repeated faces in
+the peel list and still rules out a finite mutual dependency.  The support-level
+form
+\path{not_mem_facePeelWitnessSupport_pair_of_twoWitnessPrefixCycle} now records
+that both mutually dependent witness edges are absent from the resulting witness
+support.  Instantiating it
+gives
+\path{not_nonempty_attachedBoundaryRootedFacePeelCertificate_sharedInteriorPair}
+for the raw attached-face \path{BoundaryRootedFacePeelCertificate}, and
+\path{not_nonempty_planarBoundaryWellFoundedFacePeelWitnessData_sharedInteriorPair}
+follows because well-founded-parent witness data lowers to that certificate.
+Thus
+\path{closedWalkAnnulusBoundarySource_without_heightOrderedFacePeelWitnessData_sharedInteriorPair}
+and
+\path{closedWalkAnnulusBoundarySource_without_collarLayerFacePeelWitnessData_sharedInteriorPair}
+now sit beside
+\path{closedWalkAnnulusBoundarySource_without_attachedBoundaryRootedFacePeelCertificate_sharedInteriorPair}
+and
+\path{closedWalkAnnulusBoundarySource_without_wellFoundedFacePeelWitnessData_sharedInteriorPair},
+recording that honest closed-walk annulus source data alone does not force even
+the raw same-embedding attached certificate accepted by the current
+Theorem~4.9 synthesis package.  The same obstruction model is now
+Tait-colorable: \path{sharedInteriorPairTaitEdgeColoring} is proved by
+\path{sharedInteriorPairTaitEdgeColoring_isTait}, and
+\path{closedWalkAnnulusBoundarySource_and_taitEdgeColoring_without_attachedBoundaryRootedFacePeelCertificate_sharedInteriorPair}
+packages the honest source, an actual Tait coloring, and failure of the
+same-embedding attached certificate together;
+\item this attached-certificate obstruction now also hits the route-facing
+successor-dart source shell.  The same finite model defines
+\path{sharedInteriorPairDartSuccessorCycleGeometry} and proves the induced
+selected-boundary arc condition
+\path{sharedInteriorPairDartSuccessorCycleGeometry_selectedBoundaryArcOnFace}.
+The witness theorem
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_without_attachedBoundaryRootedFacePeelCertificate_sharedInteriorPair}
+packages boundary reachability, successor-cycle facial data, selected-boundary
+arc contiguity, and failure of the raw attached certificate on one embedding.
+The failed converse
+\path{not_forall_exists_attachedBoundaryRootedFacePeelCertificate_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_sharedInteriorPair}
+now has a Tait-calibrated companion:
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_without_attachedBoundaryRootedFacePeelCertificate_sharedInteriorPair}
+and
+\path{not_forall_exists_attachedBoundaryRootedFacePeelCertificate_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_sharedInteriorPair}
+show that even adding an actual Tait edge coloring to the route-facing
+successor-dart source shell does not force the same-embedding attached
+certificate.  The bundled theorem
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_without_currentSufficientSameEmbeddingGeometry_sharedInteriorPair}
+packages simultaneous failure of height-ordered witness data, collar-layer
+witness data, the raw attached certificate, well-founded witness data, and
+annulus collar geometry on that same Tait-colorable source.  The companion
+\path{not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_sharedInteriorPair}
+records that the successor-cycle source shell plus Tait coloring is still not
+enough to force even one of the currently sufficient same-embedding geometry
+endpoints.  This obstruction is now non-vacuous on the purified carrier:
+\path{vertex_one_mem_selectedBoundaryInteriorEdgeEndpointVertices_sharedInteriorPair}
+and
+\path{selectedBoundaryInteriorEdgeEndpointVertices_nonempty_sharedInteriorPair}
+show that vertex \(1\) survives selected-boundary purification, while
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_without_currentSufficientSameEmbeddingGeometry_sharedInteriorPair}
+and
+\path{not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_sharedInteriorPair}
+show that adding this nonempty carrier hypothesis still does not force any of
+the current sufficient same-embedding geometry endpoints.  The same source
+package now has matching failed converses for
+\path{PlanarBoundaryAnnulusCollarGeometry},
+\path{PlanarBoundaryHeightOrderedFacePeelWitnessData},
+\path{PlanarBoundaryCollarLayerFacePeelWitnessData}, and
+\path{PlanarBoundaryWellFoundedFacePeelWitnessData}, so this stronger
+route-facing source shell does not force any of the currently sufficient
+same-embedding geometric endpoints on the shared-interior-pair witness.
+\path{Theorem49PositiveGeometricSourceReplacementRegression.lean} now reflects
+that obstruction at the newer positive package layer as well: the same witness
+refutes both
+\path{Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn} and
+\path{Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn}.  The
+honest closed-walk and successor-source failed converses are now factored
+through reusable generic source principles in
+\path{PlanarBoundaryClosedWalkSource.lean} and target-specific wrappers in
+\path{Theorem49PlanarBoundaryAnnulusGeometry.lean}, with the
+shared-interior-pair model supplying the concrete missing-target witnesses;
+\item the honest long-term frontier is still to derive this ordered or cyclic
+data from real embedding-side boundary walks rather than postulating it.
+\end{itemize}
+
+So the present formalization is no longer hiding the gap. The gap is explicit,
+localized, and regression-tested.
+
+\section{Relevant Lean files}
+
+\begin{itemize}
+\item \path{Mettapedia/GraphTheory/OrderedPlanarEmbeddingWithBoundary.lean}
+\item \path{Mettapedia/GraphTheory/OrderedPlanarEmbeddingWithBoundaryRegression.lean}
+\item \path{Mettapedia/GraphTheory/WalkPlanarEmbeddingWithBoundary.lean}
+\item \path{Mettapedia/GraphTheory/WalkPlanarEmbeddingWithBoundaryRegression.lean}
+\item \path{Mettapedia/GraphTheory/FourColor/PlanarBoundaryOrderedEmbedding.lean}
+\item \path{Mettapedia/GraphTheory/FourColor/PlanarBoundaryFaceBoundaryRunRegression.lean}
+\item \path{Mettapedia/GraphTheory/FourColor/Theorem49ClosedWalkOuterRootObstruction.lean}
+\end{itemize}
+
+\end{document}

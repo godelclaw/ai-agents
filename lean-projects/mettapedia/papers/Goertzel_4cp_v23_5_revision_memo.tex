@@ -1,0 +1,218 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\geometry{margin=1in}
+
+\title{Goertzel 4CP v23.5: Residual Boundary Peeling after the IDBRAD Obstruction}
+\author{Oruzi / Codex}
+\date{May 8, 2026}
+
+\begin{document}
+\maketitle
+\sloppy
+
+\begin{abstract}
+This memo records a standalone v23.5 repair attempt for the Goertzel four-color
+route.  The exact v23 Step 2 purification statement remains valid in Lean:
+single-component purification holds, and summing those local identities
+recovers the boundary-only generator used downstream.  What fails is the
+present ambient interior-dual boundary-root adjacent-distance peeling package:
+on honest closed-walk geometry with genuine interior support, Lean proves that
+the current IDBRAD surface cannot exist.  The proposed repair is therefore not
+to weaken or patch away that obstruction, but to move the induction to a
+residual/current-boundary peeling lane whose certificate is tied to the live
+boundary created by previous cancellations.  This document is a route
+specification and proof attempt, not a proof of the Four Color Theorem.  Lean
+now also proves that the current residual/current-boundary positive wrapper is
+equivalent, on a fixed embedding, to the existing collar-layer and
+height-ordered positive surfaces.  So the present v23.5 work supplies a
+conservative reformulation and sharper obstruction tests, not a validated
+stronger same-embedding workaround.
+\end{abstract}
+
+\section{Proved Lean facts}
+
+The current Lean status is already sharp enough to separate what survives from
+what is blocked.  The main proved facts needed for a v23.5 memo are:
+
+\begin{itemize}[leftmargin=2em]
+\item \path{v23_single_component_purification} proves the exact v23 Step 2
+local identity
+\(
+X_f^{ab}(C) \oplus X_f^{ab}(C^D) = c \cdot 1_{D \cap \partial f}
+\)
+for one boundary-hitting \((a,b)\)-Kempe component \(D\).
+\item \path{sum_v23_single_component_purifications_eq_boundaryOnlyGenerator}
+shows that summing the exact Step 2 purifications over the boundary-hitting
+components recovers the boundary-only generator already used later in the
+algebraic route.
+\item \path{PlaneEmbeddingWithBoundary.FaceBoundaryClosedWalk.three_le_faceBoundary_card}
+shows that every honest nonempty simple facial closed walk has at least three
+boundary edges.
+\item \path{InteriorDualBoundaryRootAdjDistancePeelData.false_of_mem_interiorEdgeSupport_of_faceBoundaryClosedWalkGeometry}
+shows that any ambient IDBRAD package covering an interior edge would force an
+impossible terminal peeled face.
+\item \path{not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_interiorEdgeSupport_nonempty_of_faceBoundaryClosedWalkGeometry}
+therefore rules out any nonempty ambient IDBRAD package on honest closed-walk
+geometry with genuine interior support.
+\item
+\path{nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_iff_nonempty_planarBoundaryCollarLayerFacePeelWitnessData},
+\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn},
+and
+\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_heightOrderedPositiveProjectedGeometryOn}
+show that the current residual/current-boundary positive wrapper has exactly
+the same fixed-embedding strength as the pre-existing collar-layer and
+height-ordered witness surfaces.
+\item
+\path{nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary}
+builds the exact v23 residual initial state on a genuine face boundary of the
+shared-interior-pair honest source benchmark, while
+\path{sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryGeometry}
+and
+\path{not_forall_residualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair}
+show that even this exact Step~2 seed, together with honest source data, a
+Tait coloring, and the purified endpoint witness, still does not force any
+residual/current-boundary positive geometry on the same embedding.
+\end{itemize}
+
+The first two theorems live in
+\path{Mettapedia/GraphTheory/FourColor/GoertzelLemma44.lean}; the closed-walk
+cardinality lower bound lives in
+\path{Mettapedia/GraphTheory/WalkPlanarEmbeddingWithBoundary.lean}; and the
+IDBRAD obstruction theorems live in
+\path{Mettapedia/GraphTheory/FourColor/Theorem49PlanarBoundaryPeeling.lean};
+the residual-equivalence theorems live in
+\path{Mettapedia/GraphTheory/FourColor/Theorem49ResidualBoundaryPeeling.lean}.
+
+This fixes the status line exactly.  Step 2 purification is not the live bug.
+The live bug is the ambient terminal-peeling interface currently encoded by
+IDBRAD.  Any v23.5 route that tries to smuggle that same interface back in
+under weaker rhetoric should be rejected immediately by the existing regression
+theorems.
+
+\section{The v23.5 proof attempt}
+
+The strategic shift is simple to state and difficult to prove: stop asking the
+original ambient annulus boundary to own the whole induction.  The present
+obstruction says that if every terminal peeled remainder must already sit on
+that ambient boundary, then genuine interior support forces an impossible
+one-edge face.  That is valuable information.  It tells us the induction
+parameter is wrong.
+
+The v23.5 proposal is to let the algebra follow the \emph{live} boundary of the
+surviving residual equation rather than the fixed ambient boundary of the full
+embedding.  After each certified cancellation, one forms a new residual object
+\(\mathcal{R}_k\) together with its current boundary \(B_k\).  The next peeling
+move is certified only relative to \(B_k\), not relative to the initial annulus
+boundary chosen before any cancellation happened.
+
+In route form, the intended proof attempt is:
+\begin{enumerate}[leftmargin=2em]
+\item Start from the honest closed-walk source and the exact v23 Step 2
+purification identity already proved in Lean.
+\item Package the surviving algebra as a residual equation object
+\(\mathcal{R}_0\) with a current boundary \(B_0\) and explicit invariants saying
+which terms are still live.
+\item Prove that any nonzero residual \(\mathcal{R}_k\) exposes a
+current-boundary certificate: some face, component, or boundary-supported
+algebraic event that can be canceled without leaving the residual framework.
+\item Produce the next residual \(\mathcal{R}_{k+1}\), with a strictly smaller
+measure, and repeat.
+\item Reach contradiction only by exhausting the residual, not by demanding in
+advance that the whole ambient embedding already carries an IDBRAD-style
+terminal ownership package.
+\end{enumerate}
+
+The creative claim of v23.5 is therefore not that the present IDBRAD
+obstruction is illusory.  It is that the obstruction identifies the wrong
+globalization step.  The proof route should chase the moving frontier created by
+surviving source terms, not the frozen frontier of the original ambient annulus.
+If that stronger live-boundary certificate exists, then the exact Step 2
+purification theorem becomes the correct algebraic entry point instead of a
+local identity waiting for an impossible ambient peel theorem.
+
+The central missing theorem is now clear: every nonzero residual satisfying the
+live-boundary invariants must admit a boundary-aligned algebraic cancellation
+certificate on the current boundary.  Without that theorem, residual
+current-boundary peeling is only a plausible narrative.  With it, one has a
+credible replacement for the blocked ambient lane.
+
+The new shared-interior-pair calibration makes this sharper.  The issue is not
+that Lean lacks the exact v23 Step~2 seed object: that seed already exists on a
+real source face boundary.  What is missing is the genuinely geometric bridge
+from that algebraic seed to any same-embedding residual/current-boundary witness
+surface.
+
+Lean now shows this already at the actual boundary-order source shell, not only
+after lowering to an honest closed-walk package.  On the shared-interior-pair
+benchmark, explicit annulus boundary reachability, successor-cycle selected
+boundary arcs, the concrete Tait coloring, `HasUnblockedInteriorEndpoint`, and
+the exact v23 residual seed still do not force residual positive geometry.  So
+the live missing theorem is genuinely route-facing source-to-residual geometry.
+
+Lean now also shows that this exact v23 seed does not recover any of the older
+same-embedding geometry ladders either.  On the same shared-interior-pair
+benchmark, the exact seed plus honest source data, the concrete Tait coloring,
+and `HasUnblockedInteriorEndpoint` still do not force residual witness data,
+residual selector data, height-ordered witness data, collar-layer witness
+data, the attached boundary-rooted certificate, well-founded witness data, or
+weak annulus-collar geometry.  The same failed-universal statement already
+holds on the actual successor-cycle boundary-order shell.  So the remaining
+v23.5 burden is not a repackaging back into one of the existing geometry
+interfaces; it is a genuinely new source-to-residual bridge.
+
+The current ambient IDBRAD obstruction should remain in place as a regression
+guard.  A future proof that accidentally reconstructs ambient IDBRAD on honest
+closed-walk geometry has not repaired the route; it has walked back into a
+formally refuted interface.
+
+\section{Formal obligations}
+
+To turn the v23.5 story into Lean work, the roadmap is:
+\begin{enumerate}[leftmargin=2em]
+\item \textbf{Residual equation object.}  Define a structure carrying the live
+generator, current support, current boundary, and the invariants preserved by
+one cancellation step.
+\item \textbf{Live-boundary terminal theorem.}  Prove that a nonzero residual
+cannot become terminal without exposing a boundary event on the current
+boundary.  This replaces the ambient terminal-face claim used by IDBRAD.
+\item \textbf{Algebraic cancellation certificate.}  This is the central new
+obligation: from a live residual, extract a certified boundary-supported
+cancellation move that preserves honesty of the residual package.
+\item \textbf{Residual annihilator theorem.}  Show that repeated certified
+cancellations strictly decrease a well-founded measure and force the residual to
+vanish.
+\item \textbf{Source construction theorem.}  Build the initial residual object
+from the honest closed-walk source, the exact Step 2 purification theorem, and
+the boundary-only generator already present downstream.
+\item \textbf{Regression tests.}  Preserve the current ambient IDBRAD
+obstruction, and add negative tests showing that the new lane never silently
+reintroduces boundary-free ambient peeling, source-free witness placement, or a
+fake terminal singleton-face endpoint.
+\end{enumerate}
+
+In particular, the algebraic cancellation certificate is the theorem that makes
+or breaks the entire v23.5 proposal.  The rest of the roadmap organizes around
+it.
+
+\section{Status}
+
+No proof of the Four Color Theorem is claimed here.  What is presently supported
+is narrower and firmer: the exact v23 Step 2 purification statement is proved,
+and the current ambient IDBRAD route is blocked by proved obstruction theorems.
+The residual/current-boundary lane now has a formal wrapper layer, but Lean
+also proves that the present positive wrapper is conservative: it is equivalent
+to the existing collar-layer and height-ordered packages on a fixed embedding.
+So v23.5 is still a proposed repair specification, not a completed derivation
+or a validated stronger same-embedding construction theorem.
+
+Accordingly, this memo should be read as a repaired route document.  It states
+what survives, what fails, and what new Lean obligations would have to be
+discharged before any proof claim could responsibly be made.
+
+\end{document}
