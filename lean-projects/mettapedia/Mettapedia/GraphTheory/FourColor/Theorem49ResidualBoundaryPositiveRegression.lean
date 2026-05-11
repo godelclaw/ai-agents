@@ -242,6 +242,16 @@ theorem nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData :
     Nonempty (ResidualBoundarySelectorData twoTriangleAnnulusEmbedding) :=
   ⟨twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
 
+/-- The annulus-construction shell extracted from the exact-v23 two-triangle residual selector
+package. -/
+noncomputable def twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction :
+    PlanarBoundaryAnnulusConstruction twoTriangleAnnulusEmbedding :=
+  twoTriangleClosedWalkSourceResidualBoundarySelectorData.toPlanarBoundaryAnnulusConstruction
+
+theorem nonempty_twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction :
+    Nonempty (PlanarBoundaryAnnulusConstruction twoTriangleAnnulusEmbedding) :=
+  ⟨twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction⟩
+
 /-- The exact-v23 two-triangle benchmark also reaches the residual/current-boundary selector
 package. -/
 theorem
@@ -258,6 +268,23 @@ theorem
       twoTriangleTaitEdgeColoring_isTait,
       nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
       nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
+
+/-- The exact-v23 two-triangle benchmark already reaches the base annulus-construction shell on
+the honest closed-walk no-interior branch. -/
+theorem
+    twoTriangle_closedWalkSource_tait_and_v23ResidualBoundaryInitialState_and_planarBoundaryAnnulusConstruction
+    :
+    Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource twoTriangleAnnulusEmbedding) ∧
+      IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+          (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+      Nonempty (PlanarBoundaryAnnulusConstruction twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨⟨twoTriangleClosedWalkAnnulusBoundarySource⟩,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction⟩
 
 /-- Residual/current-boundary face-peel witness data extracted from the concrete exact-v23
 two-triangle selector package. -/
@@ -310,6 +337,30 @@ theorem
       twoTriangleTaitEdgeColoring_isTait,
       nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
       nonempty_twoTriangleClosedWalkSourceResidualBoundarySelectorData⟩
+
+/-- The same exact-v23 two-triangle benchmark reaches the base annulus-construction shell on the
+actual successor-cycle boundary-order interface. -/
+theorem
+    twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_planarBoundaryAnnulusConstruction
+    :
+    ∃ _boundaryData :
+        PlanarBoundaryAnnulusBoundaryReachabilityData twoTriangleAnnulusEmbedding,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData twoTriangleAnnulusEmbedding,
+        (∀ f : AmbientFace twoTriangleAnnulusEmbedding.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          IsTaitEdgeColoring twoTriangleAnnulusGraph twoTriangleTaitEdgeColoring ∧
+          Nonempty
+            (V23ResidualBoundaryInitialState twoTriangleTaitEdgeColoring red blue
+              (twoTriangleAnnulusEmbedding.faceBoundary twoTriangleOuterFace.1)) ∧
+          Nonempty (PlanarBoundaryAnnulusConstruction twoTriangleAnnulusEmbedding) := by
+  exact
+    ⟨twoTriangleAnnulusBoundaryReachabilityData,
+      twoTriangleDartSuccessorCycleGeometry,
+      twoTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      twoTriangleTaitEdgeColoring_isTait,
+      nonempty_twoTriangleOuterFace_v23ResidualBoundaryInitialState,
+      nonempty_twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction⟩
 
 /-- The same exact-v23 two-triangle benchmark reaches the residual face-peel witness surface on
 the actual successor-cycle boundary-order shell. -/
