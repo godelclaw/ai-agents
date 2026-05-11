@@ -968,14 +968,26 @@ What this pass now **does** establish is a same-embedding lowering from stronger
 canonical-parent cover data.  `Theorem49ResidualBoundaryPeeling.lean` proves
 `theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint`,
 `theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary`,
-and the corresponding successor-cycle wrappers.  So once the boundary-order side supplies
-cover/separated source boundary-face roots, boundary-free peeled faces, canonical rooted
-shared-edge coverage of the interior support, and `HasUnblockedInteriorEndpoint`, the residual
-endpoint adds no new theorem-4.9 proof burden.
+and the corresponding successor-cycle wrappers.  `Theorem49PositiveGeometricSourceReplacementRoute.lean`
+and `Theorem49BoundaryFreeSelectorPositiveRoute.lean` supply the same direct lowering to the
+generic parent and boundary-free-selector theorem-4.9 endpoints.  So the downstream side of this
+stronger source-fixed canonical-parent raw-cover package is now completely explicit.
 
-What this pass does **not** establish is a new same-embedding source-to-residual construction
-from honest source hypotheses alone or from the exact v23 seed.  The new residual lowering still
-depends on that stronger source-fixed canonical-parent raw-cover package.
+What the new obstruction pass adds is that this stronger raw-cover shell is no longer merely an
+unfinished upstream target on the live endpoint surface.  `Theorem49ForcingInteriorEdgeObstruction.lean`
+now proves
+`not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`,
+`not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover`,
+and the matching successor-cycle / graph-level route-shell theorems.  The same raw-cover
+hypotheses force `interiorEdgeSupport = ∅`, hence they cannot coexist with either
+`HasUnblockedInteriorEndpoint` or a nonempty purified selected-boundary carrier on the same
+embedding.
+
+So the parent, selector, and residual theorem-4.9 lowerings from the raw canonical-parent cover
+package are now calibrated as vacuous on the current live endpoint semantics.  The remaining live
+question is no longer how to derive that package together with `HasUnblockedInteriorEndpoint`
+from honest source data or from the exact v23 seed; it is whether the route must change the
+source interface / endpoint notion, or else prove impossibility directly on the live shell.
 
 The obstruction file now ties that gap directly to the exact v23 algebraic seed.
 `nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary` builds

@@ -1851,12 +1851,23 @@ canonical-parent raw-cover package, and its successor-cycle boundary-order
 shell, directly to this residual endpoint via
 \path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint},
 \path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary},
-and their successor-cycle analogues.  So once the boundary-order side supplies
-cover/separated source boundary-face roots, boundary-free peeled faces,
-canonical rooted shared-edge coverage of the interior support, and
-\path{HasUnblockedInteriorEndpoint}, the residual wrapper adds no extra
-theorem-4.9 burden.  It is still not a theorem from honest source data alone
-or from the exact v23 seed;
+and their successor-cycle analogues.  The generic parent and
+boundary-free-selector route files expose the same raw-cover lowering to their
+own theorem-4.9 endpoints, so the downstream side of this stronger source-fixed
+package is now completely explicit.  However,
+\path{Theorem49ForcingInteriorEdgeObstruction.lean} now proves
+\path{not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
+\path{not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover},
+and the matching successor-cycle / graph-level boundary-order variants.  The
+same raw-cover hypotheses force \path{interiorEdgeSupport = \emptyset}, so they
+cannot coexist with either \path{HasUnblockedInteriorEndpoint} or a nonempty
+purified selected-boundary carrier on the same embedding.  Therefore the raw
+canonical-parent cover lowerings to the parent, selector, and residual
+theorem-4.9 endpoints are presently vacuous on the live endpoint semantics.
+The open route question is no longer how to derive that package together with
+\path{HasUnblockedInteriorEndpoint} from honest source data or from the exact
+v23 seed, but whether the route must change the source interface / endpoint
+notion or prove impossibility directly on that live shell;
 \item the same negative calibration now reaches the exact v23 Step~2 seed
 itself.  In \path{Theorem49ResidualBoundaryObstruction.lean},
 \path{nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary}
