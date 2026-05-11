@@ -885,6 +885,33 @@ theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCan
     not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
       source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hEndpoint
 
+/-- Graph-level impossibility form for the honest closed-walk raw canonical-parent cover plus a
+nonempty purified selected-boundary carrier. -/
+theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  rintro ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots,
+    hpeelInterior, hcover, hCarrier⟩
+  exact
+    not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hCarrier
+
 /-- Graph-level impossibility form for the actual theorem-4.9 boundary-order raw canonical-parent
 cover shell together with the named local endpoint witness. -/
 theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
@@ -921,6 +948,43 @@ theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbe
     not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
       boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
       hpeelInterior hcover hEndpoint
+
+/-- Graph-level impossibility form for the actual theorem-4.9 boundary-order raw canonical-parent
+cover shell plus a nonempty purified selected-boundary carrier. -/
+theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique,
+    hcoverRoots, hsepRoots, hpeelInterior, hcover, hCarrier⟩
+  exact
+    not_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hCarrier
 
 /-- Graph-level impossibility form for the honest closed-walk raw canonical-parent cover plus
 the older raw endpoint-support shell. -/
