@@ -1040,6 +1040,157 @@ theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_annul
         hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
           hEndpointDisjoint hRawCarrier⟩
 
+/-- Existential two-sided annulus-root parent data plus a surviving carrier is enough for the
+graph-level finite-collar replacement source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hCarrier⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_planarBoundaryAnnulusRootParentPeelData
+      data hCarrier with
+    ⟨collarData, hCarrier'⟩
+  exact ⟨{ emb := emb, data := collarData, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential two-sided annulus-root parent data plus a surviving carrier is enough for the
+graph-level height-ordered replacement source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hCarrier⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusRootParentPeelData
+      data hCarrier with
+    ⟨heightData, hCarrier'⟩
+  exact ⟨{ emb := emb, data := heightData, carrier_nonempty := hCarrier' }⟩
+
+/-- Existential two-sided annulus-root parent data plus a local unblocked interior endpoint is
+enough for the graph-level finite-collar replacement source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hEndpoint⟩
+  rcases
+    theorem49CollarLayerPositiveProjectedGeometryOn_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint with
+    ⟨collarData, hCarrier⟩
+  exact ⟨{ emb := emb, data := collarData, carrier_nonempty := hCarrier }⟩
+
+/-- Existential two-sided annulus-root parent data plus a local unblocked interior endpoint is
+enough for the graph-level height-ordered replacement source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hEndpoint⟩
+  rcases
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint with
+    ⟨heightData, hCarrier⟩
+  exact ⟨{ emb := emb, data := heightData, carrier_nonempty := hCarrier }⟩
+
+/-- Existential two-sided annulus-root parent data plus endpoint-support separation and a
+nonempty raw interior-edge endpoint carrier is enough for the graph-level finite-collar
+replacement source package. -/
+theorem nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49CollarLayerPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49CollarLayerPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, data,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Existential two-sided annulus-root parent data plus endpoint-support separation and a
+nonempty raw interior-edge endpoint carrier is enough for the graph-level height-ordered
+replacement source package. -/
+theorem nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty) :
+    Nonempty (Theorem49HeightOrderedPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    nonempty_theorem49HeightOrderedPositiveProjectedGeometry_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+      ⟨emb, data,
+        hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
+          hEndpointDisjoint hRawCarrier⟩
+
+/-- Existential two-sided annulus-root parent data plus a surviving carrier reaches the graph-
+level nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait coloring. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarBoundaryAnnulusRootParentPeelData_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, data, hCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData
+        data C0 hC0 hCarrier⟩
+
+/-- Existential two-sided annulus-root parent data plus a local unblocked interior endpoint
+reaches the graph-level nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait
+coloring. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, data, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_hasUnblockedInteriorEndpoint
+        data hEndpoint C0 hC0⟩
+
+/-- Existential two-sided annulus-root parent data plus endpoint-support separation and a
+nonempty raw interior-edge endpoint carrier reaches the graph-level nonempty projected theorem-4.9
+synthesis endpoint for any supplied Tait coloring. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _data : PlanarBoundaryAnnulusRootParentPeelData emb,
+        Disjoint (interiorEdgeEndpointSupport emb)
+          (edgeEndpointSupport
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+          (interiorEdgeEndpointSupport emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, data, hEndpointDisjoint, hRawCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusRootParentPeelData_and_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport
+        data hEndpointDisjoint hRawCarrier C0 hC0⟩
+
 /-- Existential annulus collar geometry plus a surviving carrier reaches the graph-level
 nonempty projected theorem-4.9 synthesis endpoint for any supplied Tait coloring. -/
 theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_annulusCollarGeometry_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
