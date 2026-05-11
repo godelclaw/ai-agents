@@ -964,10 +964,18 @@ and
 show that the present residual/current-boundary wrapper adds no new positive geometric strength
 beyond the already existing collar-layer / height-ordered packages.
 
-What this pass does **not** establish is a new same-embedding source-to-residual construction.
-`Theorem49ResidualBoundaryRoute.lean` only records the v23 single-component purification seed and
-the source-facing wrapper theorem shape; it does not derive residual witness data from honest
-closed-walk source hypotheses alone.
+What this pass now **does** establish is a same-embedding lowering from stronger source-side
+canonical-parent cover data.  `Theorem49ResidualBoundaryPeeling.lean` proves
+`theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint`,
+`theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary`,
+and the corresponding successor-cycle wrappers.  So once the boundary-order side supplies
+cover/separated source boundary-face roots, boundary-free peeled faces, canonical rooted
+shared-edge coverage of the interior support, and `HasUnblockedInteriorEndpoint`, the residual
+endpoint adds no new theorem-4.9 proof burden.
+
+What this pass does **not** establish is a new same-embedding source-to-residual construction
+from honest source hypotheses alone or from the exact v23 seed.  The new residual lowering still
+depends on that stronger source-fixed canonical-parent raw-cover package.
 
 The obstruction file now ties that gap directly to the exact v23 algebraic seed.
 `nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary` builds

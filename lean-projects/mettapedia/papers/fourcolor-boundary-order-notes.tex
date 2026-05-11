@@ -1845,8 +1845,18 @@ and
 \path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_heightOrderedPositiveProjectedGeometryOn}.
 So at the present theorem-4.9 endpoint the residual/current-boundary surface is
 formally conservative: it is exactly the old collar-layer / height-ordered
-witness-cover strength on a fixed embedding, not yet a stronger same-embedding
-source construction theorem;
+witness-cover strength on a fixed embedding.  What is new is that
+\path{Theorem49ResidualBoundaryPeeling.lean} now also lowers the source-fixed
+canonical-parent raw-cover package, and its successor-cycle boundary-order
+shell, directly to this residual endpoint via
+\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint},
+\path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary},
+and their successor-cycle analogues.  So once the boundary-order side supplies
+cover/separated source boundary-face roots, boundary-free peeled faces,
+canonical rooted shared-edge coverage of the interior support, and
+\path{HasUnblockedInteriorEndpoint}, the residual wrapper adds no extra
+theorem-4.9 burden.  It is still not a theorem from honest source data alone
+or from the exact v23 seed;
 \item the same negative calibration now reaches the exact v23 Step~2 seed
 itself.  In \path{Theorem49ResidualBoundaryObstruction.lean},
 \path{nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary}
