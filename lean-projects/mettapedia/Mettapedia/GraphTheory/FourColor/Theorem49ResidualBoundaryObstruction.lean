@@ -47,6 +47,141 @@ theorem nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boun
       sharedInteriorPairTaitEdgeColoring red blue
       (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)⟩
 
+theorem exists_selectedBoundarySupport_of_sip01_mem_faceBoundary_sharedInteriorPair
+    {f : AmbientFace sharedInteriorPairAnnulusEmbedding.faces}
+    (hf : sip01 ∈ sharedInteriorPairAnnulusEmbedding.faceBoundary f.1) :
+    ∃ b ∈ sharedInteriorPairAnnulusEmbedding.faceBoundary f.1,
+      b ∈ selectedBoundarySupport sharedInteriorPairAnnulusEmbedding.faceBoundary
+        sharedInteriorPairAnnulusEmbedding.faces sharedInteriorPairAnnulusEmbedding.faces := by
+  rcases (sip01_mem_faceBoundary_iff f).1 hf with rfl | rfl
+  · exact
+      ⟨sip23,
+        by
+          simp [sharedInteriorPairAnnulusEmbedding, sharedInteriorPairFaceBoundary, sipFace0],
+        sip23_mem_selectedBoundarySupport⟩
+  · exact
+      ⟨sip24,
+        by
+          simp [sharedInteriorPairAnnulusEmbedding, sharedInteriorPairFaceBoundary, sipFace1],
+        sip24_mem_selectedBoundarySupport⟩
+
+/-- The shared-interior-pair benchmark carries a concrete forcing interior edge `sip01`: both
+incident faces already contain selected-boundary support.  This witnesses failure of the
+boundary-free selector shell on the same honest embedding. -/
+def sharedInteriorPairForcingInteriorEdgeWitness :
+    ForcingInteriorEdgeWitness sharedInteriorPairAnnulusEmbedding where
+  edge := sip01
+  heInterior := sip01_mem_interiorEdgeSupport
+  hforcing := by
+    intro f hf
+    exact exists_selectedBoundarySupport_of_sip01_mem_faceBoundary_sharedInteriorPair hf
+
+theorem not_nonempty_boundaryFreeIncidentFaceSelector_sharedInteriorPair :
+    ¬ Nonempty (BoundaryFreeIncidentFaceSelector sharedInteriorPairAnnulusEmbedding) := by
+  exact
+    (not_nonempty_boundaryFreeIncidentFaceSelector_iff_nonempty_forcingInteriorEdgeWitness).2
+      ⟨sharedInteriorPairForcingInteriorEdgeWitness⟩
+
+theorem
+    sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector
+    :
+    Nonempty
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource sharedInteriorPairAnnulusEmbedding) ∧
+      IsTaitEdgeColoring sharedInteriorPairAnnulusGraph sharedInteriorPairTaitEdgeColoring ∧
+      HasUnblockedInteriorEndpoint sharedInteriorPairAnnulusEmbedding ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState sharedInteriorPairTaitEdgeColoring red blue
+          (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)) ∧
+      ¬ Nonempty (BoundaryFreeIncidentFaceSelector sharedInteriorPairAnnulusEmbedding) := by
+  exact
+    ⟨nonempty_sharedInteriorPairClosedWalkAnnulusBoundarySource,
+      sharedInteriorPairTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_sharedInteriorPair,
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary,
+      not_nonempty_boundaryFreeIncidentFaceSelector_sharedInteriorPair⟩
+
+theorem
+    not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair
+    :
+    ¬ ∀ (emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph)
+        (C : sharedInteriorPairAnnulusGraph.EdgeColoring Color)
+        (a b : Color) (faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet),
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C →
+            HasUnblockedInteriorEndpoint emb →
+              Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                Nonempty (BoundaryFreeIncidentFaceSelector emb) := by
+  intro h
+  exact
+    not_nonempty_boundaryFreeIncidentFaceSelector_sharedInteriorPair
+      (h sharedInteriorPairAnnulusEmbedding
+        sharedInteriorPairTaitEdgeColoring
+        red blue
+        (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)
+        nonempty_sharedInteriorPairClosedWalkAnnulusBoundarySource
+        sharedInteriorPairTaitEdgeColoring_isTait
+        hasUnblockedInteriorEndpoint_sharedInteriorPair
+        nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary)
+
+theorem
+    exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_sharedInteriorPair
+    :
+    ∃ emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        (∃ C : sharedInteriorPairAnnulusGraph.EdgeColoring Color,
+          IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty (BoundaryFreeIncidentFaceSelector emb)) := by
+  exact
+    ⟨sharedInteriorPairAnnulusEmbedding,
+      sharedInteriorPairAnnulusBoundaryReachabilityData,
+      sharedInteriorPairDartSuccessorCycleGeometry,
+      sharedInteriorPairDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      sharedInteriorPairTaitEdgeColoring,
+      sharedInteriorPairTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_sharedInteriorPair,
+      red, blue,
+      (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1),
+      nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary,
+      not_nonempty_boundaryFreeIncidentFaceSelector_sharedInteriorPair⟩
+
+theorem
+    not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair
+    :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary sharedInteriorPairAnnulusGraph,
+        ∀ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) →
+          ∀ C : sharedInteriorPairAnnulusGraph.EdgeColoring Color,
+            IsTaitEdgeColoring sharedInteriorPairAnnulusGraph C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset sharedInteriorPairAnnulusGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (BoundaryFreeIncidentFaceSelector emb) := by
+  intro h
+  exact
+    not_nonempty_boundaryFreeIncidentFaceSelector_sharedInteriorPair
+      (h sharedInteriorPairAnnulusEmbedding
+        sharedInteriorPairAnnulusBoundaryReachabilityData
+        sharedInteriorPairDartSuccessorCycleGeometry
+        sharedInteriorPairDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+        sharedInteriorPairTaitEdgeColoring
+        sharedInteriorPairTaitEdgeColoring_isTait
+        hasUnblockedInteriorEndpoint_sharedInteriorPair
+        red blue
+        (sharedInteriorPairAnnulusEmbedding.faceBoundary sipFace0.1)
+        nonempty_sharedInteriorPair_v23ResidualBoundaryInitialState_sipFace0Boundary)
+
 theorem not_exists_sharedInteriorPairClosedWalkSourceBoundaryFaceRootsCanonicalParentSharedEdgeCover :
     ¬ ∃ peelFaces : Finset (AmbientFace sharedInteriorPairAnnulusEmbedding.faces),
       ∃ hunique : PairwiseUniqueSharedInteriorEdges

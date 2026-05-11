@@ -1023,6 +1023,17 @@ packages the exact Step 2 seed together with failure of the closed-walk root-cov
 shows that no universal theorem of the form “honest source + Tait + endpoint + exact v23 seed
 forces some no-interior-edge boundary-root witness” can hold either.
 
+The same exact seed also fails already at the strictly weaker local boundary-free-selector
+surface.  The theorem
+`sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector`
+packages the exact Step 2 seed together with failure of
+`BoundaryFreeIncidentFaceSelector` on the same honest embedding, and
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySource_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+shows that no universal theorem of the form “honest source + Tait + endpoint + exact v23 seed
+forces a boundary-free selector” can hold either.  So the exact seed does not even recover the
+local no-forcing surface that any selector/construction descent route would need before source
+packaging questions arise.
+
 The same calibration now reaches the actual route-facing boundary-order shell:
 `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_residualBoundaryPositiveProjectedGeometryOn_sharedInteriorPair`
 and
@@ -1043,6 +1054,13 @@ and
 show that the exact seed does not even force the route-facing boundary-root plus
 `interiorEdgeSupport = ∅` shell on the same embedding.
 
+The same successor-cycle shell also fails already at the weaker selector layer:
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_sharedInteriorPair`
+and
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
+show that the exact seed does not even force a route-facing boundary-free selector on the same
+embedding.
+
 The same exact v23 seed also fails to repair any previously known same-embedding witness route.
 `sharedInteriorPair_closedWalkSource_tait_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_knownSameEmbeddingGeometry`
 packages the honest source, Tait coloring, endpoint witness, and exact seed together with failure
@@ -1055,8 +1073,9 @@ and
 show that this gap already persists on both the honest closed-walk and the actual successor-cycle
 boundary-order shells.  So the missing v23.5 theorem is not a way to re-enter one of the older
 same-embedding geometry ladders, or even to recover the upstream raw-cover shell, from the exact
-Step~2 algebraic seed, or even its degenerate no-interior-edge shadow; it is a genuinely new
-source-to-residual geometric bridge or live-boundary cancellation certificate.
+Step~2 algebraic seed, or even its boundary-free-selector / degenerate no-interior-edge shadows;
+it is a genuinely new source-to-residual geometric bridge or live-boundary cancellation
+certificate.
 
 `Theorem49ResidualBoundaryObstruction.lean` then calibrates that gap on the live
 shared-interior-pair source benchmark.  The theorems
