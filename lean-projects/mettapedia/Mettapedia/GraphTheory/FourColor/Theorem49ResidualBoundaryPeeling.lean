@@ -343,6 +343,16 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryPosit
     theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundaryLayerFacePeelWitnessData
       data C₀ hC₀ hCarrier
 
+theorem theorem49CurrentBoundaryRemainders_of_residualBoundaryPositiveProjectedGeometryOn
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb) :
+    ∃ data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb,
+      ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+        ∀ e ∈ (emb.faceBoundary f.1).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  rcases geom with ⟨data, hCarrier⟩
+  exact ⟨data, exists_layerFace_currentBoundary_remainders_of_residualBoundaryLayerFacePeelWitnessData
+    data hCarrier⟩
+
 theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
     {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
     (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
