@@ -286,6 +286,44 @@ theorem
       ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
         emb).1 hEndpoint)
 
+/-- Local endpoint form of the same residual/current-boundary witness-face diagnostic. -/
+theorem
+    exists_layerFace_currentBoundary_remainders_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+      ∀ e ∈ (emb.faceBoundary f.1).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  have hInterior :
+      (interiorEdgeSupport
+        (ambientFaceBoundary (allFaces := emb.faces) emb.faceBoundary)
+        emb.faces.attach).Nonempty := by
+    simpa [interiorEdgeSupport_ambientFaceBoundary_eq
+      (faceBoundary := emb.faceBoundary) (allFaces := emb.faces)] using
+      interiorEdgeSupport_nonempty_of_hasUnblockedInteriorEndpoint hEndpoint
+  rcases
+    data.exists_layer_face_currentBoundary_remainders_of_interiorEdgeSupport_nonempty hInterior with
+    ⟨i, f, hfi, hremainders⟩
+  exact ⟨i, f, hfi, by
+    simpa [ambientFaceBoundary] using hremainders⟩
+
+/-- A residual/current-boundary witness package together with the purified nonempty carrier
+already exhibits a peeled layer face whose non-witness remainders lie on the live current
+boundary at that layer. -/
+theorem exists_layerFace_currentBoundary_remainders_of_residualBoundaryLayerFacePeelWitnessData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+      ∀ e ∈ (emb.faceBoundary f.1).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  have hEndpoint :
+      HasUnblockedInteriorEndpoint emb :=
+    (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+      emb).2 hCarrier
+  exact
+    exists_layerFace_currentBoundary_remainders_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      data hEndpoint
+
 /-- Fixed-embedding positive route using residual/current-boundary witness data and a surviving
 purified endpoint carrier. -/
 def Theorem49ResidualBoundaryPositiveProjectedGeometryOn {G : SimpleGraph V}
@@ -897,6 +935,19 @@ theorem theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_residualBoundary
     Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
   exact
     theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
+      data.toResidualBoundaryLayerFacePeelWitnessData hEndpoint
+
+theorem exists_layerFace_currentBoundary_remainders_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : ResidualBoundarySelectorData emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    ∃ i : Fin data.toResidualBoundaryLayerFacePeelWitnessData.numLayers,
+      ∃ f ∈ data.toResidualBoundaryLayerFacePeelWitnessData.layerFaces i,
+        ∀ e ∈ (emb.faceBoundary f.1).erase
+            (data.toResidualBoundaryLayerFacePeelWitnessData.witnessEdge f),
+          e ∈ data.toResidualBoundaryLayerFacePeelWitnessData.currentBoundary i := by
+  exact
+    exists_layerFace_currentBoundary_remainders_of_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint
       data.toResidualBoundaryLayerFacePeelWitnessData hEndpoint
 
 theorem theorem49BoundaryRawQuotientErrorPackage_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
