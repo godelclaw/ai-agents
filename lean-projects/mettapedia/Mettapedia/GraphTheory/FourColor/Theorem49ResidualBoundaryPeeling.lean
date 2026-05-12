@@ -77,6 +77,59 @@ theorem ResidualBoundaryLayerFacePeelWitnessData.laterWitness_mem_currentBoundar
   · exact data.mem_currentBoundary_of_mem_selectedBoundary hboundary
   · exact data.mem_currentBoundary_of_mem_relativeBoundary hrel
 
+/-- In residual/current-boundary witness data, every non-witness remainder edge on a peeled face
+already lies on the live current boundary at that layer. This is the direct residual-boundary
+analogue of the terminal selected-boundary remainder lemmas used elsewhere in the theorem-4.9
+route. -/
+theorem ResidualBoundaryLayerFacePeelWitnessData.mem_currentBoundary_of_mem_erase
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {f : F}
+    (hf : f ∈ data.layerFaces i)
+    {e : G.edgeSet} (he : e ∈ (faceBoundary f).erase (data.witnessEdge f)) :
+    e ∈ data.currentBoundary i := by
+  rcases data.currentBoundary_or_laterWitness_of_hrest hf he with hcurrent | hlater
+  · exact hcurrent
+  · exact data.laterWitness_mem_currentBoundary_of_hrest hf he hlater
+
+theorem ResidualBoundaryLayerFacePeelWitnessData.erase_subset_currentBoundary
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {i : Fin data.numLayers} {f : F}
+    (hf : f ∈ data.layerFaces i) :
+    (faceBoundary f).erase (data.witnessEdge f) ⊆ data.currentBoundary i := by
+  intro e he
+  exact data.mem_currentBoundary_of_mem_erase hf he
+
+theorem
+    ResidualBoundaryLayerFacePeelWitnessData.exists_layer_face_currentBoundary_remainders_of_mem_interiorEdgeSupport
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    {e : G.edgeSet} (he : e ∈ interiorEdgeSupport faceBoundary allFaces) :
+    ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+      data.witnessEdge f = e ∧
+      ∀ e' ∈ (faceBoundary f).erase (data.witnessEdge f), e' ∈ data.currentBoundary i := by
+  rcases Finset.mem_image.1 (data.hcover he) with ⟨f, hf, hfe⟩
+  rcases Finset.mem_biUnion.1 hf with ⟨i, _hi, hfi⟩
+  exact ⟨i, f, hfi, hfe, fun e' he' => data.mem_currentBoundary_of_mem_erase hfi he'⟩
+
+theorem
+    ResidualBoundaryLayerFacePeelWitnessData.exists_layer_face_currentBoundary_remainders_of_interiorEdgeSupport_nonempty
+    {G : SimpleGraph V}
+    {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
+    (data : ResidualBoundaryLayerFacePeelWitnessData allFaces faceBoundary)
+    (hInterior : (interiorEdgeSupport faceBoundary allFaces).Nonempty) :
+    ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+      ∀ e ∈ (faceBoundary f).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  rcases hInterior with ⟨e, he⟩
+  rcases
+    data.exists_layer_face_currentBoundary_remainders_of_mem_interiorEdgeSupport he with
+    ⟨i, f, hfi, _hfe, hremainders⟩
+  exact ⟨i, f, hfi, hremainders⟩
+
 def LocalRemainderBoundaryCollarLayerFacePeelWitnessData.toResidualBoundaryLayerFacePeelWitnessData
     {G : SimpleGraph V} {allFaces : Finset F} {faceBoundary : F → Finset G.edgeSet}
     (data : LocalRemainderBoundaryCollarLayerFacePeelWitnessData allFaces faceBoundary) :
