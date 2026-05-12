@@ -2017,7 +2017,19 @@ the exact v23 seed still do not force any of the current residual
 same-embedding witness packages on the nondegenerate wheel benchmark.  So the
 exact seed is now calibrated on both sides: it is compatible with the
 degenerate no-interior branch, yet it remains non-forcing on a live
-nondegenerate carrier source;
+nondegenerate carrier source.  The same file now also defines the actual
+successor-cycle boundary-order geometry
+\path{wheelWithInnerTriangleDartSuccessorCycleGeometry} with
+\path{wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace}
+and packages the exact seed on that route-facing shell in
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry_wheelWithInnerTriangle}.
+The failed universal
+\path{not_forall_some_naturalResidualSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle}
+shows that even actual successor-cycle boundary-order data, together with the
+same Tait coloring, live purified carrier, and exact v23 seed, still does not
+force any of the current residual same-embedding witness packages on the wheel
+benchmark.  So the exact-seed gap now persists all the way up to the real
+boundary-order shell;
 \item the annulus witness file now exposes the actual parent-carrying geometry
 that had previously been hidden inside the previous-boundary witness endpoint.
 \path{PlanarBoundaryAnnulusDecomposition.layerOf} gives the canonical collar

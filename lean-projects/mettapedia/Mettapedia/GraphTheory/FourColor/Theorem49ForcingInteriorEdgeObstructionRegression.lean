@@ -1496,6 +1496,86 @@ theorem
       not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle
         hCollar
 
+theorem
+    exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry_wheelWithInnerTriangle
+    :
+    ∃ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        ∃ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+          IsTaitEdgeColoring wheelWithInnerTriangleGraph C ∧
+            (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty
+                    (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb) ∧
+                  ¬ Nonempty (ResidualBoundarySelectorData emb) ∧
+                  ¬ Nonempty
+                    (PlanarBoundaryHeightOrderedFacePeelWitnessData emb) ∧
+                  ¬ Nonempty
+                    (PlanarBoundaryCollarLayerFacePeelWitnessData emb) := by
+  exact
+    ⟨wheelWithInnerTriangleEmbedding,
+      wheelWithInnerTriangleAnnulusBoundaryReachabilityData,
+      wheelWithInnerTriangleDartSuccessorCycleGeometry,
+      wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      wheelWithInnerTriangleTaitEdgeColoring,
+      wheelWithInnerTriangleTaitEdgeColoring_isTait,
+      selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle,
+      red, blue,
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1),
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary,
+      not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_wheelWithInnerTriangle,
+      not_nonempty_residualBoundarySelectorData_wheelWithInnerTriangle,
+      not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_wheelWithInnerTriangle,
+      not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle⟩
+
+theorem
+    not_forall_some_naturalResidualSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle
+    :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+        ∀ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) →
+          ∀ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+            IsTaitEdgeColoring wheelWithInnerTriangleGraph C →
+              (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb) ∨
+                      Nonempty (ResidualBoundarySelectorData emb) ∨
+                      Nonempty (PlanarBoundaryHeightOrderedFacePeelWitnessData emb) ∨
+                      Nonempty (PlanarBoundaryCollarLayerFacePeelWitnessData emb) := by
+  intro h
+  rcases h wheelWithInnerTriangleEmbedding
+      wheelWithInnerTriangleAnnulusBoundaryReachabilityData
+      wheelWithInnerTriangleDartSuccessorCycleGeometry
+      wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+      wheelWithInnerTriangleTaitEdgeColoring
+      wheelWithInnerTriangleTaitEdgeColoring_isTait
+      selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle
+      red blue
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary with
+    hResidual | hSelector | hHeight | hCollar
+  · exact
+      not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_wheelWithInnerTriangle
+        hResidual
+  · exact not_nonempty_residualBoundarySelectorData_wheelWithInnerTriangle hSelector
+  · exact
+      not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_wheelWithInnerTriangle
+        hHeight
+  · exact
+      not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle
+        hCollar
+
 /-- The wheel benchmark combines the positive coloring/carrier facts with a forcing-edge
 obstruction to the current annulus-root and face-layer construction routes. -/
 theorem

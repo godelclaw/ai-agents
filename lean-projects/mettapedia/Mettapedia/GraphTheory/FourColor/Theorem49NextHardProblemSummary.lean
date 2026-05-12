@@ -1113,13 +1113,22 @@ packages that exact seed together with the honest closed-walk source, the concre
 coloring, and the nonempty purified selected-boundary interior carrier in
 `wheelWithInnerTriangle_closedWalkSource_tait_nonempty_carrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry`.
 On that same wheel embedding, the residual boundary layer witness data, residual selector data,
-height-ordered witness data, and collar-layer witness data all still fail.  The failed universal
+height-ordered witness data, and collar-layer witness data all still fail.  The same file now
+also defines the actual successor-cycle boundary-order geometry
+`wheelWithInnerTriangleDartSuccessorCycleGeometry` with
+`wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace`, and packages the
+exact seed on that route-facing shell in
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry_wheelWithInnerTriangle`.
+The failed universals
 `not_forall_some_naturalResidualSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle`
-shows that honest source data, a Tait coloring, a live purified carrier, and the exact v23 seed
-still do not force any of the current residual same-embedding witness packages on the
-nondegenerate wheel benchmark.  So the exact seed is now calibrated on both sides: it is
-compatible with the degenerate no-interior branch, but it also remains non-forcing on a live
-nondegenerate carrier source.
+and
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle`
+show that neither honest closed-walk source data nor actual successor-cycle boundary-order data,
+even together with a Tait coloring, a live purified carrier, and the exact v23 seed, forces any
+of the current residual same-embedding witness packages on the nondegenerate wheel benchmark.
+So the exact seed is now calibrated on both sides: it is compatible with the degenerate
+no-interior branch, but it also remains non-forcing on a live nondegenerate carrier source all
+the way up to the actual boundary-order shell.
 
 `Theorem49ResidualBoundaryObstruction.lean` then calibrates that gap on the live
 shared-interior-pair source benchmark.  The theorems
