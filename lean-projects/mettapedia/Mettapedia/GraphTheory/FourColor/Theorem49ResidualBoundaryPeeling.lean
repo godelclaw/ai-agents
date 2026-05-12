@@ -1130,6 +1130,145 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_residualBoundarySelectorData
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
       data hEndpoint C₀ hC₀).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
+theorem exists_embedding_residualBoundaryPositiveProjectedGeometryOn_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
+  rcases hG with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior,
+      hcover, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hEndpoint⟩
+
+theorem exists_embedding_currentBoundaryRemainders_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb,
+      ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+        ∀ e ∈ (emb.faceBoundary f.1).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  rcases
+    exists_embedding_residualBoundaryPositiveProjectedGeometryOn_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+      hG with
+    ⟨emb, hResidual⟩
+  rcases theorem49CurrentBoundaryRemainders_of_residualBoundaryPositiveProjectedGeometryOn hResidual with
+    ⟨data, i, f, hf, hremainders⟩
+  exact ⟨emb, data, i, f, hf, hremainders⟩
+
+theorem exists_embedding_residualBoundaryPositiveProjectedGeometryOn_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
+  rcases hG with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+        boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+        hpeelInterior hcover hEndpoint⟩
+
+theorem exists_embedding_currentBoundaryRemainders_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ data : PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb,
+      ∃ i : Fin data.numLayers, ∃ f ∈ data.layerFaces i,
+        ∀ e ∈ (emb.faceBoundary f.1).erase (data.witnessEdge f), e ∈ data.currentBoundary i := by
+  rcases
+    exists_embedding_residualBoundaryPositiveProjectedGeometryOn_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint
+      hG with
+    ⟨emb, hResidual⟩
+  rcases theorem49CurrentBoundaryRemainders_of_residualBoundaryPositiveProjectedGeometryOn hResidual with
+    ⟨data, i, f, hf, hremainders⟩
+  exact ⟨emb, data, i, f, hf, hremainders⟩
+
 theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_residualBoundary
     {G : SimpleGraph V}
     [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
