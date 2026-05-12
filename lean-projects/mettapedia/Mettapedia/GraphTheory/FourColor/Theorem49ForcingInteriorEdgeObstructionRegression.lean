@@ -1,5 +1,6 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49ForcingInteriorEdgeObstruction
 import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryPeeling
+import Mettapedia.GraphTheory.FourColor.Theorem49ResidualBoundaryRoute
 import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacementRoute
 import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusHonestGeometryRegression
 import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
@@ -1391,6 +1392,109 @@ theorem not_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInn
     not_nonempty_planarBoundaryAnnulusConstructionFaceLayerData
       (emb := wheelWithInnerTriangleEmbedding)
       wheelWithInnerTriangleForcingInteriorEdgeWitness
+
+/-- Exact Step~2 residual seed on a live wheel face of the nondegenerate source benchmark. -/
+theorem nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary :
+    Nonempty
+      (V23ResidualBoundaryInitialState wheelWithInnerTriangleTaitEdgeColoring red blue
+        (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)) := by
+  exact
+    ⟨residualBoundaryInitialState_of_sum_v23_single_component_purifications_eq_boundaryOnlyGenerator
+      wheelWithInnerTriangleTaitEdgeColoring red blue
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)⟩
+
+theorem not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_wheelWithInnerTriangle :
+    ¬ Nonempty
+      (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData
+        wheelWithInnerTriangleEmbedding) := by
+  intro hResidual
+  exact
+    not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle
+      ((nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_iff_nonempty_planarBoundaryCollarLayerFacePeelWitnessData).1
+        hResidual)
+
+theorem not_nonempty_residualBoundarySelectorData_wheelWithInnerTriangle :
+    ¬ Nonempty (ResidualBoundarySelectorData wheelWithInnerTriangleEmbedding) := by
+  rintro ⟨data⟩
+  exact
+    not_theorem49HeightOrderedPositiveProjectedGeometryOn_wheelWithInnerTriangle
+      (theorem49HeightOrderedPositiveProjectedGeometryOn_of_residualBoundarySelectorData_and_hasUnblockedInteriorEndpoint
+        data hasUnblockedInteriorEndpoint_wheelWithInnerTriangle)
+
+/-- Exact-v23 calibration on the nondegenerate wheel benchmark: even after adding the algebraic
+Step~2 seed to the honest source, concrete Tait coloring, and live purified carrier, none of the
+current residual same-embedding witness packages becomes available. -/
+theorem
+    wheelWithInnerTriangle_closedWalkSource_tait_nonempty_carrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry
+    :
+    Nonempty
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource
+          wheelWithInnerTriangleEmbedding) ∧
+      IsTaitEdgeColoring wheelWithInnerTriangleGraph
+        wheelWithInnerTriangleTaitEdgeColoring ∧
+      (selectedBoundaryInteriorEdgeEndpointVertices
+        wheelWithInnerTriangleEmbedding).Nonempty ∧
+      Nonempty
+        (V23ResidualBoundaryInitialState wheelWithInnerTriangleTaitEdgeColoring red blue
+          (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)) ∧
+      ¬ Nonempty
+        (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData
+          wheelWithInnerTriangleEmbedding) ∧
+      ¬ Nonempty
+        (ResidualBoundarySelectorData wheelWithInnerTriangleEmbedding) ∧
+      ¬ Nonempty
+        (PlanarBoundaryHeightOrderedFacePeelWitnessData
+          wheelWithInnerTriangleEmbedding) ∧
+      ¬ Nonempty
+        (PlanarBoundaryCollarLayerFacePeelWitnessData
+          wheelWithInnerTriangleEmbedding) := by
+  exact
+    ⟨nonempty_wheelWithInnerTriangleClosedWalkAnnulusBoundarySource,
+      wheelWithInnerTriangleTaitEdgeColoring_isTait,
+      selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle,
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary,
+      not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_wheelWithInnerTriangle,
+      not_nonempty_residualBoundarySelectorData_wheelWithInnerTriangle,
+      not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_wheelWithInnerTriangle,
+      not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle⟩
+
+/-- The exact v23 seed still does not repair the natural residual same-embedding witness surfaces
+on the live wheel carrier benchmark. -/
+theorem
+    not_forall_some_naturalResidualSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle
+    :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          ∀ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+            IsTaitEdgeColoring wheelWithInnerTriangleGraph C →
+              (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (PlanarBoundaryResidualBoundaryLayerFacePeelWitnessData emb) ∨
+                      Nonempty (ResidualBoundarySelectorData emb) ∨
+                      Nonempty (PlanarBoundaryHeightOrderedFacePeelWitnessData emb) ∨
+                      Nonempty (PlanarBoundaryCollarLayerFacePeelWitnessData emb) := by
+  intro h
+  rcases h wheelWithInnerTriangleEmbedding
+      nonempty_wheelWithInnerTriangleClosedWalkAnnulusBoundarySource
+      wheelWithInnerTriangleTaitEdgeColoring
+      wheelWithInnerTriangleTaitEdgeColoring_isTait
+      selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle
+      red blue
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary with
+    hResidual | hSelector | hHeight | hCollar
+  · exact
+      not_nonempty_planarBoundaryResidualBoundaryLayerFacePeelWitnessData_wheelWithInnerTriangle
+        hResidual
+  · exact not_nonempty_residualBoundarySelectorData_wheelWithInnerTriangle hSelector
+  · exact
+      not_nonempty_planarBoundaryHeightOrderedFacePeelWitnessData_wheelWithInnerTriangle
+        hHeight
+  · exact
+      not_nonempty_planarBoundaryCollarLayerFacePeelWitnessData_wheelWithInnerTriangle
+        hCollar
 
 /-- The wheel benchmark combines the positive coloring/carrier facts with a forcing-edge
 obstruction to the current annulus-root and face-layer construction routes. -/

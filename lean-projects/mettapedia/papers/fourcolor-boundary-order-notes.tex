@@ -1984,6 +1984,40 @@ shared-interior-pair obstruction family is not exposing an outright
 inconsistency between v23 Step~2 algebra and the degenerate no-interior
 surfaces; it isolates a genuine non-forcing gap on the live endpoint
 benchmark;
+\item the same positive exact-seed benchmark now also shows where that
+compatibility stops on the construction side.  The file still proves
+\path{nonempty_twoTriangleClosedWalkSourcePlanarBoundaryAnnulusConstruction}
+and the actual successor-cycle package
+\path{twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_planarBoundaryAnnulusConstruction},
+but it also proves
+\path{not_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_twoTriangleAnnulusEmbedding},
+\path{not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData_twoTriangleAnnulusEmbedding},
+\path{not_nonempty_planarBoundaryAnnulusConstructionPositiveFrontierData_twoTriangleAnnulusEmbedding},
+and
+\path{not_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_twoTriangleAnnulusEmbedding}.
+So the exact Step~2 seed is compatible with the degenerate no-interior branch
+up through the base annulus construction and residual witness surfaces, yet it
+still cannot supply any genuinely positive-stage frontier package there:
+every positive \path{currentOuterBoundary} is forced inside
+\path{interiorEdgeSupport = \emptyset};
+\item the same exact Step~2 seed is now also calibrated on a live nondegenerate
+carrier benchmark.  In
+\path{Theorem49ForcingInteriorEdgeObstructionRegression.lean},
+\path{nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary}
+instantiates the exact seed on one of the wheel faces, and
+\path{wheelWithInnerTriangle_closedWalkSource_tait_nonempty_carrier_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry}
+packages that seed together with the honest closed-walk source, the concrete
+wheel Tait coloring, the nonempty purified selected-boundary interior carrier,
+and simultaneous failure of residual witness data, residual selector data,
+height-ordered witness data, and collar-layer witness data on the same
+embedding.  The failed universal
+\path{not_forall_some_naturalResidualSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_wheelWithInnerTriangle}
+shows that honest source data, Tait colorability, a live purified carrier, and
+the exact v23 seed still do not force any of the current residual
+same-embedding witness packages on the nondegenerate wheel benchmark.  So the
+exact seed is now calibrated on both sides: it is compatible with the
+degenerate no-interior branch, yet it remains non-forcing on a live
+nondegenerate carrier source;
 \item the annulus witness file now exposes the actual parent-carrying geometry
 that had previously been hidden inside the previous-boundary witness endpoint.
 \path{PlanarBoundaryAnnulusDecomposition.layerOf} gives the canonical collar
