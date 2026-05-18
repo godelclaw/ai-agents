@@ -285,6 +285,11 @@ import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacem
      `not_forall_some_replacementPositiveProjectedGeometry_or_previousBoundaryWitness_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`
      show that the live positive endpoints require a genuine cycle-breaking geometric input,
      not just honest source data, Tait colorability, and the purified carrier
+   - The same wheel benchmark now blocks the natural residual/current-boundary repair surface
+     explicitly too:
+     `not_theorem49ResidualBoundaryPositiveProjectedGeometryOn_wheelWithInnerTriangle` and
+     `not_forall_theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`
+     show that the residual wrapper does not escape the same three-spoke obstruction either
 
 ### Known obstructions
 
@@ -490,6 +495,17 @@ and
 `not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_directPositiveProjectedGeometryOn_counterGraph`
 show that direct replacement-positive geometry is not a generic source for either selector data
 or construction-face-layer data on the same embedding.  The
+same ceiling now also hits the residual/current-boundary wrapper on that benchmark:
+`counterEmbedding_residualBoundaryPositiveProjectedGeometryOn_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`counterEmbedding_residualBoundaryPositiveProjectedGeometryOn_and_boundaryRootNonemptyProjectedSynthesis_and_forcingInteriorEdgeWitness_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`counterGraph_explicitTait_residualBoundaryPositiveProjectedGeometry_and_boundaryRootNonemptyProjectedSynthesis_with_forcingInteriorEdgeWitness_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_theorem49ResidualBoundaryPositiveProjectedGeometryOn_counterGraph`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_theorem49ResidualBoundaryPositiveProjectedGeometryOn_counterGraph`
+show that even after passing through the residual positive shell, and even once the projected
+theorem-4.9 endpoint is already present on the same embedding, the two-collar benchmark still
+does not force the selector or downstream construction-face-layer packages there.
+The
 generic graph-level
 bridge is now factored into
 `Theorem49PositiveGeometricSourceReplacement.lean`: an existential annulus collar geometry, or
@@ -556,6 +572,14 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      same-embedding positive geometry stack, together with explicit-Tait theorem-4.9 synthesis,
      already exists on `diamondWithTriangleEmbedding`, yet the newer projected nonempty endpoint
      still fails there because the selected-boundary-purified carrier is empty
+   - This is now route-facing at graph level too:
+     `exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangleGraph`
+     and
+     `not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`
+     show that even an honest closed-walk source together with canonical witness choice,
+     explicit Tait coloring, annulus collar geometry, repaired previous-boundary witness
+     geometry, all currently sufficient peel witnesses, and the full theorem-4.9 synthesis
+     package still does not generically force the projected nonempty endpoint
    - The wheel benchmark has an honest closed-walk annulus source, Tait coloring, and nonempty
      carrier, but fails canonical choice, one-collar geometry, the raw
      well-founded/height-ordered/collar-layer witness-cover surfaces, and weak annulus-collar
@@ -764,14 +788,35 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      `boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootParentPeelData_strictDescent`
      turns canonical parent child-membership into the selector `hrest` condition with root
      distance as the face distance.  Consequently
+     `theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`
+     and
+     `exists_theorem49HeightOrderedPositiveProjectedGeometryOn_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`
+     already expose the packaged height-ordered positive geometry surface on that shell, and
      `theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`
      composes the same source-fixed parent hypotheses through the selector-to-construction
-     surface directly.  This selector route now also has the downstream route-facing forms
+     surface directly.  This selector route now also has the downstream same-embedding and
+     graph-level full closures
+     `theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`,
      `theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`
      and
      `exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
      so graph-level source data plus the local endpoint witness can use the selector path
-     without first repackaging the carrier as raw selected-boundary nonemptiness.  But the
+     all the way to full theorem-4.9 synthesis and the graph-level raw quotient/error package
+     without first repackaging the carrier as raw selected-boundary nonemptiness.  The live
+     successor-cycle selected-arc shell now inherits the same stricter face-membership selector
+     package too via
+     `theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`,
+     `theorem49HeightOrderedPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     and
+     `exists_theorem49HeightOrderedPositiveProjectedGeometryOn_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`.
+     But the
      current honest-source semantics also make that stronger endpoint-consuming shell vacuous:
      `not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover`,
      `not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover`,
@@ -791,7 +836,24 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      and
      `not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`,
      show that no Tait coloring or exact v23 residual seed is needed to refute a universal
-     derivation of that stronger shell.  The same shared-interior-pair benchmark now also
+     derivation of that stronger shell.  The weaker raw canonical-parent shared-edge-cover shell
+     is no longer only a projected endpoint either:
+     `theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
+     `exists_theorem49HeightOrderedPositiveProjectedGeometryOn_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     and
+     `exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`.
+     So once the honest closed-walk shell carries that raw cover together with
+     `HasUnblockedInteriorEndpoint`, the selector lane already closes at packaged
+     `Theorem49HeightOrderedPositiveProjectedGeometryOn`, full
+     `Theorem49BoundaryRootSynthesis`, and the graph-level raw quotient/error package on the same
+     embedding; the remaining source-facing selector burden there is only to derive the raw cover
+     and endpoint witness themselves.
+     The same shared-interior-pair benchmark now also
      bundles the whole local selector/canonical-parent burden at once:
      `not_forall_some_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
      and
@@ -810,7 +872,26 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      lift that whole bundled failure pattern to reusable witness-based converses, so any
      same-embedding example with honest-source or live successor-cycle data, a Tait coloring,
      and `HasUnblockedInteriorEndpoint` but without the local selector/canonical-parent/known-
-     geometry package already refutes a universal derivation of that whole burden.  The selector lane
+     geometry package already refutes a universal derivation of that whole burden.
+     `Theorem49ResidualBoundaryObstruction.lean` now tightens the same diagnosis on the exact
+     one-collar/v23 shared-interior-pair shell itself via
+     `exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_sharedInteriorPair`,
+     `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_sharedInteriorPair`,
+     `not_forall_some_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`,
+     and
+     `not_forall_some_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`.
+     So even after adding exact one-collar current-boundary data and the exact v23 residual seed,
+     the live shared-interior-pair benchmark still fails the whole bundled local
+     selector/canonical-parent/known-geometry workaround class in one theorem, not merely its
+     individual branches.  And this exact-shell bundled obstruction is now reusable too:
+     `not_forall_some_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+     and
+     `not_forall_some_selectorOrCanonicalParentOrKnownSameEmbeddingGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+     lift the same exact one-collar/v23 bundled failure pattern to witness-based converses, so
+     any same-embedding exact-shell example with a Tait coloring, `HasUnblockedInteriorEndpoint`,
+     and nonempty `V23ResidualBoundaryInitialState` but without the selector/canonical-parent/
+     known-geometry package already refutes a universal derivation of that exact-shell burden.
+     The selector lane
      now also closes directly at full theorem-4.9 synthesis on its own construction surface:
      `theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint`
      and
@@ -819,15 +900,23 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      an embedding, no further projected-synthesis packaging remains below the selector-built
      annulus construction.  The actual successor-cycle boundary-order shell now has the matching
      raw-cover selector route too:
+     `theorem49HeightOrderedPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
      `theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
+     `theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
      `theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_via_boundaryFreeSelector`,
      and
-     `exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`.
+     `exists_theorem49HeightOrderedPositiveProjectedGeometryOn_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`,
+     `exists_theorem49BoundaryRawQuotientErrorPackage_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_hasUnblockedInteriorEndpoint_via_boundaryFreeSelector`.
      So once the live successor-cycle shell carries the raw canonical-parent shared-edge cover
      together with `HasUnblockedInteriorEndpoint`, it already reaches the selector-built
-     annulus-construction lane directly, without a residual-boundary detour; the remaining
+     annulus-construction lane, packaged `Theorem49HeightOrderedPositiveProjectedGeometryOn`,
+     full `Theorem49BoundaryRootSynthesis`, and the graph-level raw quotient/error package
+     directly, without a residual-boundary detour; the remaining
      source-facing selector burden is only to derive that injective strict-descent selector
-     package itself on the live shell.  The same raw-cover selector lane now also exposes the
+     package itself on the live shell.  The same
+     raw-cover selector lane now also exposes the
      route-facing terminal selected-face break rather than only its downstream projected
      consequences:
      `exists_terminal_face_boundary_remainders_and_disjoint_of_interiorDualBoundaryRootParentPeelData_via_boundaryFreeSelector`
@@ -1199,6 +1288,18 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      `wheelWithInnerTriangle_closedWalkSource_tait_hasUnblockedEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData_via_terminal_card`
      keeps the honest source, Tait coloring, and local unblocked endpoint while deriving the
      IDBRAD contradiction through the terminal-card obstruction.
+     The same file now also lifts this from a fixed wheel embedding to reusable failed
+     converses on both live source shells:
+     `exists_embedding_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangleGraph`
+     and
+     `not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangleGraph`
+     show that honest closed-walk source data, a real Tait coloring, and
+     `HasUnblockedInteriorEndpoint` still do not generically force same-embedding IDBRAD on
+     the wheel graph; likewise
+     `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangleGraph`
+     and
+     `not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangleGraph`
+     collapse the same converse on the actual successor-cycle boundary-order shell.
      The same concrete source is now also wired to the actual projected Theorem 4.9 endpoint:
      `wheelWithInnerTriangleGraph_edgeSet_fintype` supplies the finite edge-set instance,
      `hasUnblockedInteriorEndpoint_wheelWithInnerTriangle` names the endpoint witness, and
@@ -1244,16 +1345,39 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      and
      `exists_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_facewiseAtMostOneInteriorEdge`.
      Thus the live successor-cycle at-most-one branch is genuinely inhabited and already reaches
-     witness assignment and theorem-4.9 synthesis on a concrete graph; the remaining burden on
-     that branch is the nonempty-carrier upgrade, not basic route reachability.
+     witness assignment and theorem-4.9 synthesis on a concrete graph; the only attempted
+     downstream upgrade on that branch is the nonempty-carrier endpoint, not basic route
+     reachability.
      The same file now calibrates that constructive branch at the exact current-boundary layer as
      well:
      `exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_annulusWitnessAssignment_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`
      shows that the same live successor-cycle shell already carries source-preserving one-collar
      current-boundary data while still supporting canonical witness assignment and explicit
-     theorem-4.9 synthesis on the fixed diamond embedding.  So on this positive branch the
-     exact current-boundary shell is not the missing burden either; the remaining gap is still
-     the nonempty-carrier upgrade.
+     theorem-4.9 synthesis on the fixed diamond embedding.  But the same file now also proves
+     `not_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_hasUnblockedInteriorEndpoint`
+     and
+     `not_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_hasUnblockedInteriorEndpoint`.
+     So on this branch the exact current-boundary shell is not the missing burden either: the
+     endpoint-bearing/nonempty-carrier upgrade itself is impossible on the current honest
+     closed-walk and successor-cycle one-collar at-most-one interfaces.
+     The same file now also proves the direct projected-endpoint collapses
+     `not_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge`,
+     `not_theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge`,
+     `not_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_theorem49BoundaryRootNonemptyProjectedSynthesis`,
+     and
+     `not_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_theorem49BoundaryRootNonemptyProjectedSynthesis`.
+     So even the actual current projected theorem-4.9 endpoint is structurally blocked on that
+     shell, not just the intermediate endpoint witness.  The benchmark packages
+     `exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_annulusWitnessAssignment_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangleGraph`
+     and
+     `exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_facewiseAtMostOneInteriorEdge_and_annulusWitnessAssignment_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangleGraph`
+     record the same honest-source and successor-cycle exact-shell diagnosis on the explicit
+     diamond embedding, and
+     `diamondWithTriangleGraph_explicitTait_fixedEmbedding_oneCollarCurrentBoundary_facewiseAtMostOne_annulusWitnessAssignment_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis`
+     together with
+     `diamondWithTriangleGraph_explicitTait_fixedEmbedding_closedWalkOneCollarCurrentBoundary_facewiseAtMostOne_annulusWitnessAssignment_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis`
+     package that same conclusion as fixed-embedding explicit-Tait graph-level theorems on the
+     successor-cycle and honest-source shells respectively.
      The same file now also packages the stronger fallback/count/boundary-rest hypothesis surface
      on that benchmark via
      `exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_diamondWithTriangleGraph`,
@@ -1262,28 +1386,143 @@ separation theorem or a root-distance peeled-face no-touch theorem.
      and
      `exists_span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_atMostOneInteriorEdgePerFace`.
      So the same live successor-cycle at-most-one shell already reaches the corrected projected
-     spanning conclusions on an explicit graph as well; the remaining burden on that branch is
-     the nonempty-carrier positive upgrade, not theorem-4.9 or projected-spanning reachability.
+     spanning conclusions on an explicit graph as well; projected spanning is not the blocker on
+     that branch either, because the current exact-shell endpoint-bearing upgrade is already
+     ruled out above.
      The same benchmark file now pushes one algebraic layer deeper still:
      `exists_theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_atMostOneInteriorEdgePerFace`
      and
      `exists_theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_atMostOneInteriorEdgePerFace`
      show that the explicit live shell also reaches the first chain-dot duality endpoints on the
      natural purified carrier vertex set.  So the remaining burden on that constructive branch is
-     not algebraic projection/duality reachability either; it is the positive nonempty-carrier
-     upgrade itself.  The same file now also reaches the raw finite corrected Definition 4.8
+     not algebraic projection/duality reachability either; the current exact-shell
+     endpoint-bearing upgrade is already ruled out above.  The same file now also reaches the raw
+     finite corrected Definition 4.8
      representation there:
      `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_atMostOneInteriorEdgePerFace`
      packages finite Kempe-closure generator sums realizing every class in the corresponding
      boundary-zero Kirchhoff subspace on that same explicit live shell.  So the remaining burden
-     on this constructive branch is not raw Definition 4.8 realization either; it is still the
-     positive nonempty-carrier upgrade itself.  The same benchmark file now also reaches the
+     on this constructive branch is not raw Definition 4.8 realization either; the current exact-
+     shell endpoint-bearing upgrade is already ruled out above.  The same benchmark file now also reaches the
      projected-generator detector there:
      `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_diamondWithTriangleGraph_for_explicitTaitColoring_via_successorCycle_atMostOneInteriorEdgePerFace`
      shows that every nonzero class in that same boundary-zero Kirchhoff subspace is detected by
      some projected Kempe generator on the explicit live shell.  So the remaining burden on this
-     constructive branch is not nontrivial projected-generator detection either; it is still the
-     positive nonempty-carrier upgrade itself.
+     constructive branch is not nontrivial projected-generator detection either; the current exact-
+     shell endpoint-bearing upgrade is already ruled out above.
+     The same benchmark file now mirrors that projected Definition 4.8 package on the honest
+     closed-walk shell too.  The witness
+     `exists_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_diamondWithTriangleGraph`
+     packages the fallback/count/boundary-rest surface directly for the cyclic source, and the
+     honest-source instantiations
+     `exists_projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`,
+     `exists_span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`,
+     `exists_theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`,
+     `exists_theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_diamondWithTriangleGraph_for_explicitTaitColoring_via_closedWalkAtMostOneInteriorEdgePerFace`
+     show that the same explicit Tait-colored diamond already reaches the corrected projected
+     subspace, spanning, duality, finite realization, and nonzero-detection endpoints without
+     passing through successor-cycle packaging.  So the honest closed-walk side is not blocked
+     below the current projected nonempty endpoint either; it already reaches the same algebraic
+     floor while the exact one-collar projected nonempty upgrade remains refuted above.
+     `PlanarBoundaryClosedWalkSourceProjection.lean` now removes most of that remaining
+     benchmark-locality too.  The new fixed-embedding source-to-projection bridges
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct`
+     show that once an honest cyclic source already carries canonical witness choice, the
+     corrected projected subspace, spanning, duality, detector, and finite raw-generator
+     endpoints all follow on that very same embedding.  The same file also upgrades the direct
+     local at-most-one shell itself to same-embedding theorems:
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct`.
+     So on the honest at-most-one branch the current formal burden is no longer any corrected
+     Definition 4.8 algebraic step at all, even at fixed-embedding granularity; the surviving
+     obstruction is the projected nonempty carrier endpoint itself.
+     The same file now upgrades the honest same-boundary one-collar geometry shell itself to
+     same-embedding theorems too:
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`.
+     So once an honest cyclic source already carries same-boundary one-collar geometry with
+     `numCollars = 1`, the corrected projected subspace, spanning, duality, detector, and finite
+     raw-generator endpoints already follow on that very same embedding.  The honest one-collar
+     geometry branch is therefore not blocked below corrected Definition 4.8 either; the
+     surviving burden remains the projected nonempty carrier endpoint and the exact-shell
+     upgrades above it.
+     The same file now upgrades the route-facing successor-cycle shell with same-boundary
+     one-collar geometry to matching fixed-embedding direct theorems:
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct`.
+     So even on the explicit boundary-order presentation, once the shell already carries
+     same-boundary one-collar geometry with `numCollars = 1`, the corrected projected subspace,
+     spanning, duality, detector, and finite raw-generator endpoints follow on that very same
+     embedding.  The route-facing one-collar geometry branch is therefore not blocked below
+     corrected Definition 4.8 either; it shares the same surviving projected nonempty carrier
+     burden as the honest-source branch.
+     The same file now also upgrades the route-facing successor-cycle canonical witness-choice
+     shell from existential packaging to matching fixed-embedding direct theorems:
+     `theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct`,
+     `theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct`,
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct`.
+     So once the explicit boundary-order shell already carries canonical witness choice, the
+     corrected projected subspace, spanning, duality, detector, and finite raw-generator
+     endpoints follow on that very same embedding; if it also has nonempty purified carrier, then
+     the positive theorem-4.9 endpoint and raw quotient/error package do too.  The route-facing
+     canonical-choice branch is therefore no longer blocked at existential repackaging either; it
+     shares the same surviving carrier and exact-shell burdens as the corresponding honest-source
+     branch.
+     The same file now also upgrades the route-facing successor-cycle local at-most-one shell to
+     matching fixed-embedding direct theorems:
+     `projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`,
+     `span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`,
+     `theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`,
+     `exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`,
+     and
+     `exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct`.
+     So on the explicit boundary-order presentation, once the local at-most-one hypotheses are
+     already available, the corrected projected subspace, spanning, duality, detector, and finite
+     raw-generator endpoints follow on that very same embedding too.  The route-facing at-most-one
+     branch is therefore no longer blocked below corrected Definition 4.8 either; it now matches
+     the honest-source at-most-one branch in leaving the projected nonempty carrier endpoint as
+     the surviving burden.
+     `Theorem49AtMostOneNonemptyCarrierImpossibility.lean` now also lifts that impossibility
+     diagnosis from the facewise shell to the stronger local-cardinality package itself:
+     `not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace`,
+     `not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace`,
+     `not_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace`,
+     `not_theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace`,
+     and the exact one-collar existential wrappers on both shells.  So the extra fallback-edge
+     and boundary-rest data do not rescue this branch either: they only lower it to the corrected
+     Definition 4.8 algebraic floor, while the current endpoint witness and projected nonempty
+     theorem-4.9 endpoint remain structurally false on that stronger shell.
 
 ### Recommendation
 
@@ -1344,6 +1583,23 @@ and
 `theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_heightOrderedPositiveProjectedGeometryOn`
 show that the present residual/current-boundary wrapper adds no new positive geometric strength
 beyond the already existing collar-layer / height-ordered packages.
+The wheel obstruction now hits that residual shell explicitly:
+`not_theorem49ResidualBoundaryPositiveProjectedGeometryOn_wheelWithInnerTriangle` and the failed
+universal
+`not_forall_theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`
+show that honest source data, a real Tait coloring, and a nonempty purified carrier still do not
+force residual/current-boundary positive geometry on the same embedding.
+The two-collar positive benchmark now calibrates the downstream ceiling on that same residual
+surface:
+`counterEmbedding_residualBoundaryPositiveProjectedGeometryOn_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`counterEmbedding_residualBoundaryPositiveProjectedGeometryOn_and_boundaryRootNonemptyProjectedSynthesis_and_forcingInteriorEdgeWitness_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`counterGraph_explicitTait_residualBoundaryPositiveProjectedGeometry_and_boundaryRootNonemptyProjectedSynthesis_with_forcingInteriorEdgeWitness_without_boundaryFreeSelector_or_planarBoundaryAnnulusConstructionFaceLayerData`,
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_theorem49ResidualBoundaryPositiveProjectedGeometryOn_counterGraph`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_theorem49ResidualBoundaryPositiveProjectedGeometryOn_counterGraph`
+show that even when the residual wrapper is positively inhabited, and even when that same
+embedding already reaches the projected theorem-4.9 endpoint, it still does not force either the
+boundary-free selector shell or the annulus-construction face-layer shell.
 
 What this pass now **does** establish is a same-embedding lowering from stronger source-side
 canonical-parent cover data.  `Theorem49ResidualBoundaryPeeling.lean` proves
@@ -1946,6 +2202,102 @@ The still-stronger package
 `twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_positiveProjectedGeometryOn`
 shows that this blocker survives even after adjoining theorem-4.9 synthesis itself to the same
 exact one-collar residual witness shell.
+`Theorem49ResidualBoundaryPositiveRegression.lean` now also lifts both benchmark-local blockers
+to reusable failed-converse theorems:
+`not_forall_any_positiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`
+and
+`not_forall_any_positiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`.
+So the two-triangle exact-v23 no-interior shell is no longer only a positive benchmark plus local
+blocker; it now formally refutes any universal derivation from that exact successor-cycle
+current-boundary shell, with residual-boundary layer witness data and even after full
+`Theorem49BoundaryRootSynthesis`, to any of the current residual / collar-layer /
+height-ordered positive projected-geometry targets.
+That diagnosis is now also lifted to reusable witness-based converses:
+`not_forall_any_positiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData`
+and
+`not_forall_any_positiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`.
+So once any graph-level exact one-collar/v23 successor-cycle shell carries a same-embedding
+residual-boundary layer witness and still fails those direct positive endpoints, the corresponding
+universal converse is already refuted without replaying the two-triangle benchmark proof.
+The same file now also lifts the route-facing replacement-positive obstruction on that shell:
+`not_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_twoTriangle`,
+`not_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_twoTriangle`,
+the bundled blockers
+`twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn`
+and
+`twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn`,
+and the failed universals
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`.
+So even after adjoining exact one-collar current-boundary data, the exact v23 seed,
+same-embedding residual-boundary layer witness data, and full theorem-4.9 synthesis, the
+two-triangle successor-cycle shell still does not force any of the current replacement-positive
+targets either, including the route-facing honest closed-walk and successor-cycle annulus-collar
+packages.
+The same replacement-positive diagnosis is now also available in reusable witness-based form:
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData`
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`.
+So the exact-v23 residual-layer obstruction is no longer tied to the concrete two-triangle graph:
+any graph-level witness of that same shell, together with same-embedding failure of the current
+direct and route-facing replacement-positive endpoints, already collapses the universal converse.
+That live-shell diagnosis is now also exhibited by concrete graph-level successor-cycle witness
+packages themselves:
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_positiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_positiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn_twoTriangleAnnulusGraph`.
+So the same two-triangle graph now witnesses that exact one-collar/v23 residual-layer
+obstruction not only on the fixed `twoTriangleAnnulusEmbedding`, but as a graph-level existential
+package directly on the live successor-cycle selected-arc shell too.
+The same successor-cycle exact-shell branch is now also blocked at the projected nonempty
+theorem-4.9 endpoint itself, not only at the positive geometry packages above.
+`not_theorem49BoundaryRootNonemptyProjectedSynthesis_twoTriangle` records the fixed-embedding
+carrier obstruction; the bundled benchmark theorem
+`twoTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_theorem49BoundaryRootNonemptyProjectedSynthesis`
+shows that exact one-collar current-boundary data, the exact v23 seed, a same-embedding
+residual-boundary layer witness, and full `Theorem49BoundaryRootSynthesis` already coexist on the
+live successor-cycle shell while `Theorem49BoundaryRootNonemptyProjectedSynthesis` still fails.
+This now comes both as a benchmark-local failed universal
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`
+and as graph-level witness/converse packaging:
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_theorem49BoundaryRootNonemptyProjectedSynthesis_twoTriangleAnnulusGraph`
+and
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`.
+So even after theorem-4.9 synthesis itself already closes on that exact residual-layer shell,
+the live successor-cycle source does not yet force the nonvacuous projected endpoint.
+The same exact-v23 residual-layer diagnosis now also exists on the honest closed-walk source
+presentation.  The witness packages
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_positiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_positiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn_twoTriangleAnnulusGraph`,
+and
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_any_replacementPositiveProjectedGeometryOn_twoTriangleAnnulusGraph`
+show that the same two-triangle exact one-collar/v23 residual witness shell already fails the
+direct and route-facing positive endpoints on the honest source too.  The corresponding reusable
+converses
+`not_forall_any_positiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData`,
+`not_forall_any_positiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`,
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_nonempty_residualBoundaryLayerFacePeelWitnessData`,
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`
+put the same failed-converse diagnosis on both exact-v23 one-collar source presentations.
+The honest closed-walk exact-v23 residual-layer shell is now also blocked at the projected
+nonempty theorem-4.9 endpoint itself.  The fixed-embedding benchmark theorem
+`twoTriangle_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_theorem49BoundaryRootNonemptyProjectedSynthesis`
+shows that exact one-collar current-boundary data, the exact v23 seed, a same-embedding
+residual-boundary layer witness, and full `Theorem49BoundaryRootSynthesis` already coexist on the
+honest closed-walk shell while `Theorem49BoundaryRootNonemptyProjectedSynthesis` still fails.
+This now comes both as a benchmark-local failed universal
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_twoTriangle`
+and as graph-level witness/converse packaging:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData_without_theorem49BoundaryRootNonemptyProjectedSynthesis_twoTriangleAnnulusGraph`
+and
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_theorem49BoundaryRootSynthesis_and_nonempty_residualBoundaryLayerFacePeelWitnessData`.
+So even after theorem-4.9 synthesis itself already closes on that exact residual-layer shell,
+the honest closed-walk source does not yet force the nonvacuous projected endpoint either.
 The same exact-v23 source-shell diagnosis is now also stated after adding an explicit local
 selector.  The two-triangle benchmark theorems
 `exists_embedding_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_boundaryFreeIncidentFaceSelector_and_theorem49BoundaryRootSynthesis_without_somePositiveStageConstructionShell_twoTriangleAnnulusGraph`
@@ -1998,7 +2350,33 @@ show that even exact one-collar current-boundary data preserving the extracted a
 split still adds no forcing on this live nondegenerate carrier benchmark.  So the exact seed is
 now calibrated on both sides: it is compatible with the degenerate no-interior branch, but it
 also remains non-forcing on a live nondegenerate carrier source all the way up to the actual
-boundary-order shell, even after the exact one-collar refinement.
+boundary-order shell, even after the exact one-collar refinement.  The same wheel natural
+residual obstruction is now lifted to the reusable converses
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell natural residual obstructions are
+now available in reusable witness-based form.  Any same-embedding exact one-collar/v23 example
+with a real Tait coloring, nonempty purified carrier, and nonempty
+`V23ResidualBoundaryInitialState`, but without any of the current natural residual
+same-embedding endpoints, already refutes any universal derivation of that natural residual
+burden.
+The same file now also shows that adjoining a real local endpoint witness does not rescue that
+exact-shell natural residual lane either.  It proves the endpoint-bearing witnesses
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_naturalResidualSameEmbeddingGeometry_wheelWithInnerTriangle`,
+their failed universals
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+and the reusable converses
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`.
+So even on the endpoint-bearing exact-v23 one-collar honest closed-walk and successor-cycle
+shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not force any
+current natural residual same-embedding witness package.
 The same file now also packages that exact-shell residual obstruction against the graph-level
 theorem-4.9 endpoint itself:
 `wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_naturalResidualSameEmbeddingGeometry`
@@ -2010,10 +2388,13 @@ embedding.
 The same benchmark now also carries its local forcing burden on that exact theorem-4.9-adjoined
 wheel shell:
 `wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_naturalResidualSameEmbeddingGeometry`
-adds a concrete face boundary with two distinct interior edges to the same package.  So this
-nondegenerate wheel obstruction is now visible not only as a witness-package failure on the fixed
-exact-v23 shell, but already as a witness-package failure coexisting with the local two-interior-edge
-face burden on that same shell.
+adds a concrete face boundary with two distinct interior edges to the same successor-cycle
+package, and the new honest-source graph-level companion
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_naturalResidualSameEmbeddingGeometry`
+does the same on the closed-walk shell.  So this nondegenerate wheel obstruction is now visible
+not only as a witness-package failure on the fixed exact-v23 shell, but already as a
+witness-package failure coexisting with the local two-interior-edge face burden on both source
+presentations of that same shell.
 The same file now pushes that exact-v23 one-collar wheel benchmark one layer higher, to the
 direct and route-facing replacement-positive surface.  The theorems
 `exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_any_replacementPositiveProjectedGeometryOn_wheelWithInnerTriangle`
@@ -2032,7 +2413,17 @@ that successor-cycle exact-v23 shell:
 shows that the same fixed wheel shell already carries a concrete face boundary with two distinct
 interior edges while still failing every current direct and route-facing replacement-positive
 package.  So this upstream positive obstruction is now visible directly at the benchmark
-geometry itself, not only through the downstream failed universal.
+geometry itself, not only through the downstream failed universal.  The same exact-shell
+replacement-positive wheel obstruction is now also lifted to the reusable converses
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell
+replacement-positive obstructions are now available in reusable witness-based form.  Any
+same-embedding exact one-collar/v23 witness with a real Tait coloring, nonempty purified
+carrier, and nonempty `V23ResidualBoundaryInitialState`, but without one of the current direct
+or route-facing replacement-positive endpoints, already refutes a universal derivation of that
+whole positive burden.
 The same file now also pushes that exact-v23 one-collar wheel shell down to the positive
 construction face-layer package.  The theorems
 `exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInnerTriangle`
@@ -2044,6 +2435,15 @@ and
 `not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
 show that even this stronger live benchmark still does not force the downstream positive
 construction face-layer package on either the honest closed-walk or successor-cycle shell.  The
+same wheel face-layer obstruction is now lifted to the reusable converses
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell face-layer obstructions are now
+available in reusable witness-based form.  Any same-embedding exact one-collar/v23 example with
+a real Tait coloring, nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`,
+but without construction face-layer data, already refutes a universal derivation of that
+downstream positive face-layer burden.  The
 same file also now records the local obstruction directly on that successor-cycle exact-v23
 shell:
 `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_and_twoDistinctInteriorEdgesOnFaceBoundary_without_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInnerTriangle`
@@ -2060,19 +2460,501 @@ same-embedding positive construction face-layer package.
 The same file now also shows that this exact-v23 one-collar wheel shell still does not force any
 same-embedding annulus decomposition with witness ownership.  The fixed-embedding theorem
 `not_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_wheelWithInnerTriangle`, the
-route-facing exact-shell package
+honest closed-walk exact-shell package
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_any_planarBoundaryAnnulusWitnessAssignment_wheelWithInnerTriangle`,
+its failed universal
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
+its reusable converse
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+the route-facing successor-cycle exact-shell package
 `exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_any_planarBoundaryAnnulusWitnessAssignment_wheelWithInnerTriangle`,
-and the failed universal
+and its failed universal
 `not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`
 show that even this stronger live benchmark still does not force any annulus decomposition
-carrying `PlanarBoundaryAnnulusWitnessAssignment` on the same embedding.  The same file now also
-packages that obstruction against the graph-level theorem-4.9 endpoint itself:
+carrying `PlanarBoundaryAnnulusWitnessAssignment` on the same embedding.  The same successor-cycle
+exact-shell witness obstruction is now also lifted to the reusable converse
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell obstructions are now available in
+reusable witness-based form.  Any same-embedding exact one-collar/v23 example with a real Tait
+coloring, nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`, but without
+annulus witness ownership on any same-embedding decomposition, already refutes a universal
+derivation of that downstream decomposition-and-witness burden.  The same file now also shows
+that adjoining a real local endpoint witness does not rescue that exact-shell annulus
+witness-assignment lane either.  It proves the endpoint-bearing witnesses
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_any_planarBoundaryAnnulusWitnessAssignment_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_any_planarBoundaryAnnulusWitnessAssignment_wheelWithInnerTriangle`,
+their failed universals
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+and the reusable converses
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_exists_planarBoundaryAnnulusDecomposition_and_witnessAssignment_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`.
+So even on the endpoint-bearing exact-v23 one-collar honest closed-walk and successor-cycle
+shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not force any
+same-embedding annulus decomposition carrying witness ownership.  The same file now also
+packages that endpoint-bearing witness-assignment failure directly at graph-vs-fixed-embedding
+level by
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_any_planarBoundaryAnnulusWitnessAssignment`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_any_planarBoundaryAnnulusWitnessAssignment`,
+so both the successor-cycle and honest-source endpoint-bearing shells now have explicit graph-
+level separation theorems against same-embedding witness ownership.  The same file had already
+packaged the non-endpoint version of that obstruction against the graph-level theorem-4.9
+endpoint itself:
 `wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_any_planarBoundaryAnnulusWitnessAssignment`
 shows that the explicit Tait coloring still has a graph-level synthesis witness on some
-embedding even while the honest exact-v23 successor-cycle one-collar wheel shell fails every
-same-embedding witness assignment.  So the remaining repaired-shell burden is sharper again:
+embedding even while both the honest exact-v23 closed-walk shell and the successor-cycle
+one-collar wheel shell fail every same-embedding witness assignment.  So the remaining
+repaired-shell burden is sharper again:
 before the new exact-shell synthesis theorem can apply, the route must derive witness ownership
-itself, not just decomposition or face-layer data.
+itself, not just decomposition or face-layer data.  The same witness-assignment lane now also
+retains the explicit local two-interior-edge burden at graph-vs-fixed-embedding level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`.
+So even the annulus witness-assignment obstruction itself is now packaged with the concrete local
+two-interior-edge face witness on both the non-endpoint and endpoint-bearing successor-cycle and
+honest-source shells.  The same file now also proves that this
+same exact-v23 one-collar wheel shell already fails to force the earliest same-embedding
+boundary-free selector package even without any additional endpoint hypothesis:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_wheelWithInnerTriangle`,
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_wheelWithInnerTriangle`,
+and
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`.
+So even before adjoining `HasUnblockedInteriorEndpoint`, the live exact one-collar/v23 shell
+with real Tait coloring and surviving purified carrier still does not generically force even
+the boundary-free selector that every later canonical-parent repair would need on the same
+embedding.  The same wheel selector obstruction is now lifted to the reusable converse
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell selector obstructions are now
+available in reusable witness-based form.  Any same-embedding exact one-collar/v23 example with
+a real Tait coloring, nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`,
+but without a boundary-free selector, already refutes a universal derivation of that earliest
+same-embedding selector burden.  The same file now also shows that adjoining a real local
+endpoint witness does not rescue that exact-shell selector lane either.  It proves the
+endpoint-bearing witnesses
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFreeIncidentFaceSelector_wheelWithInnerTriangle`,
+their failed universals
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+and the reusable converses
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`.
+So even on the endpoint-bearing exact-v23 one-collar honest closed-walk and successor-cycle
+shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not force even the
+earliest same-embedding boundary-free selector burden.  The same file now also packages this
+selector failure directly at graph-vs-fixed-embedding level by
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_boundaryFreeIncidentFaceSelector`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_boundaryFreeIncidentFaceSelector`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_boundaryFreeIncidentFaceSelector`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_boundaryFreeIncidentFaceSelector`.
+So the earliest exact-v23 selector obstruction is now graph-level source-symmetric in both its
+non-endpoint and endpoint-bearing forms, instead of only appearing shell-wise before the later
+bundled no-endpoint separation.  The same file then proves that this exact-v23 one-collar wheel shell already fails
+to force the still-later same-embedding raw canonical-parent shared-edge-cover package under
+the same no-endpoint shell:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover_wheelWithInnerTriangle`,
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover_wheelWithInnerTriangle`,
+and
+`not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`.
+So the raw canonical-parent cover is not the earliest obstruction on this branch either.  The
+same wheel canonical-parent obstruction is now lifted to the reusable converses
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell raw canonical-parent obstructions
+are now available in reusable witness-based form.  Any same-embedding exact one-collar/v23
+example with a real Tait coloring, nonempty purified carrier, and nonempty
+`V23ResidualBoundaryInitialState`, but without that raw canonical-parent cover, already refutes a
+universal derivation of the whole source-fixed cover burden.  The same file now also lifts this
+raw canonical-parent obstruction to the endpoint-bearing exact-v23 shells:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover_wheelWithInnerTriangle`,
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_boundaryFaceRootsCanonicalParentSharedEdgeCover_wheelWithInnerTriangle`,
+and
+`not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`.
+The endpoint-bearing reusable converses
+`not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeCover_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+therefore show that even on the honest closed-walk and successor-cycle endpoint-bearing exact
+one-collar/v23 shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not
+force the same source-fixed raw canonical-parent shared-edge-cover package.  So adding an
+unblocked endpoint alone does not rescue this canonical-parent lane either.  The same file now
+also packages this raw canonical-parent failure directly at graph-vs-fixed-embedding level by
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_boundaryFaceRootsCanonicalParentSharedEdgeCover`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_boundaryFaceRootsCanonicalParentSharedEdgeCover`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_boundaryFaceRootsCanonicalParentSharedEdgeCover`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_boundaryFaceRootsCanonicalParentSharedEdgeCover`.
+So the raw canonical-parent shared-edge-cover obstruction is now graph-level source-symmetric
+in both its non-endpoint and endpoint-bearing forms, instead of only appearing shell-wise before
+the later parent-peel and bundled no-endpoint separations.  The
+same file then also proves that this exact-v23 one-collar wheel shell already fails to force
+the later same-embedding annulus-root parent-peel package under the same no-endpoint shell:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_wheelWithInnerTriangle`,
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_wheelWithInnerTriangle`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`.
+So the no-endpoint parent-peel failure is not the earliest obstruction on this branch either.
+The same wheel parent-peel obstruction is now lifted to the reusable converses
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so both the honest closed-walk and successor-cycle exact-shell parent-peel obstructions are now
+available in reusable witness-based form.  Any same-embedding exact one-collar/v23 example with
+a real Tait coloring, nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`,
+but without annulus-root parent-peel data, already refutes a universal derivation of that whole
+source-fixed parent-peel burden.  The same file now also lifts this parent-peel obstruction to
+the endpoint-bearing exact-v23 shells:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_wheelWithInnerTriangle`,
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_wheelWithInnerTriangle`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`.
+The endpoint-bearing reusable converses
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+therefore show that even on the honest closed-walk and successor-cycle endpoint-bearing exact
+one-collar/v23 shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not
+force the same source-fixed annulus-root parent-peel package.  So adding an unblocked endpoint
+alone does not rescue this parent-peel lane either.  The same file now also packages this
+parent-peel failure directly at graph-vs-fixed-embedding level by
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_planarBoundaryAnnulusRootParentPeelData`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_planarBoundaryAnnulusRootParentPeelData`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_planarBoundaryAnnulusRootParentPeelData`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_planarBoundaryAnnulusRootParentPeelData`.
+So the annulus-root parent-peel obstruction is now graph-level source-symmetric in both its
+non-endpoint and endpoint-bearing forms, instead of only appearing shell-wise before the later
+construction-face-layer and bundled no-endpoint separations.  The same file now also lifts the
+construction face-layer obstruction to the endpoint-bearing exact-v23 shells:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInnerTriangle`,
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusConstructionFaceLayerData_wheelWithInnerTriangle`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`.
+The endpoint-bearing reusable converses
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+therefore show that even on the honest closed-walk and successor-cycle endpoint-bearing exact
+one-collar/v23 shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still does not
+force the downstream positive construction face-layer package.  The graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_planarBoundaryAnnulusConstructionFaceLayerData`
+now records the same diagnosis alongside explicit theorem-4.9 synthesis on some embedding.
+So adding an unblocked endpoint alone does not rescue this face-layer lane either.
+The same file now also proves that this
+remaining burden can be reduced to a smaller honest local lemma on the stricter at-most-one
+branch:
+`theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`
+and
+`theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`.
+So on the exact-v23 one-collar shell there is no remaining witness-assignment packaging gap once
+the same embedding satisfies facewise at-most-one interior-edge cardinality.  The route file now
+also exports the corresponding graph-level closures
+`exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_direct`
+and
+`exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_direct`,
+so any exact-v23 one-collar witness already carrying that honest local bound now closes directly
+to full theorem-4.9 synthesis at graph level for the supplied Tait coloring.  But the same wheel
+route now also records that this branch is vacuous on the present live endpoint semantics:
+`not_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`,
+`not_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`,
+`not_exists_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_theorem49BoundaryRootNonemptyProjectedSynthesis_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`,
+and
+`not_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_theorem49BoundaryRootNonemptyProjectedSynthesis_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge`
+show that once facewise at-most-one holds, neither `HasUnblockedInteriorEndpoint` nor the
+projected nonempty theorem-4.9 endpoint can coexist with the repaired exact-v23 one-collar shell,
+on either the honest closed-walk or successor-cycle presentation.  So this branch now has a fully
+formalized split diagnosis: exact-v23 plus facewise at-most-one is sufficient for same-embedding
+full synthesis, but incompatible with the current endpoint-bearing semantics.  This is now known
+to be a genuine inhabited branch rather than a merely conditional one: the new benchmark theorems
+`nonempty_diamondWithTriangleFace0_v23ResidualBoundaryInitialState`,
+`diamondWithTriangle_closedWalkSource_tait_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_and_theorem49BoundaryRootSynthesis_without_hasUnblockedInteriorEndpoint_or_projectedEndpoint`,
+and
+`diamondWithTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_and_theorem49BoundaryRootSynthesis_without_hasUnblockedInteriorEndpoint_or_projectedEndpoint`
+show that the explicit-Tait diamond benchmark already carries the repaired exact-v23 seed on the
+same fixed one-collar embedding where facewise at-most-one closes to full synthesis, while both
+the local endpoint witness and the projected nonempty theorem-4.9 endpoint still fail there.
+The same exact-v23 repaired branch is now also shown not to force the heavier peel-data routes:
+the consolidated benchmark theorems
+`diamondWithTriangle_closedWalkSource_exactV23_facewiseAtMostOne_consolidatedRouteDiagnosis`
+and
+`diamondWithTriangle_successorCycle_exactV23_facewiseAtMostOne_consolidatedRouteDiagnosis`
+show that on those same honest closed-walk and successor-cycle shells, the explicit-Tait diamond
+still fails generic `InteriorDualBoundaryRootAdjDistancePeelData`, source-fixed
+`PlanarBoundaryAnnulusRootAdjDistancePeelData`, and source-fixed
+`PlanarBoundaryAnnulusRootParentPeelData`.  So even after adjoining the repaired exact-v23 seed
+and honest facewise-at-most-one cardinality on the same embedding, these annulus-root peel lanes
+remain sufficient routes only, not necessary consequences.
+The same repaired exact-v23 at-most-one branch is not blocked at witness ownership either.  The
+new fixed-embedding theorems
+`diamondWithTriangle_closedWalkSource_tait_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_and_annulusWitnessAssignment_and_theorem49BoundaryRootSynthesis_without_hasUnblockedInteriorEndpoint_or_projectedEndpoint`
+and
+`diamondWithTriangle_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_and_facewiseAtMostOneInteriorEdge_and_annulusWitnessAssignment_and_theorem49BoundaryRootSynthesis_without_hasUnblockedInteriorEndpoint_or_projectedEndpoint`
+show that the exact-v23 seed, facewise at-most-one, same-embedding annulus witness assignment,
+and full theorem-4.9 synthesis already coexist on the explicit-Tait diamond benchmark, on both
+the honest closed-walk and successor-cycle one-collar shells, before the branch runs into the
+live endpoint impossibility.  So on this repaired local branch the surviving blockers are not raw
+annulus witness ownership either, but the endpoint semantics and the heavier peel-data repairs
+killed just above.
+The same wheel
+regression file now also proves
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_without_atMostOneInteriorEdgePerFace_wheelWithInnerTriangle`,
+`not_forall_atMostOneInteriorEdgePerFace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_wheelWithInnerTriangle`,
+`not_forall_atMostOneInteriorEdgePerFace_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState_without_atMostOneInteriorEdgePerFace_wheelWithInnerTriangle`,
+`not_forall_atMostOneInteriorEdgePerFace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_wheelWithInnerTriangle`,
+`not_forall_atMostOneInteriorEdgePerFace_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_v23ResidualBoundaryInitialState`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_atMostOneInteriorEdgePerFace`.
+So this smaller honest local burden is not derivable from the live exact-v23 one-collar shell
+either: the graph still has a theorem-4.9 synthesis witness on some embedding, while both the
+honest closed-walk shell and the successor-cycle exact shell fail facewise at-most-one on the
+fixed wheel embedding.  Any surviving repair on this branch therefore has to add new
+same-embedding local geometry strictly stronger than the present exact-v23 one-collar package,
+and both the honest closed-walk and successor-cycle exact-shell obstructions are now lifted to
+reusable converses, so
+any same-embedding exact one-collar/v23 successor-cycle example with a real Tait coloring and
+nonempty `V23ResidualBoundaryInitialState`, but without facewise at-most-one interior-edge
+cardinality, already refutes a universal derivation of that local-cardinality burden.  The
+endpoint-bearing graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_atMostOneInteriorEdgePerFace`
+now records the same local-cardinality failure alongside explicit theorem-4.9 synthesis on some
+embedding.  The same local-cardinality lane now also retains the explicit local two-interior-edge
+burden at graph-vs-fixed-embedding level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`.
+So even the local-cardinality obstruction itself is now packaged with the concrete local
+two-interior-edge face witness on both the non-endpoint and endpoint-bearing successor-cycle and
+honest-source shells.  This endpoint-bearing local-cardinality obstruction is therefore already
+stronger than the no-endpoint parent-peel lane killed earlier on the same wheel benchmark.
+The same graph-vs-fixed-embedding honest-source lift is now also available one layer earlier on
+the non-endpoint wheel stack:
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_naturalResidualSameEmbeddingGeometry`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_planarBoundaryAnnulusConstructionFaceLayerData`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_any_planarBoundaryAnnulusWitnessAssignment`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_atMostOneInteriorEdgePerFace`.
+So the non-endpoint exact-v23 wheel diagnostic stack is now source-symmetric at graph-vs-fixed-
+embedding level from natural-residual failure, through construction-face-layer and witness-
+assignment failure, up to the local-cardinality obstruction immediately below the bundled
+no-endpoint collapse.
+The same endpoint-bearing witness-assignment lane now also retains that explicit local
+two-interior-edge burden at graph-vs-fixed-embedding level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_planarBoundaryAnnulusWitnessAssignment`.
+So the endpoint-bearing nondegenerate witness-assignment obstruction is now source-symmetric at
+graph-vs-fixed-embedding level too, not only through the coarser endpoint-bearing witness-
+assignment separations without the explicit local two-edge burden.
+The same endpoint-bearing local-cardinality lane now also retains that explicit local
+two-interior-edge burden at graph-vs-fixed-embedding level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace`.
+So the endpoint-bearing nondegenerate local-cardinality obstruction is now source-symmetric at
+graph-vs-fixed-embedding level too, not only through the coarser endpoint-bearing local-
+cardinality separations without the explicit local two-edge burden.
+The same regression file now also packages that diagnosis as a single bundled no-endpoint
+collapse on both exact-v23 one-collar shells:
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_currentNoEndpointRepairGeometry_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState_without_currentNoEndpointRepairGeometry_wheelWithInnerTriangle`,
+their failed universals
+`not_forall_some_currentNoEndpointRepairGeometry_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`
+and
+`not_forall_some_currentNoEndpointRepairGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle`,
+and the route-facing graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_currentNoEndpointRepairGeometry`.
+So the honest closed-walk and route-facing exact-v23 one-collar wheel shells now simultaneously
+fail selector, raw canonical-parent cover, parent-peel, construction face-layer, residual
+selector packages, acyclic/annulus-collar endpoints, and facewise at-most-one, while the
+explicit Tait coloring still reaches theorem-4.9 synthesis on some embedding.  Any surviving
+repair on this branch must therefore introduce genuinely new same-embedding geometry outside the
+current no-endpoint family.  The same bundled wheel obstruction is now lifted to the reusable
+converses
+`not_forall_some_currentNoEndpointRepairGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_currentNoEndpointRepairGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`,
+so any same-embedding exact one-collar/v23 honest closed-walk or successor-cycle example with a
+real Tait coloring, nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`,
+but without one of the currently known no-endpoint repairs, already refutes a universal
+derivation of that whole bundled burden.  The same bundled no-endpoint wheel obstruction now also
+retains its explicit local two-interior-edge face witness at graph-vs-fixed-embedding level
+through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_currentNoEndpointRepairGeometry`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_currentNoEndpointRepairGeometry`.
+So even the full bundled no-endpoint failure is now packaged together with the concrete local
+reason the wheel resists canonical witness choice and facewise-at-most-one collapse, not only as
+a coarse disjunction of missing repair layers.
+The same regression file now also shows that adjoining a real local endpoint witness does not
+rescue that bundled no-endpoint lane either.  It proves the endpoint-bearing witnesses
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_currentNoEndpointRepairGeometry_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_currentNoEndpointRepairGeometry_wheelWithInnerTriangle`,
+their failed universals
+`not_forall_some_currentNoEndpointRepairGeometry_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_some_currentNoEndpointRepairGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+and the reusable converses
+`not_forall_some_currentNoEndpointRepairGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_some_currentNoEndpointRepairGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`.
+So even on the endpoint-bearing exact-v23 one-collar honest closed-walk and successor-cycle
+shells, a real Tait coloring plus `HasUnblockedInteriorEndpoint` still fails every currently
+bundled no-endpoint repair.  Adding an unblocked endpoint alone therefore does not escape the
+wheel obstruction on this lane either.  The new graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_currentNoEndpointRepairGeometry`
+now records that same endpoint-bearing bundled failure alongside explicit theorem-4.9 synthesis
+on some embedding.  So this branch is now calibrated at graph-vs-fixed-embedding level too:
+even after adjoining a real unblocked endpoint on the live exact-v23 one-collar wheel shell, the
+graph-level positive witness still sits strictly upstream of every currently bundled no-endpoint
+same-embedding repair.  The honest-source side is now packaged at the same graph-vs-fixed-
+embedding level too by
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_currentNoEndpointRepairGeometry`.
+So both endpoint-bearing exact-v23 one-collar source presentations now have explicit graph-level
+separation theorems against the full bundled no-endpoint repair family.  The same endpoint-
+bearing bundled obstruction now also retains the explicit local two-interior-edge face witness at
+that graph-vs-fixed-embedding level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_currentNoEndpointRepairGeometry`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_currentNoEndpointRepairGeometry`.
+So the full endpoint-bearing no-endpoint wheel obstruction is now nondegenerate and source-
+symmetric too, not only the earlier componentwise selector / face-layer / witness-assignment /
+local-cardinality layers below it.
+The same replacement-positive lane is now graph-level source-symmetric even before adjoining an
+endpoint: the regression file proves
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_any_replacementPositiveProjectedGeometryOn`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_without_any_replacementPositiveProjectedGeometryOn`.
+So the exact-v23 one-collar wheel already separates graph-level theorem-4.9 synthesis from every
+current direct or route-facing replacement-positive package on both the successor-cycle and honest
+closed-walk source presentations, not only from the coarser bundled
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_replacementPositiveProjectedGeometry_or_previousBoundaryWitness`
+theorem or the later endpoint-bearing replacements.
+The same non-endpoint replacement-positive lane now also keeps the explicit local two-interior-edge
+burden at graph level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_replacementPositiveProjectedGeometryOn`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_replacementPositiveProjectedGeometryOn`.
+So this nondegenerate replacement-positive wheel obstruction is now source-symmetric at graph
+level too, not only shell-local on the successor-cycle benchmark or later via the
+endpoint-bearing replacement-positive package.
+The same later construction-face-layer branch now keeps that explicit local two-interior-edge
+burden at graph level too through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_planarBoundaryAnnulusConstructionFaceLayerData`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_planarBoundaryAnnulusConstructionFaceLayerData`.
+So the nondegenerate face-layer wheel obstruction is now source-symmetric at graph-vs-fixed-
+embedding level as well, not only shell-local on the successor-cycle benchmark.
+The same endpoint-bearing face-layer lane now also keeps that explicit local two-interior-edge
+burden at graph level through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_planarBoundaryAnnulusConstructionFaceLayerData`
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_and_twoDistinctInteriorEdgesOnFaceBoundary_without_planarBoundaryAnnulusConstructionFaceLayerData`.
+So the endpoint-bearing nondegenerate face-layer wheel obstruction is now source-symmetric at
+graph-vs-fixed-embedding level too, not only through the coarser endpoint-bearing face-layer
+separations without the explicit local two-edge burden.
+The same graph-vs-fixed-embedding honest-source lift is now also available for the earlier
+endpoint-bearing wheel obstruction layers
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_any_replacementPositiveProjectedGeometryOn`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_currentSufficientSameEmbeddingGeometry`,
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_planarBoundaryAnnulusConstructionFaceLayerData`,
+and
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_hasUnblockedInteriorEndpoint_without_atMostOneInteriorEdgePerFace`.
+So the full endpoint-bearing wheel diagnostic stack is now source-symmetric at graph level from
+replacement-positive, through current-sufficient, construction-face-layer, and local-cardinality
+failure, all the way up to the bundled no-endpoint repair family.
+The same regression file now also shows that simply adjoining the honest local endpoint witness
+does not rescue the replacement-positive lane.  It proves
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_any_replacementPositiveProjectedGeometryOn_wheelWithInnerTriangle`,
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_and_twoDistinctInteriorEdgesOnFaceBoundary_without_any_replacementPositiveProjectedGeometryOn_wheelWithInnerTriangle`,
+its failed universals
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+and the graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_any_replacementPositiveProjectedGeometryOn`.
+So even the endpoint-bearing exact-v23 one-collar wheel shell still fails every current direct
+or route-facing replacement-positive package on both the honest closed-walk and successor-cycle
+boundary-order shells, and on the successor-cycle shell this coexists with a concrete
+two-interior-edge face boundary, although the explicit Tait coloring reaches theorem-4.9
+synthesis on some embedding.  Adding `HasUnblockedInteriorEndpoint` alone therefore does not
+escape the wheel obstruction either; any surviving endpoint-bearing positive repair must add
+genuinely new same-embedding geometry beyond the present replacement-positive family.  The same
+wheel obstruction is now lifted to the reusable converses
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_any_replacementPositiveProjectedGeometryOn_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`,
+so any same-embedding exact one-collar/v23 example with a real Tait coloring,
+`HasUnblockedInteriorEndpoint`, and nonempty `V23ResidualBoundaryInitialState`, but without one
+of the current direct or route-facing replacement-positive endpoints, already refutes a
+universal derivation of that whole burden.
+The larger endpoint-bearing `currentSufficientSameEmbeddingGeometry` target on this wheel shell
+now collapses on both the honest closed-walk and successor-cycle exact-v23 shells.  The theorems
+`currentSufficientSameEmbeddingGeometry_wheelWithInnerTriangle_only_if_attachedBoundaryRootedFacePeelCertificate`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_reducing_currentSufficientSameEmbeddingGeometry_to_attachedBoundaryRootedFacePeelCertificate_wheelWithInnerTriangle`,
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_reducing_currentSufficientSameEmbeddingGeometry_to_attachedBoundaryRootedFacePeelCertificate_wheelWithInnerTriangle`
+show that on the live endpoint-bearing exact-v23 wheel shells, the height-ordered,
+collar-layer, well-founded, and annulus-collar branches were already ruled out, so any future
+proof on either shell reduces to the raw attached certificate on the same embedding.  The wheel
+certificate obstruction
+`not_nonempty_attachedBoundaryRootedFacePeelCertificate_wheelWithInnerTriangle`
+then kills that last branch as well, and the bundled witnesses
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_currentSufficientSameEmbeddingGeometry_wheelWithInnerTriangle`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_currentSufficientSameEmbeddingGeometry_wheelWithInnerTriangle`,
+together with the failed universals
+`not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`
+and
+`not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle`,
+show that even the endpoint-bearing exact-v23 honest closed-walk and successor-cycle shells
+still do not force any of the currently sufficient same-embedding geometry endpoints on the
+fixed wheel embedding.  The new generic converses
+`not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+and
+`not_forall_exists_some_currentSufficientSameEmbeddingGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState`
+now lift that same exact-shell current-sufficient failure to reusable witness-based refutations:
+any same-embedding exact one-collar/v23 honest closed-walk or successor-cycle example with a
+Tait coloring, `HasUnblockedInteriorEndpoint`, and nonempty
+`V23ResidualBoundaryInitialState`, but without one of the current sufficient geometry
+endpoints, already kills any universal derivation of that whole burden.  The
+live-carrier predecessor shell now has the same reusable converse:
+`not_forall_some_naturalResidualSameEmbeddingGeometry_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_and_v23ResidualBoundaryInitialState`.
+So any same-embedding exact one-collar/v23 successor-cycle example with a Tait coloring,
+nonempty purified carrier, and nonempty `V23ResidualBoundaryInitialState`, but without one of
+the current natural residual same-embedding endpoints, already refutes any universal derivation
+of that whole live-carrier burden as well.  The
+graph-level package
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_hasUnblockedInteriorEndpoint_without_currentSufficientSameEmbeddingGeometry`
+now records the same diagnosis alongside explicit theorem-4.9 synthesis on some embedding for the
+same Tait coloring.  So any surviving endpoint-bearing theorem-4.9 repair must add genuinely new
+same-embedding geometry outside the present current-sufficient family, not merely revive one of
+its existing branches.
 The selector-deficit face-contact premise is now also isolated as the smallest genuinely local
 repair.  `Theorem49BoundaryFreeSelectorConstruction.lean` proves
 `selectorDeficitSelectedBoundary_of_planarBoundaryAnnulusRootParentPeelData_and_nonPeelSelectedBoundary`,
@@ -2185,11 +3067,15 @@ local contradiction to direct exact-shell failed universals:
 `not_forall_exists_planarBoundaryAnnulusRootParentPeelData_and_selectorDeficitSelectedBoundary_and_currentOuterBoundary_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`
 and
 `not_forall_exists_planarBoundaryAnnulusRootParentPeelData_and_selectorDeficitSelectedBoundary_and_currentOuterBoundary_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_sharedInteriorPair`,
-with the matching forcing-edge abstract converse failures.  So even the full repaired
-selector-deficit plus positive-current-boundary package is not forced by the live exact shell on
-the shared-interior-pair benchmark.  The live route must therefore avoid that positive-frontier
-shell entirely and continue through the already parent-oriented construction / well-founded-parent
-lane.
+with the matching forcing-edge abstract converse failures.  It now also exposes the exact-shell
+counterexamples themselves as
+`exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_and_selectorDeficitSelectedBoundary_and_currentOuterBoundary_sharedInteriorPair`
+and
+`exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_planarBoundaryAnnulusRootParentPeelData_and_selectorDeficitSelectedBoundary_and_currentOuterBoundary_sharedInteriorPair`.
+So even the full repaired selector-deficit plus positive-current-boundary package is not forced
+by the live exact shell on the shared-interior-pair benchmark.  The live route must therefore
+avoid that positive-frontier shell entirely and continue through the already parent-oriented
+construction / well-founded-parent lane.
 `Theorem49ResidualBoundaryRoute.lean` now also proves the direct exact-shell endpoint theorems
 `theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_planarBoundaryAnnulusRootParentPeelData`
 and
@@ -2277,11 +3163,23 @@ positive-surface packaging steps are no longer downstream burdens below that she
 `Theorem49ResidualBoundaryRoute.lean` proves
 `theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_residualBoundarySelectorData`
 and
-`theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_residualBoundaryLayerFacePeelWitnessData`.
+`theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_residualBoundaryLayerFacePeelWitnessData`,
+the successor-cycle analogue
+`theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_residualBoundaryLayerFacePeelWitnessData`,
+and the graph-level direct closures
+`exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_residualBoundaryLayerFacePeelWitnessData_direct`
+and
+`exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_residualBoundaryLayerFacePeelWitnessData_direct`.
 So once the route reaches residual/current-boundary selector data itself, the full
 Theorem~4.9 synthesis endpoint is already immediate on that embedding; the lower residual
 witness package and `HasUnblockedInteriorEndpoint` are no longer downstream burdens beyond that
-surface.  `Theorem49ResidualBoundaryPeeling.lean` now also proves
+surface, and even the route-facing successor-cycle shell now exports that same residual-layer
+synthesis package directly at graph level.  `Theorem49ResidualBoundaryRoute.lean` also proves the
+route-facing projected-endpoint lift
+`theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint`
+and its graph-level direct closure
+`exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_residualBoundaryLayerFacePeelWitnessData_and_hasUnblockedInteriorEndpoint_direct`.
+`Theorem49ResidualBoundaryPeeling.lean` now also proves
 `nonempty_residualBoundarySelectorData_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData`
 and
 `nonempty_residualBoundarySelectorData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_interiorDualBoundaryRootAdjDistancePeelData`.
@@ -2393,6 +3291,29 @@ shows that even honest source data together with a weak one-collar annulus geome
 rooted face-peel certificate still does not force `PlanarBoundaryAnnulusRootParentPeelData` on a
 genuine cyclic source model.  So the direct certificate lane is already strictly earlier than the
 live parent-peel burden too.  The same file now also proves
+`exists_embedding_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangleGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusRootAdjDistancePeelData_diamondWithTriangleGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusRootParentPeelData_diamondWithTriangleGraph`,
+and the converse failures
+`not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`,
+`not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`,
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`.
+So this is no longer merely a benchmark-local fact about the weak certificate shell in isolation:
+even after that same honest collar/certificate shell already carries an explicit Tait coloring and
+the full `Theorem49BoundaryRootSynthesis` endpoint on one embedding, none of the current generic,
+source-preserving, or live parent-peel adj-distance burdens are necessary consequences there.  The
+direct certificate lane therefore remains strictly earlier than all three of those parent-oriented
+routes even post-synthesis.  The same file now also proves
+`diamondWithTriangle_explicitTait_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_theorem49BoundaryRootSynthesis_blocks_nonemptyProjectedSynthesis`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangleGraph`,
+and
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_attachedRootedFacePeelCertificate_and_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`.
+So the same weak collar/certificate shell is already too weak not only for the parent-oriented
+adj-distance targets, but even for the projected nonempty theorem-4.9 endpoint itself: after
+full synthesis closes on that same embedding, the selected-boundary-purified carrier is still
+empty.  Thus the direct certificate lane is strictly earlier than the projected endpoint route
+too, not merely than the parent-peel derivations lying above it.  The same file now also proves
 `diamondWithTriangle_explicitTait_currentSufficientSameEmbeddingGeometry_consolidatedRouteDiagnosis`,
 which packages the whole same-embedding calibration on that genuine cyclic source model: the full
 current positive geometry stack and explicit-Tait theorem-4.9 synthesis coexist with a nonempty
@@ -2401,13 +3322,37 @@ endpoint, failure of generic `InteriorDualBoundaryRootAdjDistancePeelData`, and 
 live parent-peel package.  The more specialized theorems
 `diamondWithTriangle_explicitTait_currentSufficientSameEmbeddingGeometry_without_interiorDualBoundaryRootAdjDistancePeelData`
 and
+`diamondWithTriangle_explicitTait_currentSufficientSameEmbeddingGeometry_without_planarBoundaryAnnulusRootAdjDistancePeelData`,
+and
 `diamondWithTriangle_explicitTait_currentSufficientSameEmbeddingGeometry_without_planarBoundaryAnnulusRootParentPeelData`
 remain available as focused projections of that same diagnosis.  The same file now also proves
+`exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_without_theorem49BoundaryRootNonemptyProjectedSynthesis_diamondWithTriangleGraph`
+and
+`not_forall_theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`,
+so this obstruction is no longer merely benchmark-local: the full honest-source/current-geometry
+stack plus theorem-4.9 synthesis already refutes the generic converse to
+`Theorem49BoundaryRootNonemptyProjectedSynthesis` on that graph.  The same file now also proves
+`exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_without_interiorDualBoundaryRootAdjDistancePeelData_diamondWithTriangleGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusRootAdjDistancePeelData_diamondWithTriangleGraph`,
+`exists_embedding_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusRootParentPeelData_diamondWithTriangleGraph`,
+and the converse failures
+`not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`,
+`not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`
+and
+`not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_and_taitEdgeColoring_and_currentSufficientSameEmbeddingGeometry_and_theorem49BoundaryRootSynthesis_diamondWithTriangleGraph`.
+So even the full current same-embedding positive geometry stack plus full theorem-4.9 synthesis is
+still not enough to force generic interior-dual adj-distance data, source-preserving
+annulus-root adj-distance data, or the live parent-peel package on that genuine cyclic source
+benchmark.  The same file now also proves
+`diamondWithTriangle_explicitTait_synthesis_without_interiorDualBoundaryRootAdjDistancePeelData`,
+`diamondWithTriangle_explicitTait_synthesis_without_planarBoundaryAnnulusRootAdjDistancePeelData`,
+and
 `diamondWithTriangle_explicitTait_synthesis_without_planarBoundaryAnnulusRootParentPeelData`,
-so even the full theorem-4.9 synthesis endpoint under the explicit Tait coloring coexists with
-failure of `PlanarBoundaryAnnulusRootParentPeelData` on that same embedding.  Thus the live
-parent-peel package is not necessary even for a genuine cyclic positive synthesis model; it is only
-one sufficient route among others.  This is now lifted to a reusable converse-failure theorem too:
+so even the bare theorem-4.9 synthesis endpoint under the explicit Tait coloring coexists with
+failure of the generic interior-dual adj-distance package, the source-preserving annulus-root
+adj-distance package, and the live parent-peel package on that same embedding.  Thus none of
+those parent-oriented burdens is necessary even for a genuine cyclic positive synthesis model;
+they are only sufficient routes among others.  This is now lifted to a reusable converse-failure theorem too:
 `Theorem49ForcingInteriorEdgeObstruction.lean` proves
 `not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_and_forcingInteriorEdgeWitness`,
 `not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_and_forcingInteriorEdgeWitness`,
@@ -2457,7 +3402,12 @@ source-preserving wheel embedding the same explicit Tait coloring still cannot i
 the IDBRAD-based projected endpoint route or the source-fixed canonical-parent projected endpoint
 route.  So the benchmark now separates graph-level theorem-4.9 positivity not only from the live
 same-embedding sufficient shells, but from both concrete same-embedding projected source routes
-already formalized in Lean.  The new theorem
+already formalized in Lean.  The same projected-route wheel obstruction now also retains the
+explicit local two-interior-edge burden through
+`wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_sameEmbedding_projectedSourceRoutes`.
+So even this route-level projected-endpoint failure is now packaged together with the concrete
+local reason that blocks the facewise-at-most-one / canonical-choice branch on the same fixed
+embedding, not only as a coarse failed pair of projected-source routes.  The new theorem
 `wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_without_replacementPositiveProjectedGeometry_or_previousBoundaryWitness`
 extends that same graph-vs-fixed-embedding separation to the newer repaired positive route as
 well: the graph still admits full theorem-4.9 synthesis on some embedding, but on the honest
