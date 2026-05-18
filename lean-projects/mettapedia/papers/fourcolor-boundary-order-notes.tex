@@ -2721,16 +2721,20 @@ decomposition carries witness ownership, full
 no further repackaging step remains below that shell.
 \path{Theorem49PositiveGeometricSourceReplacement.lean}
 now also proves
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData},
 \path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData},
 \path{theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionFaceLayerData},
+\path{theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData},
 \path{theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData},
 and
 \path{theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData},
-so once either construction shell is paired with a surviving purified carrier
-on the same embedding, the current projected endpoint and its raw
-quotient/error package are automatic as well.  The remaining burden above
-those shells is therefore to preserve the purified carrier, or else derive
-stronger earlier geometry, not to find another replacement-side lowering.
+so once either construction shell exists on the same embedding, full
+\path{Theorem49BoundaryRootSynthesis} is already automatic directly in that
+positive-replacement file itself, while a surviving purified carrier is only
+needed to reach the newer projected endpoint and its raw quotient/error
+package.  The remaining burden above those shells is therefore to preserve
+the purified carrier, or else derive stronger earlier geometry, not to find
+another replacement-side lowering.
 \path{Theorem49PositiveGeometricSourceReplacementRoute.lean} now also proves
 the graph-package methods
 \path{Theorem49ClosedWalkAnnulusConstructionFaceLayerPositiveProjectedGeometry.boundaryRootSynthesis},

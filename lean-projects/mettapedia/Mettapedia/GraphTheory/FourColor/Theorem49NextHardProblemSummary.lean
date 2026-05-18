@@ -2983,15 +2983,19 @@ the honest-source or successor-cycle route reaches either same-embedding constru
 the resulting decomposition carries witness ownership, full `Theorem49BoundaryRootSynthesis`
 already follows directly at graph level; no further repackaging step remains below that shell.
 `Theorem49PositiveGeometricSourceReplacement.lean` now also proves
+`theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData`,
 `theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData`,
 `theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionFaceLayerData`,
+`theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData`,
 `theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData`,
 and
 `theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData`.
-So once either construction shell is paired with a surviving purified carrier on the same
-embedding, the current replacement-positive projected endpoint and its raw quotient/error
-package are automatic too; the remaining burden lies strictly earlier, in deriving that
-carrier or stronger source-side geometry, not in any further downstream replacement lowering.
+So once either construction shell exists on the same embedding, full
+`Theorem49BoundaryRootSynthesis` is already automatic directly in the positive replacement
+file itself, and a surviving purified carrier is only needed to upgrade further to the current
+replacement-positive projected endpoint and its raw quotient/error package.  The remaining
+burden therefore lies strictly earlier, in deriving that carrier or stronger source-side
+geometry, not in any further downstream replacement lowering.
 `Theorem49PositiveGeometricSourceReplacementRoute.lean` now also proves the graph-package
 methods
 `Theorem49ClosedWalkAnnulusConstructionFaceLayerPositiveProjectedGeometry.boundaryRootSynthesis`,

@@ -141,6 +141,26 @@ theorem rawQuotientErrorPackage
     theorem49BoundaryRawQuotientErrorPackage_of_heightOrderedPositiveProjectedGeometryOn
       geom.on C0 hC0 hx
 
+/-- The graph-level height-ordered replacement package already reaches the full theorem-4.9
+synthesis endpoint on its own embedding. -/
+theorem boundaryRootSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49HeightOrderedPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis geom.emb C0 :=
+  theorem49BoundaryRootSynthesis_of_planarBoundaryHeightOrderedFacePeelWitnessData
+    geom.data C0 hC0
+
+/-- The graph-level height-ordered replacement package also gives the graph-level full
+theorem-4.9 synthesis endpoint. -/
+theorem exists_boundaryRootSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49HeightOrderedPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C0 :=
+  ⟨geom.emb, geom.boundaryRootSynthesis C0 hC0⟩
+
 end Theorem49HeightOrderedPositiveProjectedGeometry
 
 /-- Fixed-embedding replacement positive package using finite collar-layer witness-cover data. -/
@@ -184,6 +204,17 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_collarLayerPositiveProjected
   exact
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_collarLayerPositiveProjectedGeometryOn
       geom C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- The finite collar-layer replacement package already reaches the full theorem-4.9 synthesis
+endpoint on the same embedding. -/
+theorem theorem49BoundaryRootSynthesis_of_collarLayerPositiveProjectedGeometryOn
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (geom : Theorem49CollarLayerPositiveProjectedGeometryOn emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  rcases geom with ⟨data, _hCarrier⟩
+  exact theorem49BoundaryRootSynthesis_of_planarBoundaryCollarLayerFacePeelWitnessData data C0 hC0
 
 /-- The height-ordered and finite collar-layer replacement packages are equivalent on a fixed
 embedding.  The conversion from height to collars groups peeled faces by height; the reverse
@@ -679,6 +710,19 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstru
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction
       data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
+/-- A BFS annulus construction already carries the full theorem-4.9 synthesis endpoint on the
+same embedding. The carrier witness is only needed for the projected endpoint, not for the
+underlying witness-cover synthesis itself. -/
+theorem theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstruction emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootSynthesis_of_planarBoundaryHeightOrderedFacePeelWitnessData
+      data.toPlanarBoundaryHeightOrderedFacePeelWitnessData C0 hC0
+
 /-- A BFS annulus construction plus a local unblocked endpoint gives the height-ordered
 replacement source without separately repackaging carrier nonemptiness. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint
@@ -722,6 +766,118 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstru
   exact
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint
       data hEndpoint C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- A BFS annulus construction plus a local unblocked endpoint also gives the full theorem-4.9
+synthesis endpoint directly. The endpoint witness is used only to inhabit the route-facing
+carrier when needed elsewhere; the synthesis itself is already carried by the construction. -/
+theorem theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstruction emb)
+    (_hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction data C0 hC0
+
+/-- The stronger construction-side face-layer shell still carries the same fixed-embedding
+height-ordered replacement source once the purified carrier survives. -/
+theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  exact
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction
+      data.construction hCarrier
+
+/-- The stronger construction-side face-layer shell also reaches the corrected nonempty
+projected theorem-4.9 synthesis endpoint directly once the purified carrier survives. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction
+      data.construction hCarrier C0 hC0
+
+/-- The stronger construction-side face-layer shell also gives the route-facing raw
+quotient/error conclusion once the purified carrier survives. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- The stronger construction-side face-layer shell already carries the full theorem-4.9
+synthesis endpoint on the same embedding. The extra face-layer control only refines how the
+annulus construction was obtained. -/
+theorem theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction data.construction C0 hC0
+
+/-- The still more concrete selected-boundary-contact shell carries the same fixed-embedding
+height-ordered replacement source once the purified carrier survives. -/
+theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Theorem49HeightOrderedPositiveProjectedGeometryOn emb := by
+  exact
+    theorem49HeightOrderedPositiveProjectedGeometryOn_of_planarBoundaryAnnulusConstruction
+      data.construction hCarrier
+
+/-- The still more concrete selected-boundary-contact shell also reaches the corrected nonempty
+projected theorem-4.9 synthesis endpoint directly once the purified carrier survives. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstruction
+      data.construction hCarrier C0 hC0
+
+/-- The still more concrete selected-boundary-contact shell also gives the route-facing raw
+quotient/error conclusion once the purified carrier survives. -/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb)
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+      data hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- The still more concrete selected-boundary-contact shell also already carries the full
+theorem-4.9 synthesis endpoint on the same embedding. The support-face witness is upstream
+construction data, not an extra obligation for synthesis. -/
+theorem theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusConstruction data.construction C0 hC0
 
 /-- The same annulus-construction hypotheses that feed the positive endpoint also expose a
 terminal peeled face whose non-witness remainders already lie on the ambient annulus boundary. -/
@@ -981,6 +1137,25 @@ theorem rawQuotientErrorPackage
   exact
     theorem49BoundaryRawQuotientErrorPackage_of_collarLayerPositiveProjectedGeometryOn
       geom.on C0 hC0 hx
+
+/-- The graph-level finite collar-layer replacement package already reaches the full theorem-4.9
+synthesis endpoint on its own embedding. -/
+theorem boundaryRootSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49CollarLayerPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis geom.emb C0 :=
+  theorem49BoundaryRootSynthesis_of_collarLayerPositiveProjectedGeometryOn geom.on C0 hC0
+
+/-- The graph-level finite collar-layer replacement package also gives the graph-level full
+theorem-4.9 synthesis endpoint. -/
+theorem exists_boundaryRootSynthesis
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (geom : Theorem49CollarLayerPositiveProjectedGeometry G)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C0 :=
+  ⟨geom.emb, geom.boundaryRootSynthesis C0 hC0⟩
 
 /-- Finite collar-layer replacement data canonically yields the height-ordered replacement
 package. -/
