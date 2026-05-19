@@ -30,6 +30,7 @@ import Mettapedia.Computability.PNP.GlobalWeaknessObstruction
 import Mettapedia.Computability.PNP.ABDecisionListObstruction
 import Mettapedia.Computability.PNP.SharedABFeatureObstruction
 import Mettapedia.Computability.PNP.ABVisibleInvariantSurjectivityObstruction
+import Mettapedia.Computability.PNP.CanonicalZABERMInterface
 
 /-!
 # PNP crux synthesis ledger
@@ -3517,6 +3518,40 @@ theorem kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompre
     ClockedKpolyFiniteLearningPayload G s clock ↔
       ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s :=
   clockedKpolyFiniteLearningPayload_iff_exactVisibleCompressionTarget
+
+/-- Route-coverage anchor: the final manuscript-facing canonical exact
+`(zfeat(z), a, b)` ERM recovery interface already lands on the exact-visible /
+finite-image surface tracked by the stop-grade `Kpoly` packet.  Any such route
+supplies the concrete visible-budget compression target, all three equivalent
+finite-image presentations, the bundled clocked finite-learning payload at the
+same budget, and the usual strict-budget non-surjectivity consequence. -/
+def CanonicalZABERMRouteCoverage : Prop :=
+  ∀ {Z : Type*} [Fintype Z] {r k clock : ℕ} {Index : Type*}
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index} {q : ℝ≥0∞},
+      CanonicalZABERMRecoveryData
+          (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q →
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k) (Index := Index) G (r + 2 * k + 1) ∧
+        G.FinitePredictorCover (2 ^ (r + 2 * k + 1)) ∧
+        G.FiniteIndexRepresentativeCover (2 ^ (r + 2 * k + 1)) ∧
+        G.FinitePredictorQuotient (2 ^ (r + 2 * k + 1)) ∧
+        ClockedKpolyFiniteLearningPayload G (r + 2 * k + 1) clock ∧
+        (r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k) →
+          ¬ Function.Surjective G.predict)
+
+@[simp] theorem canonicalZABERMRouteCoverage :
+    CanonicalZABERMRouteCoverage := by
+  intro Z _ r k clock Index μ zfeat G q h
+  refine ⟨h.compressionTarget, h.finitePredictorCover, h.finiteIndexRepresentativeCover,
+    h.finitePredictorQuotient, ?_, ?_⟩
+  · exact
+      clockedKpolyFiniteLearningPayload_of_exactVisibleCompressionTarget
+        (Z := Z) (k := k) (s := r + 2 * k + 1) (clock := clock) (Index := Index)
+        h.compressionTarget
+  · intro hs
+    exact h.not_surjective_predict_of_lt_surfaceCard hs
 
 /-- Route-coverage anchor: the concrete exact `(zfeat(z), a, b)`
 decision-list ERM family closes the bundled clocked finite-learning payload at

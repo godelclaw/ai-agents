@@ -4076,4 +4076,26 @@ theorem current_pnp_gap_completed_packet_covers_next_marginal_target_regression 
     currentPNPGapCompletedPacket.covers currentPNPNextMarginalTarget := by
   exact currentPNPGapCompletedPacket_covers_currentPNPNextMarginalTarget
 
+
+theorem canonical_zab_erm_route_coverage_regression :
+    CanonicalZABERMRouteCoverage := by
+  exact canonicalZABERMRouteCoverage
+
+theorem canonical_zab_erm_route_clocked_payload_and_strict_budget_regression
+    {Z : Type v} [Fintype Z] {r k clock : ℕ} {Index : Type u}
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index} {q : ℝ≥0∞}
+    (h :
+      CanonicalZABERMRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
+    ClockedKpolyFiniteLearningPayload G (r + 2 * k + 1) clock ∧
+      (r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k) →
+        ¬ Function.Surjective G.predict) := by
+  rcases
+      canonicalZABERMRouteCoverage
+        (Z := Z) (r := r) (k := k) (clock := clock) (Index := Index)
+        (μ := μ) (zfeat := zfeat) (G := G) (q := q) h
+    with ⟨_, _, _, _, hpayload, hstrict⟩
+  exact ⟨hpayload, hstrict⟩
 end Mettapedia.Computability.PNP.CruxSynthesisRegression
