@@ -248,6 +248,73 @@ theorem switchedHistoryClockedKpolyFiniteLearningWrapper_card_le_of_true_fielded
       ((switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
         (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield).1 hwrap)
 
+/-- Equivalently, the exact-visible switched-history wrapper can only hold when
+the visible post-switch surface itself has cardinality at most `s`. -/
+theorem switchedHistoryExactVisibleCompressionWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ s := by
+  exact
+    (Nat.pow_le_pow_iff_right Nat.one_lt_two).1
+      (switchedHistoryExactVisibleCompressionWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+        (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hwrap)
+
+/-- The clocked switched-history wrapper carries the same direct surface-width
+burden, since it is only a repackaging of the same finite-image theorem. -/
+theorem switchedHistoryClockedKpolyFiniteLearningWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ s := by
+  exact
+    (Nat.pow_le_pow_iff_right Nat.one_lt_two).1
+      (switchedHistoryClockedKpolyFiniteLearningWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+        (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield hsurj hwrap)
+
+/-- So if the visible post-switch surface is already larger than `s`, the
+exact-visible switched-history wrapper is impossible for that concrete
+manuscript history. -/
+theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_s_lt_surfaceCard
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hcard : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items := by
+  intro hwrap
+  exact
+    Nat.not_le_of_lt hcard
+      (switchedHistoryExactVisibleCompressionWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+        (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hwrap)
+
+/-- The same direct contradiction rules out the clocked switched-history
+wrapper whenever the visible post-switch surface is larger than `s`. -/
+theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_s_lt_surfaceCard
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hcard : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items := by
+  intro hwrap
+  exact
+    Nat.not_le_of_lt hcard
+      (switchedHistoryClockedKpolyFiniteLearningWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+        (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield hsurj hwrap)
+
 end ActualSwitchedLocalInterface
 
 end Mettapedia.Computability.PNP
