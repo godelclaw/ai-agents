@@ -80,6 +80,35 @@ theorem boxed_steady_seed_any_zero_gradient_pressure_exact_global_output_failure
     not_exists_ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_of_stationaryMomentum_failure
       hν N L u₀ ht0 htT hfail
 
+theorem boxed_steady_seed_zero_gradient_pressure_candidate_exact_global_output_gap_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0)
+    {T : ℝ} {t : NSTime} {x : NSSpace}
+    (ht0 : 0 ≤ t) (htT : t ≤ T)
+    (hfail :
+      spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x ≠
+        ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) :
+    (smoothSpaceTimeVelocity (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) ∧
+      smoothSpaceTimePressure p ∧
+      (∀ t x,
+        spatialDivergence (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x = 0) ∧
+      MatchesInitialVelocity
+        (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity
+        (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) ∧
+      boundedKineticEnergy
+        (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν)) ∧
+      ¬ ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure
+        ν
+        (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity
+        (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν)
+        p := by
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_exhibits_nonMomentumGlobalFields_without_exactGlobalOutput
+      hν N L u₀ p hp hp_zero ht0 htT hfail
+
 theorem boxed_steady_seed_time_only_pressure_candidate_exact_global_output_gap_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
