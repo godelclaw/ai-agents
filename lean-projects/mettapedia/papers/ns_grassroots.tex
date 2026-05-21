@@ -232,6 +232,8 @@ The grassroots route is not starting from zero.  The project already has:
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesFiniteModeGalerkinToy.lean}} & finite-dimensional Galerkin ODE audit and simple solution families \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/ManuscriptTruncationPackage.lean}} & combined manuscript-shaped truncation target \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesWitnessConstruction.lean}} & concrete finite-time audit theorem for time-independent compatibility seeds \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesComponentShadowIncoherence.lean}} & scalar component shadows can use split existential witnesses, so they do not recover the concrete vector clause \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesSharedWitnessBridgeObstruction.lean}} & no uniform bridge upgrades the current scalar component shadow to a coherent shared-witness component clause \\
 \texttt{ns\_crux.tex} & companion blocker note, kept separate on purpose \\
 \bottomrule
 \end{tabular}
@@ -1234,6 +1236,21 @@ rules out a universal bridge from the present scalar component shadow back to
 the concrete vector theorem surface.  Any repaired component route must carry a
 shared vector witness or an equivalent coherence condition; the current
 per-slot existential shadow is too weak.
+
+The shared-witness repair has also been formalized and immediately classified.
+\texttt{NavierStokesSharedWitnessComponent.lean} defines
+\texttt{SharedWitnessComponentRegularityClause}, a scalar component output
+backed by one concrete vector-valued
+\texttt{NavierStokesGlobalRegularityWitness}.  Lean proves
+\texttt{sharedWitnessComponentRegularityClause\_iff\_globalClause}: this repair
+is exactly equivalent to the full concrete vector theorem, not a weaker scalar
+surrogate.  Then
+\texttt{NavierStokesSharedWitnessBridgeObstruction.lean} proves
+\texttt{not\_uniform\_componentShadowBridge\_to\_sharedWitnessComponent} and
+the three coordinate-specific variants.  Thus the present scalar component
+shadow cannot be uniformly upgraded into even this minimal coherent repair; any
+componentwise rescue has to change the predicate surface itself, not merely add
+a bridge theorem downstream.
 
 \section{Why This Matters}
 

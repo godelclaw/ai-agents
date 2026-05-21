@@ -125,6 +125,7 @@ import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyInequalityRegress
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesFiniteModeBoundedEnergyRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesFiniteModeEnergyObstructionRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesComponentShadowIncoherenceRegression
+import Mettapedia.FluidDynamics.NavierStokes.NavierStokesSharedWitnessBridgeObstructionRegression
 import Mettapedia.FluidDynamics.NavierStokes.VectorCalculusR3Regression
 
 -- Multi-Agent RL Framework (Grain of Truth - Phase 2)
