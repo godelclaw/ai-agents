@@ -46,6 +46,27 @@ abbrev WeightedObservable.geometricColeHopfHeatSharedPackage
     selector ν B hν hB cutoff hcutoff_cont hcutoff
     curlFrame curlBound curlBound_nonneg hcurl
 
+/-- The same concrete heat-decayed package, but built from a componentwise
+curl-frame bound instead of an abstract `gamma`-energy input. -/
+abbrev WeightedObservable.geometricColeHopfHeatSharedPackage_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (ν B : ℝ)
+    (hν : 0 < ν)
+    (hB : 0 ≤ B)
+    (cutoff : ℝ → ℝ)
+    (hcutoff_cont : Continuous cutoff)
+    (hcutoff : ∀ r, |cutoff r| ≤ B)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound) :
+    SharedApproximationPackage (Time := NNReal) (ι := ι) (X := X)
+      radiusSq (matchingObservable L) :=
+  L.geometricColeHopfHeatApproximation_of_componentwise_abs_le
+    selector ν B hν hB cutoff hcutoff_cont hcutoff
+    curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl
+
 /-- The concrete vorticity tendril delivered by the current heat-decayed
 Cole-Hopf package at a base state `x`. -/
 def WeightedObservable.geometricColeHopfHeatUniformVorticityTendril
@@ -67,6 +88,28 @@ def WeightedObservable.geometricColeHopfHeatUniformVorticityTendril
     (ι := ι) (X := X)
     selector ν B hν hB cutoff hcutoff_cont hcutoff
     curlFrame curlBound curlBound_nonneg hcurl).toUniformVorticityTendril x
+
+/-- The same tendril, but instantiated from a direct componentwise curl-frame
+bound. -/
+def WeightedObservable.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (ν B : ℝ)
+    (hν : 0 < ν)
+    (hB : 0 ≤ B)
+    (cutoff : ℝ → ℝ)
+    (hcutoff_cont : Continuous cutoff)
+    (hcutoff : ∀ r, |cutoff r| ≤ B)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    UniformVorticityTendril (Time := NNReal) (X := X) :=
+  (L.geometricColeHopfHeatSharedPackage_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector ν B hν hB cutoff hcutoff_cont hcutoff
+    curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl).toUniformVorticityTendril x
 
 /-- Explicit envelope formula carried by the current heat-decayed Cole-Hopf
 package. -/
@@ -107,6 +150,36 @@ theorem WeightedObservable.geometricColeHopfHeat_abs_vorticity_le_uniform
   simpa [WeightedObservable.geometricColeHopfHeatEnvelope,
     WeightedObservable.geometricColeHopfHeatUniformVorticityTendril, S] using h
 
+theorem WeightedObservable.geometricColeHopfHeat_abs_vorticity_le_uniform_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (ν B : ℝ)
+    (hν : 0 < ν)
+    (hB : 0 ≤ B)
+    (cutoff : ℝ → ℝ)
+    (hcutoff_cont : Continuous cutoff)
+    (hcutoff : ∀ r, |cutoff r| ≤ B)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    ∀ t y,
+      |(L.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector ν B hν hB cutoff hcutoff_cont hcutoff
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| ≤
+        L.geometricColeHopfHeatEnvelope (ι := ι) ν B
+          ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) := by
+  let S :=
+    L.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector ν B hν hB cutoff hcutoff_cont hcutoff
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x
+  have h := S.abs_vorticity_le_uniform
+  simpa [WeightedObservable.geometricColeHopfHeatEnvelope,
+    WeightedObservable.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le, S] using h
+
 /-- The current concrete positive route only needs the generic shared-package
 lift data on top of its heat-decayed package. -/
 abbrev WeightedObservable.GeometricColeHopfHeatLiftData
@@ -132,6 +205,31 @@ abbrev WeightedObservable.GeometricColeHopfHeatLiftData
       curlFrame curlBound curlBound_nonneg hcurl)
     x
 
+/-- The same Fefferman lift datum, but instantiated from a direct componentwise
+curl-frame bound. -/
+abbrev WeightedObservable.GeometricColeHopfHeatLiftData_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (K : FeffermanPredicateKit (Time := NNReal) (X := X))
+    (Compat : VorticityCompatibilityPred (Time := NNReal) (X := X))
+    (selector : ι → ℕ)
+    (ν B : ℝ)
+    (hν : 0 < ν)
+    (hB : 0 ≤ B)
+    (cutoff : ℝ → ℝ)
+    (hcutoff_cont : Continuous cutoff)
+    (hcutoff : ∀ r, |cutoff r| ≤ B)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :=
+  SharedApproximationLiftData K Compat
+    (S := L.geometricColeHopfHeatSharedPackage_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector ν B hν hB cutoff hcutoff_cont hcutoff
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl)
+    x
+
 theorem WeightedObservable.geometricColeHopfHeatLiftData_realizes_clause
     {L : WeightedObservable}
     {K : FeffermanPredicateKit (Time := NNReal) (X := X)}
@@ -152,6 +250,29 @@ theorem WeightedObservable.geometricColeHopfHeatLiftData_realizes_clause
       (ι := ι) (X := X) K Compat
       selector ν B hν hB cutoff hcutoff_cont hcutoff
       curlFrame curlBound curlBound_nonneg hcurl x) :
+    FeffermanGlobalRegularityClause K := by
+  exact Bdata.realizes_clause
+
+theorem WeightedObservable.geometricColeHopfHeatLiftData_realizes_clause_of_componentwise_abs_le
+    {L : WeightedObservable}
+    {K : FeffermanPredicateKit (Time := NNReal) (X := X)}
+    {Compat : VorticityCompatibilityPred (Time := NNReal) (X := X)}
+    {selector : ι → ℕ}
+    {ν B : ℝ}
+    {hν : 0 < ν}
+    {hB : 0 ≤ B}
+    {cutoff : ℝ → ℝ}
+    {hcutoff_cont : Continuous cutoff}
+    {hcutoff : ∀ r, |cutoff r| ≤ B}
+    {curlFrame : ι → X → ℝ}
+    {curlComponentBound : ℝ}
+    {hcurlComponentBound_nonneg : 0 ≤ curlComponentBound}
+    {hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound}
+    {x : ModeState}
+    (Bdata : L.GeometricColeHopfHeatLiftData_of_componentwise_abs_le
+      (ι := ι) (X := X) K Compat
+      selector ν B hν hB cutoff hcutoff_cont hcutoff
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x) :
     FeffermanGlobalRegularityClause K := by
   exact Bdata.realizes_clause
 
@@ -186,6 +307,39 @@ theorem WeightedObservable.geometricColeHopfHeatLiftData_retains_uniform_vortici
         curlFrame curlBound curlBound_nonneg hcurl x).envelope := by
   simpa [WeightedObservable.geometricColeHopfHeatUniformVorticityTendril,
     WeightedObservable.geometricColeHopfHeatSharedPackage] using
+    Bdata.retains_uniform_vorticity
+
+theorem WeightedObservable.geometricColeHopfHeatLiftData_retains_uniform_vorticity_of_componentwise_abs_le
+    {L : WeightedObservable}
+    {K : FeffermanPredicateKit (Time := NNReal) (X := X)}
+    {Compat : VorticityCompatibilityPred (Time := NNReal) (X := X)}
+    {selector : ι → ℕ}
+    {ν B : ℝ}
+    {hν : 0 < ν}
+    {hB : 0 ≤ B}
+    {cutoff : ℝ → ℝ}
+    {hcutoff_cont : Continuous cutoff}
+    {hcutoff : ∀ r, |cutoff r| ≤ B}
+    {curlFrame : ι → X → ℝ}
+    {curlComponentBound : ℝ}
+    {hcurlComponentBound_nonneg : 0 ≤ curlComponentBound}
+    {hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound}
+    {x : ModeState}
+    (Bdata : L.GeometricColeHopfHeatLiftData_of_componentwise_abs_le
+      (ι := ι) (X := X) K Compat
+      selector ν B hν hB cutoff hcutoff_cont hcutoff
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x) :
+    ∀ t y,
+      |(L.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector ν B hν hB cutoff hcutoff_cont hcutoff
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| ≤
+      (L.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector ν B hν hB cutoff hcutoff_cont hcutoff
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).envelope := by
+  simpa [WeightedObservable.geometricColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le,
+    WeightedObservable.geometricColeHopfHeatSharedPackage_of_componentwise_abs_le] using
     Bdata.retains_uniform_vorticity
 
 end GeometricColeHopfHeatFefferman

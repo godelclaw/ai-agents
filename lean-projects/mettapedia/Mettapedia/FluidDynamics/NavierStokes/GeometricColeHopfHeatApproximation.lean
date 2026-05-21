@@ -213,6 +213,32 @@ theorem WeightedObservable.geometricColeHopfHeatApproximation_dPhi_energy_eventu
   simpa [WeightedObservable.coleHopfHeatdPhi, heatedSelectedDerivative] using
     S.dPhi_energy_eventually x t
 
+/-- Componentwise curl-frame control is enough to build the same heat-decayed
+shared approximation package, with an explicit finite-cardinality curl-energy
+constant. -/
+def WeightedObservable.geometricColeHopfHeatApproximation_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (ν B : ℝ)
+    (hν : 0 < ν)
+    (hB : 0 ≤ B)
+    (cutoff : ℝ → ℝ)
+    (hcutoff_cont : Continuous cutoff)
+    (hcutoff : ∀ r, |cutoff r| ≤ B)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound) :
+    SharedApproximationPackage (Time := NNReal) (ι := ι) (X := X)
+      radiusSq (matchingObservable L) :=
+  L.geometricColeHopfHeatApproximation
+    selector ν B hν hB cutoff hcutoff_cont hcutoff
+    curlFrame
+    ((Fintype.card ι : ℝ) * curlComponentBound ^ 2)
+    (by positivity)
+    (fun x => gamma_le_card_mul_sq_of_abs_le
+      (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+
 end GeometricColeHopfHeatApproximation
 
 end NavierStokes
