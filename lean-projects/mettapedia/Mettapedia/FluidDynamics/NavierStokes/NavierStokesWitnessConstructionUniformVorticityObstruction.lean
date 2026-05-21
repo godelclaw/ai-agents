@@ -205,6 +205,46 @@ theorem
       (smoothSpaceTimePressure_timeOnly hπ)
       (fun t x => spatialPressureGradient_timeOnly π t x)
 
+/-- Allowing an arbitrary smooth zero-spatial-gradient pressure gauge does not
+enlarge the boxed steady-seed uniform-vorticity-data surface: such packaged data
+exist for some harmless gauge exactly when the zero-pressure stationary momentum
+balance already holds on the slab. -/
+theorem
+    exists_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) :
+    (∃ p : NSPressureField,
+        smoothSpaceTimePressure p ∧
+          (∀ t x, spatialPressureGradient p t x = 0) ∧
+          ∃ W :
+            ExplicitFiniteTimeRegularityWitness ν
+              (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+            W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+              W.pressure = p ∧
+              ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  constructor
+  · rintro ⟨p, hp, hp_zero, hData⟩
+    exact
+      (boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+        hν N L u₀ T p hp hp_zero).1 hData
+  · intro hstat
+    refine ⟨fun _ : NSTime => fun _ : NSSpace => (0 : ℝ), ?_, ?_, ?_⟩
+    · simpa using smoothSpaceTimePressure_const (0 : ℝ)
+    · intro t x
+      simpa using spatialPressureGradient_zero t x
+    · exact
+        (boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+          hν N L u₀ T
+          (fun _ : NSTime => fun _ : NSSpace => (0 : ℝ))
+          (by simpa using smoothSpaceTimePressure_const (0 : ℝ))
+          (by
+            intro t x
+            simpa using spatialPressureGradient_zero t x)).2 hstat
+
 /-- Boxed-periodization instance of the uniform-vorticity-layer steady-seed
 obstruction: stationary momentum failure at one slab point rules out the exact
 seed/pressure pair even after adding a slab vorticity bound. -/

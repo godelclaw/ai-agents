@@ -105,6 +105,28 @@ theorem boxed_steady_seed_time_only_pressure_BKM_data_iff_zero_pressure_stationa
     boxedPartialPeriodizationSteadySeed_timeOnlyPressure_BKMData_iff_stationaryMomentum_zeroPressure
       hν N L u₀ T π hπ
 
+theorem boxed_steady_seed_exists_zero_gradient_pressure_BKM_data_iff_zero_pressure_stationary_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) :
+    (∃ p : NSPressureField,
+        smoothSpaceTimePressure p ∧
+          (∀ t x, spatialPressureGradient p t x = 0) ∧
+          ∃ W :
+            ExplicitFiniteTimeRegularityWitness ν
+              (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+            W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+              W.pressure = p ∧
+              ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+                vorticityEnvelopeOn W.velocity T Ω ∧
+                  integrableVorticityEnvelopeOn Ω T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  exact
+    exists_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_BKMData_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T
+
 theorem boxed_steady_seed_time_only_pressure_BKM_data_failure_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
