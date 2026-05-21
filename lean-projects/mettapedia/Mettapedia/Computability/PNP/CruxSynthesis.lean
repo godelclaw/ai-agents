@@ -37,6 +37,7 @@ import Mettapedia.Computability.PNP.ActualSwitchedHistoryBitVecBudgetObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalZABDecisionListWidthObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMVisibleBudgetObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryPayloadObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryCardinalityObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -1432,6 +1433,10 @@ inductive PNPKpolySubrepairClass where
   threshold recovery packet already forces the intrinsic lightest-point
   threshold. -/
   | surjectiveActualLocalRecoveryLightestPointBoundary
+  /-- On any finite nonempty surjective actual-local endpoint, the recovery
+  packet already forces `q` above the uniform-complement threshold
+  `1 - |surface|⁻¹`. -/
+  | surjectiveActualLocalRecoveryUniformCardinalityThresholdBoundary
   /-- On any surjective actual-local endpoint, the manuscript-facing sparse-
   threshold recovery packet already implies the bundled finite-learning
   payload, so it is impossible below the full predictor-image cardinality. -/
@@ -1448,6 +1453,12 @@ inductive PNPKpolySubrepairClass where
   /-- The same injective finite-probe payload obstruction also removes the
   extractor choice itself. -/
   | actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction
+  /-- On the full-rule `BitVec n` endpoint, the recovery packet already forces
+  the explicit threshold `q ≥ 1 - 2^-(n + 2*k)`. -/
+  | fullRuleActualLocalRecoveryBitVecCardinalityThresholdBoundary
+  /-- Therefore below that explicit `BitVec n` threshold, no extractor at all
+  can support the full-rule manuscript-facing recovery packet. -/
+  | fullRuleActualLocalNoExtractorRecoveryBitVecCardinalityThresholdObstruction
   /-- Below the intrinsic lightest-point threshold, no extractor at all can
   support the manuscript-facing sparse-threshold recovery packet on a
   surjective actual-local endpoint. -/
@@ -1905,10 +1916,13 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .surjectiveActualLocalJointRecoveryBoundary,
     .surjectiveActualLocalRecoveryVisibleWidthBoundary,
     .surjectiveActualLocalRecoveryLightestPointBoundary,
+    .surjectiveActualLocalRecoveryUniformCardinalityThresholdBoundary,
     .surjectiveActualLocalRecoveryPayloadPredictorCardObstruction,
     .surjectiveActualLocalNoExtractorRecoveryPayloadPredictorCardObstruction,
     .actualLocalRecoveryPayloadInjectiveProbeCardObstruction,
     .actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction,
+    .fullRuleActualLocalRecoveryBitVecCardinalityThresholdBoundary,
+    .fullRuleActualLocalNoExtractorRecoveryBitVecCardinalityThresholdObstruction,
     .surjectiveActualLocalNoExtractorLightestPointBoundary,
     .surjectiveActualLocalNoExtractorVisibleWidthBoundary,
     .exactVisibleCompressionTargetPredictorCoverEquivalence,
@@ -7194,6 +7208,24 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extra
   rcases h with ⟨h⟩
   exact h.visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_surjective_predict hsurj
 
+/-- Route-coverage anchor: on any finite nonempty surjective actual-local
+endpoint, the manuscript-facing sparse-threshold recovery packet already
+forces `q` above the uniform-complement threshold `1 - |surface|⁻¹`. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_one_sub_inv_card_le_of_nonempty_recovery
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    [Nonempty (ExactVisiblePostSwitchSurface Z k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)} {q : ℝ≥0∞}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q)) :
+    1 - (Fintype.card (ExactVisiblePostSwitchSurface Z k) : ℝ≥0∞)⁻¹ ≤ q := by
+  rcases h with ⟨h⟩
+  exact h.one_sub_inv_card_le_of_surjective_predict hsurj
+
 /-- Route-coverage anchor: even the weaker shared sparse-threshold ERM packet
 already forces the same unconditional half-width ceiling on any surjective
 actual-local `BitVec n` endpoint. -/
@@ -7211,6 +7243,53 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extra
   exact
     h.visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_surjective_predict
       hsurj
+
+/-- Route-coverage anchor: on the full-rule `BitVec n` endpoint, the
+manuscript-facing recovery packet already forces the explicit threshold
+`q ≥ 1 - 2^-(n + 2*k)`. -/
+theorem kpolyCoverage_anchor_fullRuleActualLocal_one_sub_pow_inv_le_of_nonempty_recovery
+    {n k r : ℕ}
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (fullRuleActualSwitchedLocalInterface (BitVec n) k)
+          zfeat
+          q)) :
+    1 - (2 ^ (n + 2 * k) : ℝ≥0∞)⁻¹ ≤ q := by
+  rcases h with ⟨h⟩
+  exact
+    ActualSwitchedLocalInterface.one_sub_pow_inv_le_of_nonempty_fullRuleActualSwitchedLocalInterface_sharedExactZABSparseThresholdERMRecoveryData
+      (μ := μ)
+      (k := k)
+      (zfeat := zfeat)
+      h
+
+/-- Route-coverage anchor: below that explicit `BitVec n` threshold, no
+extractor at all can support the full-rule manuscript-facing recovery packet. -/
+theorem kpolyCoverage_anchor_fullRuleActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv
+    {n k r : ℕ}
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hq_lt : q < 1 - (2 ^ (n + 2 * k) : ℝ≥0∞)⁻¹) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (fullRuleActualSwitchedLocalInterface (BitVec n) k)
+            zfeat
+            q) := by
+  rintro ⟨zfeat, hdata⟩
+  exact
+    ActualSwitchedLocalInterface.fullRuleActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv
+      (μ := μ)
+      (k := k)
+      (r := r)
+      (zfeat := zfeat)
+      hq_lt
+      hdata
 
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
 manuscript-facing sparse-threshold recovery packet already forces the intrinsic
