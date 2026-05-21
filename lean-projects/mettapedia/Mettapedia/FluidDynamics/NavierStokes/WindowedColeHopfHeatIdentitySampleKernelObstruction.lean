@@ -263,6 +263,50 @@ theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_liveCoeffSum
       (ι := ι) (X := X)
       selector K.liveCoeffSum K.seedCoeffSum c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x hselfSeed hwitness
 
+theorem WeightedObservable.not_exists_windowedColeHopfHeatIdentitySampleKernelTopDownBridge_of_liveCoeffSum_ne_one_of_zero_initial_nonzero_live
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (c ν : ℝ)
+    (hlive : K.liveCoeffSum ≠ 1)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlBound : ℝ)
+    (curlBound_nonneg : 0 ≤ curlBound)
+    (hcurl : ∀ x, gamma (fun i => curlFrame i x) ≤ curlBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors)
+    (hwitness :
+      ∃ t y,
+        (L.windowedColeHopfHeatUniformVorticityTendril
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).vorticity 1 y = 0 ∧
+        (L.windowedColeHopfHeatUniformVorticityTendril
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).vorticity t y ≠ 0) :
+    ¬ ∃ B :
+        TopDownFeffermanBridge
+          (pressureSeededPredicateKit
+            (Time := NNReal) (X := X)
+            (L.windowedColeHopfHeatSampleKernelInitialSlice
+              (ι := ι) (X := X)
+              selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x))
+          (windowedSelfCompatibility (X := X))
+          (L.windowedColeHopfHeatUniformVorticityTendril
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x),
+        B.candidate =
+          L.windowedColeHopfHeatSampleKernelCandidate
+            (ι := ι) (X := X)
+            selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x := by
+  intro hB
+  rcases hB with ⟨B, hCand⟩
+  exact hlive <|
+    L.windowedColeHopfHeatIdentitySampleKernel_liveCoeffSum_eq_one_of_topDownBridge_of_zero_initial_nonzero_live
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x hK B hCand hwitness
+
 theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_seedCoeffSum_eq_zero_of_topDownBridge_of_zero_live_nonzero_initial
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -327,6 +371,50 @@ theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_seedCoeffSum
     L.windowedColeHopfHeatSeedBlend_b_eq_zero_of_selfCompatibility_of_zero_live_nonzero_initial
       (ι := ι) (X := X)
       selector K.liveCoeffSum K.seedCoeffSum c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x hselfSeed hwitness
+
+theorem WeightedObservable.not_exists_windowedColeHopfHeatIdentitySampleKernelTopDownBridge_of_seedCoeffSum_ne_zero_of_zero_live_nonzero_initial
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (c ν : ℝ)
+    (hseed : K.seedCoeffSum ≠ 0)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlBound : ℝ)
+    (curlBound_nonneg : 0 ≤ curlBound)
+    (hcurl : ∀ x, gamma (fun i => curlFrame i x) ≤ curlBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors)
+    (hwitness :
+      ∃ t y,
+        (L.windowedColeHopfHeatUniformVorticityTendril
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).vorticity t y = 0 ∧
+        (L.windowedColeHopfHeatUniformVorticityTendril
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).vorticity 1 y ≠ 0) :
+    ¬ ∃ B :
+        TopDownFeffermanBridge
+          (pressureSeededPredicateKit
+            (Time := NNReal) (X := X)
+            (L.windowedColeHopfHeatSampleKernelInitialSlice
+              (ι := ι) (X := X)
+              selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x))
+          (windowedSelfCompatibility (X := X))
+          (L.windowedColeHopfHeatUniformVorticityTendril
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x),
+        B.candidate =
+          L.windowedColeHopfHeatSampleKernelCandidate
+            (ι := ι) (X := X)
+            selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x := by
+  intro hB
+  rcases hB with ⟨B, hCand⟩
+  exact hseed <|
+    L.windowedColeHopfHeatIdentitySampleKernel_seedCoeffSum_eq_zero_of_topDownBridge_of_zero_live_nonzero_initial
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x hK B hCand hwitness
 
 end WindowedColeHopfHeatIdentitySampleKernelObstruction
 
