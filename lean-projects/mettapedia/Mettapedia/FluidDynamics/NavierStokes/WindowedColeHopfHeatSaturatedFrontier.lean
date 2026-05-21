@@ -43,6 +43,21 @@ abbrev WeightedObservable.windowedColeHopfHeatSaturatedInitialSlice
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).saturatedInitialSlice a
 
+abbrev WeightedObservable.windowedColeHopfHeatSaturatedInitialSlice_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) : X → ℝ :=
+  (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).saturatedInitialSlice a
+
 abbrev WeightedObservable.windowedColeHopfHeatSaturatedCandidate
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -58,6 +73,22 @@ abbrev WeightedObservable.windowedColeHopfHeatSaturatedCandidate
   (L.windowedColeHopfHeatUniformVorticityTendril
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).saturatedCandidate a
+
+abbrev WeightedObservable.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    VelocityPressureCandidate (Time := NNReal) (X := X) :=
+  (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).saturatedCandidate a
 
 theorem WeightedObservable.windowedColeHopfHeatSaturatedCandidate_has_saturatedCompatibility
     (L : WeightedObservable)
@@ -80,6 +111,28 @@ theorem WeightedObservable.windowedColeHopfHeatSaturatedCandidate_has_saturatedC
   (L.windowedColeHopfHeatUniformVorticityTendril
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).saturatedCandidate_has_saturatedCompatibility a
+
+theorem WeightedObservable.windowedColeHopfHeatSaturatedCandidate_has_saturatedCompatibility_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    saturatedCompatibilityPred (Time := NNReal) (X := X) a
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)
+      (L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector a c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).velocity :=
+  (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).saturatedCandidate_has_saturatedCompatibility a
 
 theorem WeightedObservable.windowedColeHopfHeatSaturatedCandidate_has_selfCompatibility_of_zero
     (L : WeightedObservable)
@@ -157,6 +210,32 @@ def WeightedObservable.toWindowedColeHopfHeatSaturatedBridge
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).toSaturatedPressureSeededBridge a
 
+def WeightedObservable.toWindowedColeHopfHeatSaturatedBridge_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    TopDownFeffermanBridge
+      (pressureSeededPredicateKit
+        (Time := NNReal) (X := X)
+        (L.windowedColeHopfHeatSaturatedInitialSlice_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector a c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+      (saturatedCompatibilityPred (Time := NNReal) (X := X) a)
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x) :=
+  (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).toSaturatedPressureSeededBridge a
+
 theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -177,6 +256,29 @@ theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seed
   (L.toWindowedColeHopfHeatSaturatedBridge
     (ι := ι) (X := X)
     selector a c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).realizes_clause
+
+theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    FeffermanGlobalRegularityClause
+      (pressureSeededPredicateKit
+        (Time := NNReal) (X := X)
+        (L.windowedColeHopfHeatSaturatedInitialSlice_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector a c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)) :=
+  (L.toWindowedColeHopfHeatSaturatedBridge_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector a c ν hc hν
+    curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).realizes_clause
 
 end WindowedColeHopfHeatSaturatedFrontier
 
