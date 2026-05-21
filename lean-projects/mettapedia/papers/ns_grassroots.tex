@@ -232,6 +232,7 @@ The grassroots route is not starting from zero.  The project already has:
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesFiniteModeGalerkinToy.lean}} & finite-dimensional Galerkin ODE audit and simple solution families \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/ManuscriptTruncationPackage.lean}} & combined manuscript-shaped truncation target \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesWitnessConstruction.lean}} & concrete finite-time audit theorem for time-independent compatibility seeds \\
+\shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesConstantFieldWitnessObstruction.lean}} & nonzero whole-space constant fields satisfy the non-energy witness fields but fail bounded energy \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesComponentShadowIncoherence.lean}} & scalar component shadows can use split existential witnesses, so they do not recover the concrete vector clause \\
 \shortstack[l]{\texttt{Mettapedia/FluidDynamics/}\\\texttt{NavierStokes/NavierStokesSharedWitnessBridgeObstruction.lean}} & no uniform bridge upgrades the current scalar component shadow to a coherent shared-witness component clause \\
 \texttt{ns\_crux.tex} & companion blocker note, kept separate on purpose \\
@@ -1360,6 +1361,18 @@ time-only pressure gauges, while
 \texttt{not\_exists\_zeroVelocity\_finiteTimeWitness\_of\_spatialPressureGradient\_failure}
 turns any nonzero spatial pressure gradient at one slab point into an exact
 no-witness certificate for the zero-velocity route.
+
+The nonzero constant-field route has the opposite failure mode.  The salvaged
+module \texttt{NavierStokesConstantFieldWitnessObstruction.lean} proves
+\texttt{constantVelocityField\_zeroSpatialGradientPressure\_nonEnergyFiniteTimeFields}:
+with any smooth zero-spatial-gradient pressure gauge, a constant velocity field
+has the smoothness, momentum, incompressibility, and initial-match fields of an
+exact finite-time witness.  Lean then proves
+\texttt{not\_exists\_constantVelocityField\_finiteTimeWitness\_of\_nonzero} and
+the time-only-gauge package
+\texttt{constantVelocityField\_timeOnlyPressure\_exhibits\_nonEnergyFiniteTimeFields\_without\_exactWitness}.
+Thus this ansatz fails at the bounded-energy slot alone on \(\mathbb{R}^3\),
+not because of a hidden pressure-gauge mismatch or a missing smoothness proof.
 
 The same harmless-gauge separation is now explicit for the manuscript-style
 boxed steady seed.  The theorem
