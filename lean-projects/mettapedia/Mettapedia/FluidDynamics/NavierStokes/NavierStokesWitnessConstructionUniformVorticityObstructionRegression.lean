@@ -79,6 +79,25 @@ theorem boxed_steady_seed_uniform_vorticity_data_iff_stationary_regression
     boxedPartialPeriodizationSteadySeed_uniformVorticityData_iff_stationaryMomentum
       hν N L u₀ T p hp
 
+theorem
+    boxed_steady_seed_time_only_pressure_uniform_vorticity_data_iff_zero_pressure_stationary_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (π : NSTime → ℝ)
+    (hπ : ContDiff ℝ ∞ π) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = (fun t : NSTime => fun _ : NSSpace => π t) ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  exact
+    boxedPartialPeriodizationSteadySeed_timeOnlyPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T π hπ
+
 theorem boxed_steady_seed_time_only_pressure_uniform_vorticity_data_failure_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)

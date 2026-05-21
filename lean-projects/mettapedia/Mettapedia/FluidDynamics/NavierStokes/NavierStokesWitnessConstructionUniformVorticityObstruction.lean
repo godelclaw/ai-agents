@@ -147,6 +147,64 @@ theorem boxedPartialPeriodizationSteadySeed_uniformVorticityData_iff_stationaryM
         (uniformVorticityBoundUpTo_timeIndependentVelocity
           (boxedPartialPeriodizationSchwartzDivergenceFreeInitialVelocity N L u₀).1 T)
 
+/-- Any smooth pressure gauge with zero spatial gradient leaves the boxed
+steady-seed uniform-vorticity-data criterion unchanged: the packaged finite-time
+data exist exactly when the zero-pressure stationary momentum balance already
+holds on the slab. -/
+theorem
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  constructor
+  · intro hData t x ht0 htT
+    have hstat :=
+      (boxedPartialPeriodizationSteadySeed_uniformVorticityData_iff_stationaryMomentum
+        hν N L u₀ T p hp).1 hData t x ht0 htT
+    simpa [hp_zero t x] using hstat
+  · intro hstat
+    refine
+      (boxedPartialPeriodizationSteadySeed_uniformVorticityData_iff_stationaryMomentum
+        hν N L u₀ T p hp).2 ?_
+    intro t x ht0 htT
+    simpa [hp_zero t x] using hstat t x ht0 htT
+
+/-- In particular, a smooth time-only pressure gauge does not enlarge the
+boxed steady-seed uniform-vorticity-data surface: the exact criterion is still
+the zero-pressure stationary momentum balance on the slab. -/
+theorem
+    boxedPartialPeriodizationSteadySeed_timeOnlyPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (π : NSTime → ℝ)
+    (hπ : ContDiff ℝ ∞ π) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = (fun t : NSTime => fun _ : NSSpace => π t) ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T
+      (fun t : NSTime => fun _ : NSSpace => π t)
+      (smoothSpaceTimePressure_timeOnly hπ)
+      (fun t x => spatialPressureGradient_timeOnly π t x)
+
 /-- Boxed-periodization instance of the uniform-vorticity-layer steady-seed
 obstruction: stationary momentum failure at one slab point rules out the exact
 seed/pressure pair even after adding a slab vorticity bound. -/
