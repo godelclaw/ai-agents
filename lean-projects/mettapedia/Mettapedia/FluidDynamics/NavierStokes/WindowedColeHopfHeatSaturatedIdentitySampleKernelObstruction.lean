@@ -95,7 +95,7 @@ theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_sum_mul_one_
               (ι := ι) (X := X)
               selector K.liveCoeffSum K.seedCoeffSum c ν hc hν
               curlFrame curlBound curlBound_nonneg hcurl x).velocity 1 y := by
-                simpa [L.windowedColeHopfHeatSampleKernelCandidate_eq_seedBlendCandidate_of_identityAnchors
+                simp [L.windowedColeHopfHeatSampleKernelCandidate_eq_seedBlendCandidate_of_identityAnchors
                   (ι := ι) (X := X)
                   selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x hK]
       _ = K.liveCoeffSum * w + K.seedCoeffSum * w := by
@@ -234,6 +234,196 @@ theorem WeightedObservable.not_exists_windowedColeHopfHeatIdentitySampleKernelTo
     L.windowedColeHopfHeatIdentitySampleKernel_abs_eq_abs_of_topDownBridge_of_two_nonzero_initial
       (ι := ι) (X := X) selector K a c ν ha hc hν curlFrame curlBound curlBound_nonneg hcurl x hK B hCand hnz₁ hnz₂
   exact habs hEq
+
+theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_sum_mul_one_add_abs_eq_saturatedCoeff_of_topDownBridge_of_nonzero_initial_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (a c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors)
+    (B :
+      TopDownFeffermanBridge
+        (pressureSeededPredicateKit
+          (Time := NNReal) (X := X)
+          (L.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector K c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+        (sampleKernelCompatibilityPred (Time := NNReal) (X := X) K)
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+    (hCand :
+      B.candidate =
+        L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector a c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)
+    {y : X}
+    (hnz :
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y ≠ 0) :
+    (K.liveCoeffSum + K.seedCoeffSum) * (1 +
+      |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y|) = a := by
+  simpa [WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSharedPackage_of_componentwise_abs_le,
+      WeightedObservable.geometricColeHopfHeatApproximation_of_componentwise_abs_le]
+    using
+      (L.windowedColeHopfHeatIdentitySampleKernel_sum_mul_one_add_abs_eq_saturatedCoeff_of_topDownBridge_of_nonzero_initial
+        (ι := ι) (X := X) (κ := κ)
+        selector K a c ν hc hν
+        curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+        (fun x => gamma_le_card_mul_sq_of_abs_le
+          (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+        x hK B hCand hnz)
+
+theorem WeightedObservable.windowedColeHopfHeatIdentitySampleKernel_abs_eq_abs_of_topDownBridge_of_two_nonzero_initial_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (a c ν : ℝ)
+    (ha : a ≠ 0)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors)
+    (B :
+      TopDownFeffermanBridge
+        (pressureSeededPredicateKit
+          (Time := NNReal) (X := X)
+          (L.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector K c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+        (sampleKernelCompatibilityPred (Time := NNReal) (X := X) K)
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+    (hCand :
+      B.candidate =
+        L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector a c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)
+    {y₁ y₂ : X}
+    (hnz₁ :
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₁ ≠ 0)
+    (hnz₂ :
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₂ ≠ 0) :
+    |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₁| =
+      |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₂| := by
+  simpa [WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSharedPackage_of_componentwise_abs_le,
+      WeightedObservable.geometricColeHopfHeatApproximation_of_componentwise_abs_le]
+    using
+      (L.windowedColeHopfHeatIdentitySampleKernel_abs_eq_abs_of_topDownBridge_of_two_nonzero_initial
+        (ι := ι) (X := X) (κ := κ)
+        selector K a c ν ha hc hν
+        curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+        (fun x => gamma_le_card_mul_sq_of_abs_le
+          (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+        x hK B hCand hnz₁ hnz₂)
+
+theorem WeightedObservable.not_exists_windowedColeHopfHeatIdentitySampleKernelTopDownBridge_eq_saturatedCandidate_of_abs_ne_abs_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (a c ν : ℝ)
+    (ha : a ≠ 0)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors)
+    (hwitness :
+      ∃ y₁ y₂,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₁ ≠ 0 ∧
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₂ ≠ 0 ∧
+        |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₁| ≠
+          |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y₂|) :
+    ¬ ∃ B :
+        TopDownFeffermanBridge
+          (pressureSeededPredicateKit
+            (Time := NNReal) (X := X)
+            (L.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le
+              (ι := ι) (X := X)
+              selector K c ν hc hν
+              curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+          (sampleKernelCompatibilityPred (Time := NNReal) (X := X) K)
+          (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x),
+        B.candidate =
+          L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector a c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x := by
+  simpa [WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le,
+      WeightedObservable.windowedColeHopfHeatSharedPackage_of_componentwise_abs_le,
+      WeightedObservable.geometricColeHopfHeatApproximation_of_componentwise_abs_le]
+    using
+      (L.not_exists_windowedColeHopfHeatIdentitySampleKernelTopDownBridge_eq_saturatedCandidate_of_abs_ne_abs
+        (ι := ι) (X := X) (κ := κ)
+        selector K a c ν ha hc hν
+        curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+        (fun x => gamma_le_card_mul_sq_of_abs_le
+          (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+        x hK hwitness)
 
 end WindowedColeHopfHeatSaturatedIdentitySampleKernelObstruction
 
