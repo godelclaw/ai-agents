@@ -55,7 +55,7 @@ theorem ColeHopfIdentityData.gamma_Wcoeff_le
 
 /-- Abstract pointwise vorticity bound derived from the identity-energy and
 frame-curl hypotheses. -/
-  theorem ColeHopfIdentityData.abs_vorticity_le
+theorem ColeHopfIdentityData.abs_vorticity_le
     (S : ColeHopfIdentityData (Time := Time) (ι := ι) (X := X))
     (t : Time) (x : X) :
     |S.vorticity t x| ≤
@@ -64,12 +64,36 @@ frame-curl hypotheses. -/
   exact NavierStokes.abs_vorticity_le (coeff := S.Wcoeff t) (curlFrame := S.curlFrame)
     (hcoeff := S.gamma_Wcoeff_le t) (hcurl := S.curl_energy x)
 
+theorem ColeHopfIdentityData.abs_vorticity_le_of_componentwise_abs_le
+    (S : ColeHopfIdentityData (Time := Time) (ι := ι) (X := X))
+    {M : ℝ}
+    (hM : 0 ≤ M)
+    (hcurl : ∀ x i, |S.curlFrame i x| ≤ M)
+    (t : Time) (x : X) :
+    |S.vorticity t x| ≤
+      Real.sqrt ((4 * S.ν ^ 2 / S.mPhi ^ 2) * S.energyBound) *
+        Real.sqrt ((Fintype.card ι : ℝ) * M ^ 2) := by
+  unfold ColeHopfIdentityData.vorticity
+  exact NavierStokes.abs_vorticity_le_of_componentwise_abs_le
+    (coeff := S.Wcoeff t) (curlFrame := S.curlFrame)
+    (hcoeff := S.gamma_Wcoeff_le t) hM (fun i => hcurl x i)
+
 /-- Uniform version of the same bound over all times and points. -/
 theorem ColeHopfIdentityData.abs_vorticity_le_uniform
     (S : ColeHopfIdentityData (Time := Time) (ι := ι) (X := X)) :
     ∀ t x, |S.vorticity t x| ≤
       Real.sqrt ((4 * S.ν ^ 2 / S.mPhi ^ 2) * S.energyBound) * Real.sqrt S.curlBound :=
   fun t x => S.abs_vorticity_le t x
+
+theorem ColeHopfIdentityData.abs_vorticity_le_uniform_of_componentwise_abs_le
+    (S : ColeHopfIdentityData (Time := Time) (ι := ι) (X := X))
+    {M : ℝ}
+    (hM : 0 ≤ M)
+    (hcurl : ∀ x i, |S.curlFrame i x| ≤ M) :
+    ∀ t x, |S.vorticity t x| ≤
+      Real.sqrt ((4 * S.ν ^ 2 / S.mPhi ^ 2) * S.energyBound) *
+        Real.sqrt ((Fintype.card ι : ℝ) * M ^ 2) :=
+  fun t x => S.abs_vorticity_le_of_componentwise_abs_le hM hcurl t x
 
 end Interface
 
