@@ -120,6 +120,43 @@ theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFin
       (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
       (by norm_num)
 
+theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryExactVisibleCompressionWrapper_le_fullWidthBudget :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+        4
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+      (s := 4)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 1)
+      (by norm_num)
+      (by norm_num)
+
+theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFiniteLearningWrapper_le_fullWidthBudget :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+        4
+        0
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+      (s := 4) (clock := 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 1)
+      (by norm_num)
+      (by norm_num)
+
 end ActualSwitchedLocalInterface
 
 end Mettapedia.Computability.PNP
