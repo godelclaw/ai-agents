@@ -89,6 +89,52 @@ theorem finiteInitialKineticEnergy_twoModeSchwartzInitialVelocity
     finiteInitialKineticEnergy_of_schwartzInitialVelocity
       ((a0 • f + b0 • g : NSSchwartzInitialVelocity))
 
+/-- Two-mode Schwartz initial data are smooth on `ℝ^3`. -/
+theorem smoothInitialVelocityData_twoModeSchwartzInitialVelocity
+    (a0 b0 : ℝ) (f g : NSSchwartzInitialVelocity) :
+    smoothInitialVelocityData (twoModeSchwartzInitialVelocity a0 b0 f g) := by
+  simpa [twoModeSchwartzInitialVelocity] using
+    smoothInitialVelocityData_of_schwartzInitialVelocity
+      ((a0 • f + b0 • g : NSSchwartzInitialVelocity))
+
+/-- The divergence of a two-mode Schwartz initial slice is the corresponding
+scalar combination of the profile divergences. -/
+theorem initialSpatialDivergence_twoModeSchwartzInitialVelocity
+    (a0 b0 : ℝ) (f g : NSSchwartzInitialVelocity) (x : NSSpace) :
+    initialSpatialDivergence (twoModeSchwartzInitialVelocity a0 b0 f g) x =
+      a0 * initialSpatialDivergence (f : NSInitialVelocity) x +
+        b0 * initialSpatialDivergence (g : NSInitialVelocity) x := by
+  calc
+    initialSpatialDivergence (twoModeSchwartzInitialVelocity a0 b0 f g) x =
+        initialSpatialDivergence
+          (a0 • (f : NSInitialVelocity) + b0 • (g : NSInitialVelocity)) x := by
+          rfl
+    _ =
+        initialSpatialDivergence (a0 • (f : NSInitialVelocity)) x +
+          initialSpatialDivergence (b0 • (g : NSInitialVelocity)) x := by
+          rw [initialSpatialDivergence_add
+            (f.differentiableAt.const_smul a0)
+            (g.differentiableAt.const_smul b0)]
+    _ =
+        a0 * initialSpatialDivergence (f : NSInitialVelocity) x +
+          initialSpatialDivergence (b0 • (g : NSInitialVelocity)) x := by
+          rw [initialSpatialDivergence_const_smul]
+    _ =
+        a0 * initialSpatialDivergence (f : NSInitialVelocity) x +
+          b0 * initialSpatialDivergence (g : NSInitialVelocity) x := by
+          rw [initialSpatialDivergence_const_smul]
+
+/-- Two-mode Schwartz initial data built from divergence-free profiles are
+divergence-free themselves. -/
+theorem initialSpatialDivergence_twoModeSchwartzInitialVelocity_zero
+    (a0 b0 : ℝ) (f g : NSSchwartzInitialVelocity)
+    (hfDiv : ∀ x, initialSpatialDivergence (f : NSInitialVelocity) x = 0)
+    (hgDiv : ∀ x, initialSpatialDivergence (g : NSInitialVelocity) x = 0) :
+    ∀ x, initialSpatialDivergence (twoModeSchwartzInitialVelocity a0 b0 f g) x = 0 := by
+  intro x
+  rw [initialSpatialDivergence_twoModeSchwartzInitialVelocity a0 b0 f g x, hfDiv x, hgDiv x]
+  simp
+
 /-- The two-mode space-time field matches its declared initial slice. -/
 theorem MatchesInitialVelocity_twoModeSchwartzVelocity
     (a b : NSTime → ℝ) (f g : NSSchwartzInitialVelocity) :
@@ -199,6 +245,40 @@ theorem momentumEquation_twoModeSchwartzVelocity_of_explicitClosure
     spatialLaplacian_twoModeSchwartzVelocity a b f g t x]
   exact hclosure t x
 
+/-- Expanded residual closure implies the pointwise Navier-Stokes momentum
+equation for arbitrary two-mode Schwartz amplitudes and arbitrary
+time-indexed Schwartz pressure slices.  This is the pressure-slice analogue of
+`momentumEquation_twoModeSchwartzVelocity_of_explicitClosure`; it exposes the
+same derivative, convection, and Laplacian terms while replacing the
+affine-plus-localized pressure ansatz by the actual pressure-slice field. -/
+theorem momentumEquation_twoModeSchwartzVelocity_schwartzPressureSlice_of_explicitClosure
+    {a b : NSTime → ℝ} (ha : ContDiff ℝ ∞ a) (hb : ContDiff ℝ ∞ b)
+    (ν : ℝ) (f g : NSSchwartzInitialVelocity) (q : NSTime → 𝓢(NSSpace, ℝ))
+    (hclosure : ∀ t x,
+      deriv a t • f x + deriv b t • g x +
+            ((a t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              (a t * b t) •
+                spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+              (a t * b t) •
+                spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+              (b t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x) +
+          spatialPressureGradient (fun s : NSTime => fun y : NSSpace => q s y) t x =
+        (ν : ℝ) •
+          (a t • spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            b t • spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x)) :
+    ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a b f g) t x +
+          spatialConvection (twoModeSchwartzVelocity a b f g) t x +
+          spatialPressureGradient (fun s : NSTime => fun y : NSSpace => q s y) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a b f g) t x := by
+  intro t x
+  rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv ha hb f g t x,
+    spatialConvection_twoModeSchwartzVelocity a b f g t x,
+    spatialLaplacian_twoModeSchwartzVelocity a b f g t x]
+  exact hclosure t x
+
 /-- Constant nonzero amplitudes `a(t)=b(t)=1` are a direct specialization of
 the expanded two-mode momentum theorem.  The closure hypothesis is the explicit
 nonlinear self/mixed convection balance for the two spatial Schwartz profiles. -/
@@ -260,6 +340,154 @@ theorem momentumEquation_oneOneTwoModeSchwartzVelocity_inviscid_zeroPressure_of_
     spatialPressureGradient_zero]
   simpa using hclosure t x
 
+/-- Conversely, a constant-one two-mode Schwartz velocity with zero pressure
+can satisfy the pointwise momentum equation only if the expanded convection
+residual equals the viscous Laplacian residual.  This exposes the precise
+extra condition that is absent from the inviscid zero-pressure branch. -/
+theorem explicitClosure_oneOneTwoModeSchwartzVelocity_zeroPressure_of_momentumEquation
+    (ν : ℝ) (f g : NSSchwartzInitialVelocity)
+    (hmom : ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient (0 : NSPressureField) t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x) :
+    ∀ t x,
+        spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x) := by
+  intro t x
+  have h := hmom t x
+  rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv
+      (a := fun _ : NSTime => 1) (b := fun _ : NSTime => 1)
+      contDiff_const contDiff_const f g t x,
+    spatialConvection_twoModeSchwartzVelocity
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x,
+    spatialLaplacian_twoModeSchwartzVelocity
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x,
+    spatialPressureGradient_zero] at h
+  simpa using h
+
+/-- The inviscid zero-pressure one-one branch cannot be reused as a
+positive-viscosity zero-pressure Navier--Stokes branch unless the summed
+profile Laplacian vanishes everywhere.  A single nonzero Laplacian-sum point
+contradicts the momentum equation. -/
+theorem not_momentumEquation_oneOneTwoMode_zeroPressure_of_inviscidClosure_lapSum_ne_zero
+    {ν : ℝ} (hν : 0 < ν) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0)
+    (hlap : ∃ t x,
+        spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+          spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x ≠
+        (0 : NSSpace)) :
+    ¬ ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient (0 : NSPressureField) t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x := by
+  intro hmom
+  rcases hlap with ⟨t, x, hlap_ne⟩
+  have hresidual :=
+    explicitClosure_oneOneTwoModeSchwartzVelocity_zeroPressure_of_momentumEquation
+      ν f g hmom t x
+  have hsmul :
+      (ν : ℝ) •
+          (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x) =
+        0 := by
+    rw [← hresidual, hclosure t x]
+  exact hlap_ne ((smul_eq_zero.mp hsmul).resolve_left hν.ne')
+
+/-- Once the constant-one two-mode branch has inviscid convection closure,
+the full positive-viscosity momentum equation is exactly the assertion that
+the pressure gradient supplies the missing viscous Laplacian residual.  This
+is the minimal pressure-repair condition left after the zero-pressure
+obstruction. -/
+theorem momentumEquation_oneOneTwoModeSchwartzVelocity_iff_pressureGradient_lapSum_of_inviscidClosure
+    (ν : ℝ) (p : NSPressureField) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0) :
+    (∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient p t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x) ↔
+      ∀ t x,
+        spatialPressureGradient p t x =
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x) := by
+  constructor
+  · intro hmom t x
+    have h := hmom t x
+    rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv
+        (a := fun _ : NSTime => 1) (b := fun _ : NSTime => 1)
+        contDiff_const contDiff_const f g t x,
+      spatialConvection_twoModeSchwartzVelocity
+        (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x,
+      spatialLaplacian_twoModeSchwartzVelocity
+        (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x] at h
+    simpa [hclosure t x] using h
+  · intro hpressure t x
+    rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv
+        (a := fun _ : NSTime => 1) (b := fun _ : NSTime => 1)
+        contDiff_const contDiff_const f g t x,
+      spatialConvection_twoModeSchwartzVelocity
+        (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x,
+      spatialLaplacian_twoModeSchwartzVelocity
+        (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g t x]
+    simpa [hclosure t x] using hpressure t x
+
+/-- Pointwise mismatch with the viscous Laplacian residual blocks every
+pressure-repaired positive-viscosity realization of the same inviscid
+constant-one two-mode branch. -/
+theorem not_momentumEquation_oneOneTwoMode_of_inviscidClosure_pressureGradient_lapSum_mismatch
+    (ν : ℝ) (p : NSPressureField) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0)
+    (hbad : ∃ t x,
+        spatialPressureGradient p t x ≠
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x)) :
+    ¬ ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient p t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x := by
+  intro hmom
+  rcases hbad with ⟨t, x, hbad⟩
+  exact hbad
+    ((momentumEquation_oneOneTwoModeSchwartzVelocity_iff_pressureGradient_lapSum_of_inviscidClosure
+      ν p f g hclosure).1 hmom t x)
+
 /-- A constant-one two-mode Schwartz velocity is genuinely nonzero whenever the
 two spatial profiles do not cancel everywhere. -/
 theorem oneOneTwoModeSchwartzVelocity_nonzero_of_exists_profile_sum_ne_zero
@@ -291,6 +519,58 @@ theorem affineAddScalarSchwartzPressure_zero_timeOnly
       fun t : NSTime => fun _ : NSSpace => π t := by
   funext t x
   simp [affineAddScalarSchwartzPressure]
+
+/-- The spatial gradient of an affine-in-space pressure gauge
+`p(t,x)=⟪c(t),x⟫+π(t)` is exactly the affine coefficient `c(t)`. -/
+theorem spatialPressureGradient_affinePressure
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (t : NSTime) (x : NSSpace) :
+    spatialPressureGradient (fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) t x =
+      c t := by
+  unfold spatialPressureGradient
+  apply HasGradientAt.gradient
+  rw [hasGradientAt_iff_hasFDerivAt]
+  simpa [InnerProductSpace.toDual_apply_apply, real_inner_comm] using
+    ((((InnerProductSpace.toDual ℝ NSSpace) (c t))).hasFDerivAt).add_const (π t)
+
+/-- In the affine-plus-Schwartz pressure class, if the localized Schwartz
+amplitude is zero, the spatial pressure gradient is exactly the spatial affine
+coefficient.  The time-only scalar gauge and unused Schwartz profile do not
+contribute. -/
+theorem spatialPressureGradient_affineAddScalarSchwartzPressure_spatialAffine
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ))
+    (t : NSTime) (x : NSSpace) :
+    spatialPressureGradient
+        (affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) t x =
+      c t := by
+  have hpress :
+      affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q =
+        fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s := by
+    funext s y
+    simp [affineAddScalarSchwartzPressure]
+  rw [hpress]
+  exact spatialPressureGradient_affinePressure c π t x
+
+/-- Any finite-time witness with zero velocity and pure spatial-affine pressure
+has zero affine pressure coefficient throughout its certified time slab.  Thus a
+nonzero spatial affine pressure gradient cannot be hidden as pressure gauge on a
+zero-flow finite-time witness. -/
+theorem ExplicitFiniteTimeRegularityWitness.zeroVelocity_spatialAffinePressure_implies_zeroAffineCoeffOn
+    {ν T : ℝ} {u0 : NSInitialVelocity}
+    (W : ExplicitFiniteTimeRegularityWitness ν u0 T)
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ))
+    (hWvel : W.velocity = (0 : NSVelocityField))
+    (hWpress :
+      W.pressure = affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) :
+    ∀ t, 0 ≤ t → t ≤ T → c t = 0 := by
+  intro t ht0 htT
+  have hmom := W.momentum_equation_on t (0 : NSSpace) ht0 htT
+  have hlap : spatialLaplacian (0 : NSVelocityField) t (0 : NSSpace) = 0 := by
+    simpa [constantVelocityField] using
+      spatialLaplacian_constantVelocityField (0 : NSSpace) t (0 : NSSpace)
+  simpa [hWvel, hWpress, timeVelocityDerivative_zero, spatialConvection_zero,
+    hlap,
+    spatialPressureGradient_affineAddScalarSchwartzPressure_spatialAffine c π q t
+      (0 : NSSpace)] using hmom
 
 /-- The zero-amplitude two-mode Schwartz velocity satisfies the pointwise
 Navier-Stokes momentum equation against any time-only pressure gauge represented
@@ -372,6 +652,103 @@ theorem oneOneAntiProfileSchwartzInitialVelocity_zero
   funext x
   simp [twoModeSchwartzInitialVelocity]
 
+/-- Equal time-dependent amplitudes applied to a profile and its negative
+cancel as a two-mode space-time velocity field. -/
+theorem equalAmplitudeAntiProfileSchwartzVelocity_zero
+    (a : NSTime → ℝ) (f : NSSchwartzInitialVelocity) :
+    twoModeSchwartzVelocity a a f (-f) = (0 : NSVelocityField) := by
+  funext t x
+  simp [twoModeSchwartzVelocity]
+
+/-- Equal scalar amplitudes applied to a profile and its negative cancel on
+the initial slice. -/
+theorem equalAmplitudeAntiProfileSchwartzInitialVelocity_zero
+    (a0 : ℝ) (f : NSSchwartzInitialVelocity) :
+    twoModeSchwartzInitialVelocity a0 a0 f (-f) =
+      (0 : NSInitialVelocity) := by
+  funext x
+  simp [twoModeSchwartzInitialVelocity]
+
+/-- For a nonzero profile, an anti-profile two-mode velocity is identically
+zero exactly when the two scalar amplitudes are pointwise equal.  This makes
+the cancellation boundary exact: unequal amplitudes cannot hide inside the
+`f, -f` ansatz as another zero-flow repair. -/
+theorem antiProfileSchwartzVelocity_eq_zero_iff_equalAmplitude
+    (a b : NSTime → ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0) :
+    twoModeSchwartzVelocity a b f (-f) = (0 : NSVelocityField) ↔
+      ∀ t, a t = b t := by
+  constructor
+  · intro hzero t
+    rcases hf with ⟨x, hx⟩
+    have hpoint : a t • f x + b t • (-(f x)) = 0 := by
+      have htx := congrFun (congrFun hzero t) x
+      simpa [twoModeSchwartzVelocity] using htx
+    have hscale : (a t - b t) • f x = 0 := by
+      calc
+        (a t - b t) • f x = a t • f x - b t • f x := by
+          rw [sub_smul]
+        _ = a t • f x + -(b t • f x) := by
+          rw [sub_eq_add_neg]
+        _ = a t • f x + b t • (-(f x)) := by
+          simp
+        _ = 0 := hpoint
+    have hsub : a t - b t = 0 := by
+      rcases smul_eq_zero.mp hscale with hcoeff | hprofile
+      · exact hcoeff
+      · exact False.elim (hx hprofile)
+    exact sub_eq_zero.mp hsub
+  · intro heq
+    funext t x
+    simp [twoModeSchwartzVelocity, heq t]
+
+/-- For a nonzero profile, an anti-profile initial slice is zero exactly when
+the two initial scalar amplitudes are equal. -/
+theorem antiProfileSchwartzInitialVelocity_eq_zero_iff_equalAmplitude
+    (a0 b0 : ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0) :
+    twoModeSchwartzInitialVelocity a0 b0 f (-f) = (0 : NSInitialVelocity) ↔
+      a0 = b0 := by
+  constructor
+  · intro hzero
+    rcases hf with ⟨x, hx⟩
+    have hpoint : a0 • f x + b0 • (-(f x)) = 0 := by
+      have hxzero := congrFun hzero x
+      simpa [twoModeSchwartzInitialVelocity] using hxzero
+    have hscale : (a0 - b0) • f x = 0 := by
+      calc
+        (a0 - b0) • f x = a0 • f x - b0 • f x := by
+          rw [sub_smul]
+        _ = a0 • f x + -(b0 • f x) := by
+          rw [sub_eq_add_neg]
+        _ = a0 • f x + b0 • (-(f x)) := by
+          simp
+        _ = 0 := hpoint
+    have hsub : a0 - b0 = 0 := by
+      rcases smul_eq_zero.mp hscale with hcoeff | hprofile
+      · exact hcoeff
+      · exact False.elim (hx hprofile)
+    exact sub_eq_zero.mp hsub
+  · intro heq
+    funext x
+    simp [twoModeSchwartzInitialVelocity, heq]
+
+/-- If the scalar amplitudes differ somewhere and the profile is nonzero, the
+anti-profile two-mode velocity is nonzero somewhere. -/
+theorem exists_antiProfileSchwartzVelocity_ne_zero_of_exists_amplitude_ne
+    (a b : NSTime → ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0)
+    (hab : ∃ t, a t ≠ b t) :
+    ∃ t x, twoModeSchwartzVelocity a b f (-f) t x ≠ 0 := by
+  by_contra hnone
+  have hzero : twoModeSchwartzVelocity a b f (-f) = (0 : NSVelocityField) := by
+    funext t x
+    by_contra htx
+    exact hnone ⟨t, x, htx⟩
+  have heq := (antiProfileSchwartzVelocity_eq_zero_iff_equalAmplitude a b f hf).mp hzero
+  rcases hab with ⟨t, ht⟩
+  exact ht (heq t)
+
 /-- A profile paired with its negative satisfies the full positive-viscosity
 momentum equation against any time-only pressure gauge in the affine-plus-
 Schwartz pressure class.  The cancellation is recorded explicitly, so this is a
@@ -393,6 +770,73 @@ theorem momentumEquation_oneOneAntiProfileSchwartzVelocity_affineTimeOnlyPressur
   simpa [oneOneAntiProfileSchwartzVelocity_zero f,
     affineAddScalarSchwartzPressure_zero_timeOnly π q] using
     momentumEquation_zeroVelocityField_timeOnlyPressure ν π t x
+
+/-- Equal time-dependent amplitudes applied to a profile and its negative
+satisfy the momentum equation against any time-only affine-plus-Schwartz
+pressure gauge.  The pressure may be nonzero as a function of time, but the
+velocity field is still the zero flow. -/
+theorem momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_affineTimeOnlyPressure
+    (a : NSTime → ℝ) (ν : ℝ) (π : NSTime → ℝ)
+    (f : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ)) :
+    ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialPressureGradient
+            (affineAddScalarSchwartzPressure (fun _ : NSTime => 0) π
+              (fun _ : NSTime => 0) q) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x := by
+  intro t x
+  have hvel : twoModeSchwartzVelocity a a f (-f) = (0 : NSVelocityField) :=
+    equalAmplitudeAntiProfileSchwartzVelocity_zero a f
+  simpa [hvel, affineAddScalarSchwartzPressure_zero_timeOnly π q] using
+    momentumEquation_zeroVelocityField_timeOnlyPressure ν π t x
+
+/-- A zero equal-amplitude anti-profile cannot satisfy the momentum equation
+against a pure spatial-affine pressure unless that affine coefficient is
+identically zero.  This rules out repairing the cancellation branch by inserting
+a nonzero spatial affine pressure gradient. -/
+theorem momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_spatialAffinePressure_implies_zeroAffineCoeff
+    (a : NSTime → ℝ) (ν : ℝ) (c : NSTime → NSSpace) (π : NSTime → ℝ)
+    (f : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ))
+    (hME :
+      ∀ t x,
+        timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialPressureGradient
+              (affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) t x =
+          (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x) :
+    ∀ t, c t = 0 := by
+  intro t
+  have hvel : twoModeSchwartzVelocity a a f (-f) = (0 : NSVelocityField) :=
+    equalAmplitudeAntiProfileSchwartzVelocity_zero a f
+  have hlap : spatialLaplacian (0 : NSVelocityField) t (0 : NSSpace) = 0 := by
+    simpa [constantVelocityField] using
+      spatialLaplacian_constantVelocityField (0 : NSSpace) t (0 : NSSpace)
+  simpa [hvel, timeVelocityDerivative_zero, spatialConvection_zero,
+    hlap,
+    spatialPressureGradient_affineAddScalarSchwartzPressure_spatialAffine c π q t
+      (0 : NSSpace)] using hME t (0 : NSSpace)
+
+/-- Contrapositive form of the spatial-affine pressure obstruction: if the
+affine pressure coefficient is nonzero at some time, the equal-amplitude
+anti-profile zero flow cannot satisfy the Navier-Stokes momentum equation with
+that pure spatial-affine pressure. -/
+theorem not_momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_spatialAffinePressure_of_exists_nonzeroAffineCoeff
+    (a : NSTime → ℝ) (ν : ℝ) (c : NSTime → NSSpace) (π : NSTime → ℝ)
+    (f : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ))
+    (hc : ∃ t, c t ≠ 0) :
+    ¬
+      (∀ t x,
+        timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialPressureGradient
+              (affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) t x =
+          (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x) := by
+  intro hME
+  rcases hc with ⟨t, ht⟩
+  exact ht
+    (momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_spatialAffinePressure_implies_zeroAffineCoeff
+      a ν c π f q hME t)
 
 /-- Expanded residual closure for the anti-profile construction, with positive
 viscosity and a time-only affine-plus-Schwartz pressure. -/
@@ -429,6 +873,65 @@ theorem explicitClosure_oneOneAntiProfileSchwartzVelocity_affineTimeOnlyPressure
       (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f) t x] at hmom
   simpa using hmom
 
+/-- Equal time-dependent amplitudes applied to a profile and its negative
+satisfy the momentum equation against the zero time-indexed Schwartz pressure
+slice for every viscosity.  The result is still a zero-flow cancellation
+baseline, but it removes the artificial unit-amplitude restriction. -/
+theorem momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure
+    (a : NSTime → ℝ) (ν : ℝ) (f : NSSchwartzInitialVelocity) :
+    ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x := by
+  intro t x
+  have hvel : twoModeSchwartzVelocity a a f (-f) = (0 : NSVelocityField) :=
+    equalAmplitudeAntiProfileSchwartzVelocity_zero a f
+  simpa [hvel] using momentumEquation_zeroVelocityField_zeroPressure ν t x
+
+/-- Expanded pressure-slice residual closure for the equal-amplitude
+anti-profile construction.  This is a generalized cancellation baseline: the
+time derivative, convection, and Laplacian expansions all cancel because the
+actual velocity field is identically zero. -/
+theorem explicitClosure_equalAmplitudeAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure
+    {a : NSTime → ℝ} (ha : ContDiff ℝ ∞ a)
+    (ν : ℝ) (f : NSSchwartzInitialVelocity) :
+    ∀ t x,
+      deriv a t • f x + deriv a t • (-f) x +
+            ((a t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              (a t * a t) •
+                spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x ((-f) x) +
+              (a t * a t) •
+                spatialFDeriv
+                  (timeIndependentVelocity
+                    (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+                  t x (f x) +
+              (a t ^ (2 : ℕ)) •
+                spatialConvection
+                  (timeIndependentVelocity
+                    (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+                  t x) +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) •
+          (a t • spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            a t • spatialLaplacian
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x) := by
+  intro t x
+  have hmom :=
+    momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure
+      a ν f t x
+  rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv
+      (a := a) (b := a) ha ha f (-f) t x,
+    spatialConvection_twoModeSchwartzVelocity a a f (-f) t x,
+    spatialLaplacian_twoModeSchwartzVelocity a a f (-f) t x] at hmom
+  simpa using hmom
+
 /-- Expanded residual closure for the anti-profile construction with zero
 pressure. -/
 theorem explicitClosure_oneOneAntiProfileSchwartzVelocity_zeroPressure_of_posViscosity
@@ -459,6 +962,50 @@ theorem explicitClosure_oneOneAntiProfileSchwartzVelocity_zeroPressure_of_posVis
     funext s y
     simp [affineAddScalarSchwartzPressure]
   simpa [hp] using hclosure
+
+/-- Expanded residual closure for the anti-profile construction with the zero
+time-indexed Schwartz pressure slice.  This is the pressure-slice version of
+the cancellation baseline above. -/
+theorem explicitClosure_oneOneAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure
+    (ν : ℝ) (f : NSSchwartzInitialVelocity) :
+    ∀ t x,
+        spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x ((-f) x) +
+            spatialFDeriv
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x (f x) +
+            spatialConvection
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) •
+          (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialLaplacian
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x) := by
+  intro t x
+  have hmom :
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f)) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f)) t x +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f)) t x := by
+    simpa [oneOneAntiProfileSchwartzVelocity_zero f] using
+      momentumEquation_zeroVelocityField_zeroPressure ν t x
+  rw [timeVelocityDerivative_twoModeSchwartzVelocity_deriv
+      (a := fun _ : NSTime => 1) (b := fun _ : NSTime => 1)
+      contDiff_const contDiff_const f (-f) t x,
+    spatialConvection_twoModeSchwartzVelocity
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f) t x,
+    spatialLaplacian_twoModeSchwartzVelocity
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f (-f) t x] at hmom
+  simpa using hmom
 
 /-- There are nonzero Schwartz profiles and an explicit pressure field
 (`p = 0`) satisfying the expanded full-viscous residual closure for every
@@ -619,6 +1166,104 @@ theorem twoModeSchwartzVelocity_finiteInitial_smooth_matches_divergenceFree_boun
   · exact
       boundedKineticEnergyUpTo_twoModeSchwartzVelocity_of_abs_le
         a b f g A B T haBound hbBound
+
+/-- A bounded two-mode Schwartz ansatz satisfying the full pointwise
+Navier--Stokes equation gives a genuine global explicit output on `ℝ^3`. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_twoModeSchwartzVelocity_of_momentumEquation
+    {a b : NSTime → ℝ} (ha : ContDiff ℝ ∞ a) (hb : ContDiff ℝ ∞ b)
+    (f g : NSSchwartzInitialVelocity) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν : ℝ}
+    (hc : ContDiff ℝ ∞ c)
+    (hπ : ContDiff ℝ ∞ π)
+    (hρ : ContDiff ℝ ∞ ρ)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (hfDiv : ∀ x, initialSpatialDivergence (f : NSInitialVelocity) x = 0)
+    (hgDiv : ∀ x, initialSpatialDivergence (g : NSInitialVelocity) x = 0)
+    (heq : ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a b f g) t x +
+          spatialConvection (twoModeSchwartzVelocity a b f g) t x +
+          spatialPressureGradient (affineAddScalarSchwartzPressure c π ρ q) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a b f g) t x) :
+    ExplicitConcreteNavierStokesGlobalOutput
+      ν (twoModeSchwartzInitialVelocity (a 0) (b 0) f g) := by
+  refine ⟨twoModeSchwartzVelocity a b f g, affineAddScalarSchwartzPressure c π ρ q, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · exact smoothSpaceTimeVelocity_twoModeSchwartzVelocity ha hb f g
+  · exact smoothSpaceTimePressure_affineAddScalarSchwartzPressure hc hπ hρ q
+  · exact heq
+  · exact spatialDivergence_twoModeSchwartzVelocity_zero a b f g hfDiv hgDiv
+  · exact MatchesInitialVelocity_twoModeSchwartzVelocity a b f g
+  · exact
+      boundedKineticEnergy_twoModeSchwartzVelocity_of_abs_le
+        a b f g A B haBound hbBound
+
+/-- The same bounded two-mode Schwartz ansatz therefore satisfies the repaired
+explicit finite-energy whole-space clause. -/
+theorem
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_twoModeSchwartzInitialVelocity_of_momentumEquation
+    {a b : NSTime → ℝ} (ha : ContDiff ℝ ∞ a) (hb : ContDiff ℝ ∞ b)
+    (f g : NSSchwartzInitialVelocity) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν : ℝ}
+    (hc : ContDiff ℝ ∞ c)
+    (hπ : ContDiff ℝ ∞ π)
+    (hρ : ContDiff ℝ ∞ ρ)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (hfDiv : ∀ x, initialSpatialDivergence (f : NSInitialVelocity) x = 0)
+    (hgDiv : ∀ x, initialSpatialDivergence (g : NSInitialVelocity) x = 0)
+    (heq : ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a b f g) t x +
+          spatialConvection (twoModeSchwartzVelocity a b f g) t x +
+          spatialPressureGradient (affineAddScalarSchwartzPressure c π ρ q) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a b f g) t x) :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (twoModeSchwartzInitialVelocity (a 0) (b 0) f g) := by
+  exact
+    ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      (ExplicitConcreteNavierStokesGlobalOutput_twoModeSchwartzVelocity_of_momentumEquation
+        ha hb f g A B c π ρ q hc hπ hρ haBound hbBound hfDiv hgDiv heq)
+
+/-- On a positive-viscosity datum, the same bounded two-mode Schwartz ansatz
+also inhabits the repaired structured fully concrete clause. -/
+theorem finiteEnergyConcreteNavierStokesGlobalRegularityClause_twoModeSchwartzInitialVelocity_of_momentumEquation
+    {a b : NSTime → ℝ} (ha : ContDiff ℝ ∞ a) (hb : ContDiff ℝ ∞ b)
+    (f g : NSSchwartzInitialVelocity) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν : ℝ}
+    (hν : 0 < ν)
+    (hc : ContDiff ℝ ∞ c)
+    (hπ : ContDiff ℝ ∞ π)
+    (hρ : ContDiff ℝ ∞ ρ)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (hfDiv : ∀ x, initialSpatialDivergence (f : NSInitialVelocity) x = 0)
+    (hgDiv : ∀ x, initialSpatialDivergence (g : NSInitialVelocity) x = 0)
+    (heq : ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a b f g) t x +
+          spatialConvection (twoModeSchwartzVelocity a b f g) t x +
+          spatialPressureGradient (affineAddScalarSchwartzPressure c π ρ q) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a b f g) t x) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := twoModeSchwartzInitialVelocity (a 0) (b 0) f g
+         smooth_initial :=
+           smoothInitialVelocityData_twoModeSchwartzInitialVelocity (a 0) (b 0) f g
+         divergence_free_initial :=
+           initialSpatialDivergence_twoModeSchwartzInitialVelocity_zero
+             (a 0) (b 0) f g hfDiv hgDiv
+         finite_initial_energy :=
+           finiteInitialKineticEnergy_twoModeSchwartzInitialVelocity (a 0) (b 0) f g } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    ExplicitConcreteNavierStokesGlobalOutput_implies_finiteEnergyConcreteNavierStokesGlobalRegularityClause_of_finiteInitialKineticEnergy
+      hν
+      (smoothInitialVelocityData_twoModeSchwartzInitialVelocity (a 0) (b 0) f g)
+      (initialSpatialDivergence_twoModeSchwartzInitialVelocity_zero
+        (a 0) (b 0) f g hfDiv hgDiv)
+      (finiteInitialKineticEnergy_twoModeSchwartzInitialVelocity (a 0) (b 0) f g)
+      (ExplicitConcreteNavierStokesGlobalOutput_twoModeSchwartzVelocity_of_momentumEquation
+        ha hb f g A B c π ρ q hc hπ hρ haBound hbBound hfDiv hgDiv heq)
 
 /-- Finite-time witness constructor for the two-mode Schwartz finite-mode
 velocity and affine-plus-Schwartz pressure class.  The bounded-energy field is

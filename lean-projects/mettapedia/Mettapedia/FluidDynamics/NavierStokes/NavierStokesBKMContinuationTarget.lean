@@ -1,4 +1,5 @@
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesUniformVorticityContinuationTarget
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 import Mathlib.MeasureTheory.Integral.IntegrableOn
 
 /-!
@@ -39,6 +40,54 @@ def integrableVorticityEnvelopeOn
   0 ≤ B ∧
     MeasureTheory.IntegrableOn Ω (Set.Icc 0 T) ∧
     (∫ t in Set.Icc 0 T, Ω t ∂(MeasureTheory.volume : MeasureTheory.Measure ℝ)) ≤ B
+
+/-- The BKM envelope data does not change the pointwise pressure-residual
+necessary condition inherited from the underlying finite-time witness. -/
+theorem BKMData_momentumPressureResidual_vorticity_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity}
+    {W : ExplicitFiniteTimeRegularityWitness ν u₀ T}
+    (_hBKM : ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+      vorticityEnvelopeOn W.velocity T Ω ∧
+        integrableVorticityEnvelopeOn Ω T B)
+    {t : NSTime} {x : NSSpace} (ht0 : 0 ≤ t) (htT : t ≤ T) :
+    spatialVorticity (momentumPressureResidual ν W.velocity) t x = 0 :=
+  ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_zero_on
+    (ν := ν) (T := T) (u₀ := u₀) W (t := t) (x := x) ht0 htT
+
+/-- The BKM residual-curl necessary condition can be transported across a
+chosen velocity equality. -/
+theorem BKMData_momentumPressureResidual_vorticity_of_velocity_eq_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    {W : ExplicitFiniteTimeRegularityWitness ν u₀ T}
+    (hWvel : W.velocity = u)
+    (_hBKM : ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+      vorticityEnvelopeOn W.velocity T Ω ∧
+        integrableVorticityEnvelopeOn Ω T B)
+    {t : NSTime} {x : NSSpace} (ht0 : 0 ≤ t) (htT : t ≤ T) :
+    spatialVorticity (momentumPressureResidual ν u) t x = 0 := by
+  simpa [← hWvel] using
+    (ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_zero_on
+      (ν := ν) (T := T) (u₀ := u₀) W (t := t) (x := x) ht0 htT)
+
+/-- BKM packaging cannot hide a non-curl-free pressure residual on the certified
+slab.  The envelope layer adds no escape hatch once the underlying finite-time
+witness velocity is impossible. -/
+theorem not_exists_BKMData_velocity_of_momentumPressureResidual_vorticity_ne_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (hcurl : ∃ t : NSTime, ∃ x : NSSpace,
+      0 ≤ t ∧ t ≤ T ∧
+        spatialVorticity (momentumPressureResidual ν u) t x ≠ 0) :
+    ¬ ∃ W : ExplicitFiniteTimeRegularityWitness ν u₀ T,
+      W.velocity = u ∧
+        ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+          vorticityEnvelopeOn W.velocity T Ω ∧
+            integrableVorticityEnvelopeOn Ω T B := by
+  rintro ⟨W, hWvel, Ω, B, hEnv, hInt⟩
+  rcases hcurl with ⟨t, x, ht0, htT, hne⟩
+  exact hne
+    (BKMData_momentumPressureResidual_vorticity_of_velocity_eq_zero_on
+      (ν := ν) (T := T) (u₀ := u₀) (u := u) (W := W) hWvel
+      ⟨Ω, B, hEnv, hInt⟩ (t := t) (x := x) ht0 htT)
 
 /-- Explicit BKM-style continuation clause: a finite-time smooth witness with a
 time-integrable vorticity envelope on `0 ≤ t ≤ T` extends to a global smooth
@@ -726,6 +775,253 @@ theorem linearShearFullDriftVelocityField_has_constantBKMEnvelope
   exact uniformVorticityBoundUpTo_implies_constantBKMEnvelope
     (u := linearShearFullDriftVelocityField a b c) (T := T) (B := |a|) hT
     (uniformVorticityBoundUpTo_linearShearFullDriftVelocityField a b c T)
+
+/-- The natural damped heat-shear vorticity envelope.  It keeps the time
+dependence that is lost when one immediately passes to the coarser constant
+slab bound `|a * k|`. -/
+def heatShearExpVorticityEnvelope (ν a k : ℝ) : NSTime → ℝ :=
+  fun t : NSTime => |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k|
+
+/-- Exact integral of the damped heat-shear vorticity envelope on `0 ≤ t ≤ T`.
+For the nondegenerate damped branch (`ν > 0`, `k ≠ 0`) this is the sharp
+scalar BKM budget instead of the coarser `T * |a * k|` budget. -/
+def heatShearExpVorticityEnvelopeExactIntegralBound (ν a k T : ℝ) : ℝ :=
+  |a| * |k| * ((1 - Real.exp (-(ν * k ^ (2 : ℕ)) * T)) / (ν * k ^ (2 : ℕ)))
+
+/-- On a nonnegative-viscosity, nonnegative-time slab, the damped heat-shear
+envelope is bounded by the older constant envelope `|a * k|`. -/
+theorem heatShearExpVorticityEnvelope_le_const
+    (ν a k T : ℝ)
+    (hν : 0 ≤ ν) :
+    ∀ t : NSTime, 0 ≤ t → t ≤ T →
+      heatShearExpVorticityEnvelope ν a k t ≤ |a * k| := by
+  intro t ht0 _htT
+  have hexp_le : Real.exp (-(ν * k ^ (2 : ℕ)) * t) ≤ 1 := by
+    apply Real.exp_le_one_iff.mpr
+    have hk2 : 0 ≤ k ^ (2 : ℕ) := by positivity
+    have hprod : 0 ≤ ν * k ^ (2 : ℕ) := mul_nonneg hν hk2
+    nlinarith
+  calc
+    heatShearExpVorticityEnvelope ν a k t
+        ≤ |a| * 1 * |k| := by
+          dsimp [heatShearExpVorticityEnvelope]
+          gcongr
+    _ = |a * k| := by
+          rw [abs_mul]
+          ring
+
+private theorem integral_exp_neg_mul_interval
+    (lam T : ℝ) (hlam : lam ≠ 0) :
+    (∫ t in (0 : ℝ)..T, Real.exp (-(lam) * t)) =
+      (1 - Real.exp (-(lam) * T)) / lam := by
+  have hne : (-lam) ≠ 0 := by simpa using neg_ne_zero.mpr hlam
+  have hcomp := intervalIntegral.integral_comp_mul_left
+    (f := fun x : ℝ => Real.exp x) (a := (0 : ℝ)) (b := T) (c := -lam) hne
+  rw [integral_exp] at hcomp
+  change (∫ t in (0 : ℝ)..T, (fun x : ℝ => Real.exp x) (-lam * t)) =
+    (1 - Real.exp (-lam * T)) / lam
+  rw [hcomp]
+  simp [smul_eq_mul, Real.exp_zero, div_eq_mul_inv]
+  field_simp [hlam]
+  ring
+
+/-- The damped heat-shear envelope integrates exactly to its closed-form
+exponential budget on every nonnegative slab in the nondegenerate damped case. -/
+theorem integral_heatShearExpVorticityEnvelope_eq_exactIntegralBound
+    (ν a k T : ℝ)
+    (hT : 0 ≤ T)
+    (hdecay : ν * k ^ (2 : ℕ) ≠ 0) :
+    (∫ t in Set.Icc 0 T, heatShearExpVorticityEnvelope ν a k t
+        ∂(MeasureTheory.volume : MeasureTheory.Measure ℝ)) =
+      heatShearExpVorticityEnvelopeExactIntegralBound ν a k T := by
+  have hset_to_interval :
+      (∫ t in Set.Icc 0 T, heatShearExpVorticityEnvelope ν a k t
+          ∂(MeasureTheory.volume : MeasureTheory.Measure ℝ)) =
+        ∫ t in (0 : ℝ)..T, heatShearExpVorticityEnvelope ν a k t := by
+    rw [MeasureTheory.integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hT]
+  rw [hset_to_interval]
+  dsimp [heatShearExpVorticityEnvelope, heatShearExpVorticityEnvelopeExactIntegralBound]
+  rw [intervalIntegral.integral_mul_const, intervalIntegral.integral_const_mul]
+  rw [integral_exp_neg_mul_interval (ν * k ^ (2 : ℕ)) T hdecay]
+  ring
+
+/-- The exact exponential BKM budget is an admissible integrability certificate
+for the nondegenerate damped heat-shear envelope. -/
+theorem integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope_exact
+    (ν a k T : ℝ)
+    (hν : 0 < ν)
+    (hk : k ≠ 0)
+    (hT : 0 ≤ T) :
+    integrableVorticityEnvelopeOn
+      (heatShearExpVorticityEnvelope ν a k) T
+      (heatShearExpVorticityEnvelopeExactIntegralBound ν a k T) := by
+  have hk2pos : 0 < k ^ (2 : ℕ) := by
+    nlinarith [sq_pos_of_ne_zero hk]
+  have hdecay_pos : 0 < ν * k ^ (2 : ℕ) := mul_pos hν hk2pos
+  have hdecay : ν * k ^ (2 : ℕ) ≠ 0 := ne_of_gt hdecay_pos
+  have hΩint :
+      MeasureTheory.IntegrableOn
+        (heatShearExpVorticityEnvelope ν a k) (Set.Icc 0 T) := by
+    have hcont : Continuous (heatShearExpVorticityEnvelope ν a k) := by
+      change Continuous
+        (fun t : NSTime => |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k|)
+      continuity
+    exact hcont.continuousOn.integrableOn_Icc
+  have hint_eq :=
+    integral_heatShearExpVorticityEnvelope_eq_exactIntegralBound ν a k T hT hdecay
+  have hBnonneg : 0 ≤ heatShearExpVorticityEnvelopeExactIntegralBound ν a k T := by
+    rw [← hint_eq]
+    have hnonneg_ae :
+        ∀ᵐ t ∂((MeasureTheory.volume : MeasureTheory.Measure ℝ).restrict (Set.Icc 0 T)),
+          0 ≤ heatShearExpVorticityEnvelope ν a k t := by
+      exact MeasureTheory.ae_of_all _ (fun t => by
+        dsimp [heatShearExpVorticityEnvelope]
+        positivity)
+    exact MeasureTheory.integral_nonneg_of_ae hnonneg_ae
+  refine ⟨hBnonneg, hΩint, ?_⟩
+  rw [hint_eq]
+
+/-- The damped heat-shear envelope is integrable on every nonnegative slab
+when viscosity is nonnegative, with the same coarse scalar bound as the
+constant envelope. -/
+theorem integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope
+    (ν a k T : ℝ)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    integrableVorticityEnvelopeOn
+      (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|) := by
+  have hΩint :
+      MeasureTheory.IntegrableOn
+        (heatShearExpVorticityEnvelope ν a k) (Set.Icc 0 T) := by
+    have hcont : Continuous (heatShearExpVorticityEnvelope ν a k) := by
+      change Continuous
+        (fun t : NSTime => |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k|)
+      continuity
+    exact hcont.continuousOn.integrableOn_Icc
+  have hconstInt :
+      MeasureTheory.IntegrableOn (fun _ : NSTime => |a * k|) (Set.Icc 0 T) := by
+    have hs : (MeasureTheory.volume (Set.Icc 0 T)) ≠ (⊤ : ENNReal) := by
+      rw [Real.volume_Icc]
+      exact ne_of_lt ENNReal.ofReal_lt_top
+    exact
+      (MeasureTheory.integrableOn_const (s := Set.Icc 0 T)
+        (μ := (MeasureTheory.volume : MeasureTheory.Measure ℝ)) (C := |a * k|) (hs := hs))
+  refine ⟨mul_nonneg hT (abs_nonneg (a * k)), hΩint, ?_⟩
+  calc
+    (∫ t in Set.Icc 0 T, heatShearExpVorticityEnvelope ν a k t
+        ∂(MeasureTheory.volume : MeasureTheory.Measure ℝ))
+        ≤ ∫ t in Set.Icc 0 T, (fun _ : NSTime => |a * k|) t
+            ∂(MeasureTheory.volume : MeasureTheory.Measure ℝ) := by
+          exact MeasureTheory.setIntegral_mono_on hΩint hconstInt measurableSet_Icc
+            (fun t ht => heatShearExpVorticityEnvelope_le_const ν a k T hν t ht.1 ht.2)
+    _ = T * |a * k| := by
+          rw [MeasureTheory.setIntegral_const, smul_eq_mul, MeasureTheory.measureReal_def,
+            Real.volume_Icc, sub_zero, ENNReal.toReal_ofReal hT]
+
+/-- The damped sinusoidal heat-shear field carries its sharper time-dependent
+BKM envelope on every nonnegative slab when the viscosity is nonnegative. -/
+theorem heatShearVelocityField_has_expBKMEnvelope
+    (ν a k T : ℝ)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearVelocityField ν a k) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope ν a k T hν hT⟩
+  refine ⟨?_, ?_⟩
+  · intro t ht0 _htT
+    dsimp [heatShearExpVorticityEnvelope]
+    positivity
+  · intro t x _ht0 _htT
+    exact norm_spatialVorticity_heatShearVelocityField_le_exp_abs ν a k t x
+
+/-- In the nondegenerate damped case, the sinusoidal heat-shear field carries
+the same time-dependent envelope with its exact closed-form BKM budget. -/
+theorem heatShearVelocityField_has_exactExpBKMEnvelope
+    (ν a k T : ℝ)
+    (hν : 0 < ν)
+    (hk : k ≠ 0)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearVelocityField ν a k) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T
+        (heatShearExpVorticityEnvelopeExactIntegralBound ν a k T) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope_exact
+    ν a k T hν hk hT⟩
+  exact (heatShearVelocityField_has_expBKMEnvelope ν a k T hν.le hT).1
+
+/-- Transported heat shear carries the same sharper time-dependent BKM
+envelope as the untransported heat-shear branch. -/
+theorem heatShearTransportVelocityField_has_expBKMEnvelope
+    (ν a k b T : ℝ)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearTransportVelocityField ν a k b) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope ν a k T hν hT⟩
+  refine ⟨?_, ?_⟩
+  · intro t ht0 _htT
+    dsimp [heatShearExpVorticityEnvelope]
+    positivity
+  · intro t x _ht0 _htT
+    exact norm_spatialVorticity_heatShearTransportVelocityField_le_exp_abs ν a k b t x
+
+/-- In the nondegenerate damped case, transported heat shear carries the exact
+closed-form BKM budget for the same time-dependent envelope. -/
+theorem heatShearTransportVelocityField_has_exactExpBKMEnvelope
+    (ν a k b T : ℝ)
+    (hν : 0 < ν)
+    (hk : k ≠ 0)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearTransportVelocityField ν a k b) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T
+        (heatShearExpVorticityEnvelopeExactIntegralBound ν a k T) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope_exact
+    ν a k T hν hk hT⟩
+  exact (heatShearTransportVelocityField_has_expBKMEnvelope ν a k b T hν.le hT).1
+
+/-- Transported full-drift heat shear carries the same sharper time-dependent
+BKM envelope as the drift-free transported branch. -/
+theorem heatShearTransportFullDriftVelocityField_has_expBKMEnvelope
+    (ν a k b d c T : ℝ)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearTransportFullDriftVelocityField ν a k b d c) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope ν a k T hν hT⟩
+  refine ⟨?_, ?_⟩
+  · intro t ht0 _htT
+    dsimp [heatShearExpVorticityEnvelope]
+    positivity
+  · intro t x _ht0 _htT
+    exact norm_spatialVorticity_heatShearTransportFullDriftVelocityField_le_exp_abs
+      ν a k b d c t x
+
+/-- In the nondegenerate damped case, transported full-drift heat shear carries
+the exact closed-form BKM budget for the same time-dependent envelope. -/
+theorem heatShearTransportFullDriftVelocityField_has_exactExpBKMEnvelope
+    (ν a k b d c T : ℝ)
+    (hν : 0 < ν)
+    (hk : k ≠ 0)
+    (hT : 0 ≤ T) :
+    vorticityEnvelopeOn (heatShearTransportFullDriftVelocityField ν a k b d c) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T
+        (heatShearExpVorticityEnvelopeExactIntegralBound ν a k T) := by
+  refine ⟨?_, integrableVorticityEnvelopeOn_heatShearExpVorticityEnvelope_exact
+    ν a k T hν hk hT⟩
+  exact
+    (heatShearTransportFullDriftVelocityField_has_expBKMEnvelope
+      ν a k b d c T hν.le hT).1
 
 /-- The damped sinusoidal heat-shear field carries the explicit constant BKM
 envelope `Ω(t) = |a * k|` on every nonnegative slab when the viscosity is
@@ -2881,6 +3177,41 @@ theorem ExplicitBKMContinuationTarget_implies_zeroGlobalOutput_constantPressure
       (smoothSpaceTimePressure_const c)
       (fun t x => spatialPressureGradient_const c t x)
       le_rfl
+
+/-- The unrepaired BKM continuation target is false as stated. For a negative
+horizon, nonzero linear shear admits a formal finite-time witness with a
+vacuous BKM envelope on the empty slab, while the required global
+bounded-energy output is already impossible on `ℝ^3`. -/
+theorem not_ExplicitBKMContinuationTarget :
+    ¬ ExplicitBKMContinuationTarget := by
+  intro hBKM
+  have hν : 0 < (1 : ℝ) := by positivity
+  have hdiv :
+      ∀ x, initialSpatialDivergence (linearShearInitialVelocity 1) x = 0 := by
+    intro x
+    simpa using initialSpatialDivergence_linearShearInitialVelocity 1 x
+  let W : ExplicitFiniteTimeRegularityWitness 1 (linearShearInitialVelocity 1) (-1) :=
+    explicitFiniteTimeRegularityWitness_linearShearInitialVelocity_of_lt_zero
+      (ν := 1) (T := -1) (a := 1) (by norm_num)
+  have hΩ : vorticityEnvelopeOn W.velocity (-1) (fun _ : NSTime => 0) := by
+    refine ⟨?_, ?_⟩
+    · intro t ht0 htT
+      exfalso
+      linarith
+    · intro t x ht0 htT
+      exfalso
+      linarith
+  have hEnv :
+      ∃ Ω : NSTime → ℝ, ∃ Bint : ℝ,
+        vorticityEnvelopeOn W.velocity (-1) Ω ∧
+          integrableVorticityEnvelopeOn Ω (-1) Bint := by
+    exact ⟨(fun _ : NSTime => 0), 0, hΩ, integrableVorticityEnvelopeOn_zero (-1)⟩
+  exact
+    not_ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity one_ne_zero
+      (hBKM 1 (linearShearInitialVelocity 1) (-1)
+        hν
+        (smoothInitialVelocityData_linearShearInitialVelocity 1)
+        hdiv W hEnv)
 
 /-- Clause-level operational consequence for the repaired finite-energy BKM
 layer: zero initial data satisfy the repaired input hypothesis directly, so a
