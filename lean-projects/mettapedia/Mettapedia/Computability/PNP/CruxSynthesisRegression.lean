@@ -1315,6 +1315,24 @@ theorem current_pnp_kpoly_actual_local_no_extractor_recovery_heavy_region_trace_
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryHeavyRegionTraceCardObstruction
 
+theorem current_pnp_kpoly_actual_local_injective_recovery_uniform_cardinality_threshold_regression :
+    PNPKpolySubrepairClass.actualLocalInjectiveRecoveryUniformCardinalityThresholdBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalInjectiveRecoveryUniformCardinalityThresholdBoundary
+
+theorem current_pnp_kpoly_actual_local_injective_recovery_bitvec_cardinality_threshold_regression :
+    PNPKpolySubrepairClass.actualLocalInjectiveRecoveryBitVecCardinalityThresholdBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalInjectiveRecoveryBitVecCardinalityThresholdBoundary
+
+theorem current_pnp_kpoly_actual_local_no_injective_extractor_recovery_bitvec_cardinality_threshold_regression :
+    PNPKpolySubrepairClass.actualLocalNoInjectiveExtractorRecoveryBitVecCardinalityThresholdObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalNoInjectiveExtractorRecoveryBitVecCardinalityThresholdObstruction
+
 def fin3ToBitVec0ActualSparseRecoveryPayloadBridge : Fin 3 → BitVec 0 := fun _ => zeroVec
 
 noncomputable def fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge :
@@ -1482,6 +1500,38 @@ local instance exactVisiblePostSwitchSurfaceBitVec1k1NonemptyBridge :
 noncomputable def bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge :
     PMF (ExactVisiblePostSwitchSurface (BitVec 1) 1) :=
   PMF.uniformOfFintype _
+
+def constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge :
+    ActualSwitchedLocalInterface
+      (BitVec 1)
+      1
+      Unit
+      (ExactVisiblePostSwitchSurface (BitVec 1) 1) where
+  zOf := fun u => u.z
+  aOf := fun _ u => u.a
+  bOf := fun u => u.b
+  localRule := fun _ _ => false
+  output := fun _ _ => false
+  output_eq_local := by
+    intro _ _
+    rfl
+
+theorem constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge_not_surjective :
+    ¬ Function.Surjective
+        constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge.predictorFamily.predict := by
+  intro hsurj
+  rcases hsurj (fun _ => true) with ⟨u, htrue⟩
+  cases u
+  have h := congrFun htrue ⟨zeroVec, zeroVec, zeroVec⟩
+  simp [constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge] at h
+
+private theorem three_quarters_lt_seven_eighths_actualSparseRecoveryInjectiveBridge :
+    (3 : ℝ≥0∞) / 4 < (7 : ℝ≥0∞) / 8 := by
+  have h₁ : (3 : ℝ≥0∞) / 4 = 6 / 8 := by
+    refine (ENNReal.div_eq_div_iff (by norm_num) (by simp) (by norm_num) (by simp)).2 ?_
+    norm_num
+  rw [h₁]
+  exact ENNReal.div_lt_div_right (by norm_num) (by simp) (by norm_num)
 
 noncomputable def bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge :
     ExactVisiblePostSwitchSurface (BitVec 1) 0 :=
@@ -1734,6 +1784,88 @@ theorem kpoly_anchor_full_rule_actual_local_no_extractor_recovery_bitvec_cardina
       (by
         rw [tsub_pos_iff_lt]
         exact ENNReal.inv_lt_one.2 (by norm_num))
+
+theorem kpoly_anchor_actual_local_injective_recovery_uniform_cardinality_threshold_boundary_regression
+    {q : ℝ≥0∞}
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+          constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge
+          idBitVec1ActualSparseRecoveryCardinalityBridge
+          q)) :
+    1 - (Fintype.card (ExactVisiblePostSwitchSurface (BitVec 1) 1) : ℝ≥0∞)⁻¹ ≤ q := by
+  exact
+    kpolyCoverage_anchor_actualLocal_one_sub_inv_card_le_of_nonempty_recovery_of_injective_zfeat
+      (k := 1)
+      (r := 1)
+      (T := constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge)
+      (zfeat := idBitVec1ActualSparseRecoveryCardinalityBridge)
+      ()
+      (fun _ _ hxy => hxy)
+      (by norm_num)
+      h
+
+theorem kpoly_anchor_actual_local_injective_recovery_bitvec_cardinality_threshold_boundary_regression
+    {q : ℝ≥0∞}
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+          constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge
+          idBitVec1ActualSparseRecoveryCardinalityBridge
+          q)) :
+    1 - (2 ^ (1 + 2 * 1) : ℝ≥0∞)⁻¹ ≤ q := by
+  exact
+    kpolyCoverage_anchor_actualLocal_one_sub_pow_inv_le_of_nonempty_recovery_of_injective_zfeat
+      (k := 1)
+      (r := 1)
+      (T := constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge)
+      (zfeat := idBitVec1ActualSparseRecoveryCardinalityBridge)
+      ()
+      (fun _ _ hxy => hxy)
+      (by norm_num)
+      h
+
+theorem kpoly_anchor_actual_local_no_injective_extractor_recovery_bitvec_cardinality_threshold_regression :
+    ¬ ∃ zfeat : BitVec 1 → BitVec 1,
+        Function.Injective zfeat ∧
+          Nonempty
+            (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+              bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+              constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge
+              zfeat
+              ((3 : ℝ≥0∞) / 4)) := by
+  exact
+    kpolyCoverage_anchor_actualLocal_not_exists_injective_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv
+      (n := 1)
+      (k := 1)
+      (r := 1)
+      bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+      constFalseActualSwitchedLocalInterfaceBitVec1k1ActualSparseRecoveryInjectiveBridge
+      ((3 : ℝ≥0∞) / 4)
+      ()
+      (by norm_num)
+      (by
+        have hthreshold : 1 - (2 ^ 3 : ℝ≥0∞)⁻¹ = (7 : ℝ≥0∞) / 8 := by
+          have hsum : (1 : ℝ≥0∞) = (7 : ℝ≥0∞) / 8 + (2 ^ 3 : ℝ≥0∞)⁻¹ := by
+            have hinv : ((2 ^ 3 : ℝ≥0∞)⁻¹) = (1 : ℝ≥0∞) / 8 := by
+              norm_num
+            calc
+              (1 : ℝ≥0∞) = (8 : ℝ≥0∞) / 8 := by
+                    exact (ENNReal.div_self (by norm_num) (by simp)).symm
+              _ = ((7 : ℝ≥0∞) + 1) / 8 := by norm_num
+              _ = (7 : ℝ≥0∞) / 8 + (1 : ℝ≥0∞) / 8 := by
+                    simpa using
+                      (ENNReal.div_add_div_same
+                        (a := (7 : ℝ≥0∞))
+                        (b := (1 : ℝ≥0∞))
+                        (c := (8 : ℝ≥0∞))).symm
+              _ = (7 : ℝ≥0∞) / 8 + (2 ^ 3 : ℝ≥0∞)⁻¹ := by
+                    rw [hinv]
+          exact ENNReal.sub_eq_of_eq_add (by simp) hsum
+        rw [hthreshold]
+        exact three_quarters_lt_seven_eighths_actualSparseRecoveryInjectiveBridge)
 
 theorem kpoly_anchor_full_rule_actual_local_recovery_threshold_visible_budget_boundary_regression
     (h :
