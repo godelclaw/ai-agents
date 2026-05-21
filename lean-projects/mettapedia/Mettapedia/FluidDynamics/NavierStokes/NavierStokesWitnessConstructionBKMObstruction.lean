@@ -294,6 +294,35 @@ theorem
             intro t x
             simpa using spatialPressureGradient_zero t x)).2 hstat
 
+/-- A single failed zero-pressure stationary residual rules out the whole
+smooth zero-spatial-gradient pressure repair class at the boxed steady-seed
+BKM-data layer. -/
+theorem
+    not_exists_boxedPartialPeriodizationSteadySeed_anyZeroSpatialGradientPressure_BKMData_of_stationaryMomentum_failure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    {T : ℝ} {t : NSTime} {x : NSSpace}
+    (ht0 : 0 ≤ t) (htT : t ≤ T)
+    (hfail :
+      spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x ≠
+        ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) :
+    ¬ ∃ p : NSPressureField,
+        smoothSpaceTimePressure p ∧
+          (∀ t x, spatialPressureGradient p t x = 0) ∧
+          ∃ W :
+            ExplicitFiniteTimeRegularityWitness ν
+              (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+            W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+              W.pressure = p ∧
+              ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+                vorticityEnvelopeOn W.velocity T Ω ∧
+                  integrableVorticityEnvelopeOn Ω T B := by
+  intro hData
+  have hstationary :=
+    (exists_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_BKMData_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T).1 hData
+  exact hfail (hstationary t x ht0 htT)
+
 /-- Boxed-periodization instance of the BKM-layer steady-seed obstruction:
 stationary momentum failure at one slab point rules out the exact seed/pressure
 pair even after adding a BKM envelope. -/

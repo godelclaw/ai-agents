@@ -142,6 +142,27 @@ theorem
     boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_zeroPressure
       hν N L u₀ T p hp hp_zero
 
+theorem boxed_steady_seed_any_zero_gradient_pressure_uniform_vorticity_data_failure_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    {T : ℝ} {t : NSTime} {x : NSSpace}
+    (ht0 : 0 ≤ t) (htT : t ≤ T)
+    (hfail :
+      spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x ≠
+        ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) :
+    ¬ ∃ p : NSPressureField,
+        smoothSpaceTimePressure p ∧
+          (∀ t x, spatialPressureGradient p t x = 0) ∧
+          ∃ W :
+            ExplicitFiniteTimeRegularityWitness ν
+              (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+            W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+              W.pressure = p ∧
+              ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B := by
+  exact
+    not_exists_boxedPartialPeriodizationSteadySeed_anyZeroSpatialGradientPressure_uniformVorticityData_of_stationaryMomentum_failure
+      hν N L u₀ ht0 htT hfail
+
 theorem boxed_steady_seed_time_only_pressure_uniform_vorticity_data_failure_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
