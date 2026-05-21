@@ -36,6 +36,7 @@ import Mettapedia.Computability.PNP.CanonicalZABERMInterface
 import Mettapedia.Computability.PNP.ActualSwitchedHistoryBitVecBudgetObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalZABDecisionListWidthObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMVisibleBudgetObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryPayloadObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -1431,6 +1432,22 @@ inductive PNPKpolySubrepairClass where
   threshold recovery packet already forces the intrinsic lightest-point
   threshold. -/
   | surjectiveActualLocalRecoveryLightestPointBoundary
+  /-- On any surjective actual-local endpoint, the manuscript-facing sparse-
+  threshold recovery packet already implies the bundled finite-learning
+  payload, so it is impossible below the full predictor-image cardinality. -/
+  | surjectiveActualLocalRecoveryPayloadPredictorCardObstruction
+  /-- The same surjective predictor-card obstruction already removes the
+  extractor choice itself: below the payload budget, no extractor can support
+  the manuscript-facing sparse-threshold recovery packet. -/
+  | surjectiveActualLocalNoExtractorRecoveryPayloadPredictorCardObstruction
+  /-- More generally, once an actual-local endpoint already realizes an
+  injectively indexed finite probe family larger than the current payload
+  budget, the manuscript-facing sparse-threshold recovery packet is impossible
+  even without full surjectivity. -/
+  | actualLocalRecoveryPayloadInjectiveProbeCardObstruction
+  /-- The same injective finite-probe payload obstruction also removes the
+  extractor choice itself. -/
+  | actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction
   /-- Below the intrinsic lightest-point threshold, no extractor at all can
   support the manuscript-facing sparse-threshold recovery packet on a
   surjective actual-local endpoint. -/
@@ -1888,6 +1905,10 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .surjectiveActualLocalJointRecoveryBoundary,
     .surjectiveActualLocalRecoveryVisibleWidthBoundary,
     .surjectiveActualLocalRecoveryLightestPointBoundary,
+    .surjectiveActualLocalRecoveryPayloadPredictorCardObstruction,
+    .surjectiveActualLocalNoExtractorRecoveryPayloadPredictorCardObstruction,
+    .actualLocalRecoveryPayloadInjectiveProbeCardObstruction,
+    .actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction,
     .surjectiveActualLocalNoExtractorLightestPointBoundary,
     .surjectiveActualLocalNoExtractorVisibleWidthBoundary,
     .exactVisibleCompressionTargetPredictorCoverEquivalence,
@@ -5569,6 +5590,88 @@ theorem kpolyCoverage_anchor_pluginSampleMajority_not_nonempty_sharedExactZABSpa
           zfeat) :=
   pluginSampleMajorityActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMData_of_lt_surfaceCard
     (Z := Z) (k := k) zfeat hs
+
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
+manuscript-facing sparse-threshold recovery packet already implies the bundled
+finite-learning payload, so it is impossible below the full predictor-image
+cardinality. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_predictorCard
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (zfeat : Z → BitVec r)
+    (q : ℝ≥0∞)
+    (hs :
+      2 ^ (2 * allAffinePointBlockFeatureCount (r + (k + k))) <
+        2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k))
+    (hsurj : Function.Surjective T.predictorFamily.predict) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q) :=
+  ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_surjective_predict_of_lt_predictorCard
+    (μ := μ) (T := T) (zfeat := zfeat) (q := q) hs hsurj
+
+/-- Route-coverage anchor: the same predictor-card obstruction already removes
+the extractor choice itself on surjective actual-local endpoints. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_predictorCard
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (q : ℝ≥0∞)
+    (hs :
+      2 ^ (2 * allAffinePointBlockFeatureCount (r + (k + k))) <
+        2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k))
+    (hsurj : Function.Surjective T.predictorFamily.predict) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ T zfeat q) :=
+  ActualSwitchedLocalInterface.not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_surjective_predict_of_lt_predictorCard
+    (μ := μ) (T := T) (q := q) hs hsurj
+
+/-- Route-coverage anchor: more generally, any injectively realized finite
+probe family larger than the current payload budget already blocks the
+manuscript-facing sparse-threshold recovery packet, without needing full
+surjectivity. -/
+theorem kpolyCoverage_anchor_actualLocal_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+    {Probe : Type*} [Fintype Probe]
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (zfeat : Z → BitVec r)
+    (q : ℝ≥0∞)
+    (target : Probe → ExactVisiblePostSwitchSurface Z k → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, T.predictorFamily.predict i = target p)
+    (hs :
+      2 ^ (2 * allAffinePointBlockFeatureCount (r + (k + k))) <
+        Fintype.card Probe) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q) :=
+  ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+    (μ := μ) (T := T) (zfeat := zfeat) (q := q) target hinj hreal hs
+
+/-- Route-coverage anchor: the same injective finite-probe payload obstruction
+also removes the extractor choice itself. -/
+theorem kpolyCoverage_anchor_actualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+    {Probe : Type*} [Fintype Probe]
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (q : ℝ≥0∞)
+    (target : Probe → ExactVisiblePostSwitchSurface Z k → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, T.predictorFamily.predict i = target p)
+    (hs :
+      2 ^ (2 * allAffinePointBlockFeatureCount (r + (k + k))) <
+        Fintype.card Probe) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ T zfeat q) :=
+  ActualSwitchedLocalInterface.not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+    (μ := μ) (T := T) (q := q) target hinj hreal hs
 
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
 weaker shared sparse-threshold ERM packet still forces the exact visible

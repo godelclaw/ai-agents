@@ -1225,6 +1225,72 @@ theorem current_pnp_kpoly_surjective_actual_local_no_extractor_sparse_threshold_
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorSparseThresholdERMVisibleWidthBoundary
 
+theorem current_pnp_kpoly_surjective_actual_local_recovery_payload_predictor_card_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryPayloadPredictorCardObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryPayloadPredictorCardObstruction
+
+theorem current_pnp_kpoly_surjective_actual_local_no_extractor_recovery_payload_predictor_card_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorRecoveryPayloadPredictorCardObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorRecoveryPayloadPredictorCardObstruction
+
+theorem current_pnp_kpoly_actual_local_recovery_payload_injective_probe_card_regression :
+    PNPKpolySubrepairClass.actualLocalRecoveryPayloadInjectiveProbeCardObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalRecoveryPayloadInjectiveProbeCardObstruction
+
+theorem current_pnp_kpoly_actual_local_no_extractor_recovery_payload_injective_probe_card_regression :
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryPayloadInjectiveProbeCardObstruction
+
+def fin3ToBitVec0ActualSparseRecoveryPayloadBridge : Fin 3 → BitVec 0 := fun _ => zeroVec
+
+noncomputable def fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge :
+    ExactVisiblePostSwitchSurface (Fin 3) 0 :=
+  ⟨0, zeroVec, zeroVec⟩
+
+noncomputable def fin3OneVisiblePointActualSparseRecoveryPayloadBridge :
+    ExactVisiblePostSwitchSurface (Fin 3) 0 :=
+  ⟨1, zeroVec, zeroVec⟩
+
+noncomputable def fin3TwoVisiblePointActualSparseRecoveryPayloadBridge :
+    ExactVisiblePostSwitchSurface (Fin 3) 0 :=
+  ⟨2, zeroVec, zeroVec⟩
+
+noncomputable def fin3PureMeasureActualSparseRecoveryPayloadBridge :
+    PMF (ExactVisiblePostSwitchSurface (Fin 3) 0) :=
+  PMF.pure fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge
+
+theorem fullRuleActualSwitchedLocalInterface_lt_predictorCard_fin3k0r0_payload_bridge_regression :
+    2 ^ (2 * allAffinePointBlockFeatureCount (0 + (0 + 0))) <
+      2 ^ Fintype.card (ExactVisiblePostSwitchSurface (Fin 3) 0) := by
+  rw [card_exactVisiblePostSwitchSurface (Z := Fin 3) (k := 0)]
+  norm_num [allAffinePointBlockFeatureCount_eq]
+
+def fin5ProbeFamilyActualSparseRecoveryPayloadBridge
+    (p : Fin 5) :
+    ExactVisiblePostSwitchSurface (Fin 3) 0 → Bool :=
+  match p.1 with
+  | 0 => fun _ => false
+  | 1 => fun u => decide (u.z = 0)
+  | 2 => fun u => decide (u.z = 1)
+  | 3 => fun u => decide (u.z = 2)
+  | _ => fun _ => true
+
+theorem fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective :
+    Function.Injective fin5ProbeFamilyActualSparseRecoveryPayloadBridge := by
+  decide
+
+theorem fin5ProbeFamilyActualSparseRecoveryPayloadBridge_lt_card_regression :
+    2 ^ (2 * allAffinePointBlockFeatureCount (0 + (0 + 0))) < Fintype.card (Fin 5) := by
+  norm_num [allAffinePointBlockFeatureCount_eq]
+
 theorem kpoly_anchor_full_rule_actual_local_zab_data_forces_three_extractor_bits_regression
     {r : ℕ}
     {zfeat : BitVec 2 → BitVec r}
@@ -1280,6 +1346,78 @@ theorem kpoly_anchor_full_rule_actual_local_no_extractor_shared_sparse_threshold
       (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
       (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
       (by omega)
+
+theorem kpoly_anchor_full_rule_actual_local_recovery_payload_predictor_card_regression :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          fin3PureMeasureActualSparseRecoveryPayloadBridge
+          (fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+          fin3ToBitVec0ActualSparseRecoveryPayloadBridge
+          0) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_predictorCard
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (T := fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+      (zfeat := fin3ToBitVec0ActualSparseRecoveryPayloadBridge)
+      (q := 0)
+      fullRuleActualSwitchedLocalInterface_lt_predictorCard_fin3k0r0_payload_bridge_regression
+      (fullRuleActualSwitchedLocalInterface_surjective (Fin 3) 0)
+
+theorem kpoly_anchor_full_rule_actual_local_no_extractor_recovery_payload_predictor_card_regression :
+    ¬ ∃ zfeat : Fin 3 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            fin3PureMeasureActualSparseRecoveryPayloadBridge
+            (fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+            zfeat
+            0) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_predictorCard
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (T := fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+      (r := 0)
+      (q := 0)
+      fullRuleActualSwitchedLocalInterface_lt_predictorCard_fin3k0r0_payload_bridge_regression
+      (fullRuleActualSwitchedLocalInterface_surjective (Fin 3) 0)
+
+theorem kpoly_anchor_full_rule_actual_local_recovery_payload_injective_probe_card_regression :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          fin3PureMeasureActualSparseRecoveryPayloadBridge
+          (fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+          fin3ToBitVec0ActualSparseRecoveryPayloadBridge
+          0) := by
+  exact
+    kpolyCoverage_anchor_actualLocal_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (T := fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+      (zfeat := fin3ToBitVec0ActualSparseRecoveryPayloadBridge)
+      (q := 0)
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective
+      (fun p => (fullRuleActualSwitchedLocalInterface_surjective (Fin 3) 0)
+        (fin5ProbeFamilyActualSparseRecoveryPayloadBridge p))
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge_lt_card_regression
+
+theorem kpoly_anchor_full_rule_actual_local_no_extractor_recovery_payload_injective_probe_card_regression :
+    ¬ ∃ zfeat : Fin 3 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            fin3PureMeasureActualSparseRecoveryPayloadBridge
+            (fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+            zfeat
+            0) := by
+  exact
+    kpolyCoverage_anchor_actualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_injective_realization_of_lt_card
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (T := fullRuleActualSwitchedLocalInterface (Fin 3) 0)
+      (r := 0)
+      (q := 0)
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective
+      (fun p => (fullRuleActualSwitchedLocalInterface_surjective (Fin 3) 0)
+        (fin5ProbeFamilyActualSparseRecoveryPayloadBridge p))
+      fin5ProbeFamilyActualSparseRecoveryPayloadBridge_lt_card_regression
 
 theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
     PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈
