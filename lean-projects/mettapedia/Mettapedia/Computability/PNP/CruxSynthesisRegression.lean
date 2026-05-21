@@ -1195,6 +1195,41 @@ theorem current_pnp_kpoly_exact_zab_bad_code_large_region_disagreement_regressio
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.exactZABBadCodeLargeRegionDisagreementBoundary
 
+theorem current_pnp_kpoly_actual_local_zab_decision_list_visible_card_gap_regression :
+    PNPKpolySubrepairClass.actualLocalZABDecisionListVisibleCardGapLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalZABDecisionListVisibleCardGapLowerBound
+
+theorem current_pnp_kpoly_actual_local_zab_decision_list_bitvec_truth_table_gap_regression :
+    PNPKpolySubrepairClass.actualLocalZABDecisionListBitVecTruthTableGapObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalZABDecisionListBitVecTruthTableGapObstruction
+
+theorem kpoly_anchor_full_rule_actual_local_zab_data_forces_three_extractor_bits_regression
+    {r : ℕ}
+    {zfeat : BitVec 2 → BitVec r}
+    (h :
+      ActualSwitchedLocalInterface.ZABDecisionListData
+        (fullRuleActualSwitchedLocalInterface (BitVec 2) 0) zfeat) :
+    3 ≤ r := by
+  exact
+    kpolyCoverage_anchor_actualSwitchedLocal_zabDecisionList_visibleCardGapLowerBound_of_surjective_predict
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+      (zfeat := zfeat)
+      h
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
+
+theorem kpoly_anchor_full_rule_actual_local_not_zab_data_below_truth_table_gap_regression :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.ZABDecisionListData
+          (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+          (fun z : BitVec 2 => z)) := by
+  exact
+    kpolyCoverage_anchor_fullRuleActualSwitchedLocal_not_nonempty_zabDecisionListData_of_extractorWidth_lt_truthTableGap
+      (n := 2) (k := 0) (r := 2) (fun z : BitVec 2 => z) (by norm_num)
+
 theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
     PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by

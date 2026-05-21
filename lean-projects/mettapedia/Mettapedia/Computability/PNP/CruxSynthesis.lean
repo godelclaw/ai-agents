@@ -34,6 +34,7 @@ import Mettapedia.Computability.PNP.SharedABFeatureObstruction
 import Mettapedia.Computability.PNP.ABVisibleInvariantSurjectivityObstruction
 import Mettapedia.Computability.PNP.CanonicalZABERMInterface
 import Mettapedia.Computability.PNP.ActualSwitchedHistoryBitVecBudgetObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalZABDecisionListWidthObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -1030,6 +1031,14 @@ inductive PNPKpolySubrepairClass where
   /-- A strict exact-ZAB bad-code agreement threshold forces every region above
   that threshold to contain a positive-mass bad-code disagreement. -/
   | exactZABBadCodeLargeRegionDisagreementBoundary
+  /-- If an actual switched-local family is both surjective and realized by
+  shared exact `(zfeat z, a, b)` decision-list data, the extractor width must
+  absorb the full exact-visible surface gap `|surface| - (2k + 1)`. -/
+  | actualLocalZABDecisionListVisibleCardGapLowerBound
+  /-- On `Z = BitVec n`, the full-rule actual switched-local family cannot
+  carry exact ZAB decision-list data once the extractor width stays below the
+  truth-table gap `2^(n + 2k) - (2k + 1)`. -/
+  | actualLocalZABDecisionListBitVecTruthTableGapObstruction
   /-- The bare exact-visible family interface alone cannot imply clocked
   finite-learning payloads for all families below the full visible surface. -/
   | bareExactVisibleInterfacePayloadInsufficiency
@@ -1757,6 +1766,8 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .bitVecZABERMClockedPayloadClosure,
     .equalityToBitVecZABERMClockedPayloadClosure,
     .exactZABBadCodeLargeRegionDisagreementBoundary,
+    .actualLocalZABDecisionListVisibleCardGapLowerBound,
+    .actualLocalZABDecisionListBitVecTruthTableGapObstruction,
     .bareExactVisibleInterfacePayloadInsufficiency,
     .actualObservedSupportPayloadInsufficiency,
     .actualObservedSupportUniformSectionBoundary,
@@ -5396,6 +5407,43 @@ theorem kpolyCoverage_anchor_currentExactVisibleInterface_not_forall_clockedPayl
         ClockedKpolyFiniteLearningPayload G s clock) :=
   currentExactVisibleInterface_not_forall_clockedKpolyFiniteLearningPayload_of_lt_surfaceCard
     (Z := Z) (k := k) (s := s) (clock := clock) hs
+
+/-- Route-coverage anchor: surjective actual-local exact ZAB decision-list
+data already forces the shared extractor width to absorb the full exact-visible
+surface gap `|surface| - (2k + 1)`. -/
+theorem kpolyCoverage_anchor_actualSwitchedLocal_zabDecisionList_visibleCardGapLowerBound_of_surjective_predict
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {zfeat : Z → BitVec r}
+    (h : ActualSwitchedLocalInterface.ZABDecisionListData T zfeat)
+    (hsurj : Function.Surjective T.predictorFamily.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) - (2 * k + 1) ≤ r :=
+  h.visibleCardGapLowerBound_of_surjective_predict hsurj
+
+/-- Route-coverage anchor: equivalently, a surjective actual-local family
+cannot carry exact ZAB decision-list data below that visible-surface gap. -/
+theorem kpolyCoverage_anchor_actualSwitchedLocal_not_nonempty_zabDecisionListData_of_surjective_predict_of_lt_visibleCardGap
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (zfeat : Z → BitVec r)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hgap : r < Fintype.card (ExactVisiblePostSwitchSurface Z k) - (2 * k + 1)) :
+    ¬ Nonempty (ActualSwitchedLocalInterface.ZABDecisionListData T zfeat) :=
+  ActualSwitchedLocalInterface.not_nonempty_zabDecisionListData_of_surjective_predict_of_lt_visibleCardGap
+    (T := T) zfeat hsurj hgap
+
+/-- Route-coverage anchor: on bit-valued latent data, the full-rule actual
+switched-local family already refutes the exact ZAB route whenever extractor
+width stays below the truth-table gap `2^(n + 2k) - (2k + 1)`. -/
+theorem kpolyCoverage_anchor_fullRuleActualSwitchedLocal_not_nonempty_zabDecisionListData_of_extractorWidth_lt_truthTableGap
+    {n k r : ℕ}
+    (zfeat : BitVec n → BitVec r)
+    (hgap : r < 2 ^ (n + 2 * k) - (2 * k + 1)) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.ZABDecisionListData
+          (fullRuleActualSwitchedLocalInterface (BitVec n) k) zfeat) :=
+  ActualSwitchedLocalInterface.fullRuleActualSwitchedLocalInterface_not_zabDecisionListData_of_extractorWidth_lt_truthTableGap
+    (n := n) (k := k) (r := r) zfeat hgap
 
 /-- Route-coverage anchor: a bare plug-in lookup table over the exact visible
 alphabet is already surjective onto all exact-visible Boolean rules. -/
