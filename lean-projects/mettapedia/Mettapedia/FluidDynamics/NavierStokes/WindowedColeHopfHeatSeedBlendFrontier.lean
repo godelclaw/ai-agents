@@ -43,6 +43,25 @@ abbrev WeightedObservable.windowedColeHopfHeatSeedBlendInitialSlice
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).seedBlendInitialSlice a b
 
+abbrev WeightedObservable.windowedColeHopfHeatSeedBlendInitialSlice_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a b c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) : X → ℝ :=
+  L.windowedColeHopfHeatSeedBlendInitialSlice
+    (ι := ι) (X := X)
+    selector a b c ν hc hν
+    curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+    (fun x => gamma_le_card_mul_sq_of_abs_le
+      (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+    x
+
 abbrev WeightedObservable.windowedColeHopfHeatSeedBlendCandidate
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -58,6 +77,26 @@ abbrev WeightedObservable.windowedColeHopfHeatSeedBlendCandidate
   (L.windowedColeHopfHeatUniformVorticityTendril
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).seedBlendCandidate a b
+
+abbrev WeightedObservable.windowedColeHopfHeatSeedBlendCandidate_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (a b c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    VelocityPressureCandidate (Time := NNReal) (X := X) :=
+  L.windowedColeHopfHeatSeedBlendCandidate
+    (ι := ι) (X := X)
+    selector a b c ν hc hν
+    curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+    (fun x => gamma_le_card_mul_sq_of_abs_le
+      (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+    x
 
 theorem WeightedObservable.windowedColeHopfHeatSeedBlendCandidate_has_seedBlendCompatibility
     (L : WeightedObservable)
