@@ -6205,7 +6205,7 @@ either.
 
 This repair path is now also promoted into the synthesis ledger rather than
 left only in the local obstruction file.  \texttt{CruxSynthesis.lean} now
-records one hundred and sixty-one separate narrow covered entries for this cluster: the sample-level
+records a large family of separate narrow covered entries for this cluster: the sample-level
 majority visible-budget boundary, the bit-fallback visible-budget boundary, the
 fallback-side \(q\)-threshold
 \texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary},
@@ -8805,6 +8805,65 @@ can support that packet on any surjective actual-local endpoint over a finite
 visible surface.  The concrete sample-level plug-in-majority route and the
 bit-coded exact-visible fallback route are now explicit instances of those
 general synthesis theorems, rather than separate endpoint-specific wrappers.
+
+That route-level package has now been tightened in four further directions.
+First, \texttt{CruxSynthesis.lean} records the sharpened recovery-threshold
+visible-budget barriers
+\texttt{PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary},
+\texttt{PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction},
+\texttt{PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalRecoveryThresholdVisibleBudgetBoundary},
+and
+\texttt{PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction}.
+So once the route claims
+\[
+  q < 1 - 2^{-(2r+4k+\mathrm{slack}+1)},
+\]
+the old one-step escape hatch \(n=2r+2k+1\) disappears at the synthesis level
+as well: Lean upgrades it to \(n \le 2r+2k+\mathrm{slack}\) and records the
+matching no-extractor obstructions.
+
+Second, the ledger now records the proper-region mass route lock itself:
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalRecoveryProperRegionMassBoundary}
+and
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorProperRegionMassBoundary}.
+So on every surjective actual-local endpoint, every proper visible region
+already has total mass at most \(q\), and any heavier proper region removes the
+extractor choice entirely.
+
+Third, the injective-family heavy-region collapse is now promoted too:
+\texttt{PNPKpolySubrepairClass.actualLocalRecoveryHeavyRegionTraceCardBoundary}
+and
+\texttt{PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryHeavyRegionTraceCardObstruction}.
+Thus whenever one finite visible region \(R\) already has \(\mu(R)>q\), the
+whole injectively indexed realized family must fit into the Boolean trace space
+on \(R\),
+\[
+  |\mathrm{Index}| \le 2^{|R|},
+\]
+and Lean records the corresponding no-extractor contradiction when that trace
+space is too small.  This is strictly stronger than the earlier heavy-point
+collapse when no single atom exceeds \(q\) but a small region still does.
+
+Fourth, the non-surjective injective-extractor threshold packet is now
+registered directly in the ledger:
+\texttt{PNPKpolySubrepairClass.actualLocalInjectiveRecoveryUniformCardinalityThresholdBoundary},
+\texttt{PNPKpolySubrepairClass.actualLocalInjectiveRecoveryBitVecCardinalityThresholdBoundary},
+and
+\texttt{PNPKpolySubrepairClass.actualLocalNoInjectiveExtractorRecoveryBitVecCardinalityThresholdObstruction}.
+So even without surjectivity, any injective \(zfeat\) with
+\(0<r+(k+k)\) already forces
+\[
+  q \ge 1-|U|^{-1},
+\]
+and on \(\texttt{BitVec}\ n\) forces
+\[
+  q \ge 1 - 2^{-(n+2k)}.
+\]
+The concrete non-surjective canary is now formal at the synthesis level too:
+on the one-index constant-false
+\(\texttt{BitVec}\ 1,\ k=1\) endpoint, Lean still derives
+\(1-2^{-3}=7/8 \le q\), so \(q=3/4\) already rules out every injective
+\(\texttt{BitVec}\ 1 \to \texttt{BitVec}\ 1\) extractor.
 
 If such a theorem cannot be proved, then the proof attempt should be regarded as stalled at a real
 mathematical gap, not a missing editorial detail.
