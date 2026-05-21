@@ -1,6 +1,7 @@
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEquationTarget
 import Mathlib.Analysis.Calculus.FDeriv.Add
 import Mathlib.Analysis.Calculus.FDeriv.Mul
+import Mathlib.Analysis.Calculus.FDeriv.Symmetric
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
@@ -51,6 +52,14 @@ def constantVelocityField (c : NSSpace) : NSVelocityField :=
 /-- Constant initial velocity data on `ℝ^3`. -/
 def constantInitialVelocity (c : NSSpace) : NSInitialVelocity :=
   fun _ : NSSpace => c
+
+/-- Addition of constant initial data is again constant initial data. -/
+theorem constantInitialVelocity_add
+    (u v : NSSpace) :
+    constantInitialVelocity u + constantInitialVelocity v =
+      constantInitialVelocity (u + v) := by
+  funext x
+  simp [constantInitialVelocity]
 
 /-- Linear shear map `x ↦ (a * x₁, 0, 0)` on `ℝ^3`. -/
 def linearShearMap (a : ℝ) : NSSpace →L[ℝ] NSSpace :=
@@ -126,6 +135,12 @@ def heatShearInitialVelocity (a k : ℝ) : NSInitialVelocity :=
 def heatShearVelocityField (ν a k : ℝ) : NSVelocityField :=
   fun t x => coord0Embedding (heatShearScalar ν a k t x)
 
+/-- General time-amplitude shear ansatz
+`u(t,x) = (A t * sin (k * x₁), 0, 0)`.  This isolates the ODE burden on the
+amplitude from the spatial vector-calculus calculation. -/
+def amplitudeShearVelocityField (A : NSTime → ℝ) (k : ℝ) : NSVelocityField :=
+  fun t x => coord0Embedding (A t * Real.sin (k * x nsCoord1))
+
 /-- Initial velocity data for the heat-shear family with constant streamwise
 drift, `x ↦ (d + a * sin (k * x₁), 0, 0)`. -/
 def heatShearStreamwiseDriftInitialVelocity (a k d : ℝ) : NSInitialVelocity :=
@@ -181,6 +196,13 @@ def heatShearTransportVelocityField (ν a k b : ℝ) : NSVelocityField :=
   (fun t x => coord0Embedding (heatShearTransportScalar ν a k b t x)) +
     constantVelocityField (EuclideanSpace.single nsCoord1 b)
 
+/-- Transported shear with an arbitrary time amplitude,
+`u(t,x) = (A t * sin (k * (x₁ - b * t)), b, 0)`. -/
+def amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) : NSVelocityField :=
+  (fun t x => coord0Embedding (A t * Real.sin (k * (x nsCoord1 - b * t)))) +
+    constantVelocityField (EuclideanSpace.single nsCoord1 b)
+
 /-- Initial velocity data for the transported heat-shear family with additional
 constant streamwise and vertical drifts,
 `x ↦ (d + a * sin (k * x₁), b, c)`. -/
@@ -215,6 +237,148 @@ def spatialVorticity (u : NSVelocityField) (t : NSTime) (x : NSSpace) : NSSpace 
     EuclideanSpace.single nsCoord2
       (spatialDerivativeComponent u t x nsCoord0 nsCoord1 -
         spatialDerivativeComponent u t x nsCoord1 nsCoord0)
+
+/-- Spatial coordinate derivatives only depend on the velocity field on the
+fixed time slice. -/
+theorem spatialDerivativeComponent_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) (coord comp : Fin 3) :
+    spatialDerivativeComponent u t x coord comp =
+      spatialDerivativeComponent v t x coord comp := by
+  unfold spatialDerivativeComponent spatialFDeriv
+  have hf : (fun y : NSSpace => u t y) = fun y : NSSpace => v t y := funext h
+  rw [hf]
+
+/-- The concrete vorticity at a point only depends on the velocity field on
+the fixed time slice. -/
+theorem spatialVorticity_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) :
+    spatialVorticity u t x = spatialVorticity v t x := by
+  have hderiv :
+      ∀ coord comp : Fin 3,
+        spatialDerivativeComponent u t x coord comp =
+          spatialDerivativeComponent v t x coord comp := by
+    intro coord comp
+    exact spatialDerivativeComponent_congr_at h coord comp
+  ext i
+  fin_cases i <;>
+    simp [spatialVorticity, hderiv]
+
+/-- The spatial Fréchet derivative only depends on the velocity field on the
+fixed time slice. -/
+theorem spatialFDeriv_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) :
+    spatialFDeriv u t x = spatialFDeriv v t x := by
+  unfold spatialFDeriv
+  have hf : (fun y : NSSpace => u t y) = fun y : NSSpace => v t y := funext h
+  rw [hf]
+
+/-- Spatial divergence only depends on the velocity field on the fixed time
+slice. -/
+theorem spatialDivergence_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) :
+    spatialDivergence u t x = spatialDivergence v t x := by
+  unfold spatialDivergence
+  rw [spatialFDeriv_congr_at h]
+
+/-- The convection term only depends on the velocity field on the fixed time
+slice. -/
+theorem spatialConvection_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) :
+    spatialConvection u t x = spatialConvection v t x := by
+  unfold spatialConvection
+  rw [spatialFDeriv_congr_at h, h x]
+
+/-- Spatial Laplacian only depends on the velocity field on the fixed time
+slice. -/
+theorem spatialLaplacian_congr_at
+    {u v : NSVelocityField} {t : NSTime} {x : NSSpace}
+    (h : ∀ y : NSSpace, u t y = v t y) :
+    spatialLaplacian u t x = spatialLaplacian v t x := by
+  unfold spatialLaplacian
+  have hf : (fun y : NSSpace => u t y) = fun y : NSSpace => v t y := funext h
+  rw [hf]
+
+/-- Pointwise norm control for the concrete vorticity vector by the six
+coordinate derivatives that enter the curl formula. -/
+theorem norm_spatialVorticity_le_sum_abs_spatialDerivativeComponent
+    (u : NSVelocityField) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity u t x‖ ≤
+      |spatialDerivativeComponent u t x nsCoord1 nsCoord2| +
+        |spatialDerivativeComponent u t x nsCoord2 nsCoord1| +
+        |spatialDerivativeComponent u t x nsCoord2 nsCoord0| +
+        |spatialDerivativeComponent u t x nsCoord0 nsCoord2| +
+        |spatialDerivativeComponent u t x nsCoord0 nsCoord1| +
+        |spatialDerivativeComponent u t x nsCoord1 nsCoord0| := by
+  let d12 := spatialDerivativeComponent u t x nsCoord1 nsCoord2
+  let d21 := spatialDerivativeComponent u t x nsCoord2 nsCoord1
+  let d20 := spatialDerivativeComponent u t x nsCoord2 nsCoord0
+  let d02 := spatialDerivativeComponent u t x nsCoord0 nsCoord2
+  let d01 := spatialDerivativeComponent u t x nsCoord0 nsCoord1
+  let d10 := spatialDerivativeComponent u t x nsCoord1 nsCoord0
+  change
+    ‖EuclideanSpace.single nsCoord0 (d12 - d21) +
+        EuclideanSpace.single nsCoord1 (d20 - d02) +
+        EuclideanSpace.single nsCoord2 (d01 - d10)‖ ≤
+      |d12| + |d21| + |d20| + |d02| + |d01| + |d10|
+  have hnorm :
+      ‖EuclideanSpace.single nsCoord0 (d12 - d21) +
+          EuclideanSpace.single nsCoord1 (d20 - d02) +
+          EuclideanSpace.single nsCoord2 (d01 - d10)‖ ≤
+        |d12 - d21| + |d20 - d02| + |d01 - d10| := by
+    calc
+      ‖EuclideanSpace.single nsCoord0 (d12 - d21) +
+          EuclideanSpace.single nsCoord1 (d20 - d02) +
+          EuclideanSpace.single nsCoord2 (d01 - d10)‖
+        ≤
+          ‖EuclideanSpace.single nsCoord0 (d12 - d21) +
+            EuclideanSpace.single nsCoord1 (d20 - d02)‖ +
+            ‖EuclideanSpace.single nsCoord2 (d01 - d10)‖ := by
+            exact norm_add_le _ _
+      _ ≤
+          (‖EuclideanSpace.single nsCoord0 (d12 - d21)‖ +
+            ‖EuclideanSpace.single nsCoord1 (d20 - d02)‖) +
+            ‖EuclideanSpace.single nsCoord2 (d01 - d10)‖ := by
+            gcongr
+            exact norm_add_le _ _
+      _ = |d12 - d21| + |d20 - d02| + |d01 - d10| := by
+            simp [EuclideanSpace.norm_single, add_assoc]
+  have h12 : |d12 - d21| ≤ |d12| + |d21| := by
+    simpa [sub_eq_add_neg, abs_neg] using abs_add_le d12 (-d21)
+  have h20 : |d20 - d02| ≤ |d20| + |d02| := by
+    simpa [sub_eq_add_neg, abs_neg] using abs_add_le d20 (-d02)
+  have h01 : |d01 - d10| ≤ |d01| + |d10| := by
+    simpa [sub_eq_add_neg, abs_neg] using abs_add_le d01 (-d10)
+  calc
+    ‖EuclideanSpace.single nsCoord0 (d12 - d21) +
+        EuclideanSpace.single nsCoord1 (d20 - d02) +
+        EuclideanSpace.single nsCoord2 (d01 - d10)‖
+      ≤ |d12 - d21| + |d20 - d02| + |d01 - d10| := hnorm
+    _ ≤ (|d12| + |d21|) + (|d20| + |d02|) + (|d01| + |d10|) := by
+      gcongr
+    _ = |d12| + |d21| + |d20| + |d02| + |d01| + |d10| := by
+      ring
+
+/-- If every coordinate derivative entering the concrete curl is bounded by a
+common constant, then the vorticity norm is bounded by six times that
+constant. -/
+theorem norm_spatialVorticity_le_of_abs_spatialDerivativeComponent_le
+    {u : NSVelocityField} {t : NSTime} {x : NSSpace} {K : ℝ}
+    (hK : ∀ coord comp : Fin 3,
+      |spatialDerivativeComponent u t x coord comp| ≤ K) :
+    ‖spatialVorticity u t x‖ ≤ 6 * K := by
+  have hsum := norm_spatialVorticity_le_sum_abs_spatialDerivativeComponent u t x
+  have h12 := hK nsCoord1 nsCoord2
+  have h21 := hK nsCoord2 nsCoord1
+  have h20 := hK nsCoord2 nsCoord0
+  have h02 := hK nsCoord0 nsCoord2
+  have h01 := hK nsCoord0 nsCoord1
+  have h10 := hK nsCoord1 nsCoord0
+  nlinarith
 
 /-- A smooth space-time velocity field restricts to a smooth spatial slice at
 any fixed time. -/
@@ -509,6 +673,42 @@ theorem linearShearFullDriftInitialVelocity_apply
   simp [linearShearFullDriftInitialVelocity, linearShearHorizontalDriftInitialVelocity,
     constantInitialVelocity, linearShearInitialVelocity_apply, add_assoc]
 
+/-- Vanishing horizontal drift reduces full-drift linear shear to the
+vertical-drift subfamily. -/
+theorem linearShearFullDriftInitialVelocity_zero_horizontalDrift
+    (a c : ℝ) :
+    linearShearFullDriftInitialVelocity a 0 c =
+      linearShearVerticalDriftInitialVelocity a c := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [linearShearFullDriftInitialVelocity_apply,
+      linearShearVerticalDriftInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
+
+/-- Vanishing vertical drift reduces full-drift linear shear to the
+horizontal-drift subfamily. -/
+theorem linearShearFullDriftInitialVelocity_zero_verticalDrift
+    (a b : ℝ) :
+    linearShearFullDriftInitialVelocity a b 0 =
+      linearShearHorizontalDriftInitialVelocity a b := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [linearShearFullDriftInitialVelocity_apply,
+      linearShearHorizontalDriftInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
+
+/-- Vanishing both extra drifts reduces full-drift linear shear to the base
+linear-shear family. -/
+theorem linearShearFullDriftInitialVelocity_zero_drifts
+    (a : ℝ) :
+    linearShearFullDriftInitialVelocity a 0 0 =
+      linearShearInitialVelocity a := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [linearShearFullDriftInitialVelocity_apply,
+      linearShearInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
+
 /-- The steady full-drift affine shear field is given coordinatewise on every
 time slice by `x ↦ (a * x₁, b, c)`. -/
 theorem linearShearFullDriftVelocityField_apply
@@ -537,6 +737,20 @@ theorem heatShearInitialVelocity_apply
       EuclideanSpace.single nsCoord0 (a * Real.sin (k * x nsCoord1)) := by
   simp [heatShearInitialVelocity, heatShearInitialScalar, coord0Embedding_apply]
 
+/-- Zero amplitude collapses the heat-shear initial datum to the zero field. -/
+theorem heatShearInitialVelocity_zero_of_amplitude_zero
+    (k : ℝ) :
+    heatShearInitialVelocity 0 k = (0 : NSInitialVelocity) := by
+  funext x
+  simp [heatShearInitialVelocity, heatShearInitialScalar, coord0Embedding_apply]
+
+/-- Zero wave number collapses the heat-shear initial datum to the zero field. -/
+theorem heatShearInitialVelocity_zero_of_wavenumber_zero
+    (a : ℝ) :
+    heatShearInitialVelocity a 0 = (0 : NSInitialVelocity) := by
+  funext x
+  simp [heatShearInitialVelocity, heatShearInitialScalar, coord0Embedding_apply]
+
 /-- The damped sinusoidal heat-shear field is given coordinatewise on every time
 slice by
 `x ↦ (a * exp (-(ν * k²) * t) * sin (k * x₁), 0, 0)`. -/
@@ -546,6 +760,14 @@ theorem heatShearVelocityField_apply
       EuclideanSpace.single nsCoord0
         (a * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * Real.sin (k * x nsCoord1)) := by
   simp [heatShearVelocityField, heatShearScalar, coord0Embedding_apply, mul_assoc]
+
+/-- The general time-amplitude shear ansatz is given coordinatewise on every
+time slice by `x ↦ (A t * sin (k * x₁), 0, 0)`. -/
+theorem amplitudeShearVelocityField_apply
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    amplitudeShearVelocityField A k t x =
+      EuclideanSpace.single nsCoord0 (A t * Real.sin (k * x nsCoord1)) := by
+  simp [amplitudeShearVelocityField, coord0Embedding_apply]
 
 /-- The heat-shear datum with streamwise drift is given coordinatewise by
 `x ↦ (d + a * sin (k * x₁), 0, 0)`. -/
@@ -601,6 +823,38 @@ theorem heatShearFullDriftInitialVelocity_apply
         EuclideanSpace.single nsCoord2 c := by
   simp [heatShearFullDriftInitialVelocity, constantInitialVelocity,
     heatShearStreamwiseDriftInitialVelocity_apply]
+
+/-- Vanishing streamwise drift reduces full-drift heat shear to the vertical-drift
+subfamily. -/
+theorem heatShearFullDriftInitialVelocity_zero_streamwiseDrift
+    (a k c : ℝ) :
+    heatShearFullDriftInitialVelocity a k 0 c =
+      heatShearVerticalDriftInitialVelocity a k c := by
+  funext x
+  simp [heatShearFullDriftInitialVelocity, heatShearStreamwiseDriftInitialVelocity,
+    heatShearVerticalDriftInitialVelocity, constantInitialVelocity]
+
+/-- Vanishing vertical drift reduces full-drift heat shear to the streamwise-drift
+subfamily. -/
+theorem heatShearFullDriftInitialVelocity_zero_verticalDrift
+    (a k d : ℝ) :
+    heatShearFullDriftInitialVelocity a k d 0 =
+      heatShearStreamwiseDriftInitialVelocity a k d := by
+  funext x
+  simp [heatShearFullDriftInitialVelocity, heatShearStreamwiseDriftInitialVelocity,
+    constantInitialVelocity]
+
+/-- Vanishing both extra drifts reduces full-drift heat shear to the base
+heat-shear family. -/
+theorem heatShearFullDriftInitialVelocity_zero_drifts
+    (a k : ℝ) :
+    heatShearFullDriftInitialVelocity a k 0 0 =
+      heatShearInitialVelocity a k := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [heatShearFullDriftInitialVelocity_apply,
+      heatShearInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
 
 /-- The heat-shear family with full drift is given coordinatewise on every
 time slice by `x ↦ (d + a * exp (-(ν * k²) * t) * sin (k * x₁), 0, c)`. -/
@@ -889,6 +1143,24 @@ theorem spatialFDeriv_heatShearVelocityField
   unfold spatialFDeriv
   simpa [heatShearVelocityField, heatShearScalar, A, mul_assoc] using hvec.fderiv
 
+/-- The spatial Fréchet derivative of the general time-amplitude shear ansatz
+has the same slice formula as heat shear, with the sampled amplitude `A t`. -/
+theorem spatialFDeriv_amplitudeShearVelocityField
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialFDeriv (amplitudeShearVelocityField A k) t x =
+      coord0Embedding.comp
+        (((A t : ℝ) •
+          (Real.cos (k * x nsCoord1) •
+            ((k : ℝ) • (EuclideanSpace.proj nsCoord1 : NSSpace →L[ℝ] ℝ))))) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearVelocityField A k t y = heatShearVelocityField 0 (A t) k t y := by
+    intro y
+    simp [amplitudeShearVelocityField, heatShearVelocityField, heatShearScalar]
+  rw [spatialFDeriv_congr_at hslice]
+  simpa [heatShearScalar]
+    using spatialFDeriv_heatShearVelocityField 0 (A t) k t x
+
 /-- The heat-shear family with streamwise drift has the same spatial Fréchet
 derivative as pure heat shear. -/
 theorem spatialFDeriv_heatShearStreamwiseDriftVelocityField
@@ -1016,6 +1288,22 @@ theorem timeVelocityDerivative_heatShearVelocityField
   have happly :=
     congrArg (fun L : ℝ →L[ℝ] NSSpace => L (1 : ℝ)) hvec.fderiv
   simpa [timeVelocityDerivative, timeFDeriv, heatShearVelocityField, heatShearScalar,
+    S, ContinuousLinearMap.comp_apply, mul_assoc, mul_left_comm, mul_comm] using happly
+
+/-- The time derivative of the general time-amplitude shear ansatz is exactly
+the sampled scalar amplitude derivative times the fixed sine mode. -/
+theorem timeVelocityDerivative_amplitudeShearVelocityField
+    {A : NSTime → ℝ} {A' : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) (k : ℝ) (x : NSSpace) :
+    timeVelocityDerivative (amplitudeShearVelocityField A k) t x =
+      coord0Embedding (A' * Real.sin (k * x nsCoord1)) := by
+  let S : ℝ := Real.sin (k * x nsCoord1)
+  have hscalar : HasDerivAt (fun s : ℝ => A s * S) (A' * S) t := by
+    simpa [S, mul_assoc, mul_left_comm, mul_comm] using hA.mul_const S
+  have hvec := coord0Embedding.hasFDerivAt.comp t hscalar.hasFDerivAt
+  have happly :=
+    congrArg (fun L : ℝ →L[ℝ] NSSpace => L (1 : ℝ)) hvec.fderiv
+  simpa [timeVelocityDerivative, timeFDeriv, amplitudeShearVelocityField,
     S, ContinuousLinearMap.comp_apply, mul_assoc, mul_left_comm, mul_comm] using happly
 
 /-- The heat-shear family with streamwise drift has the same time derivative as
@@ -1169,6 +1457,20 @@ theorem spatialDivergence_heatShearVelocityField
     spatialDivergence (heatShearVelocityField ν a k) t x = 0 := by
   rw [spatialDivergence, spatialFDeriv_heatShearVelocityField, Fin.sum_univ_three]
   simp [coord0Embedding_apply, nsCoord0, nsCoord1]
+
+/-- The general time-amplitude shear ansatz is divergence free on each time
+slice. -/
+theorem spatialDivergence_amplitudeShearVelocityField
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialDivergence (amplitudeShearVelocityField A k) t x = 0 := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearVelocityField A k t y = heatShearVelocityField 0 (A t) k t y := by
+    intro y
+    simp [amplitudeShearVelocityField, heatShearVelocityField, heatShearScalar]
+  rw [spatialDivergence_congr_at hslice]
+  simpa
+    using spatialDivergence_heatShearVelocityField 0 (A t) k t x
 
 /-- The heat-shear family with streamwise drift is divergence free. -/
 theorem spatialDivergence_heatShearStreamwiseDriftVelocityField
@@ -1453,6 +1755,201 @@ theorem spatialPressureGradient_linearShearHorizontalDriftPressureField
       EuclideanSpace.single nsCoord0 (-(a * b)) := by
   simpa [linearShearHorizontalDriftPressureField] using
     spatialPressureGradient_coord0Linear (-(a * b)) t x
+
+/-- The smoothness order `C^∞` used for concrete NS fields is at least `C²`. -/
+theorem two_le_contDiff_infty : (2 : WithTop ℕ∞) ≤ ∞ := by
+  exact WithTop.coe_le_coe.2 (show (2 : ℕ∞) ≤ ⊤ from le_top)
+
+/-- Over the real field, the minimal smoothness needed for symmetric second
+derivatives is also available from `C^∞`. -/
+theorem minSmoothness_two_le_contDiff_infty : minSmoothness ℝ 2 ≤ ∞ := by
+  simpa using two_le_contDiff_infty
+
+/-- View the spatial pressure gradient as a velocity field on `ℝ × ℝ^3`. -/
+def pressureGradientVelocityField (p : NSPressureField) : NSVelocityField :=
+  fun t x => spatialPressureGradient p t x
+
+/-- The vector field that a pressure gradient must equal in the concrete
+momentum equation:
+\[
+  \nabla p = \nu \Delta u - \partial_t u - (u\cdot\nabla)u.
+\]
+This isolates the exact-gradient compatibility burden from the rest of the
+momentum identity. -/
+def momentumPressureResidual (ν : ℝ) (u : NSVelocityField) : NSVelocityField :=
+  fun t x =>
+    ν • spatialLaplacian u t x - timeVelocityDerivative u t x -
+      spatialConvection u t x
+
+/-- A coordinate derivative of the gradient of a smooth scalar field is the
+corresponding second Fréchet derivative. -/
+theorem fderiv_gradient_component_eq_second_fderiv
+    {f : NSSpace → ℝ}
+    (hf : ContDiff ℝ ∞ f)
+    (x : NSSpace) (coord comp : Fin 3) :
+    (fderiv ℝ (fun y : NSSpace => gradient f y) x
+        (EuclideanSpace.single coord (1 : ℝ))) comp =
+      fderiv ℝ (fun y : NSSpace => fderiv ℝ f y) x
+        (EuclideanSpace.single coord (1 : ℝ))
+        (EuclideanSpace.single comp (1 : ℝ)) := by
+  let ecoord : NSSpace := EuclideanSpace.single coord (1 : ℝ)
+  let ecomp : NSSpace := EuclideanSpace.single comp (1 : ℝ)
+  have hfdiff : DifferentiableAt ℝ (fun y : NSSpace => fderiv ℝ f y) x := by
+    exact ((hf.contDiffAt (x := x)).fderiv_right (m := 1)
+      two_le_contDiff_infty).differentiableAt one_ne_zero
+  have hgrad_diff : DifferentiableAt ℝ (fun y : NSSpace => gradient f y) x := by
+    unfold gradient
+    exact (InnerProductSpace.toDual ℝ NSSpace).symm.differentiableAt.comp x hfdiff
+  have hproj :
+      fderiv ℝ (fun y : NSSpace => (gradient f y) comp) x =
+        (EuclideanSpace.proj comp : NSSpace →L[ℝ] ℝ).comp
+          (fderiv ℝ (fun y : NSSpace => gradient f y) x) := by
+    simpa [Function.comp] using
+      fderiv_comp x (EuclideanSpace.proj comp : NSSpace →L[ℝ] ℝ).differentiableAt hgrad_diff
+  have hvec_scalar :
+      (fderiv ℝ (fun y : NSSpace => gradient f y) x ecoord) comp =
+        fderiv ℝ (fun y : NSSpace => (gradient f y) comp) x ecoord := by
+    simpa [ContinuousLinearMap.comp_apply, ecoord] using
+      (congrArg (fun L : NSSpace →L[ℝ] ℝ => L ecoord) hproj).symm
+  have hcomp_eq :
+      (fun y : NSSpace => (gradient f y) comp) =
+        fun y : NSSpace => fderiv ℝ f y ecomp := by
+    funext y
+    have hdy : DifferentiableAt ℝ f y := (hf.differentiable (by simp)) y
+    have hinner : inner ℝ ecomp (gradient f y) = fderiv ℝ f y ecomp := by
+      simpa [ecomp] using inner_gradient_right (x := ecomp) (y := y) hdy
+    calc
+      (gradient f y) comp = inner ℝ ecomp (gradient f y) := by
+        simp [ecomp, EuclideanSpace.inner_single_left]
+      _ = fderiv ℝ f y ecomp := hinner
+  have hscalar :
+      fderiv ℝ (fun y : NSSpace => (gradient f y) comp) x ecoord =
+        fderiv ℝ (fun y : NSSpace => fderiv ℝ f y ecomp) x ecoord := by
+    rw [hcomp_eq]
+  have happly :
+      fderiv ℝ (fun y : NSSpace => fderiv ℝ f y ecomp) x ecoord =
+        fderiv ℝ (fun y : NSSpace => fderiv ℝ f y) x ecoord ecomp := by
+    have h := fderiv_comp x (ContinuousLinearMap.apply ℝ ℝ ecomp).differentiableAt hfdiff
+    simpa [ContinuousLinearMap.comp_apply, ecoord] using
+      congrArg (fun L : NSSpace →L[ℝ] ℝ => L ecoord) h
+  calc
+    (fderiv ℝ (fun y : NSSpace => gradient f y) x
+        (EuclideanSpace.single coord (1 : ℝ))) comp
+        = (fderiv ℝ (fun y : NSSpace => gradient f y) x ecoord) comp := by rfl
+    _ = fderiv ℝ (fun y : NSSpace => (gradient f y) comp) x ecoord := hvec_scalar
+    _ = fderiv ℝ (fun y : NSSpace => fderiv ℝ f y ecomp) x ecoord := hscalar
+    _ = fderiv ℝ (fun y : NSSpace => fderiv ℝ f y) x ecoord ecomp := happly
+    _ = fderiv ℝ (fun y : NSSpace => fderiv ℝ f y) x
+        (EuclideanSpace.single coord (1 : ℝ))
+        (EuclideanSpace.single comp (1 : ℝ)) := by rfl
+
+/-- A coordinate derivative of an arbitrary smooth pressure-gradient field is
+the corresponding mixed second derivative of the pressure slice. -/
+theorem spatialDerivativeComponent_pressureGradientVelocityField
+    {p : NSPressureField}
+    (hp : smoothSpaceTimePressure p)
+    (t : NSTime) (x : NSSpace) (coord comp : Fin 3) :
+    spatialDerivativeComponent (pressureGradientVelocityField p) t x coord comp =
+      fderiv ℝ (fun y : NSSpace => fderiv ℝ (fun z : NSSpace => p t z) y) x
+        (EuclideanSpace.single coord (1 : ℝ))
+        (EuclideanSpace.single comp (1 : ℝ)) := by
+  let f : NSSpace → ℝ := fun z => p t z
+  change (fderiv ℝ (fun y : NSSpace => gradient f y) x
+        (EuclideanSpace.single coord (1 : ℝ))) comp = _
+  exact fderiv_gradient_component_eq_second_fderiv
+    (f := f) (smoothSpaceTimePressure_contDiff_spatialSlice hp t) x coord comp
+
+/-- The spatial curl/vorticity of an arbitrary smooth pressure-gradient field
+vanishes. This is a structural integrability obstruction, not a property of a
+particular pressure ansatz. -/
+theorem spatialVorticity_pressureGradientVelocityField
+    {p : NSPressureField}
+    (hp : smoothSpaceTimePressure p)
+    (t : NSTime) (x : NSSpace) :
+    spatialVorticity (pressureGradientVelocityField p) t x = 0 := by
+  let f : NSSpace → ℝ := fun z => p t z
+  have hf : ContDiff ℝ ∞ f := smoothSpaceTimePressure_contDiff_spatialSlice hp t
+  have hsymm : IsSymmSndFDerivAt ℝ f x := by
+    exact (hf.contDiffAt (x := x)).isSymmSndFDerivAt minSmoothness_two_le_contDiff_infty
+  ext i
+  fin_cases i
+  · simp [spatialVorticity, spatialDerivativeComponent_pressureGradientVelocityField hp,
+      nsCoord0, nsCoord1, nsCoord2]
+    exact sub_eq_zero.mpr (hsymm.eq (EuclideanSpace.single nsCoord1 (1 : ℝ))
+      (EuclideanSpace.single nsCoord2 (1 : ℝ)))
+  · simp [spatialVorticity, spatialDerivativeComponent_pressureGradientVelocityField hp,
+      nsCoord0, nsCoord1, nsCoord2]
+    exact sub_eq_zero.mpr (hsymm.eq (EuclideanSpace.single nsCoord2 (1 : ℝ))
+      (EuclideanSpace.single nsCoord0 (1 : ℝ)))
+  · simp [spatialVorticity, spatialDerivativeComponent_pressureGradientVelocityField hp,
+      nsCoord0, nsCoord1, nsCoord2]
+    exact sub_eq_zero.mpr (hsymm.eq (EuclideanSpace.single nsCoord0 (1 : ℝ))
+      (EuclideanSpace.single nsCoord1 (1 : ℝ)))
+
+/-- A velocity field with nonzero vorticity somewhere cannot be represented as
+the spatial gradient of any smooth pressure field. -/
+theorem not_exists_smoothPressure_pressureGradientVelocityField_eq_of_spatialVorticity_ne_zero
+    {u : NSVelocityField}
+    (hcurl : ∃ t : NSTime, ∃ x : NSSpace, spatialVorticity u t x ≠ 0) :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧ pressureGradientVelocityField p = u := by
+  rintro ⟨p, hp, hpu⟩
+  rcases hcurl with ⟨t, x, hne⟩
+  apply hne
+  rw [← hpu]
+  exact spatialVorticity_pressureGradientVelocityField hp t x
+
+/-- Any pressure satisfying the concrete momentum equation has gradient equal
+to the exact pressure residual `ν Δu - ∂ₜu - (u · ∇)u`. -/
+theorem pressureGradientVelocityField_eq_momentumPressureResidual_of_momentumEquation
+    {ν : ℝ} {u : NSVelocityField} {p : NSPressureField}
+    (hmom : ∀ t x,
+      timeVelocityDerivative u t x + spatialConvection u t x +
+          spatialPressureGradient p t x =
+        ν • spatialLaplacian u t x) :
+    pressureGradientVelocityField p = momentumPressureResidual ν u := by
+  funext t x
+  have h := hmom t x
+  unfold pressureGradientVelocityField momentumPressureResidual
+  calc
+    spatialPressureGradient p t x =
+        (timeVelocityDerivative u t x + spatialConvection u t x +
+          spatialPressureGradient p t x) -
+            timeVelocityDerivative u t x - spatialConvection u t x := by
+      abel
+    _ = ν • spatialLaplacian u t x -
+          timeVelocityDerivative u t x - spatialConvection u t x := by
+      rw [h]
+
+/-- Therefore the exact pressure residual of any smooth-pressure momentum
+solution is curl-free. -/
+theorem spatialVorticity_momentumPressureResidual_of_momentumEquation
+    {ν : ℝ} {u : NSVelocityField} {p : NSPressureField}
+    (hp : smoothSpaceTimePressure p)
+    (hmom : ∀ t x,
+      timeVelocityDerivative u t x + spatialConvection u t x +
+          spatialPressureGradient p t x =
+        ν • spatialLaplacian u t x)
+    (t : NSTime) (x : NSSpace) :
+    spatialVorticity (momentumPressureResidual ν u) t x = 0 := by
+  rw [← pressureGradientVelocityField_eq_momentumPressureResidual_of_momentumEquation hmom]
+  exact spatialVorticity_pressureGradientVelocityField hp t x
+
+/-- If the concrete pressure residual has nonzero curl somewhere, no smooth
+pressure can repair the momentum equation for that velocity field. -/
+theorem not_exists_smoothPressure_momentumEquation_of_momentumPressureResidual_vorticity_ne_zero
+    {ν : ℝ} {u : NSVelocityField}
+    (hcurl : ∃ t : NSTime, ∃ x : NSSpace,
+      spatialVorticity (momentumPressureResidual ν u) t x ≠ 0) :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧
+        ∀ t x,
+          timeVelocityDerivative u t x + spatialConvection u t x +
+              spatialPressureGradient p t x =
+            ν • spatialLaplacian u t x := by
+  rintro ⟨p, hp, hmom⟩
+  rcases hcurl with ⟨t, x, hne⟩
+  exact hne (spatialVorticity_momentumPressureResidual_of_momentumEquation hp hmom t x)
 
 /-- The explicit constant velocity field matches the corresponding constant
 initial data at time `0`. -/
@@ -1766,6 +2263,22 @@ theorem spatialLaplacian_heatShearVelocityField
       rfl]
   rw [hscalar.laplacian_CLM_comp_left (l := coord0Embedding)]
   simp [laplacian_heatShearScalar]
+
+/-- The spatial Laplacian of the general time-amplitude shear ansatz is the
+same sine-mode Laplacian, with the sampled amplitude `A t`. -/
+theorem spatialLaplacian_amplitudeShearVelocityField
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialLaplacian (amplitudeShearVelocityField A k) t x =
+      coord0Embedding
+        (-(k ^ (2 : ℕ)) * (A t * Real.sin (k * x nsCoord1))) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearVelocityField A k t y = heatShearVelocityField 0 (A t) k t y := by
+    intro y
+    simp [amplitudeShearVelocityField, heatShearVelocityField, heatShearScalar]
+  rw [spatialLaplacian_congr_at hslice]
+  simpa [heatShearScalar]
+    using spatialLaplacian_heatShearVelocityField 0 (A t) k t x
 
 /-- The heat-shear family with streamwise drift has the same spatial Laplacian
 as pure heat shear. -/
@@ -2202,6 +2715,20 @@ theorem spatialConvection_heatShearVelocityField
   rw [spatialConvection, spatialFDeriv_heatShearVelocityField, heatShearVelocityField_apply]
   simp [coord0Embedding_apply, nsCoord0, nsCoord1, mul_assoc]
 
+/-- The general time-amplitude shear ansatz has zero convection term: the
+velocity is in the `x₀` direction and the profile is independent of `x₀`. -/
+theorem spatialConvection_amplitudeShearVelocityField
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialConvection (amplitudeShearVelocityField A k) t x = 0 := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearVelocityField A k t y = heatShearVelocityField 0 (A t) k t y := by
+    intro y
+    simp [amplitudeShearVelocityField, heatShearVelocityField, heatShearScalar]
+  rw [spatialConvection_congr_at hslice]
+  simpa
+    using spatialConvection_heatShearVelocityField 0 (A t) k t x
+
 /-- The heat-shear family with streamwise drift also has zero convection term,
 because the oscillatory part depends only on `x₁` while the added drift is in
 the flow direction `x₀` and the field remains independent of `x₀`. -/
@@ -2284,6 +2811,56 @@ theorem momentumEquation_heatShearVelocityField_zeroPressure
   fin_cases i <;>
     simp [coord0Embedding_apply, nsCoord0, nsCoord1,
       mul_assoc, mul_left_comm, mul_comm]
+
+/-- If a heat-shear field is evolved with viscosity `ν` but tested against a
+momentum equation with viscosity `μ`, the required pressure residual is exactly
+the viscosity mismatch times the heat profile. -/
+theorem momentumPressureResidual_heatShearVelocityField
+    (μ ν a k : ℝ) :
+    momentumPressureResidual μ (heatShearVelocityField ν a k) =
+      ((ν - μ) * k ^ (2 : ℕ)) • heatShearVelocityField ν a k := by
+  funext t x
+  ext i
+  fin_cases i <;>
+    simp [momentumPressureResidual, timeVelocityDerivative_heatShearVelocityField,
+      spatialConvection_heatShearVelocityField, spatialLaplacian_heatShearVelocityField,
+      heatShearVelocityField_apply, coord0Embedding_apply, nsCoord0, nsCoord1,
+      mul_assoc, mul_left_comm, mul_comm]
+  ring
+
+/-- On a fixed time slice, the pressure residual of a general amplitude shear
+is exactly the sine shear with amplitude equal to the scalar heat-ODE defect
+`-(A' + μ k² A(t))`. -/
+theorem momentumPressureResidual_amplitudeShearVelocityField_slice
+    {A : NSTime → ℝ} {A' μ k : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) :
+    ∀ y : NSSpace,
+      momentumPressureResidual μ (amplitudeShearVelocityField A k) t y =
+        heatShearVelocityField 0 (-(A' + μ * k ^ (2 : ℕ) * A t)) k t y := by
+  intro y
+  ext i
+  fin_cases i <;>
+    simp [momentumPressureResidual,
+      timeVelocityDerivative_amplitudeShearVelocityField hA,
+      spatialConvection_amplitudeShearVelocityField,
+      spatialLaplacian_amplitudeShearVelocityField,
+      heatShearVelocityField_apply, coord0Embedding_apply, nsCoord0, nsCoord1,
+      mul_left_comm, mul_comm]
+  ring
+
+/-- At unit viscosity, the undamped unit heat-shear profile leaves exactly the
+negative profile as the pressure residual.  This is the minimal concrete
+positive-viscosity mismatch: the velocity is smooth and divergence-free, but it
+has not been given the heat decay required by the viscous term. -/
+theorem momentumPressureResidual_undampedUnitHeatShearVelocityField :
+    momentumPressureResidual 1 (heatShearVelocityField 0 1 1) =
+      -heatShearVelocityField 0 1 1 := by
+  funext t x
+  ext i
+  fin_cases i <;>
+    simp [momentumPressureResidual, timeVelocityDerivative_heatShearVelocityField,
+      spatialConvection_heatShearVelocityField, spatialLaplacian_heatShearVelocityField,
+      heatShearVelocityField_apply, coord0Embedding_apply, nsCoord0, nsCoord1]
 
 /-- The heat-shear family with streamwise drift satisfies the same exact
 zero-pressure momentum identity. -/
@@ -2508,6 +3085,162 @@ theorem spatialVorticity_heatShearVelocityField
       coord0Embedding_apply, nsCoord0, nsCoord1, nsCoord2,
       mul_assoc, mul_left_comm, mul_comm]
 
+/-- The general time-amplitude shear ansatz has the same vorticity formula as
+heat shear, with the sampled amplitude `A t`. -/
+theorem spatialVorticity_amplitudeShearVelocityField
+    (A : NSTime → ℝ) (k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialVorticity (amplitudeShearVelocityField A k) t x =
+      EuclideanSpace.single nsCoord2
+        (-(A t * Real.cos (k * x nsCoord1) * k)) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearVelocityField A k t y = heatShearVelocityField 0 (A t) k t y := by
+    intro y
+    simp [amplitudeShearVelocityField, heatShearVelocityField, heatShearScalar]
+  rw [spatialVorticity_congr_at hslice]
+  simpa [heatShearScalar]
+    using spatialVorticity_heatShearVelocityField 0 (A t) k t x
+
+/-- The wrong-viscosity pressure residual for heat shear has curl equal to the
+same viscosity mismatch times the heat-shear vorticity. -/
+theorem spatialVorticity_momentumPressureResidual_heatShearVelocityField
+    (μ ν a k : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialVorticity (momentumPressureResidual μ (heatShearVelocityField ν a k)) t x =
+      ((ν - μ) * k ^ (2 : ℕ)) •
+        spatialVorticity (heatShearVelocityField ν a k) t x := by
+  rw [momentumPressureResidual_heatShearVelocityField,
+    spatialVorticity_const_smul]
+
+/-- At the spacetime origin, the wrong-viscosity pressure residual has a
+concrete nonzero curl component whenever the viscosity mismatch, amplitude, and
+frequency are all nonzero. -/
+theorem spatialVorticity_momentumPressureResidual_heatShearVelocityField_origin
+    (μ ν a k : ℝ) :
+    spatialVorticity (momentumPressureResidual μ (heatShearVelocityField ν a k)) 0 0 =
+      EuclideanSpace.single nsCoord2 ((μ - ν) * a * k ^ (3 : ℕ)) := by
+  rw [spatialVorticity_momentumPressureResidual_heatShearVelocityField,
+    spatialVorticity_heatShearVelocityField]
+  ext i
+  fin_cases i <;>
+    simp [nsCoord1, nsCoord2, mul_assoc, mul_left_comm, mul_comm]
+  ring
+
+/-- The wrong-viscosity heat-shear residual has nonzero curl at the origin under
+the nondegeneracy assumptions `μ ≠ ν`, `a ≠ 0`, and `k ≠ 0`. -/
+theorem spatialVorticity_momentumPressureResidual_heatShearVelocityField_origin_ne_zero
+    {μ ν a k : ℝ} (hμν : μ ≠ ν) (ha : a ≠ 0) (hk : k ≠ 0) :
+    spatialVorticity (momentumPressureResidual μ (heatShearVelocityField ν a k)) 0 0 ≠ 0 := by
+  rw [spatialVorticity_momentumPressureResidual_heatShearVelocityField_origin]
+  intro h
+  have hcoord := congrArg (fun v : NSSpace => v nsCoord2) h
+  have hprod : (μ - ν) * a * k ^ (3 : ℕ) = 0 := by
+    simpa [nsCoord2] using hcoord
+  exact
+    (mul_ne_zero (mul_ne_zero (sub_ne_zero.mpr hμν) ha)
+      (pow_ne_zero (3 : ℕ) hk)) hprod
+
+/-- No smooth pressure can repair a nondegenerate heat-shear profile into a
+momentum equation at the wrong viscosity.  The obstruction is the curl of the
+required pressure residual, so it is independent of any pressure ansatz. -/
+theorem not_exists_smoothPressure_momentumEquation_heatShearVelocityField_wrongViscosity
+    {μ ν a k : ℝ} (hμν : μ ≠ ν) (ha : a ≠ 0) (hk : k ≠ 0) :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧
+        ∀ t x,
+          timeVelocityDerivative (heatShearVelocityField ν a k) t x +
+              spatialConvection (heatShearVelocityField ν a k) t x +
+              spatialPressureGradient p t x =
+            μ • spatialLaplacian (heatShearVelocityField ν a k) t x := by
+  exact
+    not_exists_smoothPressure_momentumEquation_of_momentumPressureResidual_vorticity_ne_zero
+      (ν := μ) (u := heatShearVelocityField ν a k)
+      ⟨0, 0,
+        spatialVorticity_momentumPressureResidual_heatShearVelocityField_origin_ne_zero
+          hμν ha hk⟩
+
+/-- If the scalar amplitude misses the heat ODE at a sampled time, then the
+pressure residual of the general shear ansatz has a concrete nonzero curl
+component at that time. -/
+theorem spatialVorticity_momentumPressureResidual_amplitudeShearVelocityField_origin
+    {A : NSTime → ℝ} {A' μ k : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) :
+    spatialVorticity (momentumPressureResidual μ (amplitudeShearVelocityField A k)) t 0 =
+      EuclideanSpace.single nsCoord2 ((A' + μ * k ^ (2 : ℕ) * A t) * k) := by
+  rw [spatialVorticity_congr_at
+    (u := momentumPressureResidual μ (amplitudeShearVelocityField A k))
+    (v := heatShearVelocityField 0 (-(A' + μ * k ^ (2 : ℕ) * A t)) k)
+    (t := t) (x := 0)
+    (momentumPressureResidual_amplitudeShearVelocityField_slice
+      (A := A) (A' := A') (μ := μ) (k := k) (t := t) hA)]
+  rw [spatialVorticity_heatShearVelocityField]
+  ext i
+  fin_cases i <;>
+    simp [nsCoord1, nsCoord2, mul_left_comm, mul_comm]
+  ring
+
+/-- A nonzero sampled heat-ODE defect and nonzero wave number make the
+general-amplitude pressure residual visibly non-gradient by curl. -/
+theorem spatialVorticity_momentumPressureResidual_amplitudeShearVelocityField_origin_ne_zero
+    {A : NSTime → ℝ} {A' μ k : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t)
+    (hode : A' + μ * k ^ (2 : ℕ) * A t ≠ 0) (hk : k ≠ 0) :
+    spatialVorticity (momentumPressureResidual μ (amplitudeShearVelocityField A k)) t 0 ≠ 0 := by
+  rw [spatialVorticity_momentumPressureResidual_amplitudeShearVelocityField_origin hA]
+  intro h
+  have hcoord := congrArg (fun v : NSSpace => v nsCoord2) h
+  have hprod : (A' + μ * k ^ (2 : ℕ) * A t) * k = 0 := by
+    simpa [nsCoord2] using hcoord
+  exact (mul_ne_zero hode hk) hprod
+
+/-- No smooth pressure can repair a general time-amplitude shear ansatz at a
+time where its scalar amplitude violates the heat ODE `A' + μ k² A = 0`.
+The obstruction is the curl of the pressure residual, not a restriction to a
+special pressure family. -/
+theorem not_exists_smoothPressure_momentumEquation_amplitudeShearVelocityField_of_heatODE_mismatch_at
+    {A : NSTime → ℝ} {A' μ k : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t)
+    (hode : A' + μ * k ^ (2 : ℕ) * A t ≠ 0) (hk : k ≠ 0) :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧
+        ∀ s x,
+          timeVelocityDerivative (amplitudeShearVelocityField A k) s x +
+              spatialConvection (amplitudeShearVelocityField A k) s x +
+              spatialPressureGradient p s x =
+            μ • spatialLaplacian (amplitudeShearVelocityField A k) s x := by
+  exact
+    not_exists_smoothPressure_momentumEquation_of_momentumPressureResidual_vorticity_ne_zero
+      (ν := μ) (u := amplitudeShearVelocityField A k)
+      ⟨t, 0,
+        spatialVorticity_momentumPressureResidual_amplitudeShearVelocityField_origin_ne_zero
+          hA hode hk⟩
+
+/-- The pressure residual of the undamped unit heat-shear profile has nonzero
+curl at the origin, so it is not a smooth pressure gradient. -/
+theorem spatialVorticity_momentumPressureResidual_undampedUnitHeatShearVelocityField_origin_ne_zero :
+    spatialVorticity (momentumPressureResidual 1 (heatShearVelocityField 0 1 1)) 0 0 ≠ 0 := by
+  rw [momentumPressureResidual_undampedUnitHeatShearVelocityField,
+    spatialVorticity_neg, spatialVorticity_heatShearVelocityField]
+  intro h
+  have hcoord := congrArg (fun v : NSSpace => v nsCoord2) h
+  simp [nsCoord2] at hcoord
+
+/-- No smooth pressure can repair the undamped unit heat-shear profile into the
+unit-viscosity momentum equation.  The obstruction is the nonzero curl of the
+required pressure residual, not a restriction to a special pressure ansatz. -/
+theorem not_exists_smoothPressure_momentumEquation_undampedUnitHeatShearVelocityField_unitViscosity :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧
+        ∀ t x,
+          timeVelocityDerivative (heatShearVelocityField 0 1 1) t x +
+              spatialConvection (heatShearVelocityField 0 1 1) t x +
+              spatialPressureGradient p t x =
+            (1 : ℝ) • spatialLaplacian (heatShearVelocityField 0 1 1) t x := by
+  exact
+    not_exists_smoothPressure_momentumEquation_of_momentumPressureResidual_vorticity_ne_zero
+      (ν := 1) (u := heatShearVelocityField 0 1 1)
+      ⟨0, 0,
+        spatialVorticity_momentumPressureResidual_undampedUnitHeatShearVelocityField_origin_ne_zero⟩
+
 /-- The heat-shear family with streamwise drift has the same vorticity as pure
 heat shear. -/
 theorem spatialVorticity_heatShearStreamwiseDriftVelocityField
@@ -2580,6 +3313,16 @@ theorem heatShearTransportVelocityField_apply
   simp [heatShearTransportVelocityField, heatShearTransportScalar,
     constantVelocityField, coord0Embedding_apply, mul_assoc]
 
+/-- The transported arbitrary-amplitude shear field has the explicit coordinate
+formula `u(t,x) = (A t * sin (k * (x₁ - b * t)), b, 0)`. -/
+theorem amplitudeShearTransportVelocityField_apply
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    amplitudeShearTransportVelocityField A k b t x =
+      EuclideanSpace.single nsCoord0 (A t * Real.sin (k * (x nsCoord1 - b * t))) +
+        EuclideanSpace.single nsCoord1 b := by
+  simp [amplitudeShearTransportVelocityField, constantVelocityField,
+    coord0Embedding_apply]
+
 /-- Initial data `x ↦ (d + a * sin (k * x₁), b, c)` for the transported
 full-drift heat-shear branch. -/
 theorem heatShearTransportFullDriftInitialVelocity_apply
@@ -2593,6 +3336,30 @@ theorem heatShearTransportFullDriftInitialVelocity_apply
     simp [heatShearTransportFullDriftInitialVelocity, heatShearTransportInitialVelocity,
       heatShearInitialVelocity, heatShearInitialScalar, constantInitialVelocity,
       coord0Embedding_apply, nsCoord0, nsCoord1, nsCoord2, add_left_comm, add_comm]
+
+/-- Vanishing transport speed reduces transported full-drift heat shear to the
+non-transport full-drift subfamily. -/
+theorem heatShearTransportFullDriftInitialVelocity_zero_transport
+    (a k d c : ℝ) :
+    heatShearTransportFullDriftInitialVelocity a k 0 d c =
+      heatShearFullDriftInitialVelocity a k d c := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [heatShearTransportFullDriftInitialVelocity_apply,
+      heatShearFullDriftInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
+
+/-- Vanishing extra streamwise and vertical drifts reduces transported
+full-drift heat shear to the transported heat-shear subfamily. -/
+theorem heatShearTransportFullDriftInitialVelocity_zero_drifts
+    (a k b : ℝ) :
+    heatShearTransportFullDriftInitialVelocity a k b 0 0 =
+      heatShearTransportInitialVelocity a k b := by
+  funext x
+  ext i
+  fin_cases i <;>
+    simp [heatShearTransportFullDriftInitialVelocity_apply,
+      heatShearTransportInitialVelocity_apply, nsCoord0, nsCoord1, nsCoord2]
 
 /-- The transported full-drift heat-shear field has the explicit coordinate
 formula
@@ -2722,6 +3489,26 @@ theorem spatialFDeriv_heatShearTransportVelocityField
         (EuclideanSpace.single nsCoord1 b)) t x)]
   simp [hcore, spatialFDeriv_constantVelocityField]
 
+/-- The spatial Fréchet derivative of transported arbitrary-amplitude shear is
+the transported heat-shear slice formula with sampled amplitude `A t`. -/
+theorem spatialFDeriv_amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialFDeriv (amplitudeShearTransportVelocityField A k b) t x =
+      coord0Embedding.comp
+        (((A t : ℝ) •
+          (Real.cos (k * (x nsCoord1 - b * t)) •
+            ((k : ℝ) • (EuclideanSpace.proj nsCoord1 : NSSpace →L[ℝ] ℝ))))) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearTransportVelocityField A k b t y =
+          heatShearTransportVelocityField 0 (A t) k b t y := by
+    intro y
+    simp [amplitudeShearTransportVelocityField, heatShearTransportVelocityField,
+      heatShearTransportScalar, constantVelocityField]
+  rw [spatialFDeriv_congr_at hslice]
+  simpa [heatShearTransportScalar]
+    using spatialFDeriv_heatShearTransportVelocityField 0 (A t) k b t x
+
 /-- The transported heat-shear field has the expected advection-diffusion time
 derivative. -/
 theorem timeVelocityDerivative_heatShearTransportVelocityField
@@ -2782,6 +3569,55 @@ theorem timeVelocityDerivative_heatShearTransportVelocityField
   · dsimp [constantVelocityField]
     exact differentiableAt_const (EuclideanSpace.single nsCoord1 b : NSSpace)
 
+/-- The time derivative of transported arbitrary-amplitude shear contains the
+sampled amplitude derivative and the phase-transport term. -/
+theorem timeVelocityDerivative_amplitudeShearTransportVelocityField
+    {A : NSTime → ℝ} {A' : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) (k b : ℝ) (x : NSSpace) :
+    timeVelocityDerivative (amplitudeShearTransportVelocityField A k b) t x =
+      coord0Embedding
+        (A' * Real.sin (k * (x nsCoord1 - b * t)) -
+          A t * (b * k * Real.cos (k * (x nsCoord1 - b * t)))) := by
+  let S : ℝ := Real.sin (k * (x nsCoord1 - b * t))
+  let C : ℝ := Real.cos (k * (x nsCoord1 - b * t))
+  have hphase : HasDerivAt
+      (fun s : ℝ => k * (x nsCoord1 - b * s))
+      (-(b * k)) t := by
+    have hbase : HasDerivAt (fun s : ℝ => x nsCoord1 - b * s) (-b) t := by
+      simpa [mul_comm, mul_left_comm, mul_assoc] using
+        (((hasDerivAt_id' t).const_mul b).const_sub (x nsCoord1))
+    simpa [mul_comm, mul_left_comm, mul_assoc] using hbase.const_mul k
+  have hsin : HasDerivAt
+      (fun s : ℝ => Real.sin (k * (x nsCoord1 - b * s)))
+      (C * (-(b * k))) t := by
+    simpa [C] using hphase.sin
+  have hscalar : HasDerivAt
+      (fun s : ℝ => A s * Real.sin (k * (x nsCoord1 - b * s)))
+      (A' * S - A t * (b * k * C)) t := by
+    convert hA.mul hsin using 1
+    simp [S, C, mul_assoc, mul_left_comm, mul_comm]
+    ring
+  have hvec := coord0Embedding.hasFDerivAt.comp t hscalar.hasFDerivAt
+  have happly :=
+    congrArg (fun L : ℝ →L[ℝ] NSSpace => L (1 : ℝ)) hvec.fderiv
+  have hcore :
+      timeVelocityDerivative
+          (fun t x => coord0Embedding
+            (A t * Real.sin (k * (x nsCoord1 - b * t)))) t x =
+        coord0Embedding (A' * S - A t * (b * k * C)) := by
+    simpa [timeVelocityDerivative, timeFDeriv, S, C,
+      ContinuousLinearMap.comp_apply, mul_assoc, mul_left_comm, mul_comm] using happly
+  have htdiff :
+      DifferentiableAt ℝ
+        (fun s : ℝ => coord0Embedding (A s * Real.sin (k * (x nsCoord1 - b * s)))) t := by
+    simpa using hvec.differentiableAt
+  rw [amplitudeShearTransportVelocityField]
+  rw [timeVelocityDerivative_add]
+  · simp [hcore, timeVelocityDerivative_constantVelocityField, S, C]
+  · exact htdiff
+  · dsimp [constantVelocityField]
+    exact differentiableAt_const (EuclideanSpace.single nsCoord1 b : NSSpace)
+
 /-- The transported full-drift heat-shear family has the same time derivative
 as the transported branch without the additional constant drifts. -/
 theorem timeVelocityDerivative_heatShearTransportFullDriftVelocityField
@@ -2809,6 +3645,21 @@ theorem spatialDivergence_heatShearTransportVelocityField
     spatialDivergence (heatShearTransportVelocityField ν a k b) t x = 0 := by
   rw [spatialDivergence, spatialFDeriv_heatShearTransportVelocityField, Fin.sum_univ_three]
   simp [coord0Embedding_apply, nsCoord0, nsCoord1]
+
+/-- Transported arbitrary-amplitude shear is divergence free on each time
+slice. -/
+theorem spatialDivergence_amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialDivergence (amplitudeShearTransportVelocityField A k b) t x = 0 := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearTransportVelocityField A k b t y =
+          heatShearTransportVelocityField 0 (A t) k b t y := by
+    intro y
+    simp [amplitudeShearTransportVelocityField, heatShearTransportVelocityField,
+      heatShearTransportScalar, constantVelocityField]
+  rw [spatialDivergence_congr_at hslice]
+  simpa using spatialDivergence_heatShearTransportVelocityField 0 (A t) k b t x
 
 /-- The transported heat-shear initial datum is divergence free. -/
 theorem initialSpatialDivergence_heatShearTransportInitialVelocity
@@ -3033,6 +3884,25 @@ theorem spatialLaplacian_heatShearTransportVelocityField
             exact ENat.natCast_le_of_coe_top_le_withTop
               (N := (∞ : WithTop ℕ∞)) (by rfl) 2)
 
+/-- The spatial Laplacian of transported arbitrary-amplitude shear is the
+transported sine-mode Laplacian with sampled amplitude `A t`. -/
+theorem spatialLaplacian_amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialLaplacian (amplitudeShearTransportVelocityField A k b) t x =
+      coord0Embedding
+        (-(k ^ (2 : ℕ)) *
+          (A t * Real.sin (k * (x nsCoord1 - b * t)))) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearTransportVelocityField A k b t y =
+          heatShearTransportVelocityField 0 (A t) k b t y := by
+    intro y
+    simp [amplitudeShearTransportVelocityField, heatShearTransportVelocityField,
+      heatShearTransportScalar, constantVelocityField]
+  rw [spatialLaplacian_congr_at hslice]
+  simpa [heatShearTransportScalar]
+    using spatialLaplacian_heatShearTransportVelocityField 0 (A t) k b t x
+
 /-- The transported full-drift heat-shear family has the same spatial
 Laplacian as the transported branch without the additional constant drifts. -/
 theorem spatialLaplacian_heatShearTransportFullDriftVelocityField
@@ -3071,6 +3941,24 @@ theorem spatialConvection_heatShearTransportVelocityField
   fin_cases i <;>
     simp [coord0Embedding_apply, nsCoord0, nsCoord1,
       mul_assoc, mul_left_comm, mul_comm]
+
+/-- Transported arbitrary-amplitude shear has the same transport convection
+term as the transported heat-shear slice with sampled amplitude `A t`. -/
+theorem spatialConvection_amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialConvection (amplitudeShearTransportVelocityField A k b) t x =
+      coord0Embedding
+        (A t * (b * k * Real.cos (k * (x nsCoord1 - b * t)))) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearTransportVelocityField A k b t y =
+          heatShearTransportVelocityField 0 (A t) k b t y := by
+    intro y
+    simp [amplitudeShearTransportVelocityField, heatShearTransportVelocityField,
+      heatShearTransportScalar, constantVelocityField]
+  rw [spatialConvection_congr_at hslice]
+  simpa [heatShearTransportScalar, mul_assoc, mul_left_comm, mul_comm]
+    using spatialConvection_heatShearTransportVelocityField 0 (A t) k b t x
 
 /-- The transported full-drift heat-shear family has the same convection term
 as the transported branch without the additional constant drifts, because the
@@ -3114,6 +4002,29 @@ theorem momentumEquation_heatShearTransportVelocityField_zeroPressure
     simp [coord0Embedding_apply, nsCoord0, nsCoord1,
       mul_assoc, mul_left_comm, mul_comm]
 
+/-- On a fixed time slice, the pressure residual of transported
+arbitrary-amplitude shear is the transported sine profile with amplitude equal
+to the scalar heat-ODE defect; the constant transport drift itself cancels out.
+-/
+theorem momentumPressureResidual_amplitudeShearTransportVelocityField_slice
+    {A : NSTime → ℝ} {A' μ k b : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) :
+    ∀ y : NSSpace,
+      momentumPressureResidual μ (amplitudeShearTransportVelocityField A k b) t y =
+        heatShearTransportVelocityField 0 (-(A' + μ * k ^ (2 : ℕ) * A t)) k b t y -
+          constantVelocityField (EuclideanSpace.single nsCoord1 b) t y := by
+  intro y
+  ext i
+  fin_cases i <;>
+    simp [momentumPressureResidual,
+      timeVelocityDerivative_amplitudeShearTransportVelocityField hA,
+      spatialConvection_amplitudeShearTransportVelocityField,
+      spatialLaplacian_amplitudeShearTransportVelocityField,
+      heatShearTransportVelocityField_apply, constantVelocityField,
+      coord0Embedding_apply, nsCoord0, nsCoord1,
+      mul_assoc, mul_left_comm, mul_comm]
+  ring
+
 /-- The transported full-drift heat-shear family satisfies the same exact
 zero-pressure momentum identity. -/
 theorem momentumEquation_heatShearTransportFullDriftVelocityField_zeroPressure
@@ -3145,6 +4056,100 @@ theorem spatialVorticity_heatShearTransportVelocityField
     spatialFDeriv_heatShearTransportVelocityField, coord0Embedding_apply,
     nsCoord0, nsCoord1, nsCoord2, mul_assoc, mul_left_comm, mul_comm]
 
+/-- Transported arbitrary-amplitude shear has the transported heat-shear
+vorticity formula with sampled amplitude `A t`. -/
+theorem spatialVorticity_amplitudeShearTransportVelocityField
+    (A : NSTime → ℝ) (k b : ℝ) (t : NSTime) (x : NSSpace) :
+    spatialVorticity (amplitudeShearTransportVelocityField A k b) t x =
+      EuclideanSpace.single nsCoord2
+        (-(A t * Real.cos (k * (x nsCoord1 - b * t)) * k)) := by
+  have hslice :
+      ∀ y : NSSpace,
+        amplitudeShearTransportVelocityField A k b t y =
+          heatShearTransportVelocityField 0 (A t) k b t y := by
+    intro y
+    simp [amplitudeShearTransportVelocityField, heatShearTransportVelocityField,
+      heatShearTransportScalar, constantVelocityField]
+  rw [spatialVorticity_congr_at hslice]
+  simpa [heatShearTransportScalar]
+    using spatialVorticity_heatShearTransportVelocityField 0 (A t) k b t x
+
+/-- At the phase-aligned point `x₁ = b * t`, a transported
+arbitrary-amplitude shear residual has curl equal to the sampled scalar heat
+ODE defect times `k`. -/
+theorem spatialVorticity_momentumPressureResidual_amplitudeShearTransportVelocityField_phasePoint
+    {A : NSTime → ℝ} {A' μ k b : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t) :
+    spatialVorticity
+        (momentumPressureResidual μ (amplitudeShearTransportVelocityField A k b))
+        t (EuclideanSpace.single nsCoord1 (b * t)) =
+      EuclideanSpace.single nsCoord2 ((A' + μ * k ^ (2 : ℕ) * A t) * k) := by
+  let B : ℝ := -(A' + μ * k ^ (2 : ℕ) * A t)
+  rw [spatialVorticity_congr_at
+    (u := momentumPressureResidual μ (amplitudeShearTransportVelocityField A k b))
+    (v := heatShearTransportVelocityField 0 B k b -
+      constantVelocityField (EuclideanSpace.single nsCoord1 b))
+    (t := t) (x := EuclideanSpace.single nsCoord1 (b * t))
+    (by
+      intro y
+      simpa [B] using
+        momentumPressureResidual_amplitudeShearTransportVelocityField_slice
+          (A := A) (A' := A') (μ := μ) (k := k) (b := b) (t := t) hA y)]
+  rw [spatialVorticity_sub
+    (u := heatShearTransportVelocityField 0 B k b)
+    (v := constantVelocityField (EuclideanSpace.single nsCoord1 b))
+    (t := t) (x := EuclideanSpace.single nsCoord1 (b * t))]
+  · rw [spatialVorticity_heatShearTransportVelocityField,
+      spatialVorticity_constantVelocityField]
+    ext i
+    fin_cases i <;>
+      simp [B, nsCoord1, nsCoord2, mul_left_comm, mul_comm]
+    ring
+  · exact smoothSpaceTimeVelocity_differentiableAt_spatialSlice
+      (smoothSpaceTimeVelocity_heatShearTransportVelocityField 0 B k b)
+      t (EuclideanSpace.single nsCoord1 (b * t))
+  · exact smoothSpaceTimeVelocity_differentiableAt_spatialSlice
+      (smoothSpaceTimeVelocity_constantVelocityField (EuclideanSpace.single nsCoord1 b))
+      t (EuclideanSpace.single nsCoord1 (b * t))
+
+/-- A nonzero sampled heat-ODE defect and nonzero wave number make the
+transported arbitrary-amplitude pressure residual non-gradient by curl. -/
+theorem spatialVorticity_momentumPressureResidual_amplitudeShearTransportVelocityField_phasePoint_ne_zero
+    {A : NSTime → ℝ} {A' μ k b : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t)
+    (hode : A' + μ * k ^ (2 : ℕ) * A t ≠ 0) (hk : k ≠ 0) :
+    spatialVorticity
+        (momentumPressureResidual μ (amplitudeShearTransportVelocityField A k b))
+        t (EuclideanSpace.single nsCoord1 (b * t)) ≠ 0 := by
+  rw [spatialVorticity_momentumPressureResidual_amplitudeShearTransportVelocityField_phasePoint hA]
+  intro h
+  have hcoord := congrArg (fun v : NSSpace => v nsCoord2) h
+  have hprod : (A' + μ * k ^ (2 : ℕ) * A t) * k = 0 := by
+    simpa [nsCoord2] using hcoord
+  exact (mul_ne_zero hode hk) hprod
+
+/-- No smooth pressure can repair a transported arbitrary-amplitude shear ansatz
+at a time where its scalar amplitude violates the heat ODE.  The constant
+transport drift cancels with the phase transport term, leaving the same scalar
+ODE burden as for pure shear. -/
+theorem not_exists_smoothPressure_momentumEquation_amplitudeShearTransportVelocityField_of_heatODE_mismatch_at
+    {A : NSTime → ℝ} {A' μ k b : ℝ} {t : NSTime}
+    (hA : HasDerivAt A A' t)
+    (hode : A' + μ * k ^ (2 : ℕ) * A t ≠ 0) (hk : k ≠ 0) :
+    ¬ ∃ p : NSPressureField,
+      smoothSpaceTimePressure p ∧
+        ∀ s x,
+          timeVelocityDerivative (amplitudeShearTransportVelocityField A k b) s x +
+              spatialConvection (amplitudeShearTransportVelocityField A k b) s x +
+              spatialPressureGradient p s x =
+            μ • spatialLaplacian (amplitudeShearTransportVelocityField A k b) s x := by
+  exact
+    not_exists_smoothPressure_momentumEquation_of_momentumPressureResidual_vorticity_ne_zero
+      (ν := μ) (u := amplitudeShearTransportVelocityField A k b)
+      ⟨t, EuclideanSpace.single nsCoord1 (b * t),
+        spatialVorticity_momentumPressureResidual_amplitudeShearTransportVelocityField_phasePoint_ne_zero
+          hA hode hk⟩
+
 /-- The transported full-drift heat-shear family has the same vorticity as the
 transported branch without the additional constant drifts. -/
 theorem spatialVorticity_heatShearTransportFullDriftVelocityField
@@ -3162,6 +4167,97 @@ theorem spatialVorticity_heatShearTransportFullDriftVelocityField
         (EuclideanSpace.single nsCoord0 d + EuclideanSpace.single nsCoord2 c)) t x)]
   simp [spatialVorticity_heatShearTransportVelocityField,
     spatialVorticity_constantVelocityField]
+
+/-- The steady linear shear field has vorticity norm exactly `|a|`. -/
+theorem norm_spatialVorticity_linearShearVelocityField
+    (a : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (linearShearVelocityField a) t x‖ = |a| := by
+  rw [spatialVorticity_linearShearVelocityField]
+  simp [EuclideanSpace.norm_single]
+
+/-- Adding constant drifts to steady linear shear does not change the vorticity
+norm. -/
+theorem norm_spatialVorticity_linearShearFullDriftVelocityField
+    (a b c : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (linearShearFullDriftVelocityField a b c) t x‖ = |a| := by
+  rw [spatialVorticity_linearShearFullDriftVelocityField]
+  simp [EuclideanSpace.norm_single]
+
+/-- Exact pointwise vorticity norm for the damped sinusoidal heat-shear field. -/
+theorem norm_spatialVorticity_heatShearVelocityField
+    (ν a k : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearVelocityField ν a k) t x‖ =
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+        |Real.cos (k * x nsCoord1)| * |k| := by
+  rw [spatialVorticity_heatShearVelocityField]
+  simp [EuclideanSpace.norm_single, mul_assoc, mul_left_comm, mul_comm]
+
+/-- The heat-shear vorticity norm is bounded by its damped amplitude envelope,
+uniformly in the oscillatory phase. -/
+theorem norm_spatialVorticity_heatShearVelocityField_le_exp_abs
+    (ν a k : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearVelocityField ν a k) t x‖ ≤
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+  rw [norm_spatialVorticity_heatShearVelocityField]
+  calc
+    |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+          |Real.cos (k * x nsCoord1)| * |k|
+        ≤ |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * 1 * |k| := by
+          gcongr
+          simpa using Real.abs_cos_le_one (k * x nsCoord1)
+    _ = |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+          ring
+
+/-- Exact pointwise vorticity norm for transported heat shear.  The transport
+speed only shifts the phase. -/
+theorem norm_spatialVorticity_heatShearTransportVelocityField
+    (ν a k b : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearTransportVelocityField ν a k b) t x‖ =
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+        |Real.cos (k * (x nsCoord1 - b * t))| * |k| := by
+  rw [spatialVorticity_heatShearTransportVelocityField]
+  simp [EuclideanSpace.norm_single, mul_assoc, mul_left_comm, mul_comm]
+
+/-- Transported heat-shear vorticity has the same damped amplitude envelope as
+the untransported heat-shear field. -/
+theorem norm_spatialVorticity_heatShearTransportVelocityField_le_exp_abs
+    (ν a k b : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearTransportVelocityField ν a k b) t x‖ ≤
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+  rw [norm_spatialVorticity_heatShearTransportVelocityField]
+  calc
+    |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+          |Real.cos (k * (x nsCoord1 - b * t))| * |k|
+        ≤ |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * 1 * |k| := by
+          gcongr
+          simpa using Real.abs_cos_le_one (k * (x nsCoord1 - b * t))
+    _ = |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+          ring
+
+/-- Exact pointwise vorticity norm for transported full-drift heat shear. -/
+theorem norm_spatialVorticity_heatShearTransportFullDriftVelocityField
+    (ν a k b d c : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearTransportFullDriftVelocityField ν a k b d c) t x‖ =
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+        |Real.cos (k * (x nsCoord1 - b * t))| * |k| := by
+  rw [spatialVorticity_heatShearTransportFullDriftVelocityField]
+  simp [EuclideanSpace.norm_single, mul_assoc, mul_left_comm, mul_comm]
+
+/-- Full-drift transported heat shear has the same damped vorticity envelope as
+the drift-free transported branch. -/
+theorem norm_spatialVorticity_heatShearTransportFullDriftVelocityField_le_exp_abs
+    (ν a k b d c : ℝ) (t : NSTime) (x : NSSpace) :
+    ‖spatialVorticity (heatShearTransportFullDriftVelocityField ν a k b d c) t x‖ ≤
+      |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+  rw [norm_spatialVorticity_heatShearTransportFullDriftVelocityField]
+  calc
+    |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) *
+          |Real.cos (k * (x nsCoord1 - b * t))| * |k|
+        ≤ |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * 1 * |k| := by
+          gcongr
+          simpa using Real.abs_cos_le_one (k * (x nsCoord1 - b * t))
+    _ = |a| * Real.exp (-(ν * k ^ (2 : ℕ)) * t) * |k| := by
+          ring
 
 end VectorCalculusR3
 
