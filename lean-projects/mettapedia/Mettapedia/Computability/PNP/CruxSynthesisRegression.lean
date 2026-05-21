@@ -1207,6 +1207,24 @@ theorem current_pnp_kpoly_actual_local_zab_decision_list_bitvec_truth_table_gap_
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalZABDecisionListBitVecTruthTableGapObstruction
 
+theorem current_pnp_kpoly_surjective_actual_local_sparse_threshold_erm_visible_budget_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalSparseThresholdERMVisibleBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalSparseThresholdERMVisibleBudgetBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_sparse_threshold_erm_visible_width_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalSparseThresholdERMVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalSparseThresholdERMVisibleWidthBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_no_extractor_sparse_threshold_erm_visible_width_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorSparseThresholdERMVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorSparseThresholdERMVisibleWidthBoundary
+
 theorem kpoly_anchor_full_rule_actual_local_zab_data_forces_three_extractor_bits_regression
     {r : ℕ}
     {zfeat : BitVec 2 → BitVec r}
@@ -1229,6 +1247,39 @@ theorem kpoly_anchor_full_rule_actual_local_not_zab_data_below_truth_table_gap_r
   exact
     kpolyCoverage_anchor_fullRuleActualSwitchedLocal_not_nonempty_zabDecisionListData_of_extractorWidth_lt_truthTableGap
       (n := 2) (k := 0) (r := 2) (fun z : BitVec 2 => z) (by norm_num)
+
+theorem kpoly_anchor_full_rule_actual_local_shared_sparse_threshold_erm_data_forces_positive_extractor_width_regression
+    {r : ℕ}
+    {zfeat : BitVec 2 → BitVec r}
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+          zfeat)) :
+    1 ≤ r := by
+  have hwidth :
+      2 ≤ 2 * r + 2 * 0 + 1 := by
+    exact
+      kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_sharedExactZABSparseThresholdERMData
+        (k := 0) (r := r)
+        (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+        (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
+        zfeat
+        h
+  omega
+
+theorem kpoly_anchor_full_rule_actual_local_no_extractor_shared_sparse_threshold_erm_data_below_half_width_regression :
+    ¬ ∃ zfeat : BitVec 2 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+            (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+            zfeat) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMData_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+      (n := 2) (k := 0) (r := 0)
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
+      (by omega)
 
 theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
     PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈

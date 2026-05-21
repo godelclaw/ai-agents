@@ -35,6 +35,7 @@ import Mettapedia.Computability.PNP.ABVisibleInvariantSurjectivityObstruction
 import Mettapedia.Computability.PNP.CanonicalZABERMInterface
 import Mettapedia.Computability.PNP.ActualSwitchedHistoryBitVecBudgetObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalZABDecisionListWidthObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMVisibleBudgetObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -1039,6 +1040,18 @@ inductive PNPKpolySubrepairClass where
   carry exact ZAB decision-list data once the extractor width stays below the
   truth-table gap `2^(n + 2k) - (2k + 1)`. -/
   | actualLocalZABDecisionListBitVecTruthTableGapObstruction
+  /-- On any surjective actual switched-local endpoint, the weaker shared
+  sparse-threshold ERM packet must still fit inside the point-block visible
+  budget `2 * allAffinePointBlockFeatureCount (r + 2*k)`. -/
+  | surjectiveActualLocalSparseThresholdERMVisibleBudgetBoundary
+  /-- On `Z = BitVec n`, any surjective actual switched-local endpoint
+  carrying the weaker shared sparse-threshold ERM packet must satisfy the same
+  unconditional half-width ceiling `n ≤ 2*r + 2*k + 1`. -/
+  | surjectiveActualLocalSparseThresholdERMVisibleWidthBoundary
+  /-- If `2*r + 2*k + 1 < n`, then no extractor at all can support the weaker
+  shared sparse-threshold ERM packet on a surjective actual switched-local
+  endpoint. -/
+  | surjectiveActualLocalNoExtractorSparseThresholdERMVisibleWidthBoundary
   /-- The bare exact-visible family interface alone cannot imply clocked
   finite-learning payloads for all families below the full visible surface. -/
   | bareExactVisibleInterfacePayloadInsufficiency
@@ -1768,6 +1781,9 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .exactZABBadCodeLargeRegionDisagreementBoundary,
     .actualLocalZABDecisionListVisibleCardGapLowerBound,
     .actualLocalZABDecisionListBitVecTruthTableGapObstruction,
+    .surjectiveActualLocalSparseThresholdERMVisibleBudgetBoundary,
+    .surjectiveActualLocalSparseThresholdERMVisibleWidthBoundary,
+    .surjectiveActualLocalNoExtractorSparseThresholdERMVisibleWidthBoundary,
     .bareExactVisibleInterfacePayloadInsufficiency,
     .actualObservedSupportPayloadInsufficiency,
     .actualObservedSupportUniformSectionBoundary,
@@ -5554,6 +5570,41 @@ theorem kpolyCoverage_anchor_pluginSampleMajority_not_nonempty_sharedExactZABSpa
   pluginSampleMajorityActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMData_of_lt_surfaceCard
     (Z := Z) (k := k) zfeat hs
 
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
+weaker shared sparse-threshold ERM packet still forces the exact visible
+surface to fit inside the point-block visible budget
+`2 * allAffinePointBlockFeatureCount (r + 2*k)`. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_surfaceCard_le_pointBlockVisibleBudget_of_nonempty_sharedExactZABSparseThresholdERMData
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          T zfeat)) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) := by
+  rcases h with ⟨h⟩
+  exact h.surfaceCard_le_of_surjective_predict hsurj
+
+/-- Route-coverage anchor: equivalently, below that point-block visible-budget
+threshold, no fixed extractor can support the weaker shared sparse-threshold
+ERM packet on a surjective actual-local endpoint. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_nonempty_sharedExactZABSparseThresholdERMData_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : Z → BitVec r)
+    (hs :
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) <
+        Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          T zfeat) :=
+  ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMData_of_surjective_predict_of_lt_surfaceCard
+    (T := T) zfeat hsurj hs
+
 /-- Route-coverage anchor: any surjective actual-local endpoint on
 `BitVec n` already loses the manuscript-facing sparse-threshold recovery packet
 below the unconditional half-width ceiling, regardless of extractor choice.
@@ -7040,6 +7091,24 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extra
   rcases h with ⟨h⟩
   exact h.visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_surjective_predict hsurj
 
+/-- Route-coverage anchor: even the weaker shared sparse-threshold ERM packet
+already forces the same unconditional half-width ceiling on any surjective
+actual-local `BitVec n` endpoint. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_sharedExactZABSparseThresholdERMData
+    {n k r : ℕ} {Index : Type u} {Block : Type w}
+    (T : ActualSwitchedLocalInterface (BitVec n) k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          T zfeat)) :
+    n ≤ 2 * r + 2 * k + 1 := by
+  rcases h with ⟨h⟩
+  exact
+    h.visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_surjective_predict
+      hsurj
+
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
 manuscript-facing sparse-threshold recovery packet already forces the intrinsic
 lightest-point threshold.  The fallback-side repairs are only concrete
@@ -7107,6 +7176,22 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSpar
     exact
       ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_surjective_predict_of_lt_one_sub_apply_lightestPoint
         (μ := μ) (T := T) (zfeat := zfeat) hsurj hq_lt hdata
+
+/-- Route-coverage anchor: if the visible width already exceeds
+`2*r + 2*k + 1`, then no extractor at all can support even the weaker shared
+sparse-threshold ERM packet on a surjective actual-local `BitVec n`
+endpoint. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMData_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+    {n k r : ℕ} {Index : Type u} {Block : Type w}
+    (T : ActualSwitchedLocalInterface (BitVec n) k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hgap : 2 * r + 2 * k + 1 < n) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+            T zfeat) :=
+  ActualSwitchedLocalInterface.not_exists_sharedExactZABSparseThresholdERMData_of_surjective_predict_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+    (T := T) hsurj hgap
 
 /-- Route-coverage anchor: below the intrinsic lightest-point threshold, no
 extractor at all can support the manuscript-facing sparse-threshold recovery
