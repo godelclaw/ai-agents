@@ -127,6 +127,32 @@ theorem boxed_steady_seed_exists_zero_gradient_pressure_BKM_data_iff_zero_pressu
     exists_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_BKMData_iff_stationaryMomentum_zeroPressure
       hν N L u₀ T
 
+theorem boxed_steady_seed_zero_gradient_pressure_BKM_data_iff_zero_pressure_data_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+            vorticityEnvelopeOn W.velocity T Ω ∧
+              integrableVorticityEnvelopeOn Ω T B) ↔
+      ∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = (fun _ : NSTime => fun _ : NSSpace => (0 : ℝ)) ∧
+          ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+            vorticityEnvelopeOn W.velocity T Ω ∧
+              integrableVorticityEnvelopeOn Ω T B := by
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_BKMData_iff_zeroPressure
+      hν N L u₀ T p hp hp_zero
+
 theorem boxed_steady_seed_time_only_pressure_BKM_data_failure_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)

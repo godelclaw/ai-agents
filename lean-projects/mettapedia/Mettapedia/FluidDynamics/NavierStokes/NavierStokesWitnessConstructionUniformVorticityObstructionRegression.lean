@@ -119,6 +119,29 @@ theorem
     exists_boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
       hν N L u₀ T
 
+theorem
+    boxed_steady_seed_zero_gradient_pressure_uniform_vorticity_data_iff_zero_pressure_data_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = (fun _ : NSTime => fun _ : NSSpace => (0 : ℝ)) ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B := by
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_zeroPressure
+      hν N L u₀ T p hp hp_zero
+
 theorem boxed_steady_seed_time_only_pressure_uniform_vorticity_data_failure_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)

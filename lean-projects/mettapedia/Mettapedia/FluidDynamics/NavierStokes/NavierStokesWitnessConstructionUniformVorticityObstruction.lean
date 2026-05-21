@@ -205,6 +205,39 @@ theorem
       (smoothSpaceTimePressure_timeOnly hπ)
       (fun t x => spatialPressureGradient_timeOnly π t x)
 
+/-- On the boxed steady-seed uniform-vorticity-data surface, every smooth
+zero-spatial-gradient pressure gauge is propositionally equivalent to the
+literal zero-pressure representative. -/
+theorem
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = (fun _ : NSTime => fun _ : NSSpace => (0 : ℝ)) ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B := by
+  exact
+    (boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T p hp hp_zero).trans
+      ((boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_uniformVorticityData_iff_stationaryMomentum_zeroPressure
+        hν N L u₀ T
+        (fun _ : NSTime => fun _ : NSSpace => (0 : ℝ))
+        (by simpa using smoothSpaceTimePressure_const (0 : ℝ))
+        (by
+          intro t x
+          simpa using spatialPressureGradient_zero t x)).symm)
+
 /-- Allowing an arbitrary smooth zero-spatial-gradient pressure gauge does not
 enlarge the boxed steady-seed uniform-vorticity-data surface: such packaged data
 exist for some harmless gauge exactly when the zero-pressure stationary momentum
