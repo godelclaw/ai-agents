@@ -118,6 +118,7 @@ import Mettapedia.UniversalAI.TimeBoundedAIXI
 import Mettapedia.UniversalAI.ValueUnderIgnorance
 
 -- Fluid dynamics
+import Mettapedia.FluidDynamics.NavierStokes.ColeHopfPositiveLowerBoundRegression
 import Mettapedia.FluidDynamics.NavierStokes.ContinuationRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesUniformVorticityContinuationTargetRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyBKMBridgeRegression
