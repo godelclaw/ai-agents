@@ -8806,8 +8806,29 @@ visible surface.  The concrete sample-level plug-in-majority route and the
 bit-coded exact-visible fallback route are now explicit instances of those
 general synthesis theorems, rather than separate endpoint-specific wrappers.
 
-That route-level package has now been tightened in four further directions.
-First, \texttt{CruxSynthesis.lean} records the sharpened recovery-threshold
+That route-level package has now been tightened in five further directions.
+First, \texttt{CruxSynthesis.lean} now records the direct threshold-width
+inversion itself:
+\texttt{PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdWidthBoundary},
+\texttt{PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryThresholdWidthObstruction},
+\texttt{PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalRecoveryThresholdWidthBoundary},
+and
+\texttt{PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction}.
+So any manuscript claim
+\[
+  q < 1 - 2^{-p}
+\]
+already forces
+\[
+  n + 2k < p
+\]
+at the full-rule endpoint, and at the bounded-sample plug-in-majority endpoint
+once the sample bound is large enough for surjectivity.  Equivalently, if
+\(p \le n+2k\), Lean now records the matching no-extractor contradiction at the
+synthesis level before using any later relation between \(p\) and the
+extractor width \(r\).
+
+Second, \texttt{CruxSynthesis.lean} records the sharpened recovery-threshold
 visible-budget barriers
 \texttt{PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary},
 \texttt{PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction},
@@ -8822,7 +8843,7 @@ the old one-step escape hatch \(n=2r+2k+1\) disappears at the synthesis level
 as well: Lean upgrades it to \(n \le 2r+2k+\mathrm{slack}\) and records the
 matching no-extractor obstructions.
 
-Second, the ledger now records the proper-region mass route lock itself:
+Third, the ledger now records the proper-region mass route lock itself:
 \texttt{PNPKpolySubrepairClass.surjectiveActualLocalRecoveryProperRegionMassBoundary}
 and
 \texttt{PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorProperRegionMassBoundary}.
@@ -8830,7 +8851,7 @@ So on every surjective actual-local endpoint, every proper visible region
 already has total mass at most \(q\), and any heavier proper region removes the
 extractor choice entirely.
 
-Third, the injective-family heavy-region collapse is now promoted too:
+Fourth, the injective-family heavy-region collapse is now promoted too:
 \texttt{PNPKpolySubrepairClass.actualLocalRecoveryHeavyRegionTraceCardBoundary}
 and
 \texttt{PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryHeavyRegionTraceCardObstruction}.
@@ -8844,7 +8865,7 @@ and Lean records the corresponding no-extractor contradiction when that trace
 space is too small.  This is strictly stronger than the earlier heavy-point
 collapse when no single atom exceeds \(q\) but a small region still does.
 
-Fourth, the non-surjective injective-extractor threshold packet is now
+Fifth, the non-surjective injective-extractor threshold packet is now
 registered directly in the ledger:
 \texttt{PNPKpolySubrepairClass.actualLocalInjectiveRecoveryUniformCardinalityThresholdBoundary},
 \texttt{PNPKpolySubrepairClass.actualLocalInjectiveRecoveryBitVecCardinalityThresholdBoundary},
