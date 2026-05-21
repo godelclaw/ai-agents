@@ -239,6 +239,37 @@ theorem twoModeSchwartzVelocity_exhibits_BKMEnvelope_of_abs_le
       (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
         a b f g A B T haBound hbBound)
 
+/-- The constant-one two-mode Schwartz branch has the expected explicit
+uniform vorticity bound: the two profile bounds add.  This is the concrete
+branch used by the finite-mode obstruction route. -/
+theorem uniformVorticityBoundUpTo_oneOneTwoModeSchwartzVelocity
+    (f g : NSSchwartzInitialVelocity) (T : ℝ) :
+    uniformVorticityBoundUpTo
+      (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) T
+      (schwartzInitialVelocityVorticityBound f +
+        schwartzInitialVelocityVorticityBound g) := by
+  simpa using
+    (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g 1 1 T
+      (by intro t; simp) (by intro t; simp))
+
+/-- The constant-one two-mode Schwartz branch supplies its own BKM envelope on
+every time horizon. -/
+theorem oneOneTwoModeSchwartzVelocity_exhibits_BKMEnvelope
+    (f g : NSSchwartzInitialVelocity) (T : ℝ) :
+    ∃ Ω : NSTime → ℝ, ∃ Bint : ℝ,
+      vorticityEnvelopeOn
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g)
+          T Ω ∧
+        integrableVorticityEnvelopeOn Ω T Bint := by
+  exact
+    uniformVorticityBoundUpTo_implies_BKMEnvelope
+      (u := twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g)
+      (T := T)
+      (B := schwartzInitialVelocityVorticityBound f +
+        schwartzInitialVelocityVorticityBound g)
+      (uniformVorticityBoundUpTo_oneOneTwoModeSchwartzVelocity f g T)
+
 end NavierStokes
 end FluidDynamics
 end Mettapedia

@@ -1631,7 +1631,11 @@ momentum equation already holds on the slab.  Then
 \texttt{uniformVorticityBoundUpTo\_twoModeSchwartzVelocity\_of\_abs\_le} and
 \texttt{twoModeSchwartzVelocity\_exhibits\_BKMEnvelope\_of\_abs\_le} push that
 control to the full bounded two-mode ansatz under the existing coefficient
-amplitude bounds.  Consequently,
+amplitude bounds.  The constant-one branch used by the finite-mode obstruction
+route is now packaged explicitly in
+\texttt{uniformVorticityBoundUpTo\_oneOneTwoModeSchwartzVelocity} and
+\texttt{oneOneTwoModeSchwartzVelocity\_exhibits\_BKMEnvelope}, with bound equal
+to the sum of the two profile bounds.  Consequently,
 \texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_of\_momentumEquation}
 removes the extra vorticity-bound hypothesis from the BKM bridge: for this
 finite-mode Schwartz route, the continuation premise now follows from the
