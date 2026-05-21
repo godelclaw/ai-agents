@@ -123,6 +123,83 @@ theorem WeightedObservable.windowedColeHopfHeatSaturatedShiftKernelInitialSlice_
           rw [habs 1 y]
     _ = T.saturatedInitialSlice a y := rfl
 
+theorem WeightedObservable.windowedColeHopfHeatSaturatedShiftKernelInitialSlice_eq_saturatedInitialSlice_of_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveShiftKernel κ X)
+    (a r c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hcoeff : SeedLiveShiftKernel.totalCoeffSum K = a / (1 + r))
+    (hseedInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.seedShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hliveInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.liveShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (habs :
+      ∀ t : NNReal, ∀ y : X,
+        |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| = r) :
+    L.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x =
+    (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).saturatedInitialSlice a := by
+  let T :=
+    L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x
+  funext y
+  calc
+    L.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x y
+      = ∑ i, (K.seedCoeff i * T.vorticity 1 (y + K.seedShift i) +
+          K.liveCoeff i * T.vorticity 1 (y + K.liveShift i)) := by
+            simp [WeightedObservable.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le,
+              UniformVorticityTendril.seedLiveOperatorInitialSlice,
+              SeedLiveShiftKernel.toSampleKernel, SeedLiveSampleKernel.toSeedLiveOperator, T]
+    _ = ∑ i, (K.seedCoeff i + K.liveCoeff i) * T.vorticity 1 y := by
+          refine Finset.sum_congr rfl ?_
+          intro i hi
+          rw [hseedInv i 1 y, hliveInv i 1 y]
+          ring
+    _ = (∑ i, (K.seedCoeff i + K.liveCoeff i)) * T.vorticity 1 y := by
+          simpa using
+            (Finset.sum_mul
+              (s := Finset.univ)
+              (f := fun i : κ => K.seedCoeff i + K.liveCoeff i)
+              (a := T.vorticity 1 y)).symm
+    _ = SeedLiveShiftKernel.totalCoeffSum K * T.vorticity 1 y := by
+          simp [SeedLiveShiftKernel.totalCoeffSum, SeedLiveShiftKernel.seedCoeffSum,
+            SeedLiveShiftKernel.liveCoeffSum, Finset.sum_add_distrib, add_mul]
+    _ = a * (T.vorticity 1 y / (1 + r)) := by
+          rw [hcoeff]
+          ring
+    _ = a * (T.vorticity 1 y / (1 + |T.vorticity 1 y|)) := by
+          rw [habs 1 y]
+    _ = T.saturatedInitialSlice a y := rfl
+
 theorem WeightedObservable.windowedColeHopfHeatSaturatedShiftKernelCandidate_eq_saturatedCandidate_of_stationary_shiftInvariant_constantMagnitude
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -205,6 +282,88 @@ theorem WeightedObservable.windowedColeHopfHeatSaturatedShiftKernelCandidate_eq_
     _ = a * (T.vorticity t y / (1 + |T.vorticity t y|)) := by
           rw [habs t y]
 
+theorem WeightedObservable.windowedColeHopfHeatSaturatedShiftKernelCandidate_eq_saturatedCandidate_of_stationary_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveShiftKernel κ X)
+    (a r c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hcoeff : SeedLiveShiftKernel.totalCoeffSum K = a / (1 + r))
+    (hseedInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.seedShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hliveInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.liveShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hstat :
+      ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (habs :
+      ∀ t : NNReal, ∀ y : X,
+        |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| = r) :
+    L.windowedColeHopfHeatShiftKernelCandidate_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x =
+    L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector a c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x := by
+  let T :=
+    L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x
+  unfold WeightedObservable.windowedColeHopfHeatShiftKernelCandidate_of_componentwise_abs_le
+    WeightedObservable.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+    UniformVorticityTendril.seedLiveOperatorCandidate UniformVorticityTendril.saturatedCandidate
+  congr
+  funext t y
+  calc
+    ∑ i, (K.seedCoeff i * T.vorticity 1 (y + K.seedShift i) +
+        K.liveCoeff i * T.vorticity t (y + K.liveShift i))
+      = ∑ i, (K.seedCoeff i + K.liveCoeff i) * T.vorticity t y := by
+          refine Finset.sum_congr rfl ?_
+          intro i hi
+          rw [hseedInv i 1 y, hstat t y, hliveInv i t y]
+          ring
+    _ = (∑ i, (K.seedCoeff i + K.liveCoeff i)) * T.vorticity t y := by
+          simpa using
+            (Finset.sum_mul
+              (s := Finset.univ)
+              (f := fun i : κ => K.seedCoeff i + K.liveCoeff i)
+              (a := T.vorticity t y)).symm
+    _ = SeedLiveShiftKernel.totalCoeffSum K * T.vorticity t y := by
+          simp [SeedLiveShiftKernel.totalCoeffSum, SeedLiveShiftKernel.seedCoeffSum,
+            SeedLiveShiftKernel.liveCoeffSum, Finset.sum_add_distrib, add_mul]
+    _ = a * (T.vorticity t y / (1 + r)) := by
+          rw [hcoeff]
+          ring
+    _ = a * (T.vorticity t y / (1 + |T.vorticity t y|)) := by
+          rw [habs t y]
+
 theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause_via_shiftKernel_of_shiftInvariant_constantMagnitude
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -258,6 +417,64 @@ theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seed
       (L.windowedColeHopfHeat_realizes_shiftKernel_pressure_seeded_clause
         (ι := ι) (X := X)
         selector K c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x)
+
+theorem WeightedObservable.windowedColeHopfHeat_realizes_saturated_pressure_seeded_clause_via_shiftKernel_of_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveShiftKernel κ X)
+    (a r c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hcoeff : SeedLiveShiftKernel.totalCoeffSum K = a / (1 + r))
+    (hseedInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.seedShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hliveInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.liveShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (habs :
+      ∀ t : NNReal, ∀ y : X,
+        |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| = r) :
+    FeffermanGlobalRegularityClause
+      (pressureSeededPredicateKit
+        (Time := NNReal) (X := X)
+        (L.windowedColeHopfHeatSaturatedInitialSlice_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector a c ν hc hν
+          curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)) := by
+  simpa [WeightedObservable.windowedColeHopfHeatSaturatedInitialSlice_of_componentwise_abs_le,
+      L.windowedColeHopfHeatSaturatedShiftKernelInitialSlice_eq_saturatedInitialSlice_of_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        (selector := selector) (K := K) (a := a) (r := r) (c := c) (ν := ν)
+        (hc := hc) (hν := hν) (curlFrame := curlFrame)
+        (curlComponentBound := curlComponentBound)
+        (hcurlComponentBound_nonneg := hcurlComponentBound_nonneg)
+        (hcurl := hcurl) (x := x)
+        hcoeff hseedInv hliveInv habs]
+    using
+      (L.windowedColeHopfHeat_realizes_shiftKernel_pressure_seeded_clause_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector K c ν hc hν
+        curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x)
 
 theorem WeightedObservable.exists_windowedColeHopfHeatSaturatedShiftKernelBridge_of_stationary_shiftInvariant_constantMagnitude
     (L : WeightedObservable)
@@ -326,6 +543,78 @@ theorem WeightedObservable.exists_windowedColeHopfHeatSaturatedShiftKernelBridge
     L.windowedColeHopfHeatSaturatedShiftKernelCandidate_eq_saturatedCandidate_of_stationary_shiftInvariant_constantMagnitude
       (ι := ι) (X := X)
       selector K a r c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x
+      hcoeff hseedInv hliveInv hstat habs
+
+theorem WeightedObservable.exists_windowedColeHopfHeatSaturatedShiftKernelBridge_of_stationary_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveShiftKernel κ X)
+    (a r c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hcoeff : SeedLiveShiftKernel.totalCoeffSum K = a / (1 + r))
+    (hseedInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.seedShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hliveInv :
+      ∀ i : κ, ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t
+          (y + K.liveShift i) =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (hstat :
+      ∀ t : NNReal, ∀ y : X,
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity 1 y =
+        (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+          (ι := ι) (X := X)
+          selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y)
+    (habs :
+      ∀ t : NNReal, ∀ y : X,
+        |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| = r) :
+    ∃ B :
+        TopDownFeffermanBridge
+          (pressureSeededPredicateKit
+            (Time := NNReal) (X := X)
+            (L.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le
+              (ι := ι) (X := X)
+              selector K c ν hc hν
+              curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x))
+          (shiftKernelCompatibilityPred
+            (Time := NNReal) (X := X) K)
+          (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x),
+        B.candidate =
+          L.windowedColeHopfHeatSaturatedCandidate_of_componentwise_abs_le
+            (ι := ι) (X := X)
+            selector a c ν hc hν
+            curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x := by
+  refine ⟨L.toWindowedColeHopfHeatShiftKernelBridge_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x, ?_⟩
+  exact
+    L.windowedColeHopfHeatSaturatedShiftKernelCandidate_eq_saturatedCandidate_of_stationary_shiftInvariant_constantMagnitude_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K a r c ν hc hν
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x
       hcoeff hseedInv hliveInv hstat habs
 
 end WindowedColeHopfHeatSaturatedShiftKernelInvariantFrontier
