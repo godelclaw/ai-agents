@@ -1372,7 +1372,12 @@ existential no-go
 \texttt{not\_exists\_ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure\_boxedPartialPeriodizationSteadySeed\_zeroSpatialGradientPressure\_of\_stationaryMomentum\_failure}
 now closes the whole smooth zero-gradient pressure repair class at the exact
 global-output layer from the same single failed zero-pressure residual.  The
-fixed-gauge candidate theorem
+fixed-gauge classification
+\texttt{boxedPartialPeriodizationSteadySeed\_zeroSpatialGradientPressure\_globalOutputWithVelocityPressure\_iff\_stationaryMomentum\_zeroPressure}
+also makes the positive boundary exact: for each chosen smooth pressure with
+zero spatial gradient, the fixed velocity/pressure global-output proposition
+holds exactly when the zero-pressure stationary residual vanishes everywhere.
+The fixed-gauge candidate theorem
 \texttt{boxedPartialPeriodizationSteadySeed\_zeroSpatialGradientPressure\_exhibits\_nonMomentumGlobalFields\_without\_exactGlobalOutput}
 also records the corresponding separation for each individual smooth
 zero-gradient pressure: the velocity, pressure regularity, incompressibility,

@@ -146,6 +146,37 @@ theorem boundedKineticEnergy_boxedPartialPeriodizationSteadySeed
       (u₀ := (boxedPartialPeriodizationFiniteEnergyAdmissibleProblemData N L u₀ hν).initialVelocity)
       (boxedPartialPeriodizationFiniteEnergyAdmissibleProblemData N L u₀ hν).finite_initial_energy
 
+/-- Any fixed smooth pressure gauge with zero spatial gradient leaves the
+boxed steady seed on the exact whole-space output surface exactly at the
+zero-pressure stationary momentum boundary. -/
+theorem
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_globalOutputWithVelocityPressure_iff_stationaryMomentum_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure
+      ν
+      (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity
+      (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν)
+      p ↔
+      (∀ t x,
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) := by
+  constructor
+  · rintro ⟨_hu, _hp, hmom, _hdiv, _hinit, _hbd⟩ t x
+    rcases boxedPartialPeriodizationSteadySeed_basic hν N L u₀ with
+      ⟨_hsmooth, _hinitBasic, _hdivBasic, htime, _henergyDensity⟩
+    simpa [htime t x, hp_zero t x] using hmom t x
+  · intro hstationary
+    rcases boxedPartialPeriodizationSteadySeed_basic hν N L u₀ with
+      ⟨hsmooth, hinit, hdiv, htime, _henergyDensity⟩
+    refine ⟨hsmooth, hp, ?_, hdiv, hinit,
+      boundedKineticEnergy_boxedPartialPeriodizationSteadySeed hν N L u₀⟩
+    intro t x
+    simpa [htime t x, hp_zero t x] using hstationary t x
+
 /-- The exact whole-space output layer adds no escape hatch to the
 stationary-momentum audit for time-independent seeds. -/
 theorem not_ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure_timeIndependentVelocity_of_stationaryMomentum_failure
