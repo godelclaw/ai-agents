@@ -67,6 +67,22 @@ theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryExactVisibleCom
       (by norm_num)
       (by norm_num)
 
+theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryExactVisibleCompressionWrapper_two_le_visibleWidth :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+        (2 + 2 * 0 + 1)
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_two_le_visibleWidth
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
+      (by norm_num)
+
 theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFiniteLearningWrapper_sameWidth :
     ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper
         Bool
@@ -84,6 +100,24 @@ theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFin
       (by trivial)
       (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
       (by norm_num)
+      (by norm_num)
+
+theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFiniteLearningWrapper_two_le_visibleWidth :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+        (2 + 2 * 0 + 1)
+        0
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_two_le_visibleWidth
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+      (clock := 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
       (by norm_num)
 
 end ActualSwitchedLocalInterface
