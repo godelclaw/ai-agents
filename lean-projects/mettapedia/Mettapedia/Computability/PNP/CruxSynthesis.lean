@@ -39,6 +39,7 @@ import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThres
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryPayloadObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryCardinalityObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryThresholdVisibleBudgetObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoverySurjectiveRegionObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -1476,6 +1477,15 @@ inductive PNPKpolySubrepairClass where
   the bounded-sample plug-in-majority recovery packet when the threshold is
   already that small. -/
   | boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction
+  /-- On any surjective actual-local endpoint, every proper finite visible
+  region already has total mass at most `q` under any manuscript-facing
+  sparse-threshold recovery packet. This strengthens the earlier lightest-point
+  boundary from singletons to arbitrary proper regions. -/
+  | surjectiveActualLocalRecoveryProperRegionMassBoundary
+  /-- Therefore if one proper finite visible region already has mass above
+  `q`, no extractor at all can support the manuscript-facing sparse-threshold
+  recovery packet on that surjective actual-local endpoint. -/
+  | surjectiveActualLocalNoExtractorProperRegionMassBoundary
   /-- Below the intrinsic lightest-point threshold, no extractor at all can
   support the manuscript-facing sparse-threshold recovery packet on a
   surjective actual-local endpoint. -/
@@ -1944,6 +1954,8 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .fullRuleActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction,
     .boundedSamplePluginMajorityActualLocalRecoveryThresholdVisibleBudgetBoundary,
     .boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction,
+    .surjectiveActualLocalRecoveryProperRegionMassBoundary,
+    .surjectiveActualLocalNoExtractorProperRegionMassBoundary,
     .surjectiveActualLocalNoExtractorLightestPointBoundary,
     .surjectiveActualLocalNoExtractorVisibleWidthBoundary,
     .exactVisibleCompressionTargetPredictorCoverEquivalence,
@@ -7447,6 +7459,52 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_one_sub_apply_lightestPoint_l
     1 - μ (PMF.lightestPoint μ) ≤ q := by
   rcases h with ⟨h⟩
   exact h.one_sub_apply_lightestPoint_le_of_surjective_predict hsurj
+
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
+manuscript-facing sparse-threshold recovery packet already forces every proper
+finite visible region to have total mass at most `q`.  This strengthens the
+single-lightest-point barrier to arbitrary proper regions. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_regionMass_le_of_nonempty_recovery_of_exists_not_mem
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)} {q : ℝ≥0∞}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q))
+    (region : Finset (ExactVisiblePostSwitchSurface Z k))
+    (hout : ∃ x₀ : ExactVisiblePostSwitchSurface Z k, x₀ ∉ region) :
+    region.sum (fun x => μ x) ≤ q := by
+  rcases h with ⟨h⟩
+  exact h.regionMass_le_of_surjective_predict_of_exists_not_mem hsurj region hout
+
+/-- Route-coverage anchor: once some proper finite visible region already has
+mass above `q`, no extractor at all can support the manuscript-facing sparse-
+threshold recovery packet on a surjective actual-local endpoint. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_exists_not_mem_of_lt_regionMass
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (q : ℝ≥0∞)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (region : Finset (ExactVisiblePostSwitchSurface Z k))
+    (hout : ∃ x₀ : ExactVisiblePostSwitchSurface Z k, x₀ ∉ region)
+    (hmass : q < region.sum (fun x => μ x)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ T zfeat q) := by
+  exact
+    ActualSwitchedLocalInterface.not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_surjective_predict_of_exists_not_mem_of_lt_regionMass
+      (μ := μ)
+      (T := T)
+      (r := r)
+      hsurj
+      region
+      hout
+      hmass
 
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
 same recovery witness must satisfy both the unconditional half-width ceiling

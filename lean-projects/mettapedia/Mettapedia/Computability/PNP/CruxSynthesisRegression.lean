@@ -1291,6 +1291,18 @@ theorem current_pnp_kpoly_bounded_sample_plugin_majority_actual_local_no_extract
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction
 
+theorem current_pnp_kpoly_surjective_actual_local_recovery_proper_region_mass_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryProperRegionMassBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryProperRegionMassBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_no_extractor_recovery_proper_region_mass_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorProperRegionMassBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorProperRegionMassBoundary
+
 def fin3ToBitVec0ActualSparseRecoveryPayloadBridge : Fin 3 → BitVec 0 := fun _ => zeroVec
 
 noncomputable def fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge :
@@ -1342,6 +1354,34 @@ local instance exactVisiblePostSwitchSurfaceBitVec1k1NonemptyBridge :
 noncomputable def bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge :
     PMF (ExactVisiblePostSwitchSurface (BitVec 1) 1) :=
   PMF.uniformOfFintype _
+
+noncomputable def bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge :
+    ExactVisiblePostSwitchSurface (BitVec 1) 0 :=
+  ⟨0, zeroVec, zeroVec⟩
+
+noncomputable def bitVec1k0OneVisiblePointActualSparseRecoveryRegionBridge :
+    ExactVisiblePostSwitchSurface (BitVec 1) 0 :=
+  ⟨1, zeroVec, zeroVec⟩
+
+noncomputable def bitVec1k0PureMeasureActualSparseRecoveryRegionBridge :
+    PMF (ExactVisiblePostSwitchSurface (BitVec 1) 0) :=
+  PMF.pure bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge
+
+noncomputable def bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge :
+    Finset (ExactVisiblePostSwitchSurface (BitVec 1) 0) :=
+  {bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge}
+
+noncomputable local instance exactVisiblePostSwitchSurfaceBitVec1k0DecidableEqBridge :
+    DecidableEq (ExactVisiblePostSwitchSurface (BitVec 1) 0) :=
+  Classical.decEq _
+
+private theorem bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge_filter_card :
+    ({x ∈ bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge
+        | x = bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge}).card = 1 := by
+  apply Finset.card_eq_one.mpr
+  refine ⟨bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge, ?_⟩
+  simp [bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge,
+    bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]
 
 def zeroBitVec1ToBitVec0ActualSparseRecoveryThresholdVisibleBudgetBridge :
     BitVec 1 → BitVec 0 := fun _ => zeroVec
@@ -1654,6 +1694,74 @@ theorem kpoly_anchor_bounded_sample_plugin_majority_actual_local_no_extractor_re
       (by norm_num)
       (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
         (by norm_num : (2 : ℝ≥0∞) < 2 ^ 3))
+
+theorem kpoly_anchor_surjective_actual_local_recovery_proper_region_mass_boundary_regression
+    {q : ℝ≥0∞}
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          bitVec1k0PureMeasureActualSparseRecoveryRegionBridge
+          (fullRuleActualSwitchedLocalInterface (BitVec 1) 0)
+          zeroBitVec1ToBitVec0ActualSparseRecoveryThresholdVisibleBudgetBridge
+          q)) :
+    1 ≤ q := by
+  have hbound :=
+    kpolyCoverage_anchor_surjectiveActualLocal_regionMass_le_of_nonempty_recovery_of_exists_not_mem
+      (k := 0)
+      (r := 0)
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 1) 0)
+      (μ := bitVec1k0PureMeasureActualSparseRecoveryRegionBridge)
+      (q := q)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 0)
+      zeroBitVec1ToBitVec0ActualSparseRecoveryThresholdVisibleBudgetBridge
+      h
+      bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge
+      (by
+        exact ⟨bitVec1k0OneVisiblePointActualSparseRecoveryRegionBridge, by
+          simp [bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge,
+            bitVec1k0OneVisiblePointActualSparseRecoveryRegionBridge,
+            bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]⟩)
+  have hmass_eq :
+      bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge.sum
+          (fun x => bitVec1k0PureMeasureActualSparseRecoveryRegionBridge x) = 1 := by
+    simp [bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge,
+      bitVec1k0PureMeasureActualSparseRecoveryRegionBridge,
+      bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]
+  rw [hmass_eq] at hbound
+  exact hbound
+
+theorem kpoly_anchor_surjective_actual_local_no_extractor_recovery_proper_region_mass_regression :
+    ¬ ∃ zfeat : BitVec 1 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            bitVec1k0PureMeasureActualSparseRecoveryRegionBridge
+            (fullRuleActualSwitchedLocalInterface (BitVec 1) 0)
+            zfeat
+            0) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_exists_not_mem_of_lt_regionMass
+      (Z := BitVec 1)
+      (k := 0)
+      (r := 0)
+      bitVec1k0PureMeasureActualSparseRecoveryRegionBridge
+      (fullRuleActualSwitchedLocalInterface (BitVec 1) 0)
+      (q := 0)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 0)
+      bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge
+      (by
+        exact ⟨bitVec1k0OneVisiblePointActualSparseRecoveryRegionBridge, by
+          simp [bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge,
+            bitVec1k0OneVisiblePointActualSparseRecoveryRegionBridge,
+            bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]⟩)
+      (by
+        have hmass_eq :
+            bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge.sum
+                (fun x => bitVec1k0PureMeasureActualSparseRecoveryRegionBridge x) = 1 := by
+          simp [bitVec1k0HeavyRegionActualSparseRecoveryRegionBridge,
+            bitVec1k0PureMeasureActualSparseRecoveryRegionBridge,
+            bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]
+        rw [hmass_eq]
+        norm_num)
 
 theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
     PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈
