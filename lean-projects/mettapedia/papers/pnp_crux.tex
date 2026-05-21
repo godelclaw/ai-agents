@@ -672,6 +672,116 @@ automatic; and fixed fields reduce exactly to the cellwise half-success inequali
 positive-mass total-success cells, repeated success events, and forced later success events blocked
 by small finite models.
 
+The switched-history burden is now also packaged at the actual-family level.
+\texttt{ActualSwitchedHistoryWrapper.lean} defines the manuscript-facing
+wrapper as a one-family implication from one concrete fielded switching proof
+\[
+  \texttt{V13FieldSwitchingInstantiatedFrom hist items}
+\]
+to either the exact-visible compression target or the bundled clocked payload
+for the actual switched predictor family.  Lean proves the positive route and
+the blocker in matching sharp form.  On the positive side, any actual switched
+family carrying \texttt{ZABDecisionListData} gets this wrapper immediately, so
+the route closes once the manuscript identifies its actual predictors with the
+shared exact \((zfeat(z),a,b)\) decision-list class.  On the negative side, if
+the fielded switching premise is actually true and the actual switched family
+is still surjective onto all Boolean rules on the exact visible surface below
+the visible threshold, then the wrapper itself is impossible:
+\[
+  \texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_lt\_surfaceCard},
+\]
+\[
+  \texttt{not\_switchedHistoryClockedKpolyFiniteLearningWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_lt\_predictorCard}.
+\]
+So the remaining switched-history route is no longer a generic bridge theorem:
+it must either factor through the already formalized bounded exact ZAB class or
+prove a genuine strict-subclass theorem for the actual switched predictor
+family itself.
+The new regression theorem
+\texttt{actualSwitchedLocalInterface\_not\_forall\_switchedHistoryExactVisibleCompressionWrapper\_of\_lt\_surfaceCard}
+pushes this one step further.  Bare
+\texttt{ActualSwitchedLocalInterface} assumptions do not even support a
+universal switched-history wrapper schema across all actual-local families: the
+full-rule actual switched family is already a counterexample below the same
+visible threshold.  So the surviving burden is sharply one-family and
+manuscript-specific.
+And once one concrete switched history is fixed and its fielded switching
+premise is actually true, Lean now shows that the remaining wrapper is not a
+new theorem-schema at all: it is exactly the finite-image theorem for the
+actual switched family.  In
+\texttt{ActualSwitchedHistoryRouteReduction.lean}, the manuscript-facing wrapper
+is proved equivalent to the existing exact-visible compression target, to the
+existing clocked finite-learning payload, and therefore to
+\texttt{predictorFamily.FinitePredictorCover (2\^{}s)}.  The same file now also
+pushes the reduction through the two other standard finite-image packagings:
+finite selected-index representative covers and finite quotient-code
+presentations.  So any surviving repair must prove one and therefore all of
+those equivalent finite-image theorems directly; changing the wrapper packaging
+no longer changes the mathematical burden.
+Moreover, in the surjective regime the same reduction now exposes the exact
+numerical obligation directly: any surviving exact-visible or clocked wrapper
+forces
+\[
+  2^{|\mathrm{ExactVisiblePostSwitchSurface}(Z,k)|} \le 2^s.
+\]
+Applying \texttt{Nat.pow\_le\_pow\_iff\_right} immediately sharpens this to the
+direct width bound
+\[
+  |\mathrm{ExactVisiblePostSwitchSurface}(Z,k)| \le s.
+\]
+Lean records this in
+\texttt{switchedHistoryExactVisibleCompressionWrapper\_surfaceCard\_le\_of\_true\_fieldedSwitching\_of\_surjective\_predict}
+and its clocked analogue, together with the direct refuters
+\texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_s\_lt\_surfaceCard}
+and
+\texttt{not\_switchedHistoryClockedKpolyFiniteLearningWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_s\_lt\_surfaceCard}.
+So below the visible threshold the switched-history route does not merely fail
+qualitatively; it now contradicts the exact small-class width statement the
+manuscript would have to establish.
+The same route now has a concrete bitvector specialization.  If
+\(Z = \mathrm{BitVec}\,n\), the wrapper is claimed at the manuscript-shaped
+budget \(r + 2k + 1\), the extractor width satisfies \(r \le n\), and the
+visible width is nontrivial \((2 \le n + 2k)\), Lean proves
+\[
+  r + 2k + 1 < |\mathrm{ExactVisiblePostSwitchSurface}(\mathrm{BitVec}\,n,k)|
+    = 2^{n+2k},
+\]
+hence any true switched-history wrapper already contradicts surjectivity of the
+actual switched family:
+\texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_le\_of\_two\_le}
+and its clocked analogue.  So even before identifying the actual family with
+the shared exact ZAB class, the active switched-history route already inherits
+the manuscript-budget obstruction on bit-valued latent data.
+This packet is now generalized one step further.  On \(Z = \mathrm{BitVec}\,n\),
+any true switched-history wrapper for a surjective actual switched family
+directly implies
+\[
+  2^{n+2k} \le s,
+\]
+captured by
+\texttt{switchedHistoryExactVisibleCompressionWrapper\_bitVecSurfaceCard\_le\_of\_true\_fieldedSwitching\_of\_surjective\_predict}
+and its clocked analogue.  Consequently every explicit budget gap
+\(s < 2^{n+2k}\) already refutes the route-specific wrapper itself:
+\texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_budget\_lt}
+and the matching clocked statement.  The manuscript-shaped budget
+\(r + 2k + 1\) is now only one corollary of this more direct truth-table
+threshold blocker.  Lean now also packages the full-width manuscript case
+directly: once \(2 \le n + 2k\), the switched-history wrapper is ruled out at
+budget \(n + 2k + 1\) itself by
+\texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_two\_le\_visibleWidth}
+and its clocked analogue, so the route no longer gets to hide behind an
+auxiliary extractor-width parameter when it is really using the full visible
+surface.  The Lean packet now goes one step further: once \(2 \le n + 2k\),
+every switched-history wrapper with budget
+\[
+  s \le n + 2k + 1
+\]
+is impossible on \(Z = \mathrm{BitVec}\,n\), via
+\texttt{not\_switchedHistoryExactVisibleCompressionWrapper\_of\_true\_fieldedSwitching\_of\_surjective\_predict\_of\_le\_fullWidthBudget}
+and the matching clocked statement.  So the bitvector route no longer has any
+room left anywhere in the entire linear budget interval up to the manuscript's
+full-width threshold.
+
 At the same time, the optimistic Lean work now isolates the precise positive interface one
 would need for the switching lemma to go through: a \emph{small explicitly encoded
 hypothesis family} whose realized classifier class is bounded by its code budget, together
@@ -791,7 +901,8 @@ The current Lean modules under
 \texttt{ActualSwitchedLocalPluginSampleMajorityObstruction.lean} & finite-sample plug-in majority still realizes every exact-visible Boolean rule via graph samples \\
 \texttt{ActualSwitchedLocalBoundedSampleMajorityObstruction.lean} & bounded sample-level plug-in majority is full-rule expressive exactly once the sample bound reaches the exact visible alphabet size; any fixed tie-break can differ from its default only on sampled inputs; an input-dependent fallback is already a full lookup side channel; a structured fallback family can only add sparse sampled overrides around one selected fallback rule, with explicit bit-code fallback budget lower bounds \\
 \texttt{ActualSwitchedLocalBitFallbackWrapperObstruction.lean} & standalone zero-sample and one-sample wrapper exactness: zero sampled overrides add no hidden expressivity beyond the fallback decoder, and one sampled override still pays an explicit additive bit budget \\
-\texttt{ActualSwitchedLocalBitFallbackZeroSampleImage.lean} & structural zero-sample image equivalence: the radius-zero wrapper has exactly the fallback decoder predictor image, so finite-image budgets and clocked exact-visible realizations are equivalent on both sides \\
+\texttt{ActualSwitchedLocalFallbackZeroSampleImage.lean} & generic structural zero-sample image equivalence: for an arbitrary fallback family, the radius-zero wrapper has exactly the fallback predictor image, so finite covers, representative covers, quotient codes, exact-visible compression targets, clocked exact-visible realizations, and clocked payload targets are equivalent on both sides \\
+\texttt{ActualSwitchedLocalBitFallbackZeroSampleImage.lean} & bit-coded structural zero-sample image equivalence: the radius-zero wrapper has exactly the fallback decoder predictor image, so finite-image budgets and clocked exact-visible realizations are equivalent on both sides \\
 \texttt{ActualSwitchedLocalBitFallbackZeroSampleProbeObstruction.lean} & background zero-sample probe transport: any injective finite probe family already realized by the fallback decoder transfers unchanged to radius-zero covers, quotient budgets, exact-visible compression, and clocked realizations, but this does not by itself close a named route \\
 \texttt{FiniteIIDAgreement.lean} & finite PMF agreement mass, finite agreement-region lower bounds, and IID sample mass \\
 \texttt{FiniteIIDFamilyBound.lean} & finite-family deceptive sample mass, union bounds, and bad-code region lower bounds \\
@@ -3409,6 +3520,20 @@ From positive randomized advantage it gets the same conclusion directly:
 So a finite-coin randomized residual repair cannot defer all symmetry breaking
 to an aggregate average over coins.  One actual coin value of positive
 coin-weight already carries a standard deterministic side-channel obstruction.
+The new strengthening shows that Lean can package that deterministic slice all
+the way up to the ordinary residual-side-information obstruction packet:
+\[
+  \texttt{exists\_positive\_coin\_obstruction\_package\_of\_pos\_doubledAdvantage\_randomizedResidual}
+\]
+and
+\[
+  \texttt{exists\_positive\_coin\_obstruction\_package\_of\_total\_lt\_two\_mul\_weightedCorrectMass\_randomizedResidual}.
+\]
+So even before specializing to the manuscript's exact post-switch surface, the
+finite-coin randomized-residual route no longer stands apart from the ordinary
+residual-side lane: strict half-accuracy advantage already forces a
+positive-weight deterministic coin slice carrying the same non-determination,
+collision, resolving-point, and source-only-failure witnesses.
 
 The post-switch specialization now removes that remaining randomized repair under the exact
 support premise already used above.  The module
@@ -3466,9 +3591,15 @@ and
 \]
 show that even this weaker-looking route already exposes a positive-weight
 deterministic coin slice with ordinary resolving mass and therefore directly
-refutes the manuscript's exact-support premise.  So the post-switch
-randomized-residual repair no longer survives by retreating from positive
-doubled advantage to the strict half-accuracy formulation.
+refutes the manuscript's exact-support premise.  The collapse is now stronger:
+\[
+  \texttt{exists\_positive\_coin\_obstruction\_package\_of\_total\_lt\_two\_mul\_weightedCorrectMass\_randomizedResidual\_invariantProjection}
+\]
+shows that the same strict-half post-switch witness already carries the full
+ordinary invariant-projection residual obstruction package, not merely positive
+resolving mass.  So the post-switch randomized-residual repair no longer
+survives by retreating from positive doubled advantage to the strict
+half-accuracy formulation.
 
 \texttt{CruxSynthesis.lean} now records this as the narrow
 \texttt{PNPRandomizedResidualSubrepairClass} subledger, backed by the theorem
@@ -4302,6 +4433,8 @@ finite-coin product-space facts now proved by
   & \text{positive advantage yields a deterministic resolving coin slice,}\\
 \texttt{strictHalfDeterministicCoinSliceWitness}
   & \text{strict half-accuracy advantage still yields a deterministic resolving coin slice,}\\
+\texttt{strictHalfDeterministicCoinSliceResidualObstructionPackage}
+  & \text{strict half-accuracy advantage already yields a deterministic slice carrying the ordinary residual obstruction package,}\\
 \texttt{postSwitchSupportwiseUnresolvedNoAdvantage}
   & \text{the exact post-switch surface inherits the supportwise blocker,}\\
 \texttt{postSwitchExactSupportNoStrictHalfAdvantage}
@@ -4311,7 +4444,9 @@ finite-coin product-space facts now proved by
 \texttt{postSwitchPositiveAdvantageDeterministicCoinSliceWitness}
   & \text{positive post-switch advantage yields a deterministic resolving coin slice,}\\
 \texttt{postSwitchStrictHalfDeterministicCoinSliceWitness}
-  & \text{strict half-accuracy post-switch advantage still yields a deterministic resolving coin slice.}
+  & \text{strict half-accuracy post-switch advantage still yields a deterministic resolving coin slice,}\\
+\texttt{postSwitchStrictHalfDeterministicCoinSliceResidualObstructionPackage}
+  & \text{the exact post-switch strict-half slice already carries the invariant-projection residual obstruction package.}
 \end{array}
 \]
 The route anchors
@@ -4321,10 +4456,12 @@ The route anchors
 \texttt{randomizedResidualCoverage\_anchor\_positive\_advantage\_witnesses\_resolving\_coin},\\
 \texttt{randomizedResidualCoverage\_anchor\_positive\_advantage\_witnesses\_deterministic\_coin\_slice},\\
 \texttt{randomizedResidualCoverage\_anchor\_strict\_half\_advantage\_witnesses\_deterministic\_coin\_slice},\\
+\texttt{randomizedResidualCoverage\_anchor\_strict\_half\_advantage\_coin\_slice\_forces\_residual\_obstruction\_package},\\
 \texttt{randomizedResidualCoverage\_anchor\_postSwitch\_exact\_support\_no\_strict\_half\_advantage},\\
 \texttt{randomizedResidualCoverage\_anchor\_postSwitch\_positive\_advantage\_witnesses\_resolving\_coin},\\
 \texttt{randomizedResidualCoverage\_anchor\_postSwitch\_positive\_advantage\_witnesses\_deterministic\_coin\_slice},\\
-\texttt{randomizedResidualCoverage\_anchor\_postSwitch\_strict\_half\_advantage\_witnesses\_deterministic\_coin\_slice}
+\texttt{randomizedResidualCoverage\_anchor\_postSwitch\_strict\_half\_advantage\_witnesses\_deterministic\_coin\_slice},\\
+\texttt{randomizedResidualCoverage\_anchor\_postSwitch\_strict\_half\_advantage\_coin\_slice\_forces\_residual\_obstruction\_package}
 \end{gathered}
 \]
 tie that subledger to the actual obstruction theorems.
@@ -4333,7 +4470,9 @@ This matters because the synthesis layer no longer records the randomized
 post-switch lane only at the positive-doubled-advantage threshold.  Even after
 weakening to the strict half-accuracy formulation, the same finite-coin route
 is now Lean-visible as already forcing a deterministic ordinary residual slice,
-and on the exact post-switch support surface it remains directly blocked.
+and even that slice is no longer a separate escape hatch: Lean immediately
+upgrades it to the full residual-side obstruction package, both generically and
+on the exact post-switch support surface.
 
 This is deliberately a subledger.  The theorem
 \texttt{finiteCoinStackUncoveredBroadRepairClasses\_exact} states that the
@@ -4684,6 +4823,25 @@ the support cannot be exact-input invariant.  This removes the last gap between
 the local fork-obstruction file and the route-synthesis layer for the strict
 half-accuracy exact \(b\)-route.
 
+Update note, 2026-05-17 (finite-coin randomized residual is not an independent
+strict-half route): the same synthesis layer now also re-exports
+\[
+\texttt{randomizedResidualCoverage\_anchor\_strict\_half\_advantage\_coin\_slice\_forces\_residual\_obstruction\_package}
+\]
+and
+\[
+\texttt{randomizedResidualCoverage\_anchor\_postSwitch\_strict\_half\_advantage\_coin\_slice\_forces\_residual\_obstruction\_package}.
+\]
+So on both the generic finite-coin product-space surface and the exact
+post-switch invariant-projection surface, strict half-accuracy randomized
+residual advantage no longer merely forces a deterministic positive-weight coin
+slice.  That slice already carries the ordinary residual-side obstruction
+package: failure of determination by the invariant base, positive collision
+over that base, an explicit positive-weight resolving point, and failure of the
+corresponding source-only side-equality capture.  Thus the finite-coin
+randomized residual repair is no longer an independent synthesis lane at the
+strict-half threshold; Lean collapses it directly into the residual-side route.
+
 The broad \texttt{approximateDecorrelation} class remains outside the stop-grade
 packet.  However, \texttt{ApproximateDecorrelationObstruction.lean} now blocks
 the immediate same-source coupled, anti-coupled, and arbitrary deterministic
@@ -4879,6 +5037,88 @@ misses the selected next target cannot be called stop-grade.  This is
 deliberately weaker than claiming all residual repairs are broken; it records
 that the current local crux families, even when useful, do not by themselves
 close the residual side-information bridge.
+The same file now also isolates the stronger promoted packet obtained by
+adding the already formalized theorem-backed residual-side-information blocker
+as a broad repair-class claim.  It defines
+\texttt{currentPNPResidualPromotedPacket}, proves that this packet extends
+\texttt{currentPNPLocalCruxPacket}, proves that it covers
+\texttt{residualSideInformation}, and records that it still leaves exactly
+\texttt{randomizedResidual}, \texttt{approximateDecorrelation}, and
+\texttt{kpolyCompressionBridge} uncovered.  Accordingly
+\texttt{currentPNPResidualPromotedNextMarginalTarget} is
+\texttt{randomizedResidual}, and
+\texttt{currentPNPResidualPromotedStatus} shows that even this promoted packet
+is not stop-grade.  This does not upgrade the baseline current packet; it
+records that once the existing residual obstruction layer is treated as a
+broad blocker, the next remaining broad escape route is the randomized
+residual lane rather than residual side information itself.
+The next broad packet step is now formalized as well.  The same module defines
+\texttt{RandomizedResidualCoverage} as the theorem-backed statement that
+finite-coin randomized residuals stay under the ordinary resolving-mass budget,
+supportwise-unresolved randomized residuals have zero joint resolving mass and
+no positive doubled advantage, any surviving positive advantage already yields a
+deterministic positive-weight coin slice with positive ordinary resolving mass,
+and any strict half-accuracy advantage already collapses to an ordinary
+residual-side-information obstruction package on such a deterministic slice.
+It then defines \texttt{currentPNPRandomizedResidualPromotedPacket}, proves that
+this packet extends \texttt{currentPNPResidualPromotedPacket}, and proves that
+it covers both \texttt{residualSideInformation} and
+\texttt{randomizedResidual}.  What remains open at that point is exactly
+\texttt{approximateDecorrelation} together with the manuscript-specific
+\texttt{kpolyCompressionBridge}; accordingly
+\texttt{currentPNPRandomizedResidualPromotedNextMarginalTarget} is
+\texttt{approximateDecorrelation}, and
+\texttt{currentPNPRandomizedResidualPromotedStatus} shows that even this
+stronger packet is still not stop-grade.  This is again a promoted extension
+packet, not a change to the baseline current packet.
+The next broad packet step is now formalized too.  The same module defines
+\texttt{ApproximateDecorrelationCoverage} as the theorem-backed statement that
+below the natural source/coin threshold, approximate independence of a
+postprocessed retained-side observation is already equivalent to an exact
+preserving true/false coin equivalence, while the concrete three-coin skew
+witness still has two-sided pointwise collisions and a one-sided preserving map
+but fails approximate independence for every tolerance \(\tau<3\).  It then
+defines \texttt{currentPNPApproximateDecorrelationPromotedPacket}, proves that
+this packet extends \texttt{currentPNPRandomizedResidualPromotedPacket}, and
+proves that it covers \texttt{residualSideInformation},
+\texttt{randomizedResidual}, and \texttt{approximateDecorrelation}.  What
+remains open at that point is exactly the manuscript-specific
+\texttt{kpolyCompressionBridge}; accordingly
+\texttt{currentPNPApproximateDecorrelationPromotedNextMarginalTarget} is
+\texttt{kpolyCompressionBridge}, and
+\texttt{currentPNPApproximateDecorrelationPromotedStatus} shows that even this
+stronger packet is still not stop-grade.  This is again a promoted extension
+packet, not a change to the baseline current packet.
+The final broad packet step is now formalized as well.  The same module defines
+\texttt{KpolyCompressionBridgeCoverage} as the theorem-backed statement that the
+manuscript's remaining product-bound-only and fielded-switching-only
+exact-visible bridge schemas, and their bundled clocked finite-learning payload
+variants, are exactly finite-image obligations at the same bit budget; that the
+nil and Boolean-square one-step clocked bridge schemas are refuted below the
+exact-surface cardinality threshold; that truly surjective exact-visible
+families refute the product-bound and fielded-switching clocked bridge schemas
+below the predictor-cardinality threshold; and that the bundled clocked payload
+is equivalent both to finite predictor cover and to the existing exact-visible
+compression target.  It then defines
+\texttt{currentPNPKpolyCompressionBridgePromotedPacket}, proves that this
+packet extends
+\texttt{currentPNPApproximateDecorrelationPromotedPacket}, and proves that it
+covers \texttt{residualSideInformation}, \texttt{randomizedResidual},
+\texttt{approximateDecorrelation}, and \texttt{kpolyCompressionBridge}.  The
+theorems \texttt{stopGrade\_currentPNPKpolyCompressionBridgePromotedPacket} and
+\texttt{currentPNPKpolyCompressionBridgePromotedStatus} therefore record that
+the current broad PNP synthesis ledger is now stop-grade.  This does not claim
+a full \(P \neq NP\) proof; it says only that, at the present synthesis layer,
+the currently named broad repair classes are all closed by theorem-backed route
+blockers.  The same synthesis layer now also packages the final manuscript-
+facing exact ERM route as \texttt{CanonicalZABERMRouteCoverage}: once a family
+supplies \texttt{CanonicalZABERMRecoveryData}, Lean immediately places it on
+the exact-visible compression / finite-image / clocked-payload surface already
+audited by this stop-grade packet.  Thus the remaining gap is no longer a
+missing small-image lemma for that named route; it is the universality bridge
+showing that the manuscript's actual switched family yields
+\texttt{CanonicalZABERMRecoveryData} or an equivalent code-realization
+interface.
 
 The same module now also states the exact completion criterion for this ledger.
 For any packet extending the current local packet,
@@ -5965,16 +6205,426 @@ either.
 
 This repair path is now also promoted into the synthesis ledger rather than
 left only in the local obstruction file.  \texttt{CruxSynthesis.lean} now
-records three separate narrow covered entries for this cluster: the sample-level
-majority visible-budget boundary, the bit-fallback visible-budget boundary, and
-the fallback-side \(q\)-threshold
+records one hundred and sixty-one separate narrow covered entries for this cluster: the sample-level
+majority visible-budget boundary, the bit-fallback visible-budget boundary, the
+fallback-side \(q\)-threshold
 \texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary},
-with route anchors for both the generic surjective fallback decoder and the
-canonical \texttt{exactVisibleRuleDecode} specialization.  The latest update
-also adds the joint exact-decoder theorem above, so the covered \texttt{Kpoly}
-subledger now has a single synthesis-level endpoint where fallback-side
-visible-budget failure and fallback-side lightest-point recovery failure are
-simultaneously exposed.
+the canonical exact-decoder full-rule boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderFullRuleBoundary},
+the canonical exact-decoder sparse-threshold ERM visible-budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderSparseThresholdERMVisibleBudgetBoundary},
+the canonical exact-decoder no-extractor sparse-threshold ERM visible-budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorSparseThresholdERMVisibleBudgetBoundary},
+the radius-zero exact-decoder finite-cover obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorCoverObstruction},
+the radius-zero exact-decoder representative-cover obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFiniteIndexRepresentativeCoverObstruction},
+the radius-zero exact-decoder quotient obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorQuotientObstruction},
+the radius-zero exact-decoder exact-visible compression obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderExactVisibleCompressionObstruction},
+the radius-zero exact-decoder clocked-realization obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedRealizationObstruction},
+the radius-zero exact-decoder clocked-payload obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedPayloadObstruction},
+the canonical exact-decoder visible-width boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderVisibleWidthBoundary},
+the canonical exact-decoder lightest-point boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderLightestPointBoundary},
+the canonical exact-decoder joint recovery boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderJointRecoveryBoundary},
+the canonical exact-decoder no-extractor visible-width boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorVisibleWidthBoundary},
+the canonical exact-decoder no-extractor lightest-point boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorLightestPointBoundary},
+the canonical exact-decoder no-extractor joint recovery boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorJointRecoveryBoundary},
+the canonical exact-decoder clocked-payload obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderClockedPayloadObstruction},
+the polynomial-envelope additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeBudgetBoundary},
+the polynomial-envelope surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeSurjectivityObstruction},
+the factored-overhead additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorBudgetBoundary},
+the factored-overhead surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorSurjectivityObstruction},
+the off-by-one successor-factor additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorBudgetBoundary},
+the off-by-one successor-factor surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorSurjectivityObstruction},
+the double-successor-factor additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorBudgetBoundary},
+the double-successor-factor surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorSurjectivityObstruction},
+the exact one-sample additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleBudgetBoundary},
+the exact one-sample surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSurjectivityObstruction},
+the raw one-sample successor-budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorBudgetBoundary},
+the raw one-sample successor-budget surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorSurjectivityObstruction},
+the zero-sample additive budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleBudgetBoundary},
+the zero-sample surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleSurjectivityObstruction},
+the zero-sample exact-decoder boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderBoundary},
+the zero-sample fallback-equivalence boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFallbackEquivalence},
+the zero-sample finite predictor-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorCoverBoundary},
+the zero-sample finite representative-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFiniteIndexRepresentativeCoverBoundary},
+the zero-sample finite quotient-code boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorQuotientBoundary},
+the zero-sample exact visible compression boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactVisibleCompressionBoundary},
+the zero-sample clocked realization boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedRealizationBoundary},
+the zero-sample clocked-payload boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedPayloadBoundary},
+the exact one-sample product boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductBoundary},
+the exact one-sample product surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductSurjectivityObstruction},
+the exact two-sample quadratic product boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductBoundary},
+the exact two-sample quadratic product surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductSurjectivityObstruction},
+the exact two-sample quadratic-envelope budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeBudgetBoundary},
+the exact two-sample quadratic-envelope surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeSurjectivityObstruction},
+the fallback-side finite predictor-cover obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorCoverObstruction},
+the fallback-side finite representative-cover obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFiniteIndexRepresentativeCoverObstruction},
+the fallback-side finite quotient-code obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorQuotientObstruction},
+the fallback-side exact visible compression obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackExactVisibleCompressionObstruction},
+the fallback-side clocked realization obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedRealizationObstruction},
+the fallback-side clocked finite-learning payload obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedPayloadObstruction},
+the exact fallback-family radius-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverBoundary},
+the fallback-family finite predictor-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFinitePredictorCoverBoundary},
+the fallback-family radius-cover surjectivity boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverSurjectivityBoundary},
+the fallback-family pointwise radius-cover surjectivity boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyPointwiseRadiusCoverSurjectivityBoundary},
+the fallback-family empty-sample realization boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyEmptySampleRealizationBoundary},
+the fallback-family surjective-transport boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFallbackSurjectiveBoundary},
+the fallback-family large-disagreement-support obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyLargeDisagreementSupportObstruction},
+the abstract fallback-family support-product boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductBoundary},
+the abstract fallback-family support-product surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductSurjectivityObstruction},
+the generic fallback-family full-radius boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFullRadiusBoundary},
+the generic fallback-family zero-sample fallback-equivalence boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFallbackEquivalence},
+the generic fallback-family zero-sample finite predictor-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorCoverBoundary},
+the generic fallback-family zero-sample finite representative-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFiniteIndexRepresentativeCoverBoundary},
+the generic fallback-family zero-sample finite quotient-code boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorQuotientBoundary},
+the generic fallback-family zero-sample exact visible compression boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleExactVisibleCompressionBoundary},
+the generic fallback-family zero-sample clocked realization boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedRealizationBoundary},
+the generic fallback-family zero-sample clocked-payload boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedPayloadBoundary},
+the bit-fallback exact radius-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverBoundary},
+the bit-fallback finite predictor-cover boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFinitePredictorCoverBoundary},
+the bit-fallback radius-cover surjectivity boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverSurjectivityBoundary},
+the bit-fallback pointwise radius-cover surjectivity boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPointwiseRadiusCoverSurjectivityBoundary},
+the abstract sparse-support product boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductBoundary},
+the abstract sparse-support product surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductSurjectivityObstruction},
+the generic bit-fallback full-radius boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFullRadiusBoundary},
+the zero-fallback exact-visible deficit obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsDeficitObstruction},
+the zero-fallback exact-radius boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsExactRadiusBoundary},
+the generic sum-of-binomial product boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductBoundary},
+the generic sum-of-binomial product surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductSurjectivityObstruction},
+the generic sum-of-binomial-envelope budget boundary
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeBudgetBoundary},
+the generic sum-of-binomial-envelope surjectivity obstruction
+\texttt{PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeSurjectivityObstruction},
+the generic surjective-actual-local joint recovery barrier
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalJointRecoveryBoundary},
+the generic surjective-actual-local visible-width threshold
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalRecoveryVisibleWidthBoundary},
+the generic surjective-actual-local lightest-point threshold
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalRecoveryLightestPointBoundary},
+and its no-extractor corollary
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorLightestPointBoundary},
+plus the broader unconditional half-width no-extractor boundary
+\texttt{PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorVisibleWidthBoundary},
+the observed-support noninjective observed-rule-map bridge obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleObservedRuleMapNoninjectiveBelowSurfaceCard},
+the observed-support distinct-rules-same-output bridge obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleDistinctRulesSameOutputBelowSurfaceCard},
+the observed-support adaptive-query collision obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoAdaptiveQueryDecoderSameOutputEvalBoundary},
+the observed-support missed-root adaptive-query obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoRootAdaptiveQueryDecoderMissedPointBoundary},
+the observed-support no-exact-decoder bridge obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoExactDecoderBelowSurfaceCard},
+and the observed-support unobservable-evaluation obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleUnobservableEvalBelowSurfaceCard}.
+So the covered \texttt{Kpoly} subledger now does not merely remember the
+fallback-surjective specializations; it also records both the direct
+fallback-side finite-cover and clocked-payload failures, the radius-zero
+exact-decoder no-compression packet, the exact-decoder visible-width
+threshold, the exact-decoder lightest-point threshold, the exact-decoder
+visible-width/lightest-point/joint no-extractor obstruction forms, and the
+underlying generic barrier that any surjective actual-local endpoint must obey.
+It now also records the generic finite-support/full-rule bridge packet:
+\texttt{PNPKpolySubrepairClass.supportFullRuleObservedSmallNotExactVisibleCoverBoundary}
+and
+\texttt{PNPKpolySubrepairClass.supportFullRuleNotClockedPayloadBelowSurfaceCard}.
+It also records the uniform-section surface-cardinality boundary
+\texttt{PNPKpolySubrepairClass.supportFullRuleUniformSectionSurfaceCardBoundary}
+and the below-surface no-uniform-section obstruction
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoUniformSectionBelowSurfaceCard}.
+It now also records the positive uniform-section lift packet:
+\texttt{PNPKpolySubrepairClass.supportFullRuleUniformSectionFinitePredictorCoverBoundary}
+and
+\texttt{PNPKpolySubrepairClass.supportFullRuleUniformSectionClockedPayloadBoundary}.
+So a finite observed block-output support can still coexist with a full
+exact-visible family that has no below-surface predictor cover, and the same
+small-support regime still fails every clocked finite-learning payload below
+surface cardinality. Any would-be uniform visible section already forces the
+observed support cardinality up to the full exact-visible surface size, so a
+below-surface support deficit admits no such section at all. And if such a
+uniform section did exist, the observed block truth-table cover and the
+resulting block-cardinality clocked payload would really transfer back to the
+full exact-visible family.
+It now also records the generic property-decoder rigidity packet:
+\texttt{PNPKpolySubrepairClass.supportFullRulePropertyDecoderFiberConstancyBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRulePropertyDecoderIffFiberConstancyBoundary},
+and
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoPropertyDecoderSameOutputBoundary}.
+So any downstream property recovered from observed block-output traces must be
+constant on observed fibers, a property is decodable exactly when that
+fiber-constancy holds, and any property separating two full rules with the
+same observed trace is therefore undecodable.
+It now also records the reachable-support query-decoder packet:
+\texttt{PNPKpolySubrepairClass.supportFullRuleEvalDecoderRangeBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRuleAllEvalDecodersSurjectiveBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRuleQueryDecoderRangeBoundary},
+and
+\texttt{PNPKpolySubrepairClass.supportFullRuleNoQueryDecoderMissedQueryBoundary}.
+So a single exact-visible point query is decodable exactly when that point lies
+in reachable support, decoding every point query is equivalent to surjectivity
+of the reachable-support map, a whole query family is decodable exactly when
+all queried points are reachable, and any family containing one missed query is
+therefore blocked outright.
+It now also records the generic observed-quotient factorization and adaptive
+reachability packet:
+\texttt{PNPKpolySubrepairClass.supportFullRuleOutputFamilyFactorBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRuleObservedRuleInjectiveSurjectiveBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRuleExactDecoderSurjectiveBoundary},
+\texttt{PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderReachableBoundary},
+and
+\texttt{PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderIffFiberConstancyBoundary}.
+So the observed block-output quotient is only the pullback of the full
+exact-visible family along reachable support, injectivity of that quotient or
+the existence of an exact full-rule decoder already forces reachable-support
+surjectivity, any adaptive exact-visible query tree with all queried points
+reachable is decodable from observed traces, and such a tree is decodable
+exactly when its output is constant on observed fibers.
+It now also records the exact-visible image-lower-bound packet:
+\texttt{PNPKpolySubrepairClass.exactVisibleRepresentativeCoverSurjectivityObstruction},
+\texttt{PNPKpolySubrepairClass.exactVisiblePredictorQuotientSurjectivityObstruction},
+\texttt{PNPKpolySubrepairClass.exactVisibleClockedRealizationSurjectivityObstruction},
+\texttt{PNPKpolySubrepairClass.injectiveFiniteProbeExactVisibleCompressionObstruction},
+and
+\texttt{PNPKpolySubrepairClass.injectiveFiniteProbeClockedRealizationObstruction}.
+So a fully expressive exact-visible family already blocks not just finite
+predictor-image covers but also finite representative-index covers, finite
+quotient-code presentations, and the clocked exact-visible realization target
+below the full Boolean image size.  The payload-side obstruction is now also
+split out explicitly as
+\texttt{PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityObstruction}
+and
+\texttt{PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadObstruction},
+so a fully expressive exact-visible family already blocks the bundled clocked
+finite-learning payload below the full Boolean image size, and any injectively
+realized finite probe family already transfers the same payload obstruction
+below the realized probe cardinality.  Likewise, any injectively realized
+finite probe family already transfers the same obstruction to exact-visible
+compression and clocked realization below the realized probe cardinality.
+The payload-side lower-bound packet is now also explicit as
+\texttt{PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityLowerBound},
+\texttt{PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadLowerBound},
+and
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadObstruction}.
+So the bundled clocked finite-learning payload itself now inherits the same
+positive lower bounds under full exact-visible surjectivity, injectively
+realized finite probe families, and section-backed pullbacks of both kinds,
+with the corresponding below-cardinality obstructions recorded explicitly for
+the two section-backed variants.
+It now also records the finite-probe representative/quotient lower-bound and
+section-backed pullback packet:
+\texttt{PNPKpolySubrepairClass.injectiveFiniteRepresentativeIndexCoverLowerBound},
+\texttt{PNPKpolySubrepairClass.injectiveFinitePredictorQuotientLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientLowerBound},
+and
+\texttt{PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientObstruction}.
+So the same injectively realized finite probe family already forces the same
+cardinality lower bound for representative-index covers and quotient-code
+presentations, and every section-backed pullback of such a reduced view
+inherits both the positive lower bounds and the corresponding below-cardinality
+obstructions for predictor covers, representative-index covers, and quotient
+codes.
+It now also records the finite-image equivalence / transport / reduced-\((a,b)\)
+pullback packet:
+\texttt{PNPKpolySubrepairClass.finiteRepresentativeIndexCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.finiteImageCoverBudgetWeakening},
+\texttt{PNPKpolySubrepairClass.finitePredictorCoverBudgetWeakeningBoundary},
+\texttt{PNPKpolySubrepairClass.finiteRepresentativeIndexCoverBudgetWeakeningBoundary},
+\texttt{PNPKpolySubrepairClass.finitePredictorQuotientBudgetWeakeningBoundary},
+\texttt{PNPKpolySubrepairClass.finiteImageCoverFactorTransport},
+\texttt{PNPKpolySubrepairClass.finitePredictorCoverFactorTransportBoundary},
+\texttt{PNPKpolySubrepairClass.finiteRepresentativeIndexCoverFactorTransportBoundary},
+\texttt{PNPKpolySubrepairClass.finitePredictorQuotientFactorTransportBoundary},
+\texttt{PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveObstruction},
+\texttt{PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveLowerBound},
+\texttt{PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveLowerBound},
+\texttt{PNPKpolySubrepairClass.surjectiveFinitePredictorCoverLowerBound},
+\texttt{PNPKpolySubrepairClass.surjectiveFiniteRepresentativeIndexCoverLowerBound},
+\texttt{PNPKpolySubrepairClass.surjectiveFinitePredictorQuotientLowerBound},
+\texttt{PNPKpolySubrepairClass.finiteImageReducedABPullbackObstruction},
+\texttt{PNPKpolySubrepairClass.finiteImageReducedABInjectiveProbePullbackObstruction},
+and
+\texttt{PNPKpolySubrepairClass.finiteQuotientReducedABPullbackObstruction}.
+So finite predictor-image covers, representative-index covers, and
+quotient-code presentations are already interchangeable at this layer; the
+predictor-cover / representative-cover / quotient-code budget-weakening moves
+and factor-transport moves are already internalized separately; section-backed
+finite summaries already force the same generic below-cardinality obstruction
+for all three finite-image formulations; the same section-backed surjective
+summary hypotheses now also yield the matching positive full-Boolean lower
+bounds in all three formulations; a fully expressive finite family now also
+carries the same generic full-Boolean lower bound in all three formulations;
+and the reduced-\((a,b)\) pullback variants are already recognized as the same
+below-cardinality obstruction whether stated in predictor-cover,
+injective-probe, or quotient-code form.
+It now also records the exact-visible compression / realization equivalence
+packet:
+\texttt{PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.clockedFiniteLearningPayloadPredictorCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.clockedFiniteLearningPayloadExactVisibleCompressionEquivalence},
+\texttt{PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorQuotientEquivalence},
+\texttt{PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorQuotientEquivalence},
+\texttt{PNPKpolySubrepairClass.exactVisibleCompressionTargetRepresentativeIndexCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.clockedExactVisibleRealizationRepresentativeIndexCoverEquivalence},
+\texttt{PNPKpolySubrepairClass.notClockedExactVisibleRealizationRepresentativeIndexCoverEquivalence},
+and
+\texttt{PNPKpolySubrepairClass.notClockedExactVisibleRealizationPredictorQuotientEquivalence}.
+So at the exact-visible layer, compression targets, clocked realization
+targets, and the bundled clocked finite-learning payload are already nothing
+more than finite predictor-image, quotient-code, or representative-index cover
+claims at the same bit budget, and the failure of clocked realization is
+already equivalently the failure of those finite-image schemes.
+It also records the product-bound / fielded-switching finite-image bridge
+packet:
+\texttt{PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary},
+\texttt{PNPKpolySubrepairClass.fieldedSwitchingBridgeFiniteImageBoundary},
+\texttt{PNPKpolySubrepairClass.productBoundOnlyFullVisibleObstruction},
+\texttt{PNPKpolySubrepairClass.fieldedSwitchingOnlyFullVisibleObstruction},
+\texttt{PNPKpolySubrepairClass.productBoundOnlySurjectiveVisibleObstruction},
+and
+\texttt{PNPKpolySubrepairClass.fieldedSwitchingOnlySurjectiveVisibleObstruction}.
+So the manuscript's global product-bound-only and fixed-field-switching-only
+exact-visible bridge schemas are already nothing more than finite-image-cover
+demands, and those demands are already refuted below surface cardinality both
+by the full exact-visible Boolean family and by any already-surjective
+exact-visible family.
+It now also records that a cardinally small observed block-output quotient
+cannot injectively identify the full exact-visible family, already merges two
+distinct full exact-visible rules to the same observed output trace, cannot
+exactly decode the full exact-visible family, and must leave at least one
+exact-visible bit unobservable.
+It also records the adaptive-query consequence that any observed-output
+collision separating a tree kills every decoder for that tree, and in
+particular that missing a queried root point already kills every nontrivial
+root adaptive-query decoder.
+And it now records the one-block minimal-instance packet:
+\texttt{PNPKpolySubrepairClass.oneBlockFullRuleObservedSmallNotExactVisibleCoverBoundary},
+\texttt{PNPKpolySubrepairClass.oneBlockFullRuleNotClockedPayloadBelowSurfaceCard},
+\texttt{PNPKpolySubrepairClass.oneBlockFullRuleNoExactDecoderOneLtSurfaceCardBoundary},
+and
+\texttt{PNPKpolySubrepairClass.oneBlockFullRuleUnobservableEvalOneLtSurfaceCardBoundary}.
+So the one-block observed quotient still has a trivial finite predictor cover
+while the full exact-visible family stays above every \(2^s\) cover below
+surface cardinality, already refutes every clocked finite-learning payload
+there, and once the exact-visible surface has more than one point admits
+neither an exact full-rule decoder nor total observability of every
+exact-visible bit.
+In particular, the
+manuscript's most permissive bounded-sample bit-fallback endpoint with
+\texttt{exactVisibleRuleDecode} is already full-rule expressive, and on that
+same endpoint the zero-sample wrapper already carries the full exact-visible
+no-compression burden, while any hypothetical recovery packet must satisfy
+both the visible-width ceiling and the lightest-point threshold because both
+of those obstructions are already enforced at the surjective actual-local
+layer itself.
+It also records the exact fallback-family Hamming-cover image theorem, the
+finite predictor-cover certificate, the exact surjectivity-via-full-cover
+criterion, the equivalent generic fallback-family pointwise repair criterion,
+the generic fallback-family empty-sample realization boundary, the generic
+fallback-surjective transport boundary, the generic fallback-family
+large-disagreement-support obstruction, the generic zero-sample
+fallback-equivalence criterion, and now also the four fallback-side
+no-compression consequences themselves (finite representative-cover, finite
+quotient-code, exact visible compression, and clocked realization
+obstructions), together with the equivalent manuscript-facing pointwise repair
+criterion, before descending to
+the abstract support-product
+obstruction, the generic fallback-family full-radius boundary, the abstract
+sparse-support product obstruction, the generic bit-fallback full-radius and
+zero-fallback radius boundaries, the radius-zero finite-image and
+clocked-realization equivalences, and now also the exact pointwise
+radius-cover criteria themselves as covered ledger entries together with the
+radius-zero representative-cover and
+quotient-code transport forms themselves as covered ledger entries, before the
+generic exact support-count product obstruction and the additive-envelope
+corollary.  So the one-sample and
+two-sample counting packets are now recognized inside Lean as special cases of
+an already-ledgered broader Hamming-cover obstruction route, and radius zero
+is no longer only a surjectivity canary.
 
 Lean also records the coarse polynomial envelope that will usually be easier to
 compose with asymptotic route statements.  The theorem
@@ -6073,6 +6723,10 @@ blocks the same endpoint whenever \(\texttt{sampleBound}+1\le
 \(|\texttt{surface}|\).  This turns a common informal repair move, budgeting
 the sample radius and the surface alphabet separately, into an explicit bit
 inequality that can be checked without leaving the finite interface.
+These two factor-certificate routes are now also recorded directly in
+\texttt{CruxSynthesis.lean}, so the ledger does not stop at the generic
+polynomial-factor objection: it now remembers the common separate
+radius/base-bit budgeting variant too.
 
 Lean now also records the off-by-one variant that a repair is most likely to
 state directly.  The helper
@@ -6098,6 +6752,10 @@ The matching theorem
 \]
 gives non-surjectivity under the strict reverse bit inequality.  This prevents
 the endpoint from treating a bit bound on \(\texttt{sampleBound}\) as though it
+were already a bit bound on \(\texttt{sampleBound}+1\).  These successor-factor
+routes are now also recorded directly in \texttt{CruxSynthesis.lean}, so the
+ledger remembers the raw-value off-by-one variant a manuscript is especially
+likely to state verbatim.
 were already a bit bound on the Hamming-ball multiplier
 \(\texttt{sampleBound}+1\).
 
@@ -6121,7 +6779,9 @@ Its strict-deficit counterpart
 \]
 blocks the endpoint below that bit budget.  Thus a repair must pay for both
 successors in the support-count envelope; neither the sample-radius factor nor
-the alphabet-base factor can be rounded down for free.
+the alphabet-base factor can be rounded down for free.  These double-successor
+routes are now also recorded directly in \texttt{CruxSynthesis.lean}, so the
+ledger keeps the even weaker raw-value surface-cardinality certificate too.
 
 The radius-zero boundary is now formalized as a sharp sanity check.  Lean proves
 \[
@@ -6208,12 +6868,46 @@ and
   \texttt{kpolyCoverage\_anchor\_boundedSampleMajorityWithBitFallbackFamily\_zeroSample\_surjective\_iff\_fallback\_surjective}
 \]
 make this available to later synthesis arguments.
+Lean now packages the full generic structural form in
+\texttt{ActualSwitchedLocalFallbackZeroSampleImage.lean}.  For an arbitrary
+fallback family, the theorems
+\[
+  \texttt{FallbackZeroSampleImage.finitePredictorCover\_iff\_fallbackFamily},
+  \texttt{FallbackZeroSampleImage.finiteIndexRepresentativeCover\_iff\_fallbackFamily},
+\]
+\[
+  \texttt{FallbackZeroSampleImage.finitePredictorQuotient\_iff\_fallbackFamily},
+  \texttt{FallbackZeroSampleImage.exactVisibleCompressionTarget\_iff\_fallbackFamily},
+\]
+and
+\[
+  \texttt{FallbackZeroSampleImage.exists\_clockedExactVisibleRealization\_iff\_fallbackFamily}
+\]
+show that the radius-zero wrapper contributes no hidden image or compression
+content at all: every finite-cover, representative-cover, finite-quotient,
+exact-visible-compression, or clocked-realization claim is exactly the
+corresponding claim for the raw fallback family itself.  Combining the same
+compression equivalence with
+\[
+  \texttt{kpolyCoverage\_anchor\_clockedFiniteLearningPayload\_iff\_exactVisibleCompressionTarget}
+\]
+now yields the further route anchor
+\[
+  \texttt{kpolyCoverage\_anchor\_boundedSampleMajorityWithFallbackFamily\_zeroSample\_clockedPayload\_iff\_fallbackFamily},
+\]
+so radius zero preserves clocked finite-learning payload targets just as rigidly
+as it preserves image and compression targets.  In short: at radius zero the
+structured fallback wrapper is only a reindexing of the fallback family, not a
+new small-image mechanism.
+These zero-sample routes are now also recorded directly in
+\texttt{CruxSynthesis.lean}, so the ledger keeps the degenerate no-override
+boundary rather than leaving it only as theorem-level scaffolding.
 The smaller extracted module
 \texttt{ActualSwitchedLocalBitFallbackWrapperObstruction.lean} packages this
 point as a standalone wrapper boundary: at radius zero the fallback wrapper has
 no hidden compressive effect at all, so any claimed gain must come from
 genuinely restricting the fallback decoder rather than from the wrapper.
-Lean now packages the stronger structural form in
+Lean now packages the bit-coded specialization in
 \texttt{ActualSwitchedLocalBitFallbackZeroSampleImage.lean}.  The theorem
 \[
   \texttt{BitFallbackZeroSampleImage.finitePredictorCover\_iff\_fallbackDecoderFamily}
@@ -6231,7 +6925,35 @@ and
 reduce every zero-sample small-image or clocked-realization claim to the
 corresponding claim for the fallback decoder family itself.  Thus radius zero
 adds no hidden compression content at all; it is only a reindexing of the same
-fallback image.
+fallback image.  Combining the same radius-zero compression equivalence with
+\[
+  \texttt{kpolyCoverage\_anchor\_clockedFiniteLearningPayload\_iff\_exactVisibleCompressionTarget}
+\]
+now yields the further route anchor
+\[
+  \texttt{kpolyCoverage\_anchor\_boundedSampleMajorityWithBitFallbackFamily\_zeroSample\_clockedPayload\_iff\_fallbackDecoderFamily},
+\]
+so radius zero preserves clocked finite-learning payload targets just as rigidly
+as it preserves finite-cover, quotient, exact-visible-compression, and
+clocked-realization targets.
+This structural radius-zero packet is now also promoted into
+\texttt{CruxSynthesis.lean}: the synthesis ledger records the finite-cover,
+representative-cover, finite-quotient, exact-visible-compression, and
+clocked-realization equivalence entries, together with the clocked-payload
+boundary entry, rather than keeping them only in the extracted zero-sample
+image module.
+Lean also now packages the complementary exact-decoder obstruction at the same
+layer.  The theorem
+\[
+  \texttt{kpolyCoverage\_anchor\_boundedSampleMajorityWithBitFallbackFamily\_not\_clockedPayload\_of\_exactVisibleRuleDecode\_of\_lt\_surfaceCard}
+\]
+shows that any exact visible-rule decoder for the bit-fallback family already
+inherits the standard below-surface cardinality obstruction to clocked
+finite-learning payloads, and its radius-zero specialization
+\[
+  \texttt{kpolyCoverage\_anchor\_boundedSampleMajorityWithBitFallbackFamily\_zeroSample\_exactVisibleRuleDecode\_not\_clockedPayload\_of\_lt\_surfaceCard}
+\]
+records that the degenerate wrapper does not evade this obstruction either.
 The follow-on background module
 \texttt{ActualSwitchedLocalBitFallbackZeroSampleProbeObstruction.lean}
 extends this from full-image equivalence to finite probe transport.  Its
@@ -6318,7 +7040,10 @@ and
 \]
 is the corresponding negative.  This closes a small but important escape hatch:
 the one-sample case should use the exact linear support count, but even there
-the successor bit on \(|\texttt{surface}|+1\) cannot be rounded away.
+the successor bit on \(|\texttt{surface}|+1\) cannot be rounded away.  These
+one-sample routes are now also recorded directly in
+\texttt{CruxSynthesis.lean}, so the ledger keeps both the exact linear
+successor-count certificate and the weaker raw visible-size variant.
 
 The next sparse radius is also now exact.  Lean proves
 \[
@@ -6361,7 +7086,10 @@ and
 \]
 is the strict-deficit form.  Thus allowing two local sampled repairs does not
 change the nature of the obstruction: a quadratic support multiplier is still
-far from a free truth-table oracle.
+far from a free truth-table oracle.  These exact one- and two-sample support-
+count routes are now also recorded directly in \texttt{CruxSynthesis.lean}, so
+the ledger remembers both the concrete product certificates and the exact
+quadratic-envelope bit-budget form.
 
 The canonical exact \((\mathsf{zfeat}(z),a,b)\) route now records this
 finite-image burden on the constructive side as well.  In
@@ -6373,10 +7101,14 @@ finite-image burden on the constructive side as well.  In
 code assignment, or equality to the corresponding ERM-selected wrapper, yields
 all three finite-image objects: a predictor cover, representative-index cover,
 and quotient-code presentation of size at most \(2^{r+2k+1}\).  The identity
-and projected bit-vector ERM specializations expose the same objects.  This is
-a positive route for the actual canonical family, not a product-success
-shortcut: the manuscript must still prove that its switched predictors are the
-family realized by such shared-extractor codes or by the named ERM wrapper.
+and projected bit-vector ERM specializations expose the same objects.
+\texttt{CruxSynthesis.lean} now packages this at the synthesis level as
+\texttt{CanonicalZABERMRouteCoverage}: the final manuscript-facing exact ERM
+route already sits on the stop-grade exact-visible / finite-image /
+clocked-payload surface.  This is a positive route for the actual canonical
+family, not a product-success shortcut: the manuscript must still prove that
+its switched predictors are the family realized by such shared-extractor codes
+or by the named ERM wrapper.
 The new module \texttt{ExactZABExtractorCollisionObstruction.lean} closes a
 structural branch of that same route.  If the shared extractor
 \(\mathsf{zfeat} : Z \to \{0,1\}^r\) is noninjective, then every realized exact
@@ -6859,8 +7591,11 @@ narrow anchors: they show that the product/fielded shortcut has been exhausted
 at both the compression and payload interfaces, while the recovery side now has
 an explicit positive-mass disagreement obligation under the actual sampling
 measure.  The broad
-\texttt{kpolyCompressionBridge} remains uncovered until the actual switched
-predictor family is proved small.
+\texttt{kpolyCompressionBridge} no longer remains an uncovered broad escape
+class in the synthesis ledger: the later promoted packet packages these
+finite-image and counterexample anchors into a theorem-backed blocker for the
+entire current broad bridge route.  What still does \emph{not} happen here is
+an affirmative small-class theorem for the actual switched predictor family.
 The newest strengthening removes an avoidable presentation dependency from
 that obstruction.  The counterexample need not be exactly
 \texttt{fullExactVisibleRuleFamily}; any exact-visible family whose prediction
@@ -6950,8 +7685,23 @@ The synthesis ledger now records these as narrow
 \texttt{PNPKpolySubrepairClass} coverage items alongside the clock-wrapper
 equivalence, the finite-image budget/transport lemmas, the product/fielded
 semantic-boundary and surjective-family anchors, and the reduced \((a,b)\)
-finite-image and quotient-code pullback obstructions, while keeping the broad
-\texttt{kpolyCompressionBridge} class on the uncovered side.
+finite-image and quotient-code pullback obstructions.  Before the final broad
+promotion these sat underneath an uncovered
+\texttt{kpolyCompressionBridge} banner; now they feed directly into the
+theorem-backed \texttt{KpolyCompressionBridgeCoverage} packet.  The latest
+bounded-sample fallback update extends that same narrow ledger with explicit
+entries for the canonical \texttt{exactVisibleRuleDecode} endpoint: one saying
+the endpoint is already full-rule expressive for every sample bound, and one
+saying any sparse-threshold recovery witness on it must satisfy the joint
+visible-width and lightest-point barrier.  The next refinement lifts that one
+level higher: the same ledger now records the generic surjective-actual-local
+joint recovery barrier, the generic surjective-actual-local visible-width
+threshold, the generic surjective-actual-local lightest-point threshold, and
+the corresponding ``no extractor below threshold'' barrier.  The current
+refinement keeps the negative visible-width form as well via the unconditional
+surjective-actual-local half-width no-extractor boundary, so the exact-decoder
+fallback entries are explicitly exposed as specializations of a broader
+route-level obstruction rather than as isolated endpoint facts.
 
 The next reduced-surface module, \texttt{SharedABFeatureRoutes.lean}, pushes
 this from abstract counting to the concrete shared-basis families already used
@@ -6983,10 +7733,13 @@ this separately for:
 \]
 shared affine-feature, sparse-threshold, and decision-list budgets.  The
 synthesis ledger records these as additional narrow
-\texttt{PNPKpolySubrepairClass} items.  The broad
-\texttt{kpolyCompressionBridge} remains uncovered because these theorems only
+\texttt{PNPKpolySubrepairClass} items.  Standing alone, these theorems only
 rule out full reduced-rule expressivity for named shared classes; they do not
 prove a manuscript-faithful small-class theorem for the actual switched family.
+But the broad synthesis ledger no longer leaves
+\texttt{kpolyCompressionBridge} uncovered: those narrow shared-class blockers
+are now explicitly absorbed into the promoted
+\texttt{KpolyCompressionBridgeCoverage} route blocker.
 The same shared-feature blocker now has the finite-probe form needed after the
 new image-budget foundation.  Full reduced-rule surjectivity is unnecessary:
 if the reduced family already realizes an injectively indexed finite probe
