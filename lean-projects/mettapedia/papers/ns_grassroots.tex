@@ -2628,8 +2628,16 @@ In \texttt{NavierStokesBKMContinuationTarget.lean}, theorem
 false as stated because it still quantifies over negative horizons: on
 \(T<0\), nonzero linear shear carries a formal finite-time witness and a
 vacuous BKM envelope on the empty slab, while the demanded whole-space global
-output is already impossible.  So only the repaired finite-energy or otherwise
-nonnegative-horizon BKM formulations remain analytically meaningful.
+output is already impossible.  Lean therefore now names the repaired boundary
+directly as
+\texttt{ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons}; the theorems
+\texttt{ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons\_implies\_BKMContinuationClause\_allNonnegHorizons}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons\_implies\_uniformVorticityContinuationClause\_allNonnegHorizons}
+record exactly what can still be exported to the unrepaired BKM and
+uniform-vorticity continuation clauses on nonnegative horizons.  So only these
+repaired finite-energy, nonnegative-horizon formulations remain analytically
+meaningful.
 
 The same exact closure route now also inhabits the older uniform-vorticity
 continuation surface.  In

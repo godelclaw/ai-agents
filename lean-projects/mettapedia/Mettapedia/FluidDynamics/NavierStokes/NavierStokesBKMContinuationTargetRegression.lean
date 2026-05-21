@@ -59,6 +59,31 @@ theorem unrepaired_BKM_target_negative_horizon_regression :
     ¬ ExplicitBKMContinuationTarget := by
   exact not_ExplicitBKMContinuationTarget
 
+theorem repaired_BKM_target_exports_nonnegative_horizon_target_regression
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTarget) :
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationTarget_implies_finiteEnergyBKMContinuationTargetOnNonnegHorizons
+      hBKM
+
+theorem nonnegative_horizon_BKM_target_exports_unrepaired_clause_regression
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} {T : ℝ}
+    (hT : 0 ≤ T) :
+    ExplicitBKMContinuationClause ν u₀ T := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_BKMContinuationClause_of_nonneg_horizon
+      hBKM hT
+
+theorem nonnegative_horizon_BKM_target_exports_uniform_clause_regression
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} {T : ℝ}
+    (hT : 0 ≤ T) :
+    ExplicitUniformVorticityContinuationClause ν u₀ T := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_of_nonneg_horizon
+      hBKM hT
+
 theorem transported_heat_shear_unit_exp_BKM_envelope_regression :
     vorticityEnvelopeOn (heatShearTransportVelocityField 0 1 1 1) 1
         (heatShearExpVorticityEnvelope 0 1 1) ∧

@@ -129,6 +129,13 @@ def ExplicitFiniteEnergyBKMContinuationTarget : Prop :=
   ∀ ν : ℝ, ∀ u₀ : NSInitialVelocity, ∀ T : ℝ,
     ExplicitFiniteEnergyBKMContinuationClause ν u₀ T
 
+/-- Corrected repaired BKM continuation target: only nonnegative horizons are
+admissible. This removes the negative-horizon empty-slab loophole while keeping
+the intended finite-energy BKM continuation surface. -/
+def ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons : Prop :=
+  ∀ ν : ℝ, ∀ u₀ : NSInitialVelocity, ∀ ⦃T : ℝ⦄,
+    0 ≤ T → ExplicitFiniteEnergyBKMContinuationClause ν u₀ T
+
 /-- Any explicit whole-space regularity clause immediately yields the
 corresponding fixed-horizon BKM continuation clause on the same datum. -/
 theorem ExplicitConcreteNavierStokesRegularityClause_implies_ExplicitBKMContinuationClause
@@ -2338,6 +2345,15 @@ theorem ExplicitBKMContinuationTarget_implies_finiteEnergyBKMContinuationTarget
   intro ν u₀ T
   exact ExplicitBKMContinuationClause_implies_finiteEnergy (hBKM ν u₀ T)
 
+/-- The all-horizons repaired BKM target immediately yields the corrected
+nonnegative-horizon repaired target. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTarget_implies_finiteEnergyBKMContinuationTargetOnNonnegHorizons
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTarget) :
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons := by
+  intro ν u₀ T _hT
+  exact hBKM ν u₀ T
+
 /-- On a nonnegative slab, the repaired and unrepaired BKM continuation clauses
 coincide because any actual finite-time witness already carries finite initial
 kinetic energy. -/
@@ -2374,6 +2390,18 @@ theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_BKMContinuationClause_
     ExplicitFiniteEnergyBKMContinuationClause_implies_BKMContinuationClause_of_nonneg_horizon
       (hClause := hBKM ν u₀ T) hT
 
+/-- The corrected nonnegative-horizon repaired BKM target forgets to the
+unrepaired BKM clause at each fixed nonnegative horizon. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_BKMContinuationClause_of_nonneg_horizon
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} {T : ℝ}
+    (hT : 0 ≤ T) :
+    ExplicitBKMContinuationClause ν u₀ T := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationClause_implies_BKMContinuationClause_of_nonneg_horizon
+      (hClause := hBKM ν u₀ hT) hT
+
 /-- The repaired BKM target also forgets to the unrepaired BKM clause family
 on every nonnegative horizon. -/
 theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_BKMContinuationClause_allNonnegHorizons
@@ -2385,6 +2413,18 @@ theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_BKMContinuationClause_
     ExplicitFiniteEnergyBKMContinuationTarget_implies_BKMContinuationClause_of_nonneg_horizon
       (ν := ν) (u₀ := u₀) (T := T) hBKM hT
 
+/-- The corrected nonnegative-horizon repaired BKM target forgets to the
+unrepaired BKM clause family on every nonnegative horizon. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_BKMContinuationClause_allNonnegHorizons
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} :
+    ∀ ⦃T : ℝ⦄, 0 ≤ T → ExplicitBKMContinuationClause ν u₀ T := by
+  intro T hT
+  exact
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_BKMContinuationClause_of_nonneg_horizon
+      (ν := ν) (u₀ := u₀) (T := T) hBKM hT
+
 /-- The repaired explicit finite-energy theorem surface directly implies the
 repaired BKM-style continuation target. -/
 theorem ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyBKMContinuationTarget
@@ -2394,6 +2434,16 @@ theorem ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finit
   exact
     ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_implies_ExplicitFiniteEnergyBKMContinuationClause_allHorizons
       (h ν u₀)
+
+/-- The repaired explicit finite-energy theorem surface also proves the
+corrected nonnegative-horizon BKM continuation target. -/
+theorem
+    ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyBKMContinuationTargetOnNonnegHorizons
+    (h : ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget) :
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationTarget_implies_finiteEnergyBKMContinuationTargetOnNonnegHorizons
+      (ExplicitFiniteEnergyAdmissibleNavierStokesMillenniumTarget_implies_finiteEnergyBKMContinuationTarget h)
 
 /-- The repaired explicit finite-energy theorem surface also exports the whole
 fixed-datum family of repaired BKM continuation clauses. -/
@@ -2746,6 +2796,20 @@ theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_uniformVorticityContin
         ExplicitFiniteEnergyBKMContinuationTarget_implies_BKMContinuationClause_of_nonneg_horizon
           hBKM hT)
 
+/-- The corrected nonnegative-horizon repaired BKM target gives the unrepaired
+uniform-vorticity clause on every fixed nonnegative horizon. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_of_nonneg_horizon
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} {T : ℝ}
+    (hT : 0 ≤ T) :
+    ExplicitUniformVorticityContinuationClause ν u₀ T := by
+  exact
+    ExplicitBKMContinuationClause_implies_uniformVorticityContinuationClause
+      (hClause :=
+        ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_BKMContinuationClause_of_nonneg_horizon
+          hBKM hT)
+
 /-- The repaired BKM target also gives the unrepaired uniform clause family on
 every nonnegative horizon. -/
 theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_uniformVorticityContinuationClause_allNonnegHorizons
@@ -2755,6 +2819,18 @@ theorem ExplicitFiniteEnergyBKMContinuationTarget_implies_uniformVorticityContin
   intro T hT
   exact
     ExplicitFiniteEnergyBKMContinuationTarget_implies_uniformVorticityContinuationClause_of_nonneg_horizon
+      (ν := ν) (u₀ := u₀) (T := T) hBKM hT
+
+/-- The corrected nonnegative-horizon repaired BKM target gives the unrepaired
+uniform-vorticity clause family on every nonnegative horizon. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_allNonnegHorizons
+    (hBKM : ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons)
+    {ν : ℝ} {u₀ : NSInitialVelocity} :
+    ∀ ⦃T : ℝ⦄, 0 ≤ T → ExplicitUniformVorticityContinuationClause ν u₀ T := by
+  intro T hT
+  exact
+    ExplicitFiniteEnergyBKMContinuationTargetOnNonnegHorizons_implies_uniformVorticityContinuationClause_of_nonneg_horizon
       (ν := ν) (u₀ := u₀) (T := T) hBKM hT
 
 /-- The BKM-style target implies the uniform-vorticity continuation target.
