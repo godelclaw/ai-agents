@@ -1367,7 +1367,11 @@ shows that the manuscript-style boxed steady seed with a smooth time-only
 pressure gauge cannot even be an exact global output when the same
 zero-pressure stationary residual fails at one slab point, and
 \texttt{boxedPartialPeriodizationSteadySeed\_timeOnlyPressure\_exhibits\_nonMomentumGlobalFields\_without\_exactGlobalOutput}
-records that the seed still carries every other whole-space output field.
+records that the seed still carries every other whole-space output field.  The
+existential no-go
+\texttt{not\_exists\_ExplicitConcreteNavierStokesGlobalOutputWithVelocityPressure\_boxedPartialPeriodizationSteadySeed\_zeroSpatialGradientPressure\_of\_stationaryMomentum\_failure}
+now closes the whole smooth zero-gradient pressure repair class at the exact
+global-output layer from the same single failed zero-pressure residual.
 
 That same obstruction now survives the older uniform-vorticity packaging layer
 too.  In
