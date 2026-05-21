@@ -1267,6 +1267,30 @@ theorem current_pnp_kpoly_full_rule_actual_local_no_extractor_recovery_bitvec_ca
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryBitVecCardinalityThresholdObstruction
 
+theorem current_pnp_kpoly_full_rule_actual_local_recovery_threshold_width_regression :
+    PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdWidthBoundary
+
+theorem current_pnp_kpoly_full_rule_actual_local_no_extractor_recovery_threshold_width_regression :
+    PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryThresholdWidthObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.fullRuleActualLocalNoExtractorRecoveryThresholdWidthObstruction
+
+theorem current_pnp_kpoly_bounded_sample_plugin_majority_actual_local_recovery_threshold_width_regression :
+    PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalRecoveryThresholdWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalRecoveryThresholdWidthBoundary
+
+theorem current_pnp_kpoly_bounded_sample_plugin_majority_actual_local_no_extractor_recovery_threshold_width_regression :
+    PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction
+
 theorem current_pnp_kpoly_full_rule_actual_local_recovery_threshold_visible_budget_regression :
     PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by
@@ -1866,6 +1890,94 @@ theorem kpoly_anchor_actual_local_no_injective_extractor_recovery_bitvec_cardina
           exact ENNReal.sub_eq_of_eq_add (by simp) hsum
         rw [hthreshold]
         exact three_quarters_lt_seven_eighths_actualSparseRecoveryInjectiveBridge)
+
+theorem kpoly_anchor_full_rule_actual_local_recovery_threshold_width_boundary_regression
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+          (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+          idBitVec1ActualSparseRecoveryCardinalityBridge
+          ((1 : ℝ≥0∞) / 2))) :
+    1 + 2 * 1 < 4 := by
+  exact
+    kpolyCoverage_anchor_fullRuleActualLocal_visibleWidth_lt_of_nonempty_recovery_of_lt_one_sub_pow_inv
+      (k := 1)
+      (r := 1)
+      (p := 4)
+      (μ := bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge)
+      idBitVec1ActualSparseRecoveryCardinalityBridge
+      h
+      (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
+        (by norm_num : (2 : ℝ≥0∞) < 2 ^ 4))
+
+theorem kpoly_anchor_full_rule_actual_local_no_extractor_recovery_threshold_width_regression :
+    ¬ ∃ zfeat : BitVec 1 → BitVec 1,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+            (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+            zfeat
+            ((1 : ℝ≥0∞) / 2)) := by
+  exact
+    kpolyCoverage_anchor_fullRuleActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+      (n := 1)
+      (k := 1)
+      (r := 1)
+      (p := 3)
+      bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+      (((1 : ℝ≥0∞) / 2))
+      (by norm_num)
+      (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
+        (by norm_num : (2 : ℝ≥0∞) < 2 ^ 3))
+
+theorem kpoly_anchor_bounded_sample_plugin_majority_actual_local_recovery_threshold_width_boundary_regression
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+          (boundedSamplePluginMajorityActualSwitchedLocalInterface (BitVec 1) 1 8)
+          idBitVec1ActualSparseRecoveryCardinalityBridge
+          ((1 : ℝ≥0∞) / 2))) :
+    1 + 2 * 1 < 4 := by
+  exact
+    kpolyCoverage_anchor_boundedSamplePluginMajorityActualLocal_visibleWidth_lt_of_nonempty_recovery_of_lt_one_sub_pow_inv
+      (k := 1)
+      (r := 1)
+      (sampleBound := 8)
+      (p := 4)
+      (μ := bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge)
+      idBitVec1ActualSparseRecoveryCardinalityBridge
+      h
+      (by
+        rw [card_exactVisiblePostSwitchSurface_bitVec]
+        norm_num)
+      (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
+        (by norm_num : (2 : ℝ≥0∞) < 2 ^ 4))
+
+theorem kpoly_anchor_bounded_sample_plugin_majority_actual_local_no_extractor_recovery_threshold_width_regression :
+    ¬ ∃ zfeat : BitVec 1 → BitVec 1,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+            (boundedSamplePluginMajorityActualSwitchedLocalInterface (BitVec 1) 1 8)
+            zfeat
+            ((1 : ℝ≥0∞) / 2)) := by
+  exact
+    kpolyCoverage_anchor_boundedSamplePluginMajorityActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+      (n := 1)
+      (k := 1)
+      (r := 1)
+      (sampleBound := 8)
+      (p := 3)
+      bitVec1k1UniformMeasureActualSparseRecoveryCardinalityBridge
+      (((1 : ℝ≥0∞) / 2))
+      (by
+        rw [card_exactVisiblePostSwitchSurface_bitVec]
+        norm_num)
+      (by norm_num)
+      (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
+        (by norm_num : (2 : ℝ≥0∞) < 2 ^ 3))
 
 theorem kpoly_anchor_full_rule_actual_local_recovery_threshold_visible_budget_boundary_regression
     (h :

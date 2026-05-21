@@ -39,6 +39,7 @@ import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThres
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryPayloadObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryCardinalityObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryInjectiveConcentrationObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryThresholdWidthObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryThresholdVisibleBudgetObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoverySurjectiveRegionObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryHeavyRegionCardinalityObstruction
@@ -1475,6 +1476,20 @@ inductive PNPKpolySubrepairClass where
   recovery packet on that actual-local endpoint. -/
   | actualLocalNoInjectiveExtractorRecoveryBitVecCardinalityThresholdObstruction
   /-- On the full-rule `BitVec n` endpoint, if the manuscript-facing recovery
+  threshold already lies below `1 - 2^-p`, then the visible width already
+  satisfies `n + 2*k < p`. -/
+  | fullRuleActualLocalRecoveryThresholdWidthBoundary
+  /-- Therefore if `p ≤ n + 2*k`, no extractor at all can support the
+  full-rule manuscript-facing recovery packet below `1 - 2^-p`. -/
+  | fullRuleActualLocalNoExtractorRecoveryThresholdWidthObstruction
+  /-- The same direct visible-width obstruction also applies to bounded-sample
+  plug-in-majority endpoints once the sample bound is large enough for
+  surjectivity. -/
+  | boundedSamplePluginMajorityActualLocalRecoveryThresholdWidthBoundary
+  /-- Therefore if `p ≤ n + 2*k`, no extractor at all can support that
+  bounded-sample plug-in-majority recovery packet below `1 - 2^-p`. -/
+  | boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction
+  /-- On the full-rule `BitVec n` endpoint, if the manuscript-facing recovery
   threshold already lies below `1 - 2^-(2*r + 4*k + slack + 1)`, then the
   visible-width ceiling sharpens to `n ≤ 2*r + 2*k + slack`. -/
   | fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary
@@ -1974,6 +1989,10 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .actualLocalInjectiveRecoveryBitVecCardinalityThresholdBoundary,
     .fullRuleActualLocalNoExtractorRecoveryBitVecCardinalityThresholdObstruction,
     .actualLocalNoInjectiveExtractorRecoveryBitVecCardinalityThresholdObstruction,
+    .fullRuleActualLocalRecoveryThresholdWidthBoundary,
+    .fullRuleActualLocalNoExtractorRecoveryThresholdWidthObstruction,
+    .boundedSamplePluginMajorityActualLocalRecoveryThresholdWidthBoundary,
+    .boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction,
     .fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary,
     .fullRuleActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction,
     .boundedSamplePluginMajorityActualLocalRecoveryThresholdVisibleBudgetBoundary,
@@ -7453,6 +7472,122 @@ theorem kpolyCoverage_anchor_fullRuleActualLocal_not_exists_sharedExactZABSparse
       (k := k)
       (r := r)
       (zfeat := zfeat)
+      hq_lt
+      hdata
+
+/-- Route-coverage anchor: on the full-rule `BitVec n` endpoint, a recovery
+threshold below `1 - 2^-p` already forces the direct visible-width bound
+`n + 2*k < p`. -/
+theorem kpolyCoverage_anchor_fullRuleActualLocal_visibleWidth_lt_of_nonempty_recovery_of_lt_one_sub_pow_inv
+    {n k r p : ℕ}
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (fullRuleActualSwitchedLocalInterface (BitVec n) k)
+          zfeat
+          q))
+    (hq_lt : q < 1 - (2 ^ p : ℝ≥0∞)⁻¹) :
+    n + 2 * k < p := by
+  rcases h with ⟨h⟩
+  exact
+    ActualSwitchedLocalInterface.visibleWidth_lt_of_nonempty_fullRuleActualSwitchedLocalInterface_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv
+      (μ := μ)
+      (k := k)
+      (zfeat := zfeat)
+      (p := p)
+      h
+      hq_lt
+
+/-- Route-coverage anchor: therefore if `p ≤ n + 2*k`, no extractor at all
+can support the full-rule manuscript-facing recovery packet below
+`1 - 2^-p`. -/
+theorem kpolyCoverage_anchor_fullRuleActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+    {n k r p : ℕ}
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hwidth : p ≤ n + 2 * k)
+    (hq_lt : q < 1 - (2 ^ p : ℝ≥0∞)⁻¹) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (fullRuleActualSwitchedLocalInterface (BitVec n) k)
+            zfeat
+            q) := by
+  rintro ⟨zfeat, hdata⟩
+  exact
+    ActualSwitchedLocalInterface.fullRuleActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+      (μ := μ)
+      (k := k)
+      (r := r)
+      (p := p)
+      (zfeat := zfeat)
+      hwidth
+      hq_lt
+      hdata
+
+/-- Route-coverage anchor: the same direct visible-width obstruction applies
+to bounded-sample plug-in-majority endpoints once the sample bound is large
+enough for surjectivity. -/
+theorem kpolyCoverage_anchor_boundedSamplePluginMajorityActualLocal_visibleWidth_lt_of_nonempty_recovery_of_lt_one_sub_pow_inv
+    {n k r sampleBound p : ℕ}
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityActualSwitchedLocalInterface
+            (BitVec n) k sampleBound)
+          zfeat
+          q))
+    (hsample : Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k) ≤ sampleBound)
+    (hq_lt : q < 1 - (2 ^ p : ℝ≥0∞)⁻¹) :
+    n + 2 * k < p := by
+  rcases h with ⟨h⟩
+  exact
+    ActualSwitchedLocalInterface.boundedSamplePluginMajorityActualSwitchedLocalInterface_visibleWidth_lt_of_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv
+      (μ := μ)
+      (k := k)
+      (sampleBound := sampleBound)
+      (zfeat := zfeat)
+      (p := p)
+      hsample
+      h
+      hq_lt
+
+/-- Route-coverage anchor: therefore if `p ≤ n + 2*k`, no extractor at all
+can support the bounded-sample plug-in-majority recovery packet below
+`1 - 2^-p` once the sample bound is large enough for surjectivity. -/
+theorem kpolyCoverage_anchor_boundedSamplePluginMajorityActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+    {n k r sampleBound p : ℕ}
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hsample : Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k) ≤ sampleBound)
+    (hwidth : p ≤ n + 2 * k)
+    (hq_lt : q < 1 - (2 ^ p : ℝ≥0∞)⁻¹) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityActualSwitchedLocalInterface
+              (BitVec n) k sampleBound)
+            zfeat
+            q) := by
+  rintro ⟨zfeat, hdata⟩
+  exact
+    ActualSwitchedLocalInterface.boundedSamplePluginMajorityActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_pow_inv_of_le_visibleWidth
+      (μ := μ)
+      (k := k)
+      (r := r)
+      (sampleBound := sampleBound)
+      (p := p)
+      (zfeat := zfeat)
+      hsample
+      hwidth
       hq_lt
       hdata
 
