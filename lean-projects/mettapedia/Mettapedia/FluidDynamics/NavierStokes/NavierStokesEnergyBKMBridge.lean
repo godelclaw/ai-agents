@@ -1,5 +1,6 @@
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesBKMContinuationTarget
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyContinuationBridge
+import Mettapedia.FluidDynamics.NavierStokes.NavierStokesFiniteModeVorticity
 
 /-!
 # Energy Identity to BKM Continuation Bridge
@@ -274,6 +275,93 @@ theorem
       (hClause := hTarget ν u₀ T) hνpos hsmooth hdiv₀ hfinite
       hu hp hinit haBound hbBound ha hb heq hdiv hω
 
+/-- Concrete repaired-BKM application for the bounded two-profile Schwartz
+velocity class with affine plus localized Schwartz pressure.  The explicit
+finite-mode vorticity bound closes the BKM-envelope input internally, so no
+separate uniform-vorticity hypothesis is needed. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationClause_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure
+    (a a' b b' : ℝ → ℝ) (f g : 𝓢(NSSpace, NSSpace)) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν T : ℝ}
+    {u₀ : NSInitialVelocity}
+    (hClause : ExplicitFiniteEnergyBKMContinuationClause ν u₀ T)
+    (hνpos : 0 < ν)
+    (hsmooth : smoothInitialVelocityData u₀)
+    (hdiv₀ : ∀ x, initialSpatialDivergence u₀ x = 0)
+    (hfinite : finiteInitialKineticEnergy u₀)
+    (hu :
+      smoothSpaceTimeVelocity (fun s y => a s • f y + b s • g y))
+    (hp :
+      smoothSpaceTimePressure
+        ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+          fun s : NSTime => fun y : NSSpace => ρ s * q y))
+    (hinit : MatchesInitialVelocity u₀ (fun s y => a s • f y + b s • g y))
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (ha : ∀ t, HasDerivAt a (a' t) t)
+    (hb : ∀ t, HasDerivAt b (b' t) t)
+    (heq : ∀ t x,
+      timeVelocityDerivative (fun s y => a s • f y + b s • g y) t x +
+          spatialConvection (fun s y => a s • f y + b s • g y) t x +
+          spatialPressureGradient
+            ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+              fun s : NSTime => fun y : NSSpace => ρ s * q y) t x =
+        (ν : ℝ) • spatialLaplacian (fun s y => a s • f y + b s • g y) t x)
+    (hdiv :
+      ∀ t x,
+        spatialDivergence (fun s y => a s • f y + b s • g y) t x = 0) :
+    ExplicitConcreteNavierStokesGlobalOutput ν u₀ := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationClause_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure_of_uniformVorticityBound
+      a a' b b' f g A B c π ρ q
+      (hClause := hClause) hνpos hsmooth hdiv₀ hfinite
+      hu hp hinit haBound hbBound ha hb heq hdiv
+      (by
+        simpa [twoModeSchwartzVelocity] using
+          (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
+            a b f g A B T haBound hbBound))
+
+/-- Target-level concrete repaired-BKM application for the bounded two-profile
+Schwartz velocity class with affine plus localized Schwartz pressure, with the
+finite-mode vorticity bound discharged internally. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationTarget_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure
+    (hTarget : ExplicitFiniteEnergyBKMContinuationTarget)
+    (a a' b b' : ℝ → ℝ) (f g : 𝓢(NSSpace, NSSpace)) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν T : ℝ}
+    {u₀ : NSInitialVelocity}
+    (hνpos : 0 < ν)
+    (hsmooth : smoothInitialVelocityData u₀)
+    (hdiv₀ : ∀ x, initialSpatialDivergence u₀ x = 0)
+    (hfinite : finiteInitialKineticEnergy u₀)
+    (hu :
+      smoothSpaceTimeVelocity (fun s y => a s • f y + b s • g y))
+    (hp :
+      smoothSpaceTimePressure
+        ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+          fun s : NSTime => fun y : NSSpace => ρ s * q y))
+    (hinit : MatchesInitialVelocity u₀ (fun s y => a s • f y + b s • g y))
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (ha : ∀ t, HasDerivAt a (a' t) t)
+    (hb : ∀ t, HasDerivAt b (b' t) t)
+    (heq : ∀ t x,
+      timeVelocityDerivative (fun s y => a s • f y + b s • g y) t x +
+          spatialConvection (fun s y => a s • f y + b s • g y) t x +
+          spatialPressureGradient
+            ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+              fun s : NSTime => fun y : NSSpace => ρ s * q y) t x =
+        (ν : ℝ) • spatialLaplacian (fun s y => a s • f y + b s • g y) t x)
+    (hdiv :
+      ∀ t x,
+        spatialDivergence (fun s y => a s • f y + b s • g y) t x = 0) :
+    ExplicitConcreteNavierStokesGlobalOutput ν u₀ := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationClause_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure
+      a a' b b' f g A B c π ρ q
+      (hClause := hTarget ν u₀ T) hνpos hsmooth hdiv₀ hfinite
+      hu hp hinit haBound hbBound ha hb heq hdiv
+
 /-- Restricted-horizon concrete repaired-BKM application for the bounded
 two-profile Schwartz velocity class with affine plus localized Schwartz
 pressure.  The finite-time witness is built on `0 ≤ t ≤ T`, then restricted to
@@ -328,6 +416,54 @@ theorem
           (u := fun s y => a s • f y + b s • g y) (T := T) (T' := T') (B := K) hω hT)
   exact hClause hνpos hsmooth hdiv₀ hfinite (W.restrict hT) hEnvW
 
+/-- Restricted-horizon concrete repaired-BKM application for the bounded
+two-profile Schwartz velocity class with affine plus localized Schwartz
+pressure.  The finite-mode vorticity control is first built on the larger slab
+`0 ≤ t ≤ T` and then restricted to the shorter BKM horizon `T'`. -/
+theorem
+    ExplicitFiniteEnergyBKMContinuationClause_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure_restrict
+    (a a' b b' : ℝ → ℝ) (f g : 𝓢(NSSpace, NSSpace)) (A B : ℝ)
+    (c : NSTime → NSSpace) (π ρ : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ)) {ν T T' : ℝ}
+    {u₀ : NSInitialVelocity}
+    (hClause : ExplicitFiniteEnergyBKMContinuationClause ν u₀ T')
+    (hνpos : 0 < ν)
+    (hsmooth : smoothInitialVelocityData u₀)
+    (hdiv₀ : ∀ x, initialSpatialDivergence u₀ x = 0)
+    (hfinite : finiteInitialKineticEnergy u₀)
+    (hu :
+      smoothSpaceTimeVelocity (fun s y => a s • f y + b s • g y))
+    (hp :
+      smoothSpaceTimePressure
+        ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+          fun s : NSTime => fun y : NSSpace => ρ s * q y))
+    (hinit : MatchesInitialVelocity u₀ (fun s y => a s • f y + b s • g y))
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (ha : ∀ t, HasDerivAt a (a' t) t)
+    (hb : ∀ t, HasDerivAt b (b' t) t)
+    (heq : ∀ t x,
+      timeVelocityDerivative (fun s y => a s • f y + b s • g y) t x +
+          spatialConvection (fun s y => a s • f y + b s • g y) t x +
+          spatialPressureGradient
+            ((fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) +
+              fun s : NSTime => fun y : NSSpace => ρ s * q y) t x =
+        (ν : ℝ) • spatialLaplacian (fun s y => a s • f y + b s • g y) t x)
+    (hdiv :
+      ∀ t x,
+        spatialDivergence (fun s y => a s • f y + b s • g y) t x = 0)
+    (hT : T' ≤ T) :
+    ExplicitConcreteNavierStokesGlobalOutput ν u₀ := by
+  exact
+    ExplicitFiniteEnergyBKMContinuationClause_apply_of_add_scalar_smul_schwartz_of_abs_le_of_spatialDivergence_zero_affine_add_scalarSchwartzPressure_of_uniformVorticityBound_restrict
+      a a' b b' f g A B c π ρ q
+      (hClause := hClause) hνpos hsmooth hdiv₀ hfinite
+      hu hp hinit haBound hbBound ha hb heq hdiv
+      (by
+        simpa [twoModeSchwartzVelocity] using
+          (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
+            a b f g A B T haBound hbBound))
+      hT
+
 /-- Actual zero-data global regularity obtained through the corrected
 energy/BKM bridge route.  This deliberately uses the bridge hypotheses for the
 zero velocity and pressure fields, rather than calling the direct zero global
@@ -381,6 +517,22 @@ theorem ExplicitConcreteNavierStokesGlobalOutput_zero_via_energy_BKMBridge
         simpa using (uniformVorticityBoundUpTo_zero 0))
 
 /-- The kinetic-energy integrability input of the energy/BKM bridge rules out
+every field whose matched initial datum already has infinite kinetic energy,
+since the bridge asks for integrability at time `0` on every nonnegative slab.
+-/
+theorem
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+    {u : NSVelocityField} {u₀ : NSInitialVelocity} {T : ℝ}
+    (hfinite : ¬ finiteInitialKineticEnergy u₀)
+    (hT : 0 ≤ T)
+    (hinit : MatchesInitialVelocity u₀ u) :
+    ¬ (∀ t, 0 ≤ t → t ≤ T → Integrable (kineticEnergyDensity u t)) := by
+  intro hkin
+  apply hfinite
+  rw [finiteInitialKineticEnergy, initialKineticEnergyDensity_eq_of_matchesInitialVelocity hinit]
+  exact hkin 0 le_rfl hT
+
+/-- The kinetic-energy integrability input of the energy/BKM bridge rules out
 every field matching nonzero constant initial data, already at time `0`. -/
 theorem not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_constantInitialVelocity
     {u : NSVelocityField} {c : NSSpace} {T : ℝ}
@@ -388,10 +540,11 @@ theorem not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (constantInitialVelocity c) u) :
     ¬ (∀ t, 0 ≤ t → t ≤ T → Integrable (kineticEnergyDensity u t)) := by
-  intro hkin
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_constantInitialVelocity
-      (u := u) hc hinit (hkin 0 le_rfl hT)
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+      (u := u) (u₀ := constantInitialVelocity c)
+      (not_finiteInitialKineticEnergy_constantInitialVelocity hc)
+      hT hinit
 
 /-- A nonzero constant velocity field satisfies the corrected coordinate energy
 identity and has an explicit BKM envelope, but it cannot satisfy the kinetic
@@ -423,10 +576,31 @@ theorem not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearInitialVelocity a k) u) :
     ¬ (∀ t, 0 ≤ t → t ≤ T → Integrable (kineticEnergyDensity u t)) := by
-  intro hkin
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearInitialVelocity
-      (u := u) ha hk hinit (hkin 0 le_rfl hT)
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+      (u := u) (u₀ := heatShearInitialVelocity a k)
+      (not_finiteInitialKineticEnergy_heatShearInitialVelocity ha hk)
+      hT hinit
+
+/-- A nontrivial heat-shear candidate can carry the sharper damped BKM
+envelope on a nonnegative-viscosity slab, but the same time-zero finite-energy
+obstruction prevents it from entering the energy/BKM bridge. -/
+theorem heatShearVelocityField_has_expBKMEnvelope_but_not_energyBKMBridge_kineticIntegrabilityOnSlab
+    {ν a k T : ℝ}
+    (ha : a ≠ 0) (hk : k ≠ 0)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    (vorticityEnvelopeOn (heatShearVelocityField ν a k) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|)) ∧
+      ¬ (∀ t, 0 ≤ t → t ≤ T →
+        Integrable (kineticEnergyDensity (heatShearVelocityField ν a k) t)) := by
+  refine ⟨heatShearVelocityField_has_expBKMEnvelope ν a k T hν hT, ?_⟩
+  exact
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_heatShearInitialVelocity
+      (u := heatShearVelocityField ν a k) ha hk hT
+      (matchesInitialVelocity_heatShearVelocityField ν a k)
 
 /-- A nontrivial heat-shear candidate can carry an explicit BKM envelope on a
 nonnegative-viscosity slab, but the same time-zero finite-energy obstruction
@@ -441,13 +615,68 @@ theorem heatShearVelocityField_has_BKMEnvelope_but_not_energyBKMBridge_kineticIn
         integrableVorticityEnvelopeOn Ω T B) ∧
       ¬ (∀ t, 0 ≤ t → t ≤ T →
         Integrable (kineticEnergyDensity (heatShearVelocityField ν a k) t)) := by
-  refine ⟨?_, ?_⟩
-  · exact ⟨fun _ : NSTime => |a * k|, T * |a * k|,
-      heatShearVelocityField_has_constantBKMEnvelope ν a k T hν hT⟩
-  · exact
-      not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_heatShearInitialVelocity
-        (u := heatShearVelocityField ν a k) ha hk hT
-        (matchesInitialVelocity_heatShearVelocityField ν a k)
+  rcases
+    heatShearVelocityField_has_expBKMEnvelope_but_not_energyBKMBridge_kineticIntegrabilityOnSlab
+      (ν := ν) (a := a) (k := k) (T := T) ha hk hν hT with ⟨hEnv, hbad⟩
+  exact ⟨⟨heatShearExpVorticityEnvelope ν a k, T * |a * k|, hEnv⟩, hbad⟩
+
+/-- The kinetic-energy integrability input of the energy/BKM bridge also rules
+out every field matching transported full-drift heat-shear initial data with
+nonzero transport speed, already at time `0`. -/
+theorem
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
+    {u : NSVelocityField} {a k b d c T : ℝ}
+    (hb : b ≠ 0)
+    (hT : 0 ≤ T)
+    (hinit : MatchesInitialVelocity (heatShearTransportFullDriftInitialVelocity a k b d c) u) :
+    ¬ (∀ t, 0 ≤ t → t ≤ T → Integrable (kineticEnergyDensity u t)) := by
+  exact
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+      (u := u) (u₀ := heatShearTransportFullDriftInitialVelocity a k b d c)
+      (not_finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity hb)
+      hT hinit
+
+/-- A transported full-drift heat-shear candidate with nonzero transport speed
+can carry the sharper damped BKM envelope on a nonnegative-viscosity slab, but
+the same time-zero whole-space energy obstruction prevents it from entering the
+energy/BKM bridge. -/
+theorem heatShearTransportFullDriftVelocityField_has_expBKMEnvelope_but_not_energyBKMBridge_kineticIntegrabilityOnSlab
+    {ν a k b d c T : ℝ}
+    (hb : b ≠ 0)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    (vorticityEnvelopeOn (heatShearTransportFullDriftVelocityField ν a k b d c) T
+        (heatShearExpVorticityEnvelope ν a k) ∧
+      integrableVorticityEnvelopeOn
+        (heatShearExpVorticityEnvelope ν a k) T (T * |a * k|)) ∧
+      ¬ (∀ t, 0 ≤ t → t ≤ T →
+        Integrable (kineticEnergyDensity
+          (heatShearTransportFullDriftVelocityField ν a k b d c) t)) := by
+  refine ⟨heatShearTransportFullDriftVelocityField_has_expBKMEnvelope ν a k b d c T hν hT, ?_⟩
+  exact
+    not_energyBKMBridge_kineticIntegrabilityOnSlab_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
+      (u := heatShearTransportFullDriftVelocityField ν a k b d c) hb hT
+      (matchesInitialVelocity_heatShearTransportFullDriftVelocityField ν a k b d c)
+
+/-- A transported full-drift heat-shear candidate with nonzero transport speed
+can carry an explicit BKM envelope on a nonnegative-viscosity slab, but the
+same time-zero whole-space energy obstruction prevents it from entering the
+energy/BKM bridge. -/
+theorem heatShearTransportFullDriftVelocityField_has_BKMEnvelope_but_not_energyBKMBridge_kineticIntegrabilityOnSlab
+    {ν a k b d c T : ℝ}
+    (hb : b ≠ 0)
+    (hν : 0 ≤ ν)
+    (hT : 0 ≤ T) :
+    (∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+      vorticityEnvelopeOn (heatShearTransportFullDriftVelocityField ν a k b d c) T Ω ∧
+        integrableVorticityEnvelopeOn Ω T B) ∧
+      ¬ (∀ t, 0 ≤ t → t ≤ T →
+        Integrable (kineticEnergyDensity (heatShearTransportFullDriftVelocityField ν a k b d c) t)) := by
+  rcases
+    heatShearTransportFullDriftVelocityField_has_expBKMEnvelope_but_not_energyBKMBridge_kineticIntegrabilityOnSlab
+      (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c) (T := T) hb hν hT with
+    ⟨hEnv, hbad⟩
+  exact ⟨⟨heatShearExpVorticityEnvelope ν a k, T * |a * k|, hEnv⟩, hbad⟩
 
 end NavierStokes
 end FluidDynamics
