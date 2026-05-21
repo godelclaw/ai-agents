@@ -64,6 +64,34 @@ theorem switchedHistoryExactVisibleCompressionWrapper_iff_finitePredictorCover_o
       (T := T) (s := s) (hist := hist) (items := items) hfield,
     exactVisibleCompressionTarget_iff_finitePredictorCover]
 
+/-- The same true switched-history premise packages the manuscript-facing
+exact-visible wrapper exactly as a finite selected-index representative cover of
+size `2^s`. -/
+theorem switchedHistoryExactVisibleCompressionWrapper_iff_finiteIndexRepresentativeCover_of_true_fieldedSwitching
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items) :
+    SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items ↔
+      T.predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  rw [switchedHistoryExactVisibleCompressionWrapper_iff_exactVisibleCompressionTarget_of_true_fieldedSwitching
+      (T := T) (s := s) (hist := hist) (items := items) hfield,
+    exactVisibleCompressionTarget_iff_finiteIndexRepresentativeCover]
+
+/-- And the same true switched-history premise packages the manuscript-facing
+exact-visible wrapper exactly as a finite quotient-code presentation of size
+`2^s`. -/
+theorem switchedHistoryExactVisibleCompressionWrapper_iff_finitePredictorQuotient_of_true_fieldedSwitching
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items) :
+    SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items ↔
+      T.predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  rw [switchedHistoryExactVisibleCompressionWrapper_iff_exactVisibleCompressionTarget_of_true_fieldedSwitching
+      (T := T) (s := s) (hist := hist) (items := items) hfield,
+    exactVisibleCompressionTarget_iff_finitePredictorQuotient]
+
 /-- Likewise, under a true fielded switching instance, the manuscript-facing
 clocked wrapper is exactly the same finite predictor-image cover obligation. -/
 theorem switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
@@ -76,6 +104,33 @@ theorem switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCove
   rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_clockedKpolyFiniteLearningPayload_of_true_fieldedSwitching
       (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield,
     clockedKpolyFiniteLearningPayload_iff_finitePredictorCover]
+
+/-- So under a true fielded switching instance, the manuscript-facing clocked
+wrapper is also exactly a finite selected-index representative cover of size
+`2^s`. -/
+theorem switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finiteIndexRepresentativeCover_of_true_fieldedSwitching
+    {Ω : Type x} [Fintype Ω] [Fintype Z]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items) :
+    SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items ↔
+      T.predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield,
+    IndexedPredictorFamily.finitePredictorCover_iff_finiteIndexRepresentativeCover]
+
+/-- And the same clocked wrapper is equally exactly a finite quotient-code
+presentation of size `2^s`. -/
+theorem switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorQuotient_of_true_fieldedSwitching
+    {Ω : Type x} [Fintype Ω] [Fintype Z]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items) :
+    SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items ↔
+      T.predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield,
+    IndexedPredictorFamily.finitePredictorCover_iff_finitePredictorQuotient]
 
 /-- So failure of the finite predictor-cover theorem already rules out the
 exact-visible switched-history wrapper for that concrete manuscript history. -/
@@ -90,6 +145,33 @@ theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitchi
       (T := T) (s := s) (hist := hist) (items := items) hfield]
   exact hnot
 
+/-- Failure of the representative-cover formulation already rules out the
+exact-visible switched-history wrapper for that same concrete manuscript
+history. -/
+theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_not_finiteIndexRepresentativeCover
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hnot : ¬ T.predictorFamily.FiniteIndexRepresentativeCover (2 ^ s)) :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items := by
+  rw [switchedHistoryExactVisibleCompressionWrapper_iff_finiteIndexRepresentativeCover_of_true_fieldedSwitching
+      (T := T) (s := s) (hist := hist) (items := items) hfield]
+  exact hnot
+
+/-- Failure of the quotient-code formulation already rules out the exact-visible
+switched-history wrapper for that same concrete manuscript history. -/
+theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_not_finitePredictorQuotient
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hnot : ¬ T.predictorFamily.FinitePredictorQuotient (2 ^ s)) :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items := by
+  rw [switchedHistoryExactVisibleCompressionWrapper_iff_finitePredictorQuotient_of_true_fieldedSwitching
+      (T := T) (s := s) (hist := hist) (items := items) hfield]
+  exact hnot
+
 /-- And failure of the same finite predictor-cover theorem already rules out the
 clocked switched-history wrapper for that concrete manuscript history. -/
 theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_not_finitePredictorCover
@@ -100,6 +182,32 @@ theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwit
     (hnot : ¬ T.predictorFamily.FinitePredictorCover (2 ^ s)) :
     ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items := by
   rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield]
+  exact hnot
+
+/-- Failure of the representative-cover formulation already rules out the
+clocked switched-history wrapper for that same concrete manuscript history. -/
+theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_not_finiteIndexRepresentativeCover
+    {Ω : Type x} [Fintype Ω] [Fintype Z]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hnot : ¬ T.predictorFamily.FiniteIndexRepresentativeCover (2 ^ s)) :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items := by
+  rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finiteIndexRepresentativeCover_of_true_fieldedSwitching
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield]
+  exact hnot
+
+/-- Failure of the quotient-code formulation already rules out the clocked
+switched-history wrapper for that same concrete manuscript history. -/
+theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_not_finitePredictorQuotient
+    {Ω : Type x} [Fintype Ω] [Fintype Z]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hnot : ¬ T.predictorFamily.FinitePredictorQuotient (2 ^ s)) :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items := by
+  rw [switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorQuotient_of_true_fieldedSwitching
       (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield]
   exact hnot
 
