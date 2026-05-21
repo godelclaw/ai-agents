@@ -1303,6 +1303,18 @@ theorem current_pnp_kpoly_surjective_actual_local_no_extractor_recovery_proper_r
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorProperRegionMassBoundary
 
+theorem current_pnp_kpoly_actual_local_recovery_heavy_region_trace_card_regression :
+    PNPKpolySubrepairClass.actualLocalRecoveryHeavyRegionTraceCardBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalRecoveryHeavyRegionTraceCardBoundary
+
+theorem current_pnp_kpoly_actual_local_no_extractor_recovery_heavy_region_trace_card_regression :
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryHeavyRegionTraceCardObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryHeavyRegionTraceCardObstruction
+
 def fin3ToBitVec0ActualSparseRecoveryPayloadBridge : Fin 3 → BitVec 0 := fun _ => zeroVec
 
 noncomputable def fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge :
@@ -1344,6 +1356,122 @@ theorem fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective :
 theorem fin5ProbeFamilyActualSparseRecoveryPayloadBridge_lt_card_regression :
     2 ^ (2 * allAffinePointBlockFeatureCount (0 + (0 + 0))) < Fintype.card (Fin 5) := by
   norm_num [allAffinePointBlockFeatureCount_eq]
+
+def fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge :
+    ActualSwitchedLocalInterface
+      (Fin 3)
+      0
+      (Fin 5)
+      (ExactVisiblePostSwitchSurface (Fin 3) 0) where
+  zOf := fun u => u.z
+  aOf := fun _ u => u.a
+  bOf := fun u => u.b
+  localRule := fin5ProbeFamilyActualSparseRecoveryPayloadBridge
+  output := fun p u => fin5ProbeFamilyActualSparseRecoveryPayloadBridge p u
+  output_eq_local := by
+    intro p u
+    rfl
+
+theorem fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_injective_predict :
+    Function.Injective
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict := by
+  exact fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective
+
+def exactVisiblePostSwitchSurfaceFin30EquivActualSparseRecoveryHeavyRegionTraceBridge :
+    ExactVisiblePostSwitchSurface (Fin 3) 0 ≃ Fin 3 where
+  toFun u := u.z
+  invFun z := ⟨z, zeroVec, zeroVec⟩
+  left_inv := by
+    intro u
+    cases u with
+    | mk z a b =>
+        have ha : (zeroVec : BitVec 0) = a := Subsingleton.elim _ _
+        have hb : (zeroVec : BitVec 0) = b := Subsingleton.elim _ _
+        cases ha
+        cases hb
+        rfl
+  right_inv := by
+    intro z
+    rfl
+
+noncomputable def fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge :
+    PMF (ExactVisiblePostSwitchSurface (Fin 3) 0) :=
+  PMF.ofFintype
+    (fun u => if u.z = 2 then 0 else (2 : ℝ≥0∞)⁻¹)
+    (by
+      classical
+      have hsum :
+          ∑ a : ExactVisiblePostSwitchSurface (Fin 3) 0,
+              (if a.z = 2 then 0 else (2 : ℝ≥0∞)⁻¹)
+            =
+          ∑ b : Fin 3, (if b = 2 then 0 else (2 : ℝ≥0∞)⁻¹) := by
+        simpa using
+          (Fintype.sum_equiv
+            exactVisiblePostSwitchSurfaceFin30EquivActualSparseRecoveryHeavyRegionTraceBridge
+            (fun u : ExactVisiblePostSwitchSurface (Fin 3) 0 =>
+              if u.z = 2 then 0 else (2 : ℝ≥0∞)⁻¹)
+            (fun b : Fin 3 => if b = 2 then 0 else (2 : ℝ≥0∞)⁻¹)
+            (by
+              intro b
+              rfl))
+      calc
+        ∑ a : ExactVisiblePostSwitchSurface (Fin 3) 0,
+            (if a.z = 2 then 0 else (2 : ℝ≥0∞)⁻¹)
+          =
+            ∑ b : Fin 3, (if b = 2 then 0 else (2 : ℝ≥0∞)⁻¹) := hsum
+        _ = 1 := by
+          rw [Fin.sum_univ_three]
+          simpa [two_mul] using ENNReal.inv_two_add_inv_two)
+
+noncomputable def fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge :
+    Finset (ExactVisiblePostSwitchSurface (Fin 3) 0) :=
+  by
+    classical
+    exact
+      insert
+        fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge
+        {fin3OneVisiblePointActualSparseRecoveryPayloadBridge}
+
+theorem fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge_card :
+    fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.card = 2 := by
+  simp [fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge,
+    fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge,
+    fin3OneVisiblePointActualSparseRecoveryPayloadBridge]
+
+theorem fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge_mass_eq_one :
+    fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.sum
+        (fun x => fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge x) = 1 := by
+  calc
+    fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.sum
+        (fun x => fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge x)
+      = (2 : ℝ≥0∞)⁻¹ + (2 : ℝ≥0∞)⁻¹ := by
+          simp [fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge,
+            fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge,
+            fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge,
+            fin3OneVisiblePointActualSparseRecoveryPayloadBridge]
+    _ = 1 := by
+      simpa [two_mul] using ENNReal.inv_two_add_inv_two
+
+private noncomputable def fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge :
+    ℝ≥0∞ :=
+  (3 : ℝ≥0∞) / 4
+
+private theorem fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge_lt_one :
+    fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge < 1 := by
+  have h₁ :
+      fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge = (3 : ℝ≥0∞) / 4 := by
+    rfl
+  have h₂ : (1 : ℝ≥0∞) = (4 : ℝ≥0∞) / 4 := by
+    rw [ENNReal.div_self (by norm_num : (4 : ℝ≥0∞) ≠ 0) (by simp)]
+  rw [h₁, h₂]
+  exact ENNReal.div_lt_div_right (by norm_num) (by simp) (by norm_num)
+
+private theorem fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge_lt_regionMass :
+    fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge <
+      fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.sum
+        (fun x => fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge x) := by
+  rw [fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge_mass_eq_one]
+  exact fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge_lt_one
 
 def idBitVec1ActualSparseRecoveryCardinalityBridge : BitVec 1 → BitVec 1 := fun x => x
 
@@ -1762,6 +1890,60 @@ theorem kpoly_anchor_surjective_actual_local_no_extractor_recovery_proper_region
             bitVec1k0ZeroVisiblePointActualSparseRecoveryRegionBridge]
         rw [hmass_eq]
         norm_num)
+
+theorem kpoly_anchor_actual_local_recovery_heavy_region_trace_card_boundary_regression
+    {q : ℝ≥0∞}
+    (hmass :
+      q <
+        fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.sum
+          (fun x => fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge x))
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge
+          fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge
+          fin3ToBitVec0ActualSparseRecoveryPayloadBridge
+          q)) :
+    Fintype.card (Fin 5) ≤
+      2 ^ fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.card := by
+  exact
+    kpolyCoverage_anchor_actualLocal_predictorCard_le_two_pow_regionCard_of_nonempty_recovery_of_injective_predict_of_lt_regionMass
+      (μ := fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge)
+      (T := fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge)
+      (Index := Fin 5)
+      (r := 0)
+      (zfeat := fin3ToBitVec0ActualSparseRecoveryPayloadBridge)
+      h
+      fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge
+      hmass
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_injective_predict
+
+theorem kpoly_anchor_actual_local_no_extractor_recovery_heavy_region_trace_card_regression :
+    ¬ ∃ zfeat : Fin 3 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge
+            fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge
+            zfeat
+            fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge) := by
+  have hcard :
+      2 ^ fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge.card <
+        Fintype.card (Fin 5) := by
+    rw [fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge_card]
+    norm_num
+  exact
+    kpolyCoverage_anchor_actualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_regionCard_of_injective_predict_of_lt_regionMass
+      (Z := Fin 3)
+      (k := 0)
+      (r := 0)
+      (Index := Fin 5)
+      (μ := fin3ZeroOneHalfMeasureActualSparseRecoveryHeavyRegionTraceBridge)
+      (T := fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge)
+      (q := fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge)
+      fin3ZeroOneRegionActualSparseRecoveryHeavyRegionTraceBridge
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_injective_predict
+      fin3ThreeQuartersActualSparseRecoveryHeavyRegionTraceBridge_lt_regionMass
+      hcard
 
 theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
     PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈
