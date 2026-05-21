@@ -81,6 +81,37 @@ theorem WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_eq_shift
     hseed, hlive, add_zero]
 
 omit [DecidableEq X] in
+theorem WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_eq_shiftKernelInitialSlice_of_identityAnchors_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors) :
+    L.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x =
+    L.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K.identityShiftKernel c ν hc hν
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x := by
+  rcases hK with ⟨hseed, hlive⟩
+  funext y
+  unfold WeightedObservable.windowedColeHopfHeatSampleKernelInitialSlice_of_componentwise_abs_le
+    WeightedObservable.windowedColeHopfHeatShiftKernelInitialSlice_of_componentwise_abs_le
+    UniformVorticityTendril.seedLiveOperatorInitialSlice
+  simp [SeedLiveSampleKernel.identityShiftKernel,
+    SeedLiveShiftKernel.toSampleKernel,
+    SeedLiveSampleKernel.toSeedLiveOperator,
+    hseed, hlive, add_zero]
+
+omit [DecidableEq X] in
 theorem WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_eq_shiftKernelCandidate_of_identityAnchors
     (L : WeightedObservable)
     (selector : ι → ℕ)
@@ -103,6 +134,37 @@ theorem WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_eq_shiftKer
   rcases hK with ⟨hseed, hlive⟩
   unfold WeightedObservable.windowedColeHopfHeatSampleKernelCandidate
     WeightedObservable.windowedColeHopfHeatShiftKernelCandidate
+    UniformVorticityTendril.seedLiveOperatorCandidate
+  congr
+  funext t y
+  simp [SeedLiveSampleKernel.identityShiftKernel,
+    SeedLiveShiftKernel.toSampleKernel, SeedLiveSampleKernel.toSeedLiveOperator,
+    hseed, hlive, add_zero]
+
+omit [DecidableEq X] in
+theorem WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_eq_shiftKernelCandidate_of_identityAnchors_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (K : SeedLiveSampleKernel κ X)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState)
+    (hK : K.IdentityAnchors) :
+    L.windowedColeHopfHeatSampleKernelCandidate_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x =
+    L.windowedColeHopfHeatShiftKernelCandidate_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector K.identityShiftKernel c ν hc hν
+      curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x := by
+  rcases hK with ⟨hseed, hlive⟩
+  unfold WeightedObservable.windowedColeHopfHeatSampleKernelCandidate_of_componentwise_abs_le
+    WeightedObservable.windowedColeHopfHeatShiftKernelCandidate_of_componentwise_abs_le
     UniformVorticityTendril.seedLiveOperatorCandidate
   congr
   funext t y
