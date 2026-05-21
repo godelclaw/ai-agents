@@ -148,6 +148,25 @@ theorem timeIndependentVelocity_exhibits_BKMEnvelope
       (B := schwartzInitialVelocityVorticityBound f)
       (uniformVorticityBoundUpTo_timeIndependentVelocity f T)
 
+/-- On a nonnegative slab, a time-independent Schwartz velocity seed has the
+constant BKM envelope induced by its first-seminorm vorticity bound. -/
+theorem timeIndependentVelocity_has_constantBKMEnvelope
+    (f : NSSchwartzInitialVelocity) {T : ℝ} (hT : 0 ≤ T) :
+    vorticityEnvelopeOn
+        (timeIndependentVelocity (f : NSInitialVelocity)) T
+        (fun _ : NSTime => schwartzInitialVelocityVorticityBound f) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => schwartzInitialVelocityVorticityBound f)
+        T
+        (T * schwartzInitialVelocityVorticityBound f) := by
+  exact
+    uniformVorticityBoundUpTo_implies_constantBKMEnvelope
+      (u := timeIndependentVelocity (f : NSInitialVelocity))
+      (T := T)
+      (B := schwartzInitialVelocityVorticityBound f)
+      hT
+      (uniformVorticityBoundUpTo_timeIndependentVelocity f T)
+
 /-- At each time slice, the two-mode Schwartz ansatz has vorticity equal to the
 same scalar combination of the profile vorticities. -/
 theorem spatialVorticity_twoModeSchwartzVelocity

@@ -27,6 +27,17 @@ theorem time_independent_schwartz_velocity_BKM_envelope_regression
         integrableVorticityEnvelopeOn Ω T Bint := by
   exact timeIndependentVelocity_exhibits_BKMEnvelope f T
 
+theorem time_independent_schwartz_velocity_constant_BKM_envelope_regression
+    (f : NSSchwartzInitialVelocity) {T : ℝ} (hT : 0 ≤ T) :
+    vorticityEnvelopeOn
+        (timeIndependentVelocity (f : NSInitialVelocity)) T
+        (fun _ : NSTime => schwartzInitialVelocityVorticityBound f) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => schwartzInitialVelocityVorticityBound f)
+        T
+        (T * schwartzInitialVelocityVorticityBound f) := by
+  exact timeIndependentVelocity_has_constantBKMEnvelope f hT
+
 theorem one_one_two_mode_schwartz_velocity_uniform_vorticity_bound_regression
     (f g : NSSchwartzInitialVelocity) (T : ℝ) :
     uniformVorticityBoundUpTo

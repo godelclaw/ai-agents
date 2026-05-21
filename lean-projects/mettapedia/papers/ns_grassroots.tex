@@ -1622,7 +1622,10 @@ seminorm.  The single-profile consequences
 \texttt{uniformVorticityBoundUpTo\_timeIndependentVelocity} and
 \texttt{timeIndependentVelocity\_exhibits\_BKMEnvelope} now package that estimate
 directly as a slabwise uniform vorticity bound and an integrable BKM envelope on
-every time horizon.  The witness-construction audit now consumes the uniform
+every time horizon.  On nonnegative slabs,
+\texttt{timeIndependentVelocity\_has\_constantBKMEnvelope} exposes the actual
+constant envelope and its linear integral bound for the same single-profile
+seed.  The witness-construction audit now consumes the uniform
 half of this package directly:
 \texttt{timeIndependentVelocity\_schwartz\_uniformVorticityData\_iff\_stationaryMomentum}
 proves that a fixed smooth pressure gives uniform-vorticity-packaged finite-time
