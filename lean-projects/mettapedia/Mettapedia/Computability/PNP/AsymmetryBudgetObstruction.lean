@@ -201,6 +201,89 @@ theorem two_mul_weightedCorrectMass_le_total_plus_outside
     weightedTotalMass_eq_slice_add_outside p w
   omega
 
+/-- If all positive weight lies inside the unresolved symmetric slice, then
+the outside budget is zero. -/
+theorem outsideMass_eq_zero_of_support_subset
+    (p : α → Prop) [DecidablePred p] (w : α → ℕ)
+    (hsupport : ∀ x, 0 < w x → p x) :
+    outsideMass p w = 0 := by
+  classical
+  unfold outsideMass sliceMass
+  apply Finset.sum_eq_zero
+  intro x _
+  exact Nat.eq_zero_of_not_pos fun hpos => x.2 (hsupport x.1 hpos)
+
+/-- If every positive-weight point remains in the unresolved symmetric slice,
+then no classifier on the retained features can have strict advantage over
+half accuracy. -/
+theorem not_total_lt_two_mul_weightedCorrectMass_of_support_subset
+    (τ : α → α) (p : α → Prop) [DecidablePred p]
+    (u : α → U) (y : α → Bool) (w : α → ℕ) (h : U → Bool)
+    (hτ : Function.Involutive τ)
+    (hp : ∀ x, p x → p (τ x))
+    (hu : ∀ x, p x → u (τ x) = u x)
+    (hy : ∀ x, p x → y (τ x) = !(y x))
+    (hw : ∀ x, p x → w (τ x) = w x)
+    (hsupport : ∀ x, 0 < w x → p x) :
+    ¬ weightedTotalMass w < 2 * weightedCorrectMass u y w h := by
+  have hle :=
+    two_mul_weightedCorrectMass_le_total_plus_outside
+      τ p u y w h hτ hp hu hy hw
+  have hout : outsideMass p w = 0 :=
+    outsideMass_eq_zero_of_support_subset p w hsupport
+  omega
+
+/-- Strict advantage over half accuracy forces positive outside mass. -/
+theorem pos_outsideMass_of_total_lt_two_mul_weightedCorrectMass
+    (τ : α → α) (p : α → Prop) [DecidablePred p]
+    (u : α → U) (y : α → Bool) (w : α → ℕ) (h : U → Bool)
+    (hτ : Function.Involutive τ)
+    (hp : ∀ x, p x → p (τ x))
+    (hu : ∀ x, p x → u (τ x) = u x)
+    (hy : ∀ x, p x → y (τ x) = !(y x))
+    (hw : ∀ x, p x → w (τ x) = w x)
+    (hadv : weightedTotalMass w < 2 * weightedCorrectMass u y w h) :
+    0 < outsideMass p w := by
+  by_contra hnot
+  have hle :=
+    two_mul_weightedCorrectMass_le_total_plus_outside
+      τ p u y w h hτ hp hu hy hw
+  have hout : outsideMass p w = 0 := Nat.eq_zero_of_not_pos hnot
+  omega
+
+/-- Positive outside mass exposes a concrete positive-weight point outside the
+unresolved symmetric slice. -/
+theorem exists_support_outside_of_pos_outsideMass
+    (p : α → Prop) [DecidablePred p] (w : α → ℕ)
+    (hpos : 0 < outsideMass p w) :
+    ∃ x, 0 < w x ∧ ¬ p x := by
+  classical
+  unfold outsideMass sliceMass at hpos
+  by_contra hnone
+  have hzero :
+      (∑ x : {x : α // ¬ p x}, w x.1) = 0 := by
+    apply Finset.sum_eq_zero
+    intro x _
+    exact Nat.eq_zero_of_not_pos fun hweight =>
+      hnone ⟨x.1, hweight, x.2⟩
+  exact (Nat.ne_of_gt hpos) hzero
+
+/-- Therefore any strict advantage claim must provide a positive-weight point
+outside the unresolved symmetric slice. -/
+theorem exists_support_outside_of_total_lt_two_mul_weightedCorrectMass
+    (τ : α → α) (p : α → Prop) [DecidablePred p]
+    (u : α → U) (y : α → Bool) (w : α → ℕ) (h : U → Bool)
+    (hτ : Function.Involutive τ)
+    (hp : ∀ x, p x → p (τ x))
+    (hu : ∀ x, p x → u (τ x) = u x)
+    (hy : ∀ x, p x → y (τ x) = !(y x))
+    (hw : ∀ x, p x → w (τ x) = w x)
+    (hadv : weightedTotalMass w < 2 * weightedCorrectMass u y w h) :
+    ∃ x, 0 < w x ∧ ¬ p x :=
+  exists_support_outside_of_pos_outsideMass p w
+    (pos_outsideMass_of_total_lt_two_mul_weightedCorrectMass
+      τ p u y w h hτ hp hu hy hw hadv)
+
 end
 
 end Mettapedia.Computability.PNP

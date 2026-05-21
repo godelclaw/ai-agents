@@ -1,3 +1,4 @@
+import Mettapedia.Computability.PNP.ResidualSideInformationResolutionCost
 import Mettapedia.Computability.PNP.ResolutionDemandObstruction
 
 /-!
@@ -430,6 +431,67 @@ theorem exists_positive_coin_resolvedMass_of_total_lt_two_mul_weightedCorrectMas
     (τ := τ) (v := v) (w := w) (coinWeight := coinWeight)
     (randomizedResidualResolvedMass_pos_of_total_lt_two_mul_weightedCorrectMass
       τ u v y w coinWeight h hτ hu hy hw hadv)
+
+/-- Every positive randomized-residual doubled advantage is already witnessed
+by a deterministic positive-weight coin slice carrying the ordinary invariant-
+base residual-side-information obstruction package. -/
+theorem exists_positive_coin_obstruction_package_of_pos_doubledAdvantage_randomizedResidual
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool)
+    (hτ : Function.Involutive τ)
+    (hu : ∀ x, u (τ x) = u x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv :
+      0 < doubledAdvantage
+        (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+        (fun xr : α × Coin => y xr.1)
+        (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+        PositiveWeightSideInfoCollisionOverBase u (fun x => v x c) w ∧
+        (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+        (∃ x, 0 < w x ∧
+          ¬ SourceOnlyPredicateCapturesSideEq u (fun x => v x c) (v x c))) := by
+  rcases
+    exists_positive_coin_resolvedMass_of_pos_doubledAdvantage_randomizedResidual
+      τ u v y w coinWeight h hτ hu hy hw hadv with
+    ⟨c, hc, hmass⟩
+  exact ⟨c, hc,
+    pos_resolvedMass_obstruction_package_invariant_base
+      τ u (fun x => v x c) w hu hmass⟩
+
+/-- Every strict half-accuracy randomized-residual advantage is already
+witnessed by a deterministic positive-weight coin slice carrying the ordinary
+invariant-base residual-side-information obstruction package. -/
+theorem exists_positive_coin_obstruction_package_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool)
+    (hτ : Function.Involutive τ)
+    (hu : ∀ x, u (τ x) = u x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+          (fun xr : α × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+        PositiveWeightSideInfoCollisionOverBase u (fun x => v x c) w ∧
+        (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+        (∃ x, 0 < w x ∧
+          ¬ SourceOnlyPredicateCapturesSideEq u (fun x => v x c) (v x c))) := by
+  rcases
+    exists_positive_coin_resolvedMass_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual
+      τ u v y w coinWeight h hτ hu hy hw hadv with
+    ⟨c, hc, hmass⟩
+  exact ⟨c, hc,
+    pos_resolvedMass_obstruction_package_invariant_base
+      τ u (fun x => v x c) w hu hmass⟩
 
 end
 
