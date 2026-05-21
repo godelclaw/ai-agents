@@ -38,6 +38,19 @@ theorem time_independent_schwartz_velocity_constant_BKM_envelope_regression
         (T * schwartzInitialVelocityVorticityBound f) := by
   exact timeIndependentVelocity_has_constantBKMEnvelope f hT
 
+theorem time_independent_schwartz_velocity_external_constant_BKM_budget_regression
+    (f : NSSchwartzInitialVelocity) {B T : ℝ}
+    (hT : 0 ≤ T)
+    (hB : schwartzInitialVelocityVorticityBound f ≤ B) :
+    vorticityEnvelopeOn
+        (timeIndependentVelocity (f : NSInitialVelocity)) T
+        (fun _ : NSTime => B) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => B)
+        T
+        (T * B) := by
+  exact timeIndependentVelocity_has_constantBKMEnvelope_of_bound_ge f hT hB
+
 theorem one_one_two_mode_schwartz_velocity_uniform_vorticity_bound_regression
     (f g : NSSchwartzInitialVelocity) (T : ℝ) :
     uniformVorticityBoundUpTo
@@ -75,6 +88,24 @@ theorem two_mode_schwartz_velocity_constant_BKM_envelope_regression
   exact
     twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le
       a b f g A B T hT haBound hbBound
+
+theorem two_mode_schwartz_velocity_external_constant_BKM_budget_regression
+    (a b : NSTime → ℝ) (f g : NSSchwartzInitialVelocity) (A B C T : ℝ)
+    (hT : 0 ≤ T)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (hC :
+      A * schwartzInitialVelocityVorticityBound f +
+        B * schwartzInitialVelocityVorticityBound g ≤ C) :
+    vorticityEnvelopeOn (twoModeSchwartzVelocity a b f g) T
+        (fun _ : NSTime => C) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => C)
+        T
+        (T * C) := by
+  exact
+    twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le_of_bound_ge
+      a b f g A B C T hT haBound hbBound hC
 
 theorem one_one_two_mode_schwartz_velocity_constant_BKM_envelope_regression
     (f g : NSSchwartzInitialVelocity) {T : ℝ} (hT : 0 ≤ T) :

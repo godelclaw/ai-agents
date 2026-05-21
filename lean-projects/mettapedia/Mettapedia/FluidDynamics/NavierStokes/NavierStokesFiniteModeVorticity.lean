@@ -167,6 +167,29 @@ theorem timeIndependentVelocity_has_constantBKMEnvelope
       hT
       (uniformVorticityBoundUpTo_timeIndependentVelocity f T)
 
+/-- Any external nonnegative BKM budget that dominates the explicit Schwartz
+vorticity bound gives a constant BKM envelope for the time-independent seed. -/
+theorem timeIndependentVelocity_has_constantBKMEnvelope_of_bound_ge
+    (f : NSSchwartzInitialVelocity) {T B : ℝ}
+    (hT : 0 ≤ T)
+    (hB : schwartzInitialVelocityVorticityBound f ≤ B) :
+    vorticityEnvelopeOn
+        (timeIndependentVelocity (f : NSInitialVelocity)) T
+        (fun _ : NSTime => B) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => B)
+        T
+        (T * B) := by
+  exact
+    uniformVorticityBoundUpTo_implies_constantBKMEnvelope
+      (u := timeIndependentVelocity (f : NSInitialVelocity))
+      (T := T)
+      (B := B)
+      hT
+      (uniformVorticityBoundUpTo_mono
+        (uniformVorticityBoundUpTo_timeIndependentVelocity f T)
+        hB)
+
 /-- At each time slice, the two-mode Schwartz ansatz has vorticity equal to the
 same scalar combination of the profile vorticities. -/
 theorem spatialVorticity_twoModeSchwartzVelocity
@@ -286,6 +309,33 @@ theorem twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le
       hT
       (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
         a b f g A B T haBound hbBound)
+
+/-- Any external constant BKM budget that dominates the explicit two-mode
+Schwartz vorticity bound gives a constant BKM envelope for the same ansatz. -/
+theorem twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le_of_bound_ge
+    (a b : NSTime → ℝ) (f g : NSSchwartzInitialVelocity) (A B C T : ℝ)
+    (hT : 0 ≤ T)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B)
+    (hC :
+      A * schwartzInitialVelocityVorticityBound f +
+        B * schwartzInitialVelocityVorticityBound g ≤ C) :
+    vorticityEnvelopeOn (twoModeSchwartzVelocity a b f g) T
+        (fun _ : NSTime => C) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime => C)
+        T
+        (T * C) := by
+  exact
+    uniformVorticityBoundUpTo_implies_constantBKMEnvelope
+      (u := twoModeSchwartzVelocity a b f g)
+      (T := T)
+      (B := C)
+      hT
+      (uniformVorticityBoundUpTo_mono
+        (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
+          a b f g A B T haBound hbBound)
+        hC)
 
 /-- The constant-one two-mode Schwartz branch has the expected explicit
 uniform vorticity bound: the two profile bounds add.  This is the concrete

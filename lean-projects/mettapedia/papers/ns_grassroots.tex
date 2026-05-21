@@ -1643,7 +1643,12 @@ constant-envelope theorems
 \texttt{twoModeSchwartzVelocity\_has\_constantBKMEnvelope\_of\_abs\_le} and
 \texttt{oneOneTwoModeSchwartzVelocity\_has\_constantBKMEnvelope} expose the
 actual envelope \(\Omega(t)=B\) and the linear integral bound \(T B\), rather
-than only an existential BKM package.  Consequently,
+than only an existential BKM package.  The external-budget variants
+\texttt{timeIndependentVelocity\_has\_constantBKMEnvelope\_of\_bound\_ge} and
+\texttt{twoModeSchwartzVelocity\_has\_constantBKMEnvelope\_of\_abs\_le\_of\_bound\_ge}
+also allow downstream arguments to replace the internally computed seminorm
+budget by any larger constant budget without reopening the vorticity estimate.
+Consequently,
 \texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_of\_momentumEquation}
 removes the extra vorticity-bound hypothesis from the BKM bridge: for this
 finite-mode Schwartz route, the continuation premise now follows from the
