@@ -119,6 +119,7 @@ import Mettapedia.UniversalAI.ValueUnderIgnorance
 
 -- Fluid dynamics
 import Mettapedia.FluidDynamics.NavierStokes.ContinuationRegression
+import Mettapedia.FluidDynamics.NavierStokes.NavierStokesUniformVorticityContinuationTargetRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyBKMBridgeRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyContinuationBridgeRegression
 import Mettapedia.FluidDynamics.NavierStokes.NavierStokesEnergyInequalityRegression

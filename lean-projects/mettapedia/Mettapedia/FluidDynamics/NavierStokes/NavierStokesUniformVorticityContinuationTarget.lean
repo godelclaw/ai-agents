@@ -57,6 +57,78 @@ structure ExplicitFiniteTimeRegularityWitness
   initial_condition : MatchesInitialVelocity u₀ velocity
   bounded_energy_on : boundedKineticEnergyUpTo velocity T
 
+/-- On any certified time slice of a finite-time witness, the witness pressure
+gradient is exactly the pressure residual of the witness velocity. -/
+theorem ExplicitFiniteTimeRegularityWitness.pressureGradientVelocityField_eq_momentumPressureResidual_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity}
+    (W : ExplicitFiniteTimeRegularityWitness ν u₀ T)
+    {t : NSTime} (ht0 : 0 ≤ t) (htT : t ≤ T) :
+    ∀ y : NSSpace,
+      pressureGradientVelocityField W.pressure t y =
+        momentumPressureResidual ν W.velocity t y := by
+  intro y
+  have hmom :
+      timeVelocityDerivative W.velocity t y + spatialConvection W.velocity t y +
+          spatialPressureGradient W.pressure t y =
+        ν • spatialLaplacian W.velocity t y :=
+    W.momentum_equation_on t y ht0 htT
+  unfold pressureGradientVelocityField momentumPressureResidual
+  calc
+    spatialPressureGradient W.pressure t y =
+        (timeVelocityDerivative W.velocity t y + spatialConvection W.velocity t y +
+          spatialPressureGradient W.pressure t y) -
+            timeVelocityDerivative W.velocity t y -
+              spatialConvection W.velocity t y := by
+      abel
+    _ = ν • spatialLaplacian W.velocity t y -
+          timeVelocityDerivative W.velocity t y -
+            spatialConvection W.velocity t y := by
+      rw [hmom]
+
+/-- Every certified finite-time witness has curl-free pressure residual on its
+certified time slab. -/
+theorem ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity}
+    (W : ExplicitFiniteTimeRegularityWitness ν u₀ T)
+    {t : NSTime} {x : NSSpace} (ht0 : 0 ≤ t) (htT : t ≤ T) :
+    spatialVorticity (momentumPressureResidual ν W.velocity) t x = 0 := by
+  calc
+    spatialVorticity (momentumPressureResidual ν W.velocity) t x =
+        spatialVorticity (pressureGradientVelocityField W.pressure) t x :=
+      (spatialVorticity_congr_at
+        (ExplicitFiniteTimeRegularityWitness.pressureGradientVelocityField_eq_momentumPressureResidual_on
+          (ν := ν) (T := T) (u₀ := u₀) W ht0 htT)).symm
+    _ = 0 := spatialVorticity_pressureGradientVelocityField W.smooth_pressure t x
+
+/-- Transport the finite-time residual-curl necessary condition across a chosen
+velocity equality. -/
+theorem ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_of_velocity_eq_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (W : ExplicitFiniteTimeRegularityWitness ν u₀ T)
+    (hWvel : W.velocity = u)
+    {t : NSTime} {x : NSSpace} (ht0 : 0 ≤ t) (htT : t ≤ T) :
+    spatialVorticity (momentumPressureResidual ν u) t x = 0 := by
+  simpa [← hWvel] using
+    (ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_zero_on
+      (ν := ν) (T := T) (u₀ := u₀) W (t := t) (x := x) ht0 htT)
+
+/-- A finite-time witness cannot realize a velocity whose exact pressure
+residual has nonzero curl somewhere on the certified slab.  This is independent
+of any pressure ansatz: the witness pressure is smooth, so its spatial gradient
+is curl-free on each time slice. -/
+theorem not_exists_ExplicitFiniteTimeRegularityWitness_velocity_of_momentumPressureResidual_vorticity_ne_zero_on
+    {ν T : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (hcurl : ∃ t : NSTime, ∃ x : NSSpace,
+      0 ≤ t ∧ t ≤ T ∧
+        spatialVorticity (momentumPressureResidual ν u) t x ≠ 0) :
+    ¬ ∃ W : ExplicitFiniteTimeRegularityWitness ν u₀ T,
+      W.velocity = u := by
+  rintro ⟨W, hWvel⟩
+  rcases hcurl with ⟨t, x, ht0, htT, hne⟩
+  exact hne
+    (ExplicitFiniteTimeRegularityWitness.spatialVorticity_momentumPressureResidual_of_velocity_eq_zero_on
+      (ν := ν) (T := T) (u₀ := u₀) W hWvel (t := t) (x := x) ht0 htT)
+
 /-- Fully explicit global-output proposition for the concrete NS theorem surface.
 -/
 def ExplicitConcreteNavierStokesGlobalOutput
@@ -71,6 +143,54 @@ def ExplicitConcreteNavierStokesGlobalOutput
     (∀ t x, spatialDivergence u t x = 0) ∧
     MatchesInitialVelocity u₀ u ∧
     boundedKineticEnergy u
+
+/-- Explicit global-output proposition with the velocity field fixed in
+advance.  This is the reusable surface for blocking a proposed candidate
+velocity without choosing any pressure ansatz. -/
+def ExplicitConcreteNavierStokesGlobalOutputWithVelocity
+    (ν : ℝ) (u₀ : NSInitialVelocity) (u : NSVelocityField) : Prop :=
+  ∃ p : NSPressureField,
+    smoothSpaceTimeVelocity u ∧
+    smoothSpaceTimePressure p ∧
+    (∀ t x,
+      timeVelocityDerivative u t x + spatialConvection u t x +
+          spatialPressureGradient p t x =
+        ν • spatialLaplacian u t x) ∧
+    (∀ t x, spatialDivergence u t x = 0) ∧
+    MatchesInitialVelocity u₀ u ∧
+    boundedKineticEnergy u
+
+/-- The original global-output proposition is exactly the existential closure
+of the prescribed-velocity version. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_iff_exists_velocity
+    {ν : ℝ} {u₀ : NSInitialVelocity} :
+    ExplicitConcreteNavierStokesGlobalOutput ν u₀ ↔
+      ∃ u : NSVelocityField,
+        ExplicitConcreteNavierStokesGlobalOutputWithVelocity ν u₀ u := by
+  rfl
+
+/-- Any prescribed-velocity global output has curl-free exact pressure residual
+at every spacetime point. -/
+theorem ExplicitConcreteNavierStokesGlobalOutputWithVelocity.spatialVorticity_momentumPressureResidual_zero
+    {ν : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (h : ExplicitConcreteNavierStokesGlobalOutputWithVelocity ν u₀ u)
+    (t : NSTime) (x : NSSpace) :
+    spatialVorticity (momentumPressureResidual ν u) t x = 0 := by
+  rcases h with ⟨p, _hu, hp, hmom, _hdiv, _hinit, _henergy⟩
+  exact spatialVorticity_momentumPressureResidual_of_momentumEquation hp hmom t x
+
+/-- A velocity whose exact pressure residual has nonzero curl cannot be the
+velocity component of any explicit global output. -/
+theorem not_ExplicitConcreteNavierStokesGlobalOutputWithVelocity_of_momentumPressureResidual_vorticity_ne_zero
+    {ν : ℝ} {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (hcurl : ∃ t : NSTime, ∃ x : NSSpace,
+      spatialVorticity (momentumPressureResidual ν u) t x ≠ 0) :
+    ¬ ExplicitConcreteNavierStokesGlobalOutputWithVelocity ν u₀ u := by
+  intro h
+  rcases hcurl with ⟨t, x, hne⟩
+  exact hne
+    (ExplicitConcreteNavierStokesGlobalOutputWithVelocity.spatialVorticity_momentumPressureResidual_zero
+      (ν := ν) (u₀ := u₀) (u := u) h t x)
 
 /-- A concrete explicit global output immediately yields the corresponding
 unrepaired explicit whole-space regularity clause. -/
@@ -725,6 +845,43 @@ theorem finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEn
   rw [finiteInitialKineticEnergy, initialKineticEnergyDensity_eq_of_matchesInitialVelocity hinit]
   exact hInt0
 
+/-- The global bounded-energy predicate also forces finite initial kinetic
+energy for the prescribed datum. -/
+theorem finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergy
+    {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (hinit : MatchesInitialVelocity u₀ u)
+    (hE : boundedKineticEnergy u) :
+    finiteInitialKineticEnergy u₀ := by
+  rcases hE with ⟨C, hC, hbound⟩
+  have hInt0 : MeasureTheory.Integrable (kineticEnergyDensity u 0) := (hbound 0).1
+  rw [finiteInitialKineticEnergy, initialKineticEnergyDensity_eq_of_matchesInitialVelocity hinit]
+  exact hInt0
+
+/-- Contrapositively, non-finite-energy initial data rule out the slab
+bounded-energy slot for every matched velocity field on a nonnegative slab. -/
+theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+    {u₀ : NSInitialVelocity} {u : NSVelocityField} {T : ℝ}
+    (hfinite : ¬ finiteInitialKineticEnergy u₀)
+    (hT : 0 ≤ T)
+    (hinit : MatchesInitialVelocity u₀ u) :
+    ¬ boundedKineticEnergyUpTo u T := by
+  intro hE
+  exact hfinite
+    (finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergyUpTo
+      hinit hE hT)
+
+/-- The same contrapositive obstruction rules out the global bounded-energy
+predicate for every matched velocity field. -/
+theorem not_boundedKineticEnergy_of_matchesInitialVelocity_of_not_finiteInitialKineticEnergy
+    {u₀ : NSInitialVelocity} {u : NSVelocityField}
+    (hfinite : ¬ finiteInitialKineticEnergy u₀)
+    (hinit : MatchesInitialVelocity u₀ u) :
+    ¬ boundedKineticEnergy u := by
+  intro hE
+  exact hfinite
+    (finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergy
+      hinit hE)
+
 /-- Therefore every explicit finite-time regularity witness on a nonnegative
 slab carries finite initial kinetic energy. -/
 theorem ExplicitFiniteTimeRegularityWitness.finiteInitialKineticEnergy
@@ -747,6 +904,28 @@ theorem not_nonempty_ExplicitFiniteTimeRegularityWitness_of_not_finiteInitialKin
   intro hW
   rcases hW with ⟨W⟩
   exact hfinite (W.finiteInitialKineticEnergy hT)
+
+/-- If the time-zero kinetic-energy density of a space-time field is not
+integrable on `ℝ^3`, then no nonnegative slab can satisfy the bounded-energy
+slot. -/
+theorem not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+    {u : NSVelocityField} {T : ℝ}
+    (hzero : ¬ MeasureTheory.Integrable (kineticEnergyDensity u 0))
+    (hT : 0 ≤ T) :
+    ¬ boundedKineticEnergyUpTo u T := by
+  intro hE
+  rcases hE with ⟨C, hC, hbound⟩
+  exact hzero ((hbound 0 le_rfl hT).1)
+
+/-- The same time-zero nonintegrability obstruction rules out the global
+bounded-energy predicate. -/
+theorem not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+    {u : NSVelocityField}
+    (hzero : ¬ MeasureTheory.Integrable (kineticEnergyDensity u 0)) :
+    ¬ boundedKineticEnergy u := by
+  intro hE
+  rcases hE with ⟨C, hC, hbound⟩
+  exact hzero ((hbound 0).1)
 
 /-- Kinetic-energy density of a constant velocity field is a positive constant
 function on space. -/
@@ -780,9 +959,10 @@ global bounded-energy predicate on `ℝ^3`. -/
 theorem not_boundedKineticEnergy_constantVelocityField
     {c : NSSpace} (hc : c ≠ 0) :
     ¬ boundedKineticEnergy (constantVelocityField c) := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
-  exact not_integrable_kineticEnergyDensity_constantVelocityField hc 0 (hbound 0).1
+  exact
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := constantVelocityField c)
+      (not_integrable_kineticEnergyDensity_constantVelocityField hc 0)
 
 /-- On every nonnegative slab, a nonzero constant velocity field also fails the
 finite-time bounded-energy predicate.  This records the honest obstruction that
@@ -792,10 +972,11 @@ theorem not_boundedKineticEnergyUpTo_constantVelocityField
     (hc : c ≠ 0)
     (hT : 0 ≤ T) :
     ¬ boundedKineticEnergyUpTo (constantVelocityField c) T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
-  exact not_integrable_kineticEnergyDensity_constantVelocityField hc 0
-    ((hbound 0 le_rfl hT).1)
+  exact
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := constantVelocityField c)
+      (not_integrable_kineticEnergyDensity_constantVelocityField hc 0)
+      hT
 
 /-- If a velocity field matches nonzero constant initial data at time `0`, then
 its initial kinetic-energy density agrees with the constant-field one. -/
@@ -827,11 +1008,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_constantInitialVe
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (constantInitialVelocity c) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_constantInitialVelocity
-      hc hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_constantInitialVelocity
+        hc hinit)
+      hT
 
 /-- The same obstruction rules out the global bounded-energy predicate for any
 velocity field with nonzero constant initial data. -/
@@ -840,11 +1022,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_constantInitialVeloci
     (hc : c ≠ 0)
     (hinit : MatchesInitialVelocity (constantInitialVelocity c) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_constantInitialVelocity
-      hc hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_constantInitialVelocity
+        hc hinit)
 
 /-- Nonzero constant initial data are therefore not finite-energy admissible on
 `ℝ^3`. -/
@@ -858,6 +1040,27 @@ theorem not_finiteInitialKineticEnergy_constantInitialVelocity
     simpa [finiteInitialKineticEnergy, initialKineticEnergyDensity,
       constantVelocityField, constantInitialVelocity] using hE
   exact not_integrable_kineticEnergyDensity_constantVelocityField hc 0 hIntConst
+
+/-- Constant initial data have finite whole-space kinetic energy exactly in the
+zero-data case. -/
+theorem finiteInitialKineticEnergy_constantInitialVelocity_iff
+    {c : NSSpace} :
+    finiteInitialKineticEnergy (constantInitialVelocity c) ↔ c = 0 := by
+  constructor
+  · intro hE
+    by_contra hc
+    exact not_finiteInitialKineticEnergy_constantInitialVelocity hc hE
+  · intro hc
+    subst hc
+    have hzeroDensity :
+        initialKineticEnergyDensity (constantInitialVelocity (0 : NSSpace)) =
+          (fun _ : NSSpace => (0 : ℝ)) := by
+      funext x
+      simp [initialKineticEnergyDensity, constantInitialVelocity]
+    rw [finiteInitialKineticEnergy, hzeroDensity]
+    exact
+      MeasureTheory.integrable_zero NSSpace ℝ
+        (MeasureTheory.volume : MeasureTheory.Measure NSSpace)
 
 /-- Therefore the repaired structured whole-space input domain contains no
 problem datum whose initial velocity is a nonzero constant field. -/
@@ -1060,6 +1263,41 @@ theorem not_ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity
     not_boundedKineticEnergy_of_matchesInitialVelocity_constantInitialVelocity
       (u := u) hc hinit hbd
 
+/-- The explicit whole-space output surface is exact on constant initial data:
+it is inhabited precisely in the zero-data case. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+    {ν : ℝ} {c : NSSpace} :
+    ExplicitConcreteNavierStokesGlobalOutput ν (constantInitialVelocity c) ↔ c = 0 := by
+  constructor
+  · intro hOut
+    by_contra hc
+    exact not_ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity hc hOut
+  · intro hc
+    subst hc
+    refine ⟨constantVelocityField 0, 0, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    · exact smoothSpaceTimeVelocity_constantVelocityField 0
+    · simpa using smoothSpaceTimePressure_const (0 : ℝ)
+    · intro t x
+      simp [timeVelocityDerivative_constantVelocityField,
+        spatialConvection_constantVelocityField, spatialPressureGradient_zero,
+        spatialLaplacian_constantVelocityField]
+    · intro t x
+      simpa using spatialDivergence_constantVelocityField (0 : NSSpace) t x
+    · simpa using matchesInitialVelocity_constantVelocityField (0 : NSSpace)
+    · refine ⟨0, le_rfl, ?_⟩
+      intro t
+      constructor
+      · have hzeroDensity :
+            kineticEnergyDensity (constantVelocityField (0 : NSSpace)) t =
+              fun _ : NSSpace => (0 : ℝ) := by
+          funext x
+          simp [kineticEnergyDensity, constantVelocityField]
+        rw [hzeroDensity]
+        exact
+          MeasureTheory.integrable_zero NSSpace ℝ
+            (MeasureTheory.volume : MeasureTheory.Measure NSSpace)
+      · simp [kineticEnergyAt, kineticEnergyDensity, constantVelocityField]
+
 /-- At positive viscosity, the concrete global-regularity clause is therefore
 also impossible for nonzero constant initial data on `ℝ^3`. -/
 theorem not_ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity
@@ -1077,6 +1315,22 @@ theorem not_ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity
   exact
     not_ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity hc
       ⟨u, p, hu, hp, hmom, hinc, hinit, hbd⟩
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+constant initial data: it holds precisely in the zero-data case. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {c : NSSpace} :
+    ExplicitConcreteNavierStokesRegularityClause ν (constantInitialVelocity c) ↔ c = 0 := by
+  constructor
+  · intro hClause
+    by_contra hc
+    exact not_ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity hν hc hClause
+  · intro hc
+    subst hc
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitConcreteNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν) (c := (0 : NSSpace))).2 rfl)
 
 /-- The repaired explicit regularity clause is vacuous on nonzero constant
 initial data because the repaired finite-energy hypothesis already fails. -/
@@ -1131,6 +1385,36 @@ theorem not_concreteNavierStokesGlobalRegularityClause_constantInitialVelocity
         (by
           intro x
           simpa using initialSpatialDivergence_constantInitialVelocity c x)).mp hClause)
+
+/-- The structured fully concrete clause is likewise exact on constant initial
+data: it holds precisely in the zero-data case. -/
+theorem concreteNavierStokesGlobalRegularityClause_constantInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {c : NSSpace} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := constantInitialVelocity c
+          smooth_initial := smoothInitialVelocityData_constantInitialVelocity c
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_constantInitialVelocity c x } ↔
+      c = 0 := by
+  constructor
+  · intro hClause
+    by_contra hc
+    exact not_concreteNavierStokesGlobalRegularityClause_constantInitialVelocity hν hc hClause
+  · intro hc
+    subst hc
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_constantInitialVelocity (0 : NSSpace))
+        (by
+          intro x
+          simpa using initialSpatialDivergence_constantInitialVelocity (0 : NSSpace) x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν) (c := (0 : NSSpace))).2 rfl)
 
 /-- Kinetic-energy density carried by the linear shear initial profile
 `x ↦ (a * x₁, 0, 0)`. -/
@@ -2082,11 +2366,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearInitialV
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearInitialVelocity a k) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearInitialVelocity
-      (u := u) ha hk hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearInitialVelocity
+        (u := u) ha hk hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching nontrivial heat-shear initial data. -/
@@ -2095,11 +2380,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearInitialVeloc
     (ha : a ≠ 0) (hk : k ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearInitialVelocity a k) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearInitialVelocity
-      (u := u) ha hk hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearInitialVelocity
+        (u := u) ha hk hinit)
 
 /-- Nontrivial heat-shear initial data are not finite-energy admissible on
 `ℝ^3`. -/
@@ -2336,11 +2621,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearStreamwi
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearStreamwiseDriftInitialVelocity a k d) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearStreamwiseDriftInitialVelocity
-      (u := u) hd hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearStreamwiseDriftInitialVelocity
+        (u := u) hd hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching heat-shear initial data with nonzero constant streamwise drift. -/
@@ -2349,11 +2635,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearStreamwiseDr
     (hd : d ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearStreamwiseDriftInitialVelocity a k d) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearStreamwiseDriftInitialVelocity
-      (u := u) hd hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearStreamwiseDriftInitialVelocity
+        (u := u) hd hinit)
 
 /-- Heat-shear initial data with nonzero constant streamwise drift are not
 finite-energy admissible on `ℝ^3`. -/
@@ -2438,11 +2724,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearVertical
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearVerticalDriftInitialVelocity a k c) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearVerticalDriftInitialVelocity
-      (u := u) ha hk hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearVerticalDriftInitialVelocity
+        (u := u) ha hk hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching nontrivial heat-shear initial data with vertical drift. -/
@@ -2451,11 +2738,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearVerticalDrif
     (ha : a ≠ 0) (hk : k ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearVerticalDriftInitialVelocity a k c) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearVerticalDriftInitialVelocity
-      (u := u) ha hk hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearVerticalDriftInitialVelocity
+        (u := u) ha hk hinit)
 
 /-- Nontrivial heat-shear initial data with vertical drift are not
 finite-energy admissible on `ℝ^3`. -/
@@ -2632,11 +2919,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearFullDrif
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearFullDriftInitialVelocity a k d c) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearFullDriftInitialVelocity
-      (u := u) hd hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearFullDriftInitialVelocity
+        (u := u) hd hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching full-drift heat-shear initial data with nonzero streamwise drift. -/
@@ -2645,11 +2933,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearFullDriftIni
     (hd : d ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearFullDriftInitialVelocity a k d c) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearFullDriftInitialVelocity
-      (u := u) hd hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearFullDriftInitialVelocity
+        (u := u) hd hinit)
 
 /-- Full-drift heat-shear initial data with nonzero streamwise drift are not
 finite-energy admissible on `ℝ^3`. -/
@@ -2676,6 +2964,114 @@ theorem not_finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity
   exact
     not_integrable_heatShearStreamwiseDriftKineticEnergyDensity
       (a := a) (k := k) (d := d) hd hIntStreamwise
+
+/-- Full-drift heat-shear initial data have finite whole-space kinetic energy
+exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+    {a k d c : ℝ} :
+    finiteInitialKineticEnergy (heatShearFullDriftInitialVelocity a k d c) ↔
+      d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hE
+    have hd : d = 0 := by
+      by_contra hd
+      exact
+        (not_finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity
+          (a := a) (k := k) (d := d) (c := c) hd) hE
+    subst hd
+    have hak : a * k = 0 := by
+      by_contra hak
+      have ha : a ≠ 0 := by
+        intro ha
+        exact hak (by simp [ha])
+      have hk : k ≠ 0 := by
+        intro hk
+        exact hak (by simp [hk])
+      exact
+        (not_finiteInitialKineticEnergy_heatShearVerticalDriftInitialVelocity
+          (a := a) (k := k) (c := c) ha hk)
+          (by
+            simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using hE)
+    have hc : c = 0 := by
+      rcases mul_eq_zero.mp hak with ha | hk
+      · by_contra hc
+        have hcvec : EuclideanSpace.single nsCoord2 c ≠ (0 : NSSpace) := by
+          intro hzero
+          exact hc (by simpa [nsCoord2] using congrArg (fun v : NSSpace => v nsCoord2) hzero)
+        exact
+          (not_finiteInitialKineticEnergy_constantInitialVelocity
+            (c := EuclideanSpace.single nsCoord2 c) hcvec)
+            (by
+              simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, ha,
+                heatShearInitialVelocity_zero_of_amplitude_zero] using hE)
+      · by_contra hc
+        have hcvec : EuclideanSpace.single nsCoord2 c ≠ (0 : NSSpace) := by
+          intro hzero
+          exact hc (by simpa [nsCoord2] using congrArg (fun v : NSSpace => v nsCoord2) hzero)
+        exact
+          (not_finiteInitialKineticEnergy_constantInitialVelocity
+            (c := EuclideanSpace.single nsCoord2 c) hcvec)
+            (by
+              simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hk,
+                heatShearInitialVelocity_zero_of_wavenumber_zero] using hE)
+    exact ⟨rfl, hc, hak⟩
+  · rintro ⟨rfl, rfl, hak⟩
+    have hzeroFinite : finiteInitialKineticEnergy (0 : NSInitialVelocity) := by
+      have hzeroDensity :
+          initialKineticEnergyDensity (0 : NSInitialVelocity) =
+            (fun _ : NSSpace => (0 : ℝ)) := by
+        funext x
+        simp [initialKineticEnergyDensity]
+      rw [finiteInitialKineticEnergy, hzeroDensity]
+      exact
+        MeasureTheory.integrable_zero NSSpace ℝ
+          (MeasureTheory.volume : MeasureTheory.Measure NSSpace)
+    have hzeroConst :
+        constantInitialVelocity (EuclideanSpace.single nsCoord2 0) = (0 : NSInitialVelocity) := by
+      funext x
+      ext i
+      fin_cases i <;> simp [constantInitialVelocity, nsCoord2]
+    rcases mul_eq_zero.mp hak with ha | hk
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, ha,
+        heatShearInitialVelocity_zero_of_amplitude_zero] using
+        hzeroFinite
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, hk,
+        heatShearInitialVelocity_zero_of_wavenumber_zero] using
+        hzeroFinite
+
+/-- Heat-shear initial data with constant vertical drift have finite whole-space
+kinetic energy exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearInitialVelocity_iff
+    {a k : ℝ} :
+    finiteInitialKineticEnergy (heatShearInitialVelocity a k) ↔
+      a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_drifts] using
+    (finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+      (a := a) (k := k) (d := 0) (c := 0))
+
+/-- Heat-shear initial data with constant vertical drift have finite whole-space
+kinetic energy exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearVerticalDriftInitialVelocity_iff
+    {a k c : ℝ} :
+    finiteInitialKineticEnergy (heatShearVerticalDriftInitialVelocity a k c) ↔
+      c = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using
+    (finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+      (a := a) (k := k) (d := 0) (c := c))
+
+/-- Heat-shear initial data with constant streamwise drift have finite whole-space
+kinetic energy exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearStreamwiseDriftInitialVelocity_iff
+    {a k d : ℝ} :
+    finiteInitialKineticEnergy (heatShearStreamwiseDriftInitialVelocity a k d) ↔
+      d = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+      (a := a) (k := k) (d := d) (c := 0))
 
 /-- The repaired structured whole-space input domain contains no problem datum
 whose initial velocity is a full-drift heat-shear profile with nonzero
@@ -2890,11 +3286,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearTranspor
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearTransportInitialVelocity a k b) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportInitialVelocity
-      (u := u) hb hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportInitialVelocity
+        (u := u) hb hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching transported heat-shear initial data with nonzero transport speed. -/
@@ -2903,11 +3300,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearTransportIni
     (hb : b ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearTransportInitialVelocity a k b) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportInitialVelocity
-      (u := u) hb hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportInitialVelocity
+        (u := u) hb hinit)
 
 /-- Transported heat-shear initial data with nonzero transport speed are not
 finite-energy admissible on `ℝ^3`. -/
@@ -3138,11 +3535,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_heatShearTranspor
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (heatShearTransportFullDriftInitialVelocity a k b d c) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
-      (u := u) hb hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
+        (u := u) hb hinit)
+      hT
 
 /-- The same obstruction rules out global bounded kinetic energy for any field
 matching transported full-drift heat-shear initial data with nonzero
@@ -3152,11 +3550,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearTransportFul
     (hb : b ≠ 0)
     (hinit : MatchesInitialVelocity (heatShearTransportFullDriftInitialVelocity a k b d c) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
-      (u := u) hb hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
+        (u := u) hb hinit)
 
 /-- Transported full-drift heat-shear initial data with nonzero transport
 speed are not finite-energy admissible on `ℝ^3`. -/
@@ -3197,6 +3595,107 @@ theorem not_finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocit
   exact
     not_integrable_kineticEnergyDensity_constantVelocityField
       (c := EuclideanSpace.single nsCoord1 b) hconstNe 0 hIntConstField
+
+/-- Transported full-drift heat-shear initial data have finite whole-space
+kinetic energy exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity_iff
+    {a k b d c : ℝ} :
+    finiteInitialKineticEnergy (heatShearTransportFullDriftInitialVelocity a k b d c) ↔
+      b = 0 ∧ d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hE
+    have hb : b = 0 := by
+      by_contra hb
+      exact
+        (not_finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity
+          (a := a) (k := k) (b := b) (d := d) (c := c) hb) hE
+    subst hb
+    have hd : d = 0 := by
+      by_contra hd
+      exact
+        (not_finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity
+          (a := a) (k := k) (d := d) (c := c) hd)
+          (by
+            simpa [heatShearTransportFullDriftInitialVelocity_zero_transport] using hE)
+    subst hd
+    have hak : a * k = 0 := by
+      by_contra hak
+      have ha : a ≠ 0 := by
+        intro ha
+        exact hak (by simp [ha])
+      have hk : k ≠ 0 := by
+        intro hk
+        exact hak (by simp [hk])
+      exact
+        (not_finiteInitialKineticEnergy_heatShearVerticalDriftInitialVelocity
+          (a := a) (k := k) (c := c) ha hk)
+          (by
+            simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+              heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using hE)
+    have hc : c = 0 := by
+      rcases mul_eq_zero.mp hak with ha | hk
+      · by_contra hc
+        have hcvec : EuclideanSpace.single nsCoord2 c ≠ (0 : NSSpace) := by
+          intro hzero
+          exact hc (by simpa [nsCoord2] using congrArg (fun v : NSSpace => v nsCoord2) hzero)
+        exact
+          (not_finiteInitialKineticEnergy_constantInitialVelocity
+            (c := EuclideanSpace.single nsCoord2 c) hcvec)
+            (by
+              simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+                heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, ha,
+                heatShearInitialVelocity_zero_of_amplitude_zero] using hE)
+      · by_contra hc
+        have hcvec : EuclideanSpace.single nsCoord2 c ≠ (0 : NSSpace) := by
+          intro hzero
+          exact hc (by simpa [nsCoord2] using congrArg (fun v : NSSpace => v nsCoord2) hzero)
+        exact
+          (not_finiteInitialKineticEnergy_constantInitialVelocity
+            (c := EuclideanSpace.single nsCoord2 c) hcvec)
+            (by
+              simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+                heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hk,
+                heatShearInitialVelocity_zero_of_wavenumber_zero] using hE)
+    exact ⟨rfl, rfl, hc, hak⟩
+  · rintro ⟨rfl, rfl, rfl, hak⟩
+    have hzeroFinite : finiteInitialKineticEnergy (0 : NSInitialVelocity) := by
+      have hzeroDensity :
+          initialKineticEnergyDensity (0 : NSInitialVelocity) =
+            (fun _ : NSSpace => (0 : ℝ)) := by
+        funext x
+        simp [initialKineticEnergyDensity]
+      rw [finiteInitialKineticEnergy, hzeroDensity]
+      exact
+        MeasureTheory.integrable_zero NSSpace ℝ
+          (MeasureTheory.volume : MeasureTheory.Measure NSSpace)
+    have hzeroConst :
+        constantInitialVelocity (EuclideanSpace.single nsCoord2 0) = (0 : NSInitialVelocity) := by
+      funext x
+      ext i
+      fin_cases i <;> simp [constantInitialVelocity, nsCoord2]
+    rcases mul_eq_zero.mp hak with ha | hk
+    · simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+        heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, ha,
+        heatShearInitialVelocity_zero_of_amplitude_zero] using
+        hzeroFinite
+    · simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+        heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, hk,
+        heatShearInitialVelocity_zero_of_wavenumber_zero] using
+        hzeroFinite
+
+/-- Transported heat-shear initial data have finite whole-space kinetic energy
+exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_heatShearTransportInitialVelocity_iff
+    {a k b : ℝ} :
+    finiteInitialKineticEnergy (heatShearTransportInitialVelocity a k b) ↔
+      b = 0 ∧ a * k = 0 := by
+  simpa [heatShearTransportFullDriftInitialVelocity_zero_drifts] using
+    (finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity_iff
+      (a := a) (k := k) (b := b) (d := 0) (c := 0))
 
 /-- The repaired structured whole-space input domain contains no problem datum
 whose initial velocity is a transported full-drift heat-shear profile with
@@ -3274,11 +3773,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_linearShearInitia
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (linearShearInitialVelocity a) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearInitialVelocity
-      ha hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearInitialVelocity
+        ha hinit)
+      hT
 
 /-- The same time-zero obstruction blocks any nonnegative finite-time slab
 witness matching the initial data `x ↦ (a * x₁, 0, b)`. -/
@@ -3288,11 +3788,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_linearShearVertic
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (linearShearVerticalDriftInitialVelocity a b) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearVerticalDriftInitialVelocity
-      ha hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearVerticalDriftInitialVelocity
+        ha hinit)
+      hT
 
 /-- The same time-zero obstruction blocks any nonnegative finite-time slab
 witness matching the initial data `x ↦ (a * x₁, b, 0)`. -/
@@ -3302,11 +3803,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_linearShearHorizo
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (linearShearHorizontalDriftInitialVelocity a b) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearHorizontalDriftInitialVelocity
-      ha hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearHorizontalDriftInitialVelocity
+        ha hinit)
+      hT
 
 /-- The same time-zero obstruction blocks any nonnegative finite-time slab
 witness matching the initial data `x ↦ (a * x₁, b, c)`. -/
@@ -3316,11 +3818,12 @@ theorem not_boundedKineticEnergyUpTo_of_matchesInitialVelocity_linearShearFullDr
     (hT : 0 ≤ T)
     (hinit : MatchesInitialVelocity (linearShearFullDriftInitialVelocity a b c) u) :
     ¬ boundedKineticEnergyUpTo u T := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearFullDriftInitialVelocity
-      ha hinit ((hbound 0 le_rfl hT).1)
+    not_boundedKineticEnergyUpTo_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearFullDriftInitialVelocity
+        ha hinit)
+      hT
 
 /-- The steady linear shear field is an exact smooth incompressible NS
 candidate on every nonnegative slab with a uniform vorticity bound; the only
@@ -3512,11 +4015,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearInitialVel
     (ha : a ≠ 0)
     (hinit : MatchesInitialVelocity (linearShearInitialVelocity a) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearInitialVelocity
-      ha hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearInitialVelocity
+        ha hinit)
 
 /-- The same global bounded-energy obstruction holds for the affine shear
 datum `x ↦ (a * x₁, 0, b)`. -/
@@ -3525,11 +4028,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearVerticalDr
     (ha : a ≠ 0)
     (hinit : MatchesInitialVelocity (linearShearVerticalDriftInitialVelocity a b) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearVerticalDriftInitialVelocity
-      ha hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearVerticalDriftInitialVelocity
+        ha hinit)
 
 /-- The same global bounded-energy obstruction holds for the affine shear
 datum `x ↦ (a * x₁, b, 0)`. -/
@@ -3538,11 +4041,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearHorizontal
     (ha : a ≠ 0)
     (hinit : MatchesInitialVelocity (linearShearHorizontalDriftInitialVelocity a b) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearHorizontalDriftInitialVelocity
-      ha hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearHorizontalDriftInitialVelocity
+        ha hinit)
 
 /-- The same global bounded-energy obstruction holds for the affine shear
 datum `x ↦ (a * x₁, b, c)`. -/
@@ -3551,11 +4054,11 @@ theorem not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearFullDriftI
     (ha : a ≠ 0)
     (hinit : MatchesInitialVelocity (linearShearFullDriftInitialVelocity a b c) u) :
     ¬ boundedKineticEnergy u := by
-  intro hE
-  rcases hE with ⟨C, hC, hbound⟩
   exact
-    not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearFullDriftInitialVelocity
-      ha hinit ((hbound 0).1)
+    not_boundedKineticEnergy_of_not_integrable_kineticEnergyDensity_zero
+      (u := u)
+      (not_integrable_kineticEnergyDensity_zero_of_matchesInitialVelocity_linearShearFullDriftInitialVelocity
+        ha hinit)
 
 /-- The steady linear shear field is already a full exact candidate on the
 global explicit theorem surface; the only missing slot is bounded kinetic
@@ -4150,6 +4653,59 @@ theorem not_ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity
     not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearInitialVelocity
       (u := u) ha hinit hbd
 
+/-- Zero shear coefficient collapses the linear-shear datum to the zero initial
+datum. -/
+theorem linearShearInitialVelocity_zero :
+    linearShearInitialVelocity 0 = (0 : NSInitialVelocity) := by
+  funext x
+  simp [linearShearInitialVelocity_apply]
+
+/-- When the shear coefficient vanishes, the affine full-drift family reduces to
+constant initial data. -/
+theorem linearShearFullDriftInitialVelocity_zero_shear
+    (b c : ℝ) :
+    linearShearFullDriftInitialVelocity 0 b c =
+      constantInitialVelocity
+        (EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c) := by
+  funext x
+  simp [linearShearFullDriftInitialVelocity, linearShearHorizontalDriftInitialVelocity,
+    constantInitialVelocity, linearShearInitialVelocity_zero]
+
+/-- The horizontal-plus-vertical drift vector vanishes exactly when both drift
+coefficients vanish. -/
+theorem single_nsCoord1_add_single_nsCoord2_eq_zero_iff
+    {b c : ℝ} :
+    EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c =
+        (0 : NSSpace) ↔
+      b = 0 ∧ c = 0 := by
+  constructor
+  · intro h
+    have hneq12 : nsCoord1 ≠ nsCoord2 := by decide
+    have hneq21 : nsCoord2 ≠ nsCoord1 := by decide
+    refine ⟨?_, ?_⟩
+    · have h1 := congrArg (fun v : NSSpace => v nsCoord1) h
+      simpa [hneq12] using h1
+    · have h2 := congrArg (fun v : NSSpace => v nsCoord2) h
+      simpa [hneq21] using h2
+  · rintro ⟨rfl, rfl⟩
+    ext i
+    fin_cases i <;> simp [nsCoord1, nsCoord2]
+
+/-- The fully explicit global-output surface is exact on the base linear-shear
+family: it is inhabited precisely at zero shear. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity_iff
+    {ν : ℝ} {a : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν (linearShearInitialVelocity a) ↔ a = 0 := by
+  constructor
+  · intro hOut
+    by_contra ha
+    exact not_ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity ha hOut
+  · intro ha
+    subst ha
+    simpa [linearShearInitialVelocity_zero] using
+      ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+        (ν := ν) (c := (0 : NSSpace))).2 rfl)
+
 /-- The fully explicit global-output surface is likewise impossible for nonzero
 affine shear initial data `x ↦ (a * x₁, 0, b)`. -/
 theorem not_ExplicitConcreteNavierStokesGlobalOutput_linearShearVerticalDriftInitialVelocity
@@ -4186,6 +4742,63 @@ theorem not_ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitial
     not_boundedKineticEnergy_of_matchesInitialVelocity_linearShearFullDriftInitialVelocity
       (u := u) ha hinit hbd
 
+/-- The fully explicit global-output surface is exact on the affine full-drift
+linear-shear family: it is inhabited exactly at the zero datum. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity_iff
+    {ν : ℝ} {a b c : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (linearShearFullDriftInitialVelocity a b c) ↔
+      a = 0 ∧ b = 0 ∧ c = 0 := by
+  constructor
+  · intro hOut
+    have ha : a = 0 := by
+      by_contra ha
+      exact not_ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity ha hOut
+    subst ha
+    have hconst :
+        EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c =
+          (0 : NSSpace) := by
+      exact
+        (ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν)
+          (c := EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c)).1
+          (by
+            simpa [linearShearFullDriftInitialVelocity_zero_shear] using hOut)
+    rcases single_nsCoord1_add_single_nsCoord2_eq_zero_iff.mp hconst with ⟨hb, hc⟩
+    exact ⟨rfl, hb, hc⟩
+  · rintro ⟨rfl, rfl, rfl⟩
+    have hzero :
+        EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0 =
+          (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord1, nsCoord2]
+    simpa [linearShearFullDriftInitialVelocity_zero_shear] using
+      ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+        (ν := ν) (c := EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0)).2
+        hzero)
+
+/-- The fully explicit global-output surface is exact on the vertical-drift
+linear-shear subfamily: it is inhabited precisely at the zero datum. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_linearShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} {a b : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (linearShearVerticalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (b := 0) (c := b))
+
+/-- The fully explicit global-output surface is exact on the horizontal-drift
+linear-shear subfamily: it is inhabited precisely at the zero datum. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_linearShearHorizontalDriftInitialVelocity_iff
+    {ν : ℝ} {a b : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (linearShearHorizontalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (b := b) (c := 0))
+
 /-- At positive viscosity, the concrete global-regularity clause is likewise
 impossible for nonzero linear shear initial data on `ℝ^3`. -/
 theorem not_ExplicitConcreteNavierStokesRegularityClause_linearShearInitialVelocity
@@ -4203,6 +4816,21 @@ theorem not_ExplicitConcreteNavierStokesRegularityClause_linearShearInitialVeloc
   exact
     not_ExplicitConcreteNavierStokesGlobalOutput_linearShearInitialVelocity ha
       ⟨u, p, hu, hp, hmom, hinc, hinit, hbd⟩
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the base linear-shear family: it holds precisely at zero shear. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_linearShearInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν (linearShearInitialVelocity a) ↔ a = 0 := by
+  constructor
+  · intro hClause
+    by_contra ha
+    exact not_ExplicitConcreteNavierStokesRegularityClause_linearShearInitialVelocity hν ha hClause
+  · intro ha
+    subst ha
+    simpa [linearShearInitialVelocity_zero] using
+      ((ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity_iff
+        (ν := ν) hν (c := (0 : NSSpace))).2 rfl)
 
 /-- At positive viscosity, the concrete global-regularity clause is likewise
 impossible for nonzero affine shear initial data on `ℝ^3`. -/
@@ -4262,6 +4890,65 @@ theorem not_ExplicitConcreteNavierStokesRegularityClause_linearShearFullDriftIni
   exact
     not_ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity ha
       ⟨u, p, hu, hp, hmom, hinc, hinit, hbd⟩
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the affine full-drift linear-shear family: it holds exactly at the zero datum. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b c : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (linearShearFullDriftInitialVelocity a b c) ↔
+      a = 0 ∧ b = 0 ∧ c = 0 := by
+  constructor
+  · intro hClause
+    have ha : a = 0 := by
+      by_contra ha
+      exact not_ExplicitConcreteNavierStokesRegularityClause_linearShearFullDriftInitialVelocity hν ha hClause
+    subst ha
+    have hconst :
+        EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c =
+          (0 : NSSpace) := by
+      exact
+        (ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity_iff
+          (ν := ν) hν
+          (c := EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c)).1
+          (by
+            simpa [linearShearFullDriftInitialVelocity_zero_shear] using hClause)
+    rcases single_nsCoord1_add_single_nsCoord2_eq_zero_iff.mp hconst with ⟨hb, hc⟩
+    exact ⟨rfl, hb, hc⟩
+  · rintro ⟨rfl, rfl, rfl⟩
+    have hzero :
+        EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0 =
+          (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord1, nsCoord2]
+    simpa [linearShearFullDriftInitialVelocity_zero_shear] using
+      ((ExplicitConcreteNavierStokesRegularityClause_constantInitialVelocity_iff
+        (ν := ν) hν
+        (c := EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0)).2 hzero)
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the vertical-drift linear-shear subfamily: it holds precisely at the zero
+datum. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_linearShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (linearShearVerticalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (ExplicitConcreteNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (b := 0) (c := b))
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the horizontal-drift linear-shear subfamily: it holds precisely at the zero
+datum. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_linearShearHorizontalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (linearShearHorizontalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitConcreteNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (b := b) (c := 0))
 
 /-- The repaired explicit regularity clause is vacuous on nonzero linear shear
 data because the repaired finite-energy hypothesis already fails. -/
@@ -4444,6 +5131,30 @@ theorem not_concreteNavierStokesGlobalRegularityClause_linearShearInitialVelocit
           intro x
           simpa using initialSpatialDivergence_linearShearInitialVelocity a x)).mp hClause)
 
+/-- The structured fully concrete clause is exact on the base linear-shear
+family: it holds precisely at zero shear. -/
+theorem concreteNavierStokesGlobalRegularityClause_linearShearInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := linearShearInitialVelocity a
+          smooth_initial := smoothInitialVelocityData_linearShearInitialVelocity a
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_linearShearInitialVelocity a x } ↔
+      a = 0 := by
+  constructor
+  · intro hClause
+    by_contra ha
+    exact not_concreteNavierStokesGlobalRegularityClause_linearShearInitialVelocity hν ha hClause
+  · intro ha
+    subst ha
+    simpa [linearShearInitialVelocity_zero] using
+      ((concreteNavierStokesGlobalRegularityClause_constantInitialVelocity_iff
+        (ν := ν) hν (c := (0 : NSSpace))).2 rfl)
+
 /-- The structured fully concrete clause also rejects nonzero affine shear
 initial data. -/
 theorem not_concreteNavierStokesGlobalRegularityClause_linearShearVerticalDriftInitialVelocity
@@ -4521,6 +5232,84 @@ theorem not_concreteNavierStokesGlobalRegularityClause_linearShearFullDriftIniti
         (by
           intro x
           simpa using initialSpatialDivergence_linearShearFullDriftInitialVelocity a b c x)).mp hClause)
+
+/-- The structured fully concrete clause is exact on the affine full-drift
+linear-shear family: it holds exactly at the zero datum. -/
+theorem concreteNavierStokesGlobalRegularityClause_linearShearFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b c : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := linearShearFullDriftInitialVelocity a b c
+          smooth_initial := smoothInitialVelocityData_linearShearFullDriftInitialVelocity a b c
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_linearShearFullDriftInitialVelocity a b c x } ↔
+      a = 0 ∧ b = 0 ∧ c = 0 := by
+  constructor
+  · intro hClause
+    have ha : a = 0 := by
+      by_contra ha
+      exact not_concreteNavierStokesGlobalRegularityClause_linearShearFullDriftInitialVelocity hν ha hClause
+    subst ha
+    have hconst :
+        EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c =
+          (0 : NSSpace) := by
+      exact
+        (concreteNavierStokesGlobalRegularityClause_constantInitialVelocity_iff
+          (ν := ν) hν
+          (c := EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c)).1
+          (by
+            simpa [linearShearFullDriftInitialVelocity_zero_shear] using hClause)
+    rcases single_nsCoord1_add_single_nsCoord2_eq_zero_iff.mp hconst with ⟨hb, hc⟩
+    exact ⟨rfl, hb, hc⟩
+  · rintro ⟨rfl, rfl, rfl⟩
+    have hzero :
+        EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0 =
+          (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord1, nsCoord2]
+    simpa [linearShearFullDriftInitialVelocity_zero_shear] using
+      ((concreteNavierStokesGlobalRegularityClause_constantInitialVelocity_iff
+        (ν := ν) hν
+        (c := EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0)).2 hzero)
+
+/-- The structured fully concrete clause is exact on the vertical-drift
+linear-shear subfamily: it holds precisely at the zero datum. -/
+theorem concreteNavierStokesGlobalRegularityClause_linearShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := linearShearVerticalDriftInitialVelocity a b
+          smooth_initial := smoothInitialVelocityData_linearShearVerticalDriftInitialVelocity a b
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_linearShearVerticalDriftInitialVelocity a b x } ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (concreteNavierStokesGlobalRegularityClause_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (b := 0) (c := b))
+
+/-- The structured fully concrete clause is exact on the horizontal-drift
+linear-shear subfamily: it holds precisely at the zero datum. -/
+theorem concreteNavierStokesGlobalRegularityClause_linearShearHorizontalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a b : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := linearShearHorizontalDriftInitialVelocity a b
+          smooth_initial := smoothInitialVelocityData_linearShearHorizontalDriftInitialVelocity a b
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_linearShearHorizontalDriftInitialVelocity a b x } ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (concreteNavierStokesGlobalRegularityClause_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (b := b) (c := 0))
 
 /-- The structured fully concrete clause also rejects nontrivial heat-shear
 initial data. -/
@@ -5506,6 +6295,76 @@ theorem not_ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVe
     not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearFullDriftInitialVelocity
       (u := u) hd hinit hbd
 
+/-- The fully explicit global-output surface is exact on the full-drift
+heat-shear family: it is inhabited precisely when both constant drifts vanish
+and the oscillatory part degenerates. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+    {ν : ℝ} {a k d c : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearFullDriftInitialVelocity a k d c) ↔
+      d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hOut
+    have hd : d = 0 := by
+      by_contra hd
+      exact not_ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity hd hOut
+    subst hd
+    have hak : a * k = 0 := by
+      by_contra hak
+      have ha : a ≠ 0 := by
+        intro ha
+        exact hak (by simp [ha])
+      have hk : k ≠ 0 := by
+        intro hk
+        exact hak (by simp [hk])
+      exact
+        not_ExplicitConcreteNavierStokesGlobalOutput_heatShearVerticalDriftInitialVelocity ha hk
+          (by
+            simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift]
+              using hOut)
+    have hc : c = 0 := by
+      rcases mul_eq_zero.mp hak with ha | hk
+      · have hconst :
+            EuclideanSpace.single nsCoord2 c = (0 : NSSpace) := by
+          exact
+            (ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+              (ν := ν) (c := EuclideanSpace.single nsCoord2 c)).1
+              (by
+                simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                  heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, ha,
+                  heatShearInitialVelocity_zero_of_amplitude_zero]
+                  using hOut)
+        have hc' := congrArg (fun v : NSSpace => v nsCoord2) hconst
+        simpa using hc'
+      · have hconst :
+            EuclideanSpace.single nsCoord2 c = (0 : NSSpace) := by
+          exact
+            (ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+              (ν := ν) (c := EuclideanSpace.single nsCoord2 c)).1
+              (by
+                simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+                  heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hk,
+                  heatShearInitialVelocity_zero_of_wavenumber_zero]
+                  using hOut)
+        have hc' := congrArg (fun v : NSSpace => v nsCoord2) hconst
+        simpa using hc'
+    exact ⟨rfl, hc, hak⟩
+  · rintro ⟨rfl, rfl, hak⟩
+    have hzero : EuclideanSpace.single nsCoord2 0 = (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord2]
+    rcases mul_eq_zero.mp hak with ha | hk
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, ha,
+        heatShearInitialVelocity_zero_of_amplitude_zero] using
+        ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν) (c := EuclideanSpace.single nsCoord2 0)).2 hzero)
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hk,
+        heatShearInitialVelocity_zero_of_wavenumber_zero] using
+        ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν) (c := EuclideanSpace.single nsCoord2 0)).2 hzero)
+
 /-- At positive viscosity, the explicit concrete regularity clause is therefore
 also impossible for heat-shear initial data with full constant drift on `ℝ^3`
 whenever the streamwise drift is nonzero. -/
@@ -5525,6 +6384,30 @@ theorem not_ExplicitConcreteNavierStokesRegularityClause_heatShearFullDriftIniti
   exact
     not_ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity hd
       ⟨u, p, hu, hp, hmom, hinc, hinit, hbd⟩
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the full-drift heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k d c : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearFullDriftInitialVelocity a k d c) ↔
+      d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    have hsmooth : smoothInitialVelocityData (heatShearFullDriftInitialVelocity a k d c) :=
+      smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c
+    have hdiv : ∀ x, initialSpatialDivergence (heatShearFullDriftInitialVelocity a k d c) x = 0 := by
+      intro x
+      simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x
+    exact
+      (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+        (ν := ν) (a := a) (k := k) (d := d) (c := c)).1
+        (hClause hν hsmooth hdiv)
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitConcreteNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (d := d) (c := c)).2 hcond)
 
 /-- The same witness-level obstruction applies to the full-drift heat-shear
 datum on every nonnegative slab whenever the streamwise drift is nonzero. -/
@@ -5653,6 +6536,224 @@ theorem not_concreteNavierStokesGlobalRegularityClause_heatShearFullDriftInitial
           intro x
           simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x)).mp
         hClause)
+
+/-- The structured fully concrete clause is exact on the full-drift heat-shear
+family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k d c : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearFullDriftInitialVelocity a k d c
+          smooth_initial := smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x } ↔
+      d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearFullDriftInitialVelocity a k d c)
+        hν
+        (smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+              (ν := ν) (a := a) (k := k) (d := d) (c := c)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (d := d) (c := c)).2 hcond)
+
+/-- The fully explicit global-output surface is exact on the vertical-drift
+heat-shear family. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearInitialVelocity_iff
+    {ν : ℝ} {a k : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearInitialVelocity a k) ↔
+      a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (k := k) (d := 0) (c := 0))
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the base heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearInitialVelocity a k) ↔
+      a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitConcreteNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (k := k) (d := 0) (c := 0))
+
+/-- The structured fully concrete clause is exact on the base heat-shear
+family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearInitialVelocity a k
+          smooth_initial := smoothInitialVelocityData_heatShearInitialVelocity a k
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearInitialVelocity a k x } ↔
+      a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearInitialVelocity a k)
+        hν
+        (smoothInitialVelocityData_heatShearInitialVelocity a k)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearInitialVelocity a k x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearInitialVelocity_iff
+              (ν := ν) (a := a) (k := k)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearInitialVelocity a k)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearInitialVelocity a k x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearInitialVelocity_iff
+          (ν := ν) (a := a) (k := k)).2 hcond)
+
+/-- The fully explicit global-output surface is exact on the vertical-drift
+heat-shear family. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} {a k c : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearVerticalDriftInitialVelocity a k c) ↔
+      c = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using
+    (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (k := k) (d := 0) (c := c))
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the vertical-drift heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k c : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearVerticalDriftInitialVelocity a k c) ↔
+      c = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using
+    (ExplicitConcreteNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (k := k) (d := 0) (c := c))
+
+/-- The fully explicit global-output surface is exact on the streamwise-drift
+heat-shear family. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearStreamwiseDriftInitialVelocity_iff
+    {ν : ℝ} {a k d : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearStreamwiseDriftInitialVelocity a k d) ↔
+      d = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (k := k) (d := d) (c := 0))
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the streamwise-drift heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearStreamwiseDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k d : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearStreamwiseDriftInitialVelocity a k d) ↔
+      d = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitConcreteNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (k := k) (d := d) (c := 0))
+
+/-- The structured fully concrete clause is exact on the streamwise-drift
+heat-shear family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearStreamwiseDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k d : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearStreamwiseDriftInitialVelocity a k d
+          smooth_initial := smoothInitialVelocityData_heatShearStreamwiseDriftInitialVelocity a k d
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearStreamwiseDriftInitialVelocity a k d x } ↔
+      d = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearStreamwiseDriftInitialVelocity a k d)
+        hν
+        (smoothInitialVelocityData_heatShearStreamwiseDriftInitialVelocity a k d)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearStreamwiseDriftInitialVelocity a k d x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearStreamwiseDriftInitialVelocity_iff
+              (ν := ν) (a := a) (k := k) (d := d)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearStreamwiseDriftInitialVelocity a k d)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearStreamwiseDriftInitialVelocity a k d x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearStreamwiseDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (d := d)).2 hcond)
+
+/-- The structured fully concrete clause is exact on the vertical-drift
+heat-shear family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearVerticalDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k c : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearVerticalDriftInitialVelocity a k c
+          smooth_initial := smoothInitialVelocityData_heatShearVerticalDriftInitialVelocity a k c
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearVerticalDriftInitialVelocity a k c x } ↔
+      c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearVerticalDriftInitialVelocity a k c)
+        hν
+        (smoothInitialVelocityData_heatShearVerticalDriftInitialVelocity a k c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearVerticalDriftInitialVelocity a k c x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearVerticalDriftInitialVelocity_iff
+              (ν := ν) (a := a) (k := k) (c := c)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearVerticalDriftInitialVelocity a k c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearVerticalDriftInitialVelocity a k c x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearVerticalDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (c := c)).2 hcond)
 
 /-- On nonnegative slabs, the explicit uniform-vorticity continuation clause is
 also vacuous for full-drift heat-shear initial data with nonzero streamwise
@@ -6059,6 +7160,35 @@ theorem not_ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDrift
     not_boundedKineticEnergy_of_matchesInitialVelocity_heatShearTransportFullDriftInitialVelocity
       (u := u) hb hinit hbd
 
+/-- The fully explicit global-output surface is exact on the transported
+full-drift heat-shear family: it is inhabited precisely when the transport
+speed vanishes and the remaining full-drift datum degenerates. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+    {ν : ℝ} {a k b d c : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearTransportFullDriftInitialVelocity a k b d c) ↔
+      b = 0 ∧ d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hOut
+    have hb : b = 0 := by
+      by_contra hb
+      exact not_ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity hb hOut
+    subst hb
+    have hfull :
+        d = 0 ∧ c = 0 ∧ a * k = 0 := by
+      exact
+        (ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (d := d) (c := c)).1
+          (by
+            simpa [heatShearTransportFullDriftInitialVelocity_zero_transport] using hOut)
+    exact ⟨rfl, hfull.1, hfull.2.1, hfull.2.2⟩
+  · rintro ⟨hb, hd, hc, hak⟩
+    subst hb
+    simpa [heatShearTransportFullDriftInitialVelocity_zero_transport] using
+      ((ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+        (ν := ν) (a := a) (k := k) (d := d) (c := c)).2
+        ⟨hd, hc, hak⟩)
+
 /-- At positive viscosity, the explicit concrete regularity clause is therefore
 also impossible for transported full-drift heat-shear initial data on `ℝ^3`
 whenever the transport speed is nonzero. -/
@@ -6078,6 +7208,32 @@ theorem not_ExplicitConcreteNavierStokesRegularityClause_heatShearTransportFullD
   exact
     not_ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity hb
       ⟨u, p, hu, hp, hmom, hinc, hinit, hbd⟩
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the transported full-drift heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearTransportFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k b d c : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearTransportFullDriftInitialVelocity a k b d c) ↔
+      b = 0 ∧ d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    have hsmooth :
+        smoothInitialVelocityData (heatShearTransportFullDriftInitialVelocity a k b d c) :=
+      smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c
+    have hdiv :
+        ∀ x, initialSpatialDivergence (heatShearTransportFullDriftInitialVelocity a k b d c) x = 0 := by
+      intro x
+      simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x
+    exact
+      (ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+        (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c)).1
+        (hClause hν hsmooth hdiv)
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitConcreteNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c)).2 hcond)
 
 /-- The same witness-level obstruction applies to transported full-drift
 heat-shear data on every nonnegative slab whenever the transport speed is
@@ -6207,6 +7363,104 @@ theorem not_concreteNavierStokesGlobalRegularityClause_heatShearTransportFullDri
           intro x
           simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x)).mp
         hClause)
+
+/-- The structured fully concrete clause is exact on the transported
+full-drift heat-shear family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearTransportFullDriftInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k b d c : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearTransportFullDriftInitialVelocity a k b d c
+          smooth_initial := smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x } ↔
+      b = 0 ∧ d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearTransportFullDriftInitialVelocity a k b d c)
+        hν
+        (smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+              (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c)).2 hcond)
+
+/-- The fully explicit global-output surface is exact on the transported
+heat-shear family. -/
+theorem ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportInitialVelocity_iff
+    {ν : ℝ} {a k b : ℝ} :
+    ExplicitConcreteNavierStokesGlobalOutput ν
+        (heatShearTransportInitialVelocity a k b) ↔
+      b = 0 ∧ a * k = 0 := by
+  simpa [heatShearTransportFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+      (ν := ν) (a := a) (k := k) (b := b) (d := 0) (c := 0))
+
+/-- At positive viscosity, the explicit concrete regularity clause is exact on
+the transported heat-shear family. -/
+theorem ExplicitConcreteNavierStokesRegularityClause_heatShearTransportInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k b : ℝ} :
+    ExplicitConcreteNavierStokesRegularityClause ν
+        (heatShearTransportInitialVelocity a k b) ↔
+      b = 0 ∧ a * k = 0 := by
+  simpa [heatShearTransportFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitConcreteNavierStokesRegularityClause_heatShearTransportFullDriftInitialVelocity_iff
+      (ν := ν) hν (a := a) (k := k) (b := b) (d := 0) (c := 0))
+
+/-- The structured fully concrete clause is exact on the transported
+heat-shear family. -/
+theorem concreteNavierStokesGlobalRegularityClause_heatShearTransportInitialVelocity_iff
+    {ν : ℝ} (hν : 0 < ν) {a k b : ℝ} :
+    NavierStokesGlobalRegularityClause
+        mkFullyConcreteNavierStokesSurface
+        { viscosity := ν
+          viscosity_pos := hν
+          initialVelocity := heatShearTransportInitialVelocity a k b
+          smooth_initial := smoothInitialVelocityData_heatShearTransportInitialVelocity a k b
+          divergence_free_initial := by
+            intro x
+            simpa using initialSpatialDivergence_heatShearTransportInitialVelocity a k b x } ↔
+      b = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hClause
+    exact
+      (concreteNavierStokesGlobalRegularityClause_iff
+        (ν := ν) (u₀ := heatShearTransportInitialVelocity a k b)
+        hν
+        (smoothInitialVelocityData_heatShearTransportInitialVelocity a k b)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearTransportInitialVelocity a k b x)).mp
+          hClause
+        |> (ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportInitialVelocity_iff
+              (ν := ν) (a := a) (k := k) (b := b)).1
+  · intro hcond
+    exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_concreteNavierStokesGlobalRegularityClause
+        hν
+        (smoothInitialVelocityData_heatShearTransportInitialVelocity a k b)
+        (by
+          intro x
+          simpa using initialSpatialDivergence_heatShearTransportInitialVelocity a k b x)
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (b := b)).2 hcond)
 
 /-- On nonnegative slabs, the explicit uniform-vorticity continuation clause is
 also vacuous for transported full-drift heat-shear initial data with nonzero
@@ -6756,6 +8010,120 @@ def zeroFiniteTimeRegularityWitness (ν T : ℝ) :
         simp [kineticEnergyAt, kineticEnergyDensity]
       simp [hE0]
 
+/-- On nonnegative slabs, the full-drift heat-shear witness type is inhabited
+exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearFullDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k d c : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearFullDriftInitialVelocity a k d c) T) ↔
+      d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hW
+    rcases hW with ⟨W⟩
+    exact
+      (finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+        (a := a) (k := k) (d := d) (c := c)).1
+        (finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergyUpTo
+          W.initial_condition W.bounded_energy_on hT)
+  · intro hcond
+    rcases hcond with ⟨rfl, rfl, hak⟩
+    have hzeroConst :
+        constantInitialVelocity (EuclideanSpace.single nsCoord2 0) = (0 : NSInitialVelocity) := by
+      funext x
+      ext i
+      fin_cases i <;> simp [constantInitialVelocity, nsCoord2]
+    rcases mul_eq_zero.mp hak with ha | hk
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, ha,
+        heatShearInitialVelocity_zero_of_amplitude_zero] using
+        (show Nonempty (ExplicitFiniteTimeRegularityWitness ν (0 : NSInitialVelocity) T) from
+          ⟨zeroFiniteTimeRegularityWitness ν T⟩)
+    · simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, hk,
+        heatShearInitialVelocity_zero_of_wavenumber_zero] using
+        (show Nonempty (ExplicitFiniteTimeRegularityWitness ν (0 : NSInitialVelocity) T) from
+          ⟨zeroFiniteTimeRegularityWitness ν T⟩)
+
+/-- On nonnegative slabs, the vertical-drift heat-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearInitialVelocity a k) T) ↔
+      a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_drifts] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (k := k) (d := 0) (c := 0))
+
+/-- On nonnegative slabs, the vertical-drift heat-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearVerticalDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k c : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearVerticalDriftInitialVelocity a k c) T) ↔
+      c = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (k := k) (d := 0) (c := c))
+
+/-- On nonnegative slabs, the streamwise-drift heat-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearStreamwiseDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k d : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearStreamwiseDriftInitialVelocity a k d) T) ↔
+      d = 0 ∧ a * k = 0 := by
+  simpa [heatShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_heatShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (k := k) (d := d) (c := 0))
+
+/-- On nonnegative slabs, the transported full-drift heat-shear witness type
+is inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearTransportFullDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k b d c : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearTransportFullDriftInitialVelocity a k b d c) T) ↔
+      b = 0 ∧ d = 0 ∧ c = 0 ∧ a * k = 0 := by
+  constructor
+  · intro hW
+    rcases hW with ⟨W⟩
+    exact
+      (finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity_iff
+        (a := a) (k := k) (b := b) (d := d) (c := c)).1
+        (finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergyUpTo
+          W.initial_condition W.bounded_energy_on hT)
+  · intro hcond
+    rcases hcond with ⟨rfl, rfl, rfl, hak⟩
+    have hzeroConst :
+        constantInitialVelocity (EuclideanSpace.single nsCoord2 0) = (0 : NSInitialVelocity) := by
+      funext x
+      ext i
+      fin_cases i <;> simp [constantInitialVelocity, nsCoord2]
+    rcases mul_eq_zero.mp hak with ha | hk
+    · simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+        heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, ha,
+        heatShearInitialVelocity_zero_of_amplitude_zero] using
+        (show Nonempty (ExplicitFiniteTimeRegularityWitness ν (0 : NSInitialVelocity) T) from
+          ⟨zeroFiniteTimeRegularityWitness ν T⟩)
+    · simpa [heatShearTransportFullDriftInitialVelocity_zero_transport,
+        heatShearFullDriftInitialVelocity_zero_streamwiseDrift,
+        heatShearVerticalDriftInitialVelocity, constantInitialVelocity_add, hzeroConst, hk,
+        heatShearInitialVelocity_zero_of_wavenumber_zero] using
+        (show Nonempty (ExplicitFiniteTimeRegularityWitness ν (0 : NSInitialVelocity) T) from
+          ⟨zeroFiniteTimeRegularityWitness ν T⟩)
+
+/-- On nonnegative slabs, the transported heat-shear witness type is inhabited
+exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_heatShearTransportInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a k b : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (heatShearTransportInitialVelocity a k b) T) ↔
+      b = 0 ∧ a * k = 0 := by
+  simpa [heatShearTransportFullDriftInitialVelocity_zero_drifts] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_heatShearTransportFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (k := k) (b := b) (d := 0) (c := 0))
+
 /-- The canonical zero witness has a uniform zero vorticity bound on every slab.
 -/
 theorem zeroFiniteTimeRegularityWitness_has_uniformVorticityBound
@@ -6869,6 +8237,375 @@ theorem finiteInitialKineticEnergy_zero :
   exact
     MeasureTheory.integrable_zero NSSpace ℝ
       (MeasureTheory.volume : MeasureTheory.Measure NSSpace)
+
+/-- Full-drift affine linear shear has finite whole-space kinetic energy exactly
+in the zero-data case. -/
+theorem finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+    {a b c : ℝ} :
+    finiteInitialKineticEnergy (linearShearFullDriftInitialVelocity a b c) ↔
+      a = 0 ∧ b = 0 ∧ c = 0 := by
+  constructor
+  · intro hE
+    have ha : a = 0 := by
+      by_contra ha
+      exact (not_finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity ha) hE
+    subst ha
+    have hconst :
+        EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c =
+          (0 : NSSpace) := by
+      by_contra hconst
+      exact
+        (not_finiteInitialKineticEnergy_constantInitialVelocity
+          (c := EuclideanSpace.single nsCoord1 b + EuclideanSpace.single nsCoord2 c) hconst)
+          (by
+            simpa [linearShearFullDriftInitialVelocity_zero_shear] using hE)
+    rcases single_nsCoord1_add_single_nsCoord2_eq_zero_iff.mp hconst with ⟨hb, hc⟩
+    exact ⟨rfl, hb, hc⟩
+  · rintro ⟨rfl, rfl, rfl⟩
+    have hzero :
+        EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0 =
+          (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord1, nsCoord2]
+    simpa [linearShearFullDriftInitialVelocity_zero_shear, hzero] using
+      finiteInitialKineticEnergy_zero
+
+/-- Base linear shear has finite whole-space kinetic energy exactly in the
+zero-shear case. -/
+theorem finiteInitialKineticEnergy_linearShearInitialVelocity_iff
+    {a : ℝ} :
+    finiteInitialKineticEnergy (linearShearInitialVelocity a) ↔
+      a = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_drifts] using
+    (finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+      (a := a) (b := 0) (c := 0))
+
+/-- Vertical-drift affine linear shear has finite whole-space kinetic energy
+exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_linearShearVerticalDriftInitialVelocity_iff
+    {a b : ℝ} :
+    finiteInitialKineticEnergy (linearShearVerticalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+      (a := a) (b := 0) (c := b))
+
+/-- Horizontal-drift affine linear shear has finite whole-space kinetic energy
+exactly in the zero-data case. -/
+theorem finiteInitialKineticEnergy_linearShearHorizontalDriftInitialVelocity_iff
+    {a b : ℝ} :
+    finiteInitialKineticEnergy (linearShearHorizontalDriftInitialVelocity a b) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+      (a := a) (b := b) (c := 0))
+
+/-- On nonnegative slabs, the full-drift linear-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_linearShearFullDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a b c : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (linearShearFullDriftInitialVelocity a b c) T) ↔
+      a = 0 ∧ b = 0 ∧ c = 0 := by
+  constructor
+  · intro hW
+    rcases hW with ⟨W⟩
+    exact
+      (finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+        (a := a) (b := b) (c := c)).1
+        (finiteInitialKineticEnergy_of_matchesInitialVelocity_of_boundedKineticEnergyUpTo
+          W.initial_condition W.bounded_energy_on hT)
+  · rintro ⟨rfl, rfl, rfl⟩
+    have hzero :
+        EuclideanSpace.single nsCoord1 0 + EuclideanSpace.single nsCoord2 0 =
+          (0 : NSSpace) := by
+      ext i
+      fin_cases i <;> simp [nsCoord1, nsCoord2]
+    simpa [linearShearFullDriftInitialVelocity_zero_shear, hzero] using
+      (show Nonempty (ExplicitFiniteTimeRegularityWitness ν (0 : NSInitialVelocity) T) from
+        ⟨zeroFiniteTimeRegularityWitness ν T⟩)
+
+/-- On nonnegative slabs, the base linear-shear witness type is inhabited
+exactly in the zero-shear case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_linearShearInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (linearShearInitialVelocity a) T) ↔
+      a = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_drifts] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (b := 0) (c := 0))
+
+/-- On nonnegative slabs, the vertical-drift linear-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_linearShearVerticalDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a b : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (linearShearVerticalDriftInitialVelocity a b) T) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (b := 0) (c := b))
+
+/-- On nonnegative slabs, the horizontal-drift linear-shear witness type is
+inhabited exactly in the zero-data case. -/
+theorem nonempty_ExplicitFiniteTimeRegularityWitness_linearShearHorizontalDriftInitialVelocity_iff
+    {ν T : ℝ} (hT : 0 ≤ T) {a b : ℝ} :
+    Nonempty (ExplicitFiniteTimeRegularityWitness
+        ν (linearShearHorizontalDriftInitialVelocity a b) T) ↔
+      a = 0 ∧ b = 0 := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (nonempty_ExplicitFiniteTimeRegularityWitness_linearShearFullDriftInitialVelocity_iff
+      (ν := ν) (T := T) hT (a := a) (b := b) (c := 0))
+
+/-- On constant initial data, the repaired explicit finite-energy regularity
+clause always holds: it is realized at the zero datum and vacuous elsewhere. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_constantInitialVelocity_all
+    {ν : ℝ} {c : NSSpace} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (constantInitialVelocity c) := by
+  by_cases hfinite : finiteInitialKineticEnergy (constantInitialVelocity c)
+  · exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_constantInitialVelocity_iff
+          (ν := ν) (c := c)).2
+          ((finiteInitialKineticEnergy_constantInitialVelocity_iff
+            (c := c)).1 hfinite))
+  · exact
+      ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_of_not_finiteInitialKineticEnergy
+        (u₀ := constantInitialVelocity c) hfinite
+
+/-- On the full affine linear-shear family, the repaired explicit finite-energy
+regularity clause always holds: it is realized exactly on the zero datum and
+vacuous elsewhere. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_all
+    {ν : ℝ} {a b c : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (linearShearFullDriftInitialVelocity a b c) := by
+  by_cases hfinite : finiteInitialKineticEnergy (linearShearFullDriftInitialVelocity a b c)
+  · exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_linearShearFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (b := b) (c := c)).2
+          ((finiteInitialKineticEnergy_linearShearFullDriftInitialVelocity_iff
+            (a := a) (b := b) (c := c)).1 hfinite))
+  · exact
+      ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_of_not_finiteInitialKineticEnergy
+        (u₀ := linearShearFullDriftInitialVelocity a b c) hfinite
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the base linear-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearInitialVelocity_all
+    {ν : ℝ} {a : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (linearShearInitialVelocity a) := by
+  simpa [linearShearFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (b := 0) (c := 0))
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the vertical-drift affine linear-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearVerticalDriftInitialVelocity_all
+    {ν : ℝ} {a b : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (linearShearVerticalDriftInitialVelocity a b) := by
+  simpa [linearShearFullDriftInitialVelocity_zero_horizontalDrift] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (b := 0) (c := b))
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the horizontal-drift affine linear-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearHorizontalDriftInitialVelocity_all
+    {ν : ℝ} {a b : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (linearShearHorizontalDriftInitialVelocity a b) := by
+  simpa [linearShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (b := b) (c := 0))
+
+/-- On the full-drift heat-shear family, the repaired explicit finite-energy
+regularity clause always holds: it is realized exactly on the zero datum and
+vacuous elsewhere. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_all
+    {ν : ℝ} {a k d c : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearFullDriftInitialVelocity a k d c) := by
+  by_cases hfinite : finiteInitialKineticEnergy (heatShearFullDriftInitialVelocity a k d c)
+  · exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (d := d) (c := c)).2
+          ((finiteInitialKineticEnergy_heatShearFullDriftInitialVelocity_iff
+            (a := a) (k := k) (d := d) (c := c)).1 hfinite))
+  · exact
+      ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_of_not_finiteInitialKineticEnergy
+        (u₀ := heatShearFullDriftInitialVelocity a k d c) hfinite
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the base heat-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearInitialVelocity_all
+    {ν : ℝ} {a k : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearInitialVelocity a k) := by
+  simpa [heatShearFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (k := k) (d := 0) (c := 0))
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the vertical-drift heat-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearVerticalDriftInitialVelocity_all
+    {ν : ℝ} {a k c : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearVerticalDriftInitialVelocity a k c) := by
+  simpa [heatShearFullDriftInitialVelocity_zero_streamwiseDrift] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (k := k) (d := 0) (c := c))
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the streamwise-drift heat-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearStreamwiseDriftInitialVelocity_all
+    {ν : ℝ} {a k d : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearStreamwiseDriftInitialVelocity a k d) := by
+  simpa [heatShearFullDriftInitialVelocity_zero_verticalDrift] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (k := k) (d := d) (c := 0))
+
+/-- On the transported full-drift heat-shear family, the repaired explicit
+finite-energy regularity clause always holds: it is realized exactly on the
+zero datum and vacuous elsewhere. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearTransportFullDriftInitialVelocity_all
+    {ν : ℝ} {a k b d c : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearTransportFullDriftInitialVelocity a k b d c) := by
+  by_cases hfinite : finiteInitialKineticEnergy (heatShearTransportFullDriftInitialVelocity a k b d c)
+  · exact
+      ExplicitConcreteNavierStokesGlobalOutput_implies_ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+        ((ExplicitConcreteNavierStokesGlobalOutput_heatShearTransportFullDriftInitialVelocity_iff
+          (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c)).2
+          ((finiteInitialKineticEnergy_heatShearTransportFullDriftInitialVelocity_iff
+            (a := a) (k := k) (b := b) (d := d) (c := c)).1 hfinite))
+  · exact
+      ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_of_not_finiteInitialKineticEnergy
+        (u₀ := heatShearTransportFullDriftInitialVelocity a k b d c) hfinite
+
+/-- The repaired explicit finite-energy regularity clause is therefore
+unconditional on the transported heat-shear family. -/
+theorem ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearTransportInitialVelocity_all
+    {ν : ℝ} {a k b : ℝ} :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν (heatShearTransportInitialVelocity a k b) := by
+  simpa [heatShearTransportFullDriftInitialVelocity_zero_drifts] using
+    (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearTransportFullDriftInitialVelocity_all
+      (ν := ν) (a := a) (k := k) (b := b) (d := 0) (c := 0))
+
+/-- On constant admissible data, the repaired structured fully concrete clause
+is automatic. -/
+theorem finiteEnergyConcreteNavierStokesGlobalRegularityClause_constantInitialVelocity_all
+    {ν : ℝ} (hν : 0 < ν) {c : NSSpace}
+    (hfinite : finiteInitialKineticEnergy (constantInitialVelocity c)) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := constantInitialVelocity c
+         smooth_initial := smoothInitialVelocityData_constantInitialVelocity c
+         divergence_free_initial := by
+           intro x
+           simpa using initialSpatialDivergence_constantInitialVelocity c x
+         finite_initial_energy := hfinite } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    (finiteEnergyConcreteNavierStokesGlobalRegularityClause_iff
+      hν
+      (smoothInitialVelocityData_constantInitialVelocity c)
+      (by
+        intro x
+        simpa using initialSpatialDivergence_constantInitialVelocity c x)
+      hfinite).2
+      (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_constantInitialVelocity_all
+        (ν := ν) (c := c))
+
+/-- On admissible affine linear-shear data, the repaired structured fully
+concrete clause is automatic. -/
+theorem finiteEnergyConcreteNavierStokesGlobalRegularityClause_linearShearFullDriftInitialVelocity_all
+    {ν : ℝ} (hν : 0 < ν) {a b c : ℝ}
+    (hfinite : finiteInitialKineticEnergy (linearShearFullDriftInitialVelocity a b c)) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := linearShearFullDriftInitialVelocity a b c
+         smooth_initial := smoothInitialVelocityData_linearShearFullDriftInitialVelocity a b c
+         divergence_free_initial := by
+           intro x
+           simpa using initialSpatialDivergence_linearShearFullDriftInitialVelocity a b c x
+         finite_initial_energy := hfinite } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    (finiteEnergyConcreteNavierStokesGlobalRegularityClause_iff
+      hν
+      (smoothInitialVelocityData_linearShearFullDriftInitialVelocity a b c)
+      (by
+        intro x
+        simpa using initialSpatialDivergence_linearShearFullDriftInitialVelocity a b c x)
+      hfinite).2
+      (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_linearShearFullDriftInitialVelocity_all
+        (ν := ν) (a := a) (b := b) (c := c))
+
+/-- On admissible full-drift heat-shear data, the repaired structured fully
+concrete clause is automatic. -/
+theorem finiteEnergyConcreteNavierStokesGlobalRegularityClause_heatShearFullDriftInitialVelocity_all
+    {ν : ℝ} (hν : 0 < ν) {a k d c : ℝ}
+    (hfinite : finiteInitialKineticEnergy (heatShearFullDriftInitialVelocity a k d c)) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := heatShearFullDriftInitialVelocity a k d c
+         smooth_initial := smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c
+         divergence_free_initial := by
+           intro x
+           simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x
+         finite_initial_energy := hfinite } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    (finiteEnergyConcreteNavierStokesGlobalRegularityClause_iff
+      hν
+      (smoothInitialVelocityData_heatShearFullDriftInitialVelocity a k d c)
+      (by
+        intro x
+        simpa using initialSpatialDivergence_heatShearFullDriftInitialVelocity a k d c x)
+      hfinite).2
+      (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearFullDriftInitialVelocity_all
+        (ν := ν) (a := a) (k := k) (d := d) (c := c))
+
+/-- On admissible transported full-drift heat-shear data, the repaired
+structured fully concrete clause is automatic. -/
+theorem finiteEnergyConcreteNavierStokesGlobalRegularityClause_heatShearTransportFullDriftInitialVelocity_all
+    {ν : ℝ} (hν : 0 < ν) {a k b d c : ℝ}
+    (hfinite : finiteInitialKineticEnergy (heatShearTransportFullDriftInitialVelocity a k b d c)) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := heatShearTransportFullDriftInitialVelocity a k b d c
+         smooth_initial := smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c
+         divergence_free_initial := by
+           intro x
+           simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x
+         finite_initial_energy := hfinite } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    (finiteEnergyConcreteNavierStokesGlobalRegularityClause_iff
+      hν
+      (smoothInitialVelocityData_heatShearTransportFullDriftInitialVelocity a k b d c)
+      (by
+        intro x
+        simpa using initialSpatialDivergence_heatShearTransportFullDriftInitialVelocity a k b d c x)
+      hfinite).2
+      (ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_heatShearTransportFullDriftInitialVelocity_all
+        (ν := ν) (a := a) (k := k) (b := b) (d := d) (c := c))
 
 /-- Concrete nonzero-pressure baseline: zero velocity with any constant
 pressure still gives a global explicit Navier--Stokes output. -/
