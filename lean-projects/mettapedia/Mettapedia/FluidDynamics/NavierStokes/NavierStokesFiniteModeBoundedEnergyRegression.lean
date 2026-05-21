@@ -109,6 +109,32 @@ theorem two_mode_schwartz_momentum_explicit_closure_regression
     momentumEquation_twoModeSchwartzVelocity_of_explicitClosure
       ha hb ν c π ρ f g q hclosure
 
+theorem two_mode_schwartz_schwartz_pressure_slice_momentum_explicit_closure_regression
+    {a b : NSTime → ℝ} (ha : ContDiff ℝ ∞ a) (hb : ContDiff ℝ ∞ b)
+    (ν : ℝ) (f g : NSSchwartzInitialVelocity) (q : NSTime → 𝓢(NSSpace, ℝ))
+    (hclosure : ∀ t x,
+      deriv a t • f x + deriv b t • g x +
+            ((a t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              (a t * b t) •
+                spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+              (a t * b t) •
+                spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+              (b t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x) +
+          spatialPressureGradient (fun s : NSTime => fun y : NSSpace => q s y) t x =
+        (ν : ℝ) •
+          (a t • spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            b t • spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x)) :
+    ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a b f g) t x +
+          spatialConvection (twoModeSchwartzVelocity a b f g) t x +
+          spatialPressureGradient (fun s : NSTime => fun y : NSSpace => q s y) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a b f g) t x := by
+  exact
+    momentumEquation_twoModeSchwartzVelocity_schwartzPressureSlice_of_explicitClosure
+      ha hb ν f g q hclosure
+
 theorem one_one_two_mode_schwartz_momentum_explicit_closure_regression
     (ν : ℝ) (c : NSTime → NSSpace) (π ρ : NSTime → ℝ)
     (f g : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ))
@@ -152,6 +178,101 @@ theorem one_one_two_mode_schwartz_inviscid_zero_pressure_momentum_regression
     momentumEquation_oneOneTwoModeSchwartzVelocity_inviscid_zeroPressure_of_convectionClosure
       f g hclosure
 
+theorem one_one_two_mode_schwartz_zero_pressure_momentum_extracts_viscous_residual_regression
+    (ν : ℝ) (f g : NSSchwartzInitialVelocity)
+    (hmom : ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient (0 : NSPressureField) t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x) :
+    ∀ t x,
+        spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x) := by
+  exact explicitClosure_oneOneTwoModeSchwartzVelocity_zeroPressure_of_momentumEquation
+    ν f g hmom
+
+theorem one_one_two_mode_schwartz_positive_viscosity_zero_pressure_obstruction_regression
+    {ν : ℝ} (hν : 0 < ν) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0)
+    (hlap : ∃ t x,
+        spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+          spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x ≠
+        (0 : NSSpace)) :
+    ¬ ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient (0 : NSPressureField) t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x := by
+  exact
+    not_momentumEquation_oneOneTwoMode_zeroPressure_of_inviscidClosure_lapSum_ne_zero
+      hν f g hclosure hlap
+
+theorem one_one_two_mode_schwartz_pressure_gradient_lapSum_balance_regression
+    (ν : ℝ) (p : NSPressureField) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0) :
+    (∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient p t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x) ↔
+      ∀ t x,
+        spatialPressureGradient p t x =
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x) := by
+  exact
+    momentumEquation_oneOneTwoModeSchwartzVelocity_iff_pressureGradient_lapSum_of_inviscidClosure
+      ν p f g hclosure
+
+theorem one_one_two_mode_schwartz_pressure_gradient_lapSum_mismatch_obstruction_regression
+    (ν : ℝ) (p : NSPressureField) (f g : NSSchwartzInitialVelocity)
+    (hclosure : ∀ t x,
+          spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x (g x) +
+            spatialFDeriv (timeIndependentVelocity (g : NSInitialVelocity)) t x (f x) +
+            spatialConvection (timeIndependentVelocity (g : NSInitialVelocity)) t x =
+        0)
+    (hbad : ∃ t x,
+        spatialPressureGradient p t x ≠
+          (ν : ℝ) •
+            (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              spatialLaplacian (timeIndependentVelocity (g : NSInitialVelocity)) t x)) :
+    ¬ ∀ t x,
+      timeVelocityDerivative
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialConvection
+            (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x +
+          spatialPressureGradient p t x =
+        (ν : ℝ) • spatialLaplacian
+          (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g) t x := by
+  exact
+    not_momentumEquation_oneOneTwoMode_of_inviscidClosure_pressureGradient_lapSum_mismatch
+      ν p f g hclosure hbad
+
 theorem one_one_two_mode_schwartz_velocity_nonzero_regression
     (f g : NSSchwartzInitialVelocity)
     (hfg : ∃ x : NSSpace, f x + g x ≠ 0) :
@@ -179,6 +300,32 @@ theorem affine_add_scalar_schwartz_pressure_time_only_regression
         (fun _ : NSTime => 0) q =
       fun t : NSTime => fun _ : NSSpace => π t := by
   exact affineAddScalarSchwartzPressure_zero_timeOnly π q
+
+theorem affine_pressure_spatial_gradient_regression
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (t : NSTime) (x : NSSpace) :
+    spatialPressureGradient (fun s : NSTime => fun y : NSSpace => ⟪c s, y⟫ + π s) t x =
+      c t := by
+  exact spatialPressureGradient_affinePressure c π t x
+
+theorem affine_add_scalar_schwartz_pressure_spatial_affine_gradient_regression
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ))
+    (t : NSTime) (x : NSSpace) :
+    spatialPressureGradient
+        (affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) t x =
+      c t := by
+  exact spatialPressureGradient_affineAddScalarSchwartzPressure_spatialAffine c π q t x
+
+theorem zero_witness_spatial_affine_pressure_implies_zero_coeff_on_regression
+    {ν T : ℝ} {u0 : NSInitialVelocity}
+    (W : ExplicitFiniteTimeRegularityWitness ν u0 T)
+    (c : NSTime → NSSpace) (π : NSTime → ℝ) (q : 𝓢(NSSpace, ℝ))
+    (hWvel : W.velocity = (0 : NSVelocityField))
+    (hWpress :
+      W.pressure = affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) :
+    ∀ t, 0 ≤ t → t ≤ T → c t = 0 := by
+  exact
+    W.zeroVelocity_spatialAffinePressure_implies_zeroAffineCoeffOn
+      c π q hWvel hWpress
 
 theorem zero_amplitude_two_mode_schwartz_momentum_regression
     (ν : ℝ) (π : NSTime → ℝ)
@@ -228,6 +375,70 @@ theorem one_one_antiprofile_full_viscous_momentum_regression
     momentumEquation_oneOneAntiProfileSchwartzVelocity_affineTimeOnlyPressure_of_posViscosity
       hν π f q
 
+theorem equal_amplitude_antiprofile_affine_time_only_pressure_momentum_regression
+    (a : NSTime → ℝ) (ν : ℝ) (π : NSTime → ℝ)
+    (f : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ)) :
+    ∀ t x,
+      timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+          spatialPressureGradient
+            (affineAddScalarSchwartzPressure (fun _ : NSTime => 0) π
+              (fun _ : NSTime => 0) q) t x =
+        (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x := by
+  exact
+    momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_affineTimeOnlyPressure
+      a ν π f q
+
+theorem equal_amplitude_antiprofile_spatial_affine_pressure_implies_zero_coeff_regression
+    (a : NSTime → ℝ) (ν : ℝ) (c : NSTime → NSSpace) (π : NSTime → ℝ)
+    (f : NSSchwartzInitialVelocity) (q : 𝓢(NSSpace, ℝ))
+    (hME :
+      ∀ t x,
+        timeVelocityDerivative (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialConvection (twoModeSchwartzVelocity a a f (-f)) t x +
+            spatialPressureGradient
+              (affineAddScalarSchwartzPressure c π (fun _ : NSTime => 0) q) t x =
+          (ν : ℝ) • spatialLaplacian (twoModeSchwartzVelocity a a f (-f)) t x) :
+    ∀ t, c t = 0 := by
+  exact
+    momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_spatialAffinePressure_implies_zeroAffineCoeff
+      a ν c π f q hME
+
+theorem equal_amplitude_antiprofile_nonzero_spatial_affine_pressure_momentum_impossible_regression :
+    ¬
+      (∀ t x,
+        timeVelocityDerivative
+              (twoModeSchwartzVelocity (fun _ : NSTime => 0) (fun _ : NSTime => 0)
+                (0 : NSSchwartzInitialVelocity) (-(0 : NSSchwartzInitialVelocity))) t x +
+            spatialConvection
+              (twoModeSchwartzVelocity (fun _ : NSTime => 0) (fun _ : NSTime => 0)
+                (0 : NSSchwartzInitialVelocity) (-(0 : NSSchwartzInitialVelocity))) t x +
+            spatialPressureGradient
+              (affineAddScalarSchwartzPressure
+                (fun _ : NSTime => EuclideanSpace.single nsCoord0 (1 : ℝ))
+                (fun _ : NSTime => 0) (fun _ : NSTime => 0)
+                (0 : 𝓢(NSSpace, ℝ))) t x =
+          (0 : ℝ) •
+            spatialLaplacian
+              (twoModeSchwartzVelocity (fun _ : NSTime => 0) (fun _ : NSTime => 0)
+                (0 : NSSchwartzInitialVelocity) (-(0 : NSSchwartzInitialVelocity))) t x) := by
+  refine
+    not_momentumEquation_equalAmplitudeAntiProfileSchwartzVelocity_spatialAffinePressure_of_exists_nonzeroAffineCoeff
+      (a := fun _ : NSTime => 0)
+      (ν := 0)
+      (c := fun _ : NSTime => EuclideanSpace.single nsCoord0 (1 : ℝ))
+      (π := fun _ : NSTime => 0)
+      (f := (0 : NSSchwartzInitialVelocity))
+      (q := (0 : 𝓢(NSSpace, ℝ)))
+      ?_
+  refine ⟨0, ?_⟩
+  intro hzero
+  have hcoordZero :
+      (EuclideanSpace.single nsCoord0 (1 : ℝ) : NSSpace) nsCoord0 =
+        (0 : NSSpace) nsCoord0 := by
+    exact congrArg (fun v : NSSpace => v nsCoord0) hzero
+  simp [nsCoord0] at hcoordZero
+
 theorem one_one_antiprofile_full_viscous_zero_pressure_closure_regression
     {ν : ℝ} (hν : 0 < ν) (f : NSSchwartzInitialVelocity) :
     ∀ t x,
@@ -246,6 +457,79 @@ theorem one_one_antiprofile_full_viscous_zero_pressure_closure_regression
               (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
               t x) := by
   exact explicitClosure_oneOneAntiProfileSchwartzVelocity_zeroPressure_of_posViscosity hν f
+
+theorem one_one_antiprofile_schwartz_pressure_slice_zero_pressure_closure_regression
+    (ν : ℝ) (f : NSSchwartzInitialVelocity) :
+    ∀ t x,
+        spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x ((-f) x) +
+            spatialFDeriv
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x (f x) +
+            spatialConvection
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) •
+          (spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            spatialLaplacian
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x) := by
+  exact explicitClosure_oneOneAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure ν f
+
+theorem equal_amplitude_antiprofile_schwartz_pressure_slice_zero_pressure_closure_regression
+    {a : NSTime → ℝ} (ha : ContDiff ℝ ∞ a)
+    (ν : ℝ) (f : NSSchwartzInitialVelocity) :
+    ∀ t x,
+      deriv a t • f x + deriv a t • (-f) x +
+            ((a t ^ (2 : ℕ)) •
+                spatialConvection (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+              (a t * a t) •
+                spatialFDeriv (timeIndependentVelocity (f : NSInitialVelocity)) t x ((-f) x) +
+              (a t * a t) •
+                spatialFDeriv
+                  (timeIndependentVelocity
+                    (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+                  t x (f x) +
+              (a t ^ (2 : ℕ)) •
+                spatialConvection
+                  (timeIndependentVelocity
+                    (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+                  t x) +
+          spatialPressureGradient
+            (fun s : NSTime => fun y : NSSpace =>
+              (fun _ : NSTime => (0 : 𝓢(NSSpace, ℝ))) s y) t x =
+        (ν : ℝ) •
+          (a t • spatialLaplacian (timeIndependentVelocity (f : NSInitialVelocity)) t x +
+            a t • spatialLaplacian
+              (timeIndependentVelocity (((-f : NSSchwartzInitialVelocity) : NSInitialVelocity)))
+              t x) := by
+  exact
+    explicitClosure_equalAmplitudeAntiProfileSchwartzVelocity_schwartzPressureSlice_zeroPressure
+      ha ν f
+
+theorem anti_profile_zero_velocity_iff_equal_amplitude_regression
+    (a b : NSTime → ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0) :
+    twoModeSchwartzVelocity a b f (-f) = (0 : NSVelocityField) ↔
+      ∀ t, a t = b t := by
+  exact antiProfileSchwartzVelocity_eq_zero_iff_equalAmplitude a b f hf
+
+theorem anti_profile_zero_initial_iff_equal_amplitude_regression
+    (a0 b0 : ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0) :
+    twoModeSchwartzInitialVelocity a0 b0 f (-f) = (0 : NSInitialVelocity) ↔
+      a0 = b0 := by
+  exact antiProfileSchwartzInitialVelocity_eq_zero_iff_equalAmplitude a0 b0 f hf
+
+theorem anti_profile_nonzero_velocity_of_amplitude_ne_regression
+    (a b : NSTime → ℝ) (f : NSSchwartzInitialVelocity)
+    (hf : ∃ x : NSSpace, f x ≠ 0)
+    (hab : ∃ t, a t ≠ b t) :
+    ∃ t x, twoModeSchwartzVelocity a b f (-f) t x ≠ 0 := by
+  exact exists_antiProfileSchwartzVelocity_ne_zero_of_exists_amplitude_ne a b f hf hab
 
 theorem exists_nonzero_profiles_pressure_full_viscous_closure_regression
     {ν : ℝ} (hν : 0 < ν) :
@@ -532,6 +816,115 @@ theorem two_mode_schwartz_canonical_initial_witness_pressure_regression
       haBound hbBound heq).pressure =
       affineAddScalarSchwartzPressure c π ρ q := by
   rfl
+
+theorem two_mode_schwartz_zero_profile_global_output_regression
+    (ν : ℝ) :
+    ExplicitConcreteNavierStokesGlobalOutput
+      ν
+      (twoModeSchwartzInitialVelocity 0 0
+        (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)) := by
+  exact
+    ExplicitConcreteNavierStokesGlobalOutput_twoModeSchwartzVelocity_of_momentumEquation
+      (a := fun _ : NSTime => 0)
+      (b := fun _ : NSTime => 0)
+      contDiff_const contDiff_const
+      (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+      0 0
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (0 : 𝓢(NSSpace, ℝ))
+      contDiff_const contDiff_const contDiff_const
+      (by intro t; simp)
+      (by intro t; simp)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by
+        intro t x
+        simpa using
+          momentumEquation_zeroTwoModeSchwartzVelocity_affineTimeOnlyPressure
+            ν (fun _ : NSTime => 0)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : 𝓢(NSSpace, ℝ)) t x)
+
+theorem two_mode_schwartz_zero_profile_finite_energy_clause_regression
+    (ν : ℝ) :
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause
+      ν
+      (twoModeSchwartzInitialVelocity 0 0
+        (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)) := by
+  exact
+    ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause_twoModeSchwartzInitialVelocity_of_momentumEquation
+      (a := fun _ : NSTime => 0)
+      (b := fun _ : NSTime => 0)
+      contDiff_const contDiff_const
+      (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+      0 0
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (0 : 𝓢(NSSpace, ℝ))
+      contDiff_const contDiff_const contDiff_const
+      (by intro t; simp)
+      (by intro t; simp)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by
+        intro t x
+        simpa using
+          momentumEquation_zeroTwoModeSchwartzVelocity_affineTimeOnlyPressure
+            ν (fun _ : NSTime => 0)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : 𝓢(NSSpace, ℝ)) t x)
+
+theorem two_mode_schwartz_zero_profile_structured_clause_regression
+    {ν : ℝ} (hν : 0 < ν) :
+    NavierStokesGlobalRegularityClause
+      mkFullyConcreteNavierStokesSurface
+      ({ viscosity := ν
+         viscosity_pos := hν
+         initialVelocity := twoModeSchwartzInitialVelocity 0 0
+           (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+         smooth_initial :=
+           smoothInitialVelocityData_twoModeSchwartzInitialVelocity 0 0
+             (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+         divergence_free_initial :=
+           initialSpatialDivergence_twoModeSchwartzInitialVelocity_zero
+             0 0
+             (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+             (by intro x; simpa using initialSpatialDivergence_zero x)
+             (by intro x; simpa using initialSpatialDivergence_zero x)
+         finite_initial_energy :=
+           finiteInitialKineticEnergy_twoModeSchwartzInitialVelocity 0 0
+             (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity) } :
+        FiniteEnergyAdmissibleNavierStokesProblemData).toNavierStokesProblemData := by
+  exact
+    finiteEnergyConcreteNavierStokesGlobalRegularityClause_twoModeSchwartzInitialVelocity_of_momentumEquation
+      (a := fun _ : NSTime => 0)
+      (b := fun _ : NSTime => 0)
+      contDiff_const contDiff_const
+      (0 : NSSchwartzInitialVelocity) (0 : NSSchwartzInitialVelocity)
+      0 0
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (fun _ : NSTime => 0)
+      (0 : 𝓢(NSSpace, ℝ))
+      hν
+      contDiff_const contDiff_const contDiff_const
+      (by intro t; simp)
+      (by intro t; simp)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by intro x; simpa using initialSpatialDivergence_zero x)
+      (by
+        intro t x
+        simpa using
+          momentumEquation_zeroTwoModeSchwartzVelocity_affineTimeOnlyPressure
+            ν (fun _ : NSTime => 0)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : NSSchwartzInitialVelocity)
+            (0 : 𝓢(NSSpace, ℝ)) t x)
 
 end NavierStokesFiniteModeBoundedEnergyRegression
 end NavierStokes
