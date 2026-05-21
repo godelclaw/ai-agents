@@ -23,6 +23,97 @@ namespace ActualSwitchedLocalInterface
 
 variable {n k r : ℕ} {Index : Type u} {Block : Type v}
 
+/-- On the concrete bit-valued latent surface, any true exact-visible
+switched-history wrapper for a surjective actual switched family already forces
+the full truth-table lower bound `2^(n + 2*k) ≤ s`. -/
+theorem switchedHistoryExactVisibleCompressionWrapper_bitVecSurfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items) :
+    2 ^ (n + 2 * k) ≤ s := by
+  simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+    switchedHistoryExactVisibleCompressionWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hwrap
+
+/-- The same full truth-table lower bound follows from the clocked
+switched-history wrapper, since it is the same finite-image burden. -/
+theorem switchedHistoryClockedKpolyFiniteLearningWrapper_bitVecSurfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items) :
+    2 ^ (n + 2 * k) ≤ s := by
+  simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+    switchedHistoryClockedKpolyFiniteLearningWrapper_surfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield hsurj hwrap
+
+/-- Therefore any explicit budget gap below the full truth-table size already
+rules out the exact-visible switched-history wrapper on the bit-valued latent
+surface. -/
+theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hbudget : s < 2 ^ (n + 2 * k)) :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items := by
+  intro hwrap
+  exact Nat.not_le_of_lt hbudget <|
+    switchedHistoryExactVisibleCompressionWrapper_bitVecSurfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hwrap
+
+/-- The same explicit budget gap already rules out the clocked
+switched-history wrapper on the bit-valued latent surface. -/
+theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hbudget : s < 2 ^ (n + 2 * k)) :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items := by
+  intro hwrap
+  exact Nat.not_le_of_lt hbudget <|
+    switchedHistoryClockedKpolyFiniteLearningWrapper_bitVecSurfaceCard_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield hsurj hwrap
+
+/-- Equivalently, any exact-visible switched-history wrapper below the full
+truth-table size already forces non-surjectivity of the actual switched family
+on the bit-valued latent surface. -/
+theorem not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_budget_lt
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hwrap : SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items)
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hbudget : s < 2 ^ (n + 2 * k)) :
+    ¬ Function.Surjective T.predictorFamily.predict := by
+  intro hsurj
+  exact
+    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
+      (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hbudget hwrap
+
+/-- And likewise for the clocked switched-history wrapper below the full
+truth-table size. -/
+theorem not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_budget_lt
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hwrap : SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items)
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hbudget : s < 2 ^ (n + 2 * k)) :
+    ¬ Function.Surjective T.predictorFamily.predict := by
+  intro hsurj
+  exact
+    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield hsurj hbudget hwrap
+
 /-- On the concrete bit-valued visible surface, the manuscript-shaped budget
 `r + 2*k + 1` is strictly below the full exact visible surface cardinality as
 soon as the extractor width does not exceed the latent width and the visible
@@ -50,11 +141,13 @@ theorem not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitchi
     (hwidth : 2 ≤ n + 2 * k) :
     ¬ SwitchedHistoryExactVisibleCompressionWrapper Ω T (r + 2 * k + 1) hist items := by
   exact
-    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_s_lt_surfaceCard
+    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
       (T := T) (s := r + 2 * k + 1) (hist := hist) (items := items)
       hfield hsurj
-      (switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
-        (n := n) (k := k) (r := r) hr hwidth)
+      (by
+        simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+          switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
+            (n := n) (k := k) (r := r) hr hwidth)
 
 /-- The same route-level contradiction rules out the clocked switched-history
 wrapper at the same manuscript budget. -/
@@ -68,11 +161,13 @@ theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwit
     (hwidth : 2 ≤ n + 2 * k) :
     ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T (r + 2 * k + 1) clock hist items := by
   exact
-    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_s_lt_surfaceCard
+    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_budget_lt
       (T := T) (s := r + 2 * k + 1) (clock := clock) (hist := hist) (items := items)
       hfield hsurj
-      (switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
-        (n := n) (k := k) (r := r) hr hwidth)
+      (by
+        simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+          switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
+            (n := n) (k := k) (r := r) hr hwidth)
 
 /-- Equivalently, any true exact-visible switched-history wrapper at that
 budget already forces the actual switched family to miss some Boolean rule on
@@ -87,11 +182,13 @@ theorem not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_
     (hwidth : 2 ≤ n + 2 * k) :
     ¬ Function.Surjective T.predictorFamily.predict := by
   exact
-    not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_lt_surfaceCard
+    not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_budget_lt
       (T := T) (s := r + 2 * k + 1) (hist := hist) (items := items)
       hwrap hfield
-      (switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
-        (n := n) (k := k) (r := r) hr hwidth)
+      (by
+        simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+          switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
+            (n := n) (k := k) (r := r) hr hwidth)
 
 /-- And likewise for the clocked switched-history wrapper at the same concrete
 budget. -/
@@ -105,14 +202,13 @@ theorem not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapp
     (hwidth : 2 ≤ n + 2 * k) :
     ¬ Function.Surjective T.predictorFamily.predict := by
   exact
-    not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_lt_predictorCard
+    not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_budget_lt
       (T := T) (s := r + 2 * k + 1) (clock := clock) (hist := hist) (items := items)
       hwrap hfield
       (by
-        simpa using
-          (Nat.pow_lt_pow_iff_right Nat.one_lt_two).2
-            (switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
-              (n := n) (k := k) (r := r) hr hwidth))
+        simpa [card_exactVisiblePostSwitchSurface_bitVec] using
+          switchedHistoryBudget_lt_surfaceCard_of_le_of_two_le
+            (n := n) (k := k) (r := r) hr hwidth)
 
 end ActualSwitchedLocalInterface
 
