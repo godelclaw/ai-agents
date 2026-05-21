@@ -1408,6 +1408,19 @@ vorticity envelope internally, so the BKM layer is conservative over the
 finite-time witness audit without leaving an extra vorticity hypothesis to be
 supplied by hand.
 
+The boxed steady-seed surface now has the same exact classification, not only
+one-sided obstructions.  Theorems
+\texttt{boxedPartialPeriodizationSteadySeed\_uniformVorticityData\_iff\_stationaryMomentum}
+and
+\texttt{boxedPartialPeriodizationSteadySeed\_BKMData\_iff\_stationaryMomentum}
+prove that, for any fixed smooth pressure, the boxed steady seed has
+uniform-vorticity-packaged or BKM-packaged finite-time data exactly when the
+boxed stationary momentum balance already holds on the slab.  The constructive
+directions use the finite boxed Schwartz periodization profile to supply the
+vorticity bound/envelope.  Thus these continuation packages do not repair the
+boxed steady seed; they only expose the original stationary momentum equation
+as the remaining obligation.
+
 These four exact-pair escape hatches are now collapsed into one certified route
 surface.  In
 \texttt{NavierStokesWitnessConstructionRouteObstruction.lean}, the definition

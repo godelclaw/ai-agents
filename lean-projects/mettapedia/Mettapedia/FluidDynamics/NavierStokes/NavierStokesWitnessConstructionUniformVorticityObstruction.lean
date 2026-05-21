@@ -105,6 +105,48 @@ theorem timeIndependentVelocity_schwartz_uniformVorticityData_iff_stationaryMome
     simpa [hWvel] using
       (uniformVorticityBoundUpTo_timeIndependentVelocity u₀ T)
 
+/-- Boxed-periodization uniform-vorticity-data classification for the steady
+seed.  The slab vorticity bound is not an additional repair parameter for this
+exact boxed seed: it is already supplied by the finite Schwartz periodization
+profile, so the remaining condition is exactly the stationary momentum balance
+on the slab. -/
+theorem boxedPartialPeriodizationSteadySeed_uniformVorticityData_iff_stationaryMomentum
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ B : ℝ, uniformVorticityBoundUpTo W.velocity T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x +
+            spatialPressureGradient p t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  constructor
+  · rintro ⟨W, hWvel, hWpress, _B, _hω⟩
+    exact
+      boxedPartialPeriodizationSteadySeed_finiteTimeWitness_implies_stationaryMomentum
+        hν N L u₀ ⟨W, hWvel, hWpress⟩
+  · intro hstationary
+    rcases
+        (boxedPartialPeriodizationSteadySeed_finiteTimeWitness_iff_stationaryMomentum
+          hν N L u₀ T p hp).2 hstationary with
+      ⟨W, hWvel, hWpress⟩
+    refine
+      ⟨W, hWvel, hWpress,
+        schwartzInitialVelocityVorticityBound
+          (boxedPartialPeriodizationSchwartzDivergenceFreeInitialVelocity N L u₀).1, ?_⟩
+    simpa [hWvel, boxedPartialPeriodizationSteadySeedVelocity,
+      boxedPartialPeriodizationNavierStokesProblemData,
+      boxedPartialPeriodizationFiniteEnergyAdmissibleProblemData,
+      NSSchwartzDivergenceFreeInitialVelocity.toFiniteEnergyAdmissibleNavierStokesProblemData]
+      using
+        (uniformVorticityBoundUpTo_timeIndependentVelocity
+          (boxedPartialPeriodizationSchwartzDivergenceFreeInitialVelocity N L u₀).1 T)
+
 /-- Boxed-periodization instance of the uniform-vorticity-layer steady-seed
 obstruction: stationary momentum failure at one slab point rules out the exact
 seed/pressure pair even after adding a slab vorticity bound. -/

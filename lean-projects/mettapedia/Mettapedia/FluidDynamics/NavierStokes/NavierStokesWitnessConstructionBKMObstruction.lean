@@ -112,6 +112,48 @@ theorem timeIndependentVelocity_schwartz_BKMData_iff_stationaryMomentum
     refine ⟨W, hWvel, hWpress, Ω, B, ?_, hInt⟩
     simpa [hWvel] using hEnv
 
+/-- Boxed-periodization BKM-data classification for the steady seed.  The BKM
+envelope is not an additional repair parameter for this exact boxed seed: it is
+already supplied by the finite Schwartz periodization profile, so the remaining
+condition is exactly the stationary momentum balance on the slab. -/
+theorem boxedPartialPeriodizationSteadySeed_BKMData_iff_stationaryMomentum
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p) :
+    (∃ W :
+        ExplicitFiniteTimeRegularityWitness ν
+          (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity T,
+        W.velocity = boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν ∧
+          W.pressure = p ∧
+          ∃ Ω : NSTime → ℝ, ∃ B : ℝ,
+            vorticityEnvelopeOn W.velocity T Ω ∧
+              integrableVorticityEnvelopeOn Ω T B) ↔
+      ∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x +
+            spatialPressureGradient p t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x := by
+  constructor
+  · rintro ⟨W, hWvel, hWpress, _Ω, _B, _hEnv, _hInt⟩
+    exact
+      boxedPartialPeriodizationSteadySeed_finiteTimeWitness_implies_stationaryMomentum
+        hν N L u₀ ⟨W, hWvel, hWpress⟩
+  · intro hstationary
+    rcases
+        (boxedPartialPeriodizationSteadySeed_finiteTimeWitness_iff_stationaryMomentum
+          hν N L u₀ T p hp).2 hstationary with
+      ⟨W, hWvel, hWpress⟩
+    rcases
+        timeIndependentVelocity_exhibits_BKMEnvelope
+          (boxedPartialPeriodizationSchwartzDivergenceFreeInitialVelocity N L u₀).1 T with
+      ⟨Ω, B, hEnv, hInt⟩
+    refine ⟨W, hWvel, hWpress, Ω, B, ?_, hInt⟩
+    simpa [hWvel, boxedPartialPeriodizationSteadySeedVelocity,
+      boxedPartialPeriodizationNavierStokesProblemData,
+      boxedPartialPeriodizationFiniteEnergyAdmissibleProblemData,
+      NSSchwartzDivergenceFreeInitialVelocity.toFiniteEnergyAdmissibleNavierStokesProblemData]
+      using hEnv
+
 /-- Boxed-periodization instance of the BKM-layer steady-seed obstruction:
 stationary momentum failure at one slab point rules out the exact seed/pressure
 pair even after adding a BKM envelope. -/
