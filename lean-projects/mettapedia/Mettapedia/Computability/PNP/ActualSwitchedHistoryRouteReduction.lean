@@ -211,6 +211,43 @@ theorem not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwit
       (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield]
   exact hnot
 
+/-- Under a true fielded switching instance, any manuscript-facing
+exact-visible switched-history wrapper for a surjective actual family already
+forces the full Boolean exact-visible classifier-space cardinality to fit
+inside the advertised `2^s` budget. -/
+theorem switchedHistoryExactVisibleCompressionWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items) :
+    2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 ^ s := by
+  exact
+    exactVisible_finitePredictorCover_card_le_of_surjective_predict
+      (Index := Index) hsurj
+      ((switchedHistoryExactVisibleCompressionWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
+        (T := T) (s := s) (hist := hist) (items := items) hfield).1 hwrap)
+
+/-- The same explicit cardinal lower bound follows from the clocked
+switched-history wrapper, since it is only another packaging of the same
+finite-image burden. -/
+theorem switchedHistoryClockedKpolyFiniteLearningWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {T : ActualSwitchedLocalInterface Z k Index Block}
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hwrap : SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items) :
+    2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 ^ s := by
+  exact
+    exactVisible_finitePredictorCover_card_le_of_surjective_predict
+      (Index := Index) hsurj
+      ((switchedHistoryClockedKpolyFiniteLearningWrapper_iff_finitePredictorCover_of_true_fieldedSwitching
+        (T := T) (s := s) (clock := clock) (hist := hist) (items := items) hfield).1 hwrap)
+
 end ActualSwitchedLocalInterface
 
 end Mettapedia.Computability.PNP

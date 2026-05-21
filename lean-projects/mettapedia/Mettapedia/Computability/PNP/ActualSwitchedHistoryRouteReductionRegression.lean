@@ -156,6 +156,45 @@ theorem regression_not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_not_f
       (by trivial)
       (by simpa using hnot)
 
+theorem regression_switchedHistoryExactVisibleCompressionWrapper_card_le_of_surjective_predict :
+    SwitchedHistoryExactVisibleCompressionWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface Bool 0)
+        0
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) →
+      2 ^ Fintype.card (ExactVisiblePostSwitchSurface Bool 0) ≤ 1 := by
+  intro hwrap
+  simpa using
+    switchedHistoryExactVisibleCompressionWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := fullRuleActualSwitchedLocalInterface Bool 0)
+      (s := 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective Bool 0)
+      hwrap
+
+theorem regression_switchedHistoryClockedKpolyFiniteLearningWrapper_card_le_of_surjective_predict :
+    SwitchedHistoryClockedKpolyFiniteLearningWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface Bool 0)
+        0
+        0
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) →
+      2 ^ Fintype.card (ExactVisiblePostSwitchSurface Bool 0) ≤ 1 := by
+  intro hwrap
+  simpa using
+    switchedHistoryClockedKpolyFiniteLearningWrapper_card_le_of_true_fieldedSwitching_of_surjective_predict
+      (T := fullRuleActualSwitchedLocalInterface Bool 0)
+      (s := 0) (clock := 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective Bool 0)
+      hwrap
+
 end ActualSwitchedLocalInterface
 
 end Mettapedia.Computability.PNP
