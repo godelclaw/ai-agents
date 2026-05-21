@@ -177,6 +177,93 @@ theorem not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapp
     not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_lt_predictorCard
       (T := T) (hist := hist) (items := items) hfield hsurj hs hwrap
 
+/-- Specialization of the blocker to the full exact-visible Boolean family
+already permitted by the bare actual-locality interface. -/
+theorem fullRuleActualSwitchedLocalInterface_not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_lt_surfaceCard
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {s : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ SwitchedHistoryExactVisibleCompressionWrapper
+        Ω (fullRuleActualSwitchedLocalInterface Z k) s hist items := by
+  exact
+    not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_lt_surfaceCard
+      (T := fullRuleActualSwitchedLocalInterface Z k)
+      (hist := hist) (items := items)
+      hfield (fullRuleActualSwitchedLocalInterface_surjective Z k) hs
+
+/-- Clocked specialization of the same full-rule actual-local blocker. -/
+theorem fullRuleActualSwitchedLocalInterface_not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_lt_predictorCard
+    [Fintype Z]
+    {Ω : Type x} [Fintype Ω]
+    {s clock : ℕ} {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hs : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ SwitchedHistoryClockedKpolyFiniteLearningWrapper
+        Ω (fullRuleActualSwitchedLocalInterface Z k) s clock hist items := by
+  exact
+    not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_lt_predictorCard
+      (T := fullRuleActualSwitchedLocalInterface Z k)
+      (hist := hist) (items := items)
+      hfield (fullRuleActualSwitchedLocalInterface_surjective Z k) hs
+
+/-- Therefore bare actual locality cannot support a universal exact-visible
+switched-history wrapper theorem below the exact-visible truth-table
+threshold. -/
+theorem actualSwitchedLocalInterface_not_forall_switchedHistoryExactVisibleCompressionWrapper_of_lt_surfaceCard
+    [Fintype Z]
+    {s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (∀ {Index : Type v} {Block : Type v} {Ω : Type x} [Fintype Ω]
+        (T : ActualSwitchedLocalInterface Z k Index Block)
+        (hist : List (FiniteEvent Ω)) (items : List (V13FieldedStep Ω)),
+        SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items) := by
+  intro hall
+  exact
+    fullRuleActualSwitchedLocalInterface_not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_lt_surfaceCard
+      (Z := Z) (k := k)
+      (Ω := ULift.{x} Bool)
+      (hist := ([] : List (FiniteEvent (ULift.{x} Bool))))
+      (items := ([] : List (V13FieldedStep (ULift.{x} Bool))))
+      (by trivial)
+      hs
+      (hall
+        (Index := ExactVisibleRule Z k)
+        (Block := ExactVisiblePostSwitchSurface Z k)
+        (Ω := ULift.{x} Bool)
+        (fullRuleActualSwitchedLocalInterface Z k)
+        []
+        [])
+
+/-- Therefore bare actual locality cannot support a universal clocked
+switched-history wrapper theorem below the full Boolean predictor-space
+threshold. -/
+theorem actualSwitchedLocalInterface_not_forall_switchedHistoryClockedKpolyFiniteLearningWrapper_of_lt_predictorCard
+    [Fintype Z]
+    {s clock : ℕ}
+    (hs : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (∀ {Index : Type v} {Block : Type v} {Ω : Type x} [Fintype Ω]
+        (T : ActualSwitchedLocalInterface Z k Index Block)
+        (hist : List (FiniteEvent Ω)) (items : List (V13FieldedStep Ω)),
+        SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items) := by
+  intro hall
+  exact
+    fullRuleActualSwitchedLocalInterface_not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_lt_predictorCard
+      (Z := Z) (k := k)
+      (Ω := ULift.{x} Bool)
+      (hist := ([] : List (FiniteEvent (ULift.{x} Bool))))
+      (items := ([] : List (V13FieldedStep (ULift.{x} Bool))))
+      (by trivial)
+      hs
+      (hall
+        (Index := ExactVisibleRule Z k)
+        (Block := ExactVisiblePostSwitchSurface Z k)
+        (Ω := ULift.{x} Bool)
+        (fullRuleActualSwitchedLocalInterface Z k)
+        []
+        [])
+
 end ActualSwitchedLocalInterface
 
 end Mettapedia.Computability.PNP

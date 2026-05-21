@@ -74,6 +74,26 @@ theorem regression_fullRuleActualSwitchedLocal_no_switchedHistoryClockedKpolyFin
   · exact fullRuleActualSwitchedLocalInterface_surjective Bool 0
   · decide
 
+theorem regression_actualSwitchedLocal_not_forall_switchedHistoryExactVisibleCompressionWrapper :
+    ¬ (∀ {Index Block : Type} {Ω : Type _}
+        [Fintype Ω]
+        (T : ActualSwitchedLocalInterface Bool 0 Index Block)
+        (hist : List (FiniteEvent Ω)) (items : List (V13FieldedStep Ω)),
+        SwitchedHistoryExactVisibleCompressionWrapper Ω T 0 hist items) := by
+  exact
+    actualSwitchedLocalInterface_not_forall_switchedHistoryExactVisibleCompressionWrapper_of_lt_surfaceCard
+      (Z := Bool) (k := 0) (s := 0) (by decide)
+
+theorem regression_actualSwitchedLocal_not_forall_switchedHistoryClockedKpolyFiniteLearningWrapper :
+    ¬ (∀ {Index Block : Type} {Ω : Type _}
+        [Fintype Ω]
+        (T : ActualSwitchedLocalInterface Bool 0 Index Block)
+        (hist : List (FiniteEvent Ω)) (items : List (V13FieldedStep Ω)),
+        SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T 0 0 hist items) := by
+  exact
+    actualSwitchedLocalInterface_not_forall_switchedHistoryClockedKpolyFiniteLearningWrapper_of_lt_predictorCard
+      (Z := Bool) (k := 0) (s := 0) (clock := 0) (by decide)
+
 end Negative
 
 end ActualSwitchedLocalInterface
