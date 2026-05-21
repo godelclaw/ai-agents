@@ -222,6 +222,31 @@ theorem
     boxedPartialPeriodizationSteadySeed_timeOnlyPressure_finiteTimeWitness_iff_stationaryMomentum_zeroPressure
       hν N L u₀ T π hπ
 
+/-- Any fixed smooth pressure gauge with zero spatial gradient leaves the
+bundled exact-pair route at the same boxed steady-seed boundary: the route
+exists exactly when the zero-pressure stationary momentum balance already
+holds on the slab. -/
+theorem
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_ExactPairWitnessConstructionRoute_iff_stationaryMomentum_zeroPressure
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    ExactPairWitnessConstructionRoute
+      ν
+      T
+      (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity
+      (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν)
+      p ↔
+      (∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) := by
+  rw [ExactPairWitnessConstructionRoute_iff_exists_finiteTimeWitness]
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_finiteTimeWitness_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T p hp hp_zero
+
 /-- Allowing an arbitrary smooth zero-spatial-gradient pressure gauge does not
 enlarge the bundled fixed-pair route for the boxed steady seed: such a route
 exists for some harmless gauge exactly when the zero-pressure stationary

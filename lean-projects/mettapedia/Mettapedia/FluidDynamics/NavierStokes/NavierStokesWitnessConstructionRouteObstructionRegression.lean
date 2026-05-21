@@ -80,6 +80,25 @@ theorem boxed_steady_seed_time_only_pressure_exact_pair_route_classification_reg
     boxedPartialPeriodizationSteadySeed_timeOnlyPressure_ExactPairWitnessConstructionRoute_iff_stationaryMomentum_zeroPressure
       hν N L u₀ T π hπ
 
+theorem boxed_steady_seed_fixed_zero_spatial_gradient_pressure_exact_pair_route_classification_regression
+    {ν : ℝ} (hν : 0 < ν)
+    (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
+    (T : ℝ) (p : NSPressureField)
+    (hp : smoothSpaceTimePressure p)
+    (hp_zero : ∀ t x, spatialPressureGradient p t x = 0) :
+    ExactPairWitnessConstructionRoute
+      ν
+      T
+      (boxedPartialPeriodizationNavierStokesProblemData N L u₀ hν).initialVelocity
+      (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν)
+      p ↔
+      (∀ t x, 0 ≤ t → t ≤ T →
+        spatialConvection (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x =
+          ν • spatialLaplacian (boxedPartialPeriodizationSteadySeedVelocity N L u₀ hν) t x) := by
+  exact
+    boxedPartialPeriodizationSteadySeed_zeroSpatialGradientPressure_ExactPairWitnessConstructionRoute_iff_stationaryMomentum_zeroPressure
+      hν N L u₀ T p hp hp_zero
+
 theorem boxed_steady_seed_exists_zero_spatial_gradient_pressure_exact_pair_route_classification_regression
     {ν : ℝ} (hν : 0 < ν)
     (N : ℕ) (L : ℝ) (u₀ : NSSchwartzDivergenceFreeInitialVelocity)
