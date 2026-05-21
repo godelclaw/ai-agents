@@ -75,4 +75,34 @@ end UniformRecovery
 
 end EncodedFamily
 
+namespace BitEncodedClassifierFamily
+
+section UniformRecovery
+
+variable {Input : Type u} [Fintype Input]
+variable {s : ℕ} (F : BitEncodedClassifierFamily Input s)
+
+/-- Bit-budget form of the pure counting threshold: if the `s`-bit code budget
+times the wrong-predictor consistency allowance is below the full point-sample
+space, then some sample is non-deceptive. -/
+theorem exists_nondeceptiveSample_of_bitBudget_bound_lt
+    (target : Input → Bool) (m : ℕ)
+    (hbound :
+      2 ^ s * (Fintype.card Input - 1) ^ m <
+        Fintype.card Input ^ m) :
+    ∃ sample : PointSample Input m,
+      ¬ F.toEncodedFamily.IsDeceptiveSample target sample := by
+  have hbound' :
+      Fintype.card F.toEncodedFamily.Code * (Fintype.card Input - 1) ^ m <
+        Fintype.card Input ^ m := by
+    change Fintype.card (BitCode s) * (Fintype.card Input - 1) ^ m <
+      Fintype.card Input ^ m
+    rw [card_bitCode]
+    exact hbound
+  exact F.toEncodedFamily.exists_nondeceptiveSample_of_bound_lt target m hbound'
+
+end UniformRecovery
+
+end BitEncodedClassifierFamily
+
 end Mettapedia.Computability.PNP

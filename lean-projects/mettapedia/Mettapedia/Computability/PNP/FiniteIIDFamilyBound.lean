@@ -66,6 +66,36 @@ theorem deceptiveSampleMass_eq_sum_indicator
       (f := fun sample : PointSample Input m => sampleMass μ sample)
       (p := fun sample => H.IsDeceptiveSample target sample))
 
+/-- The samples consistent with any fixed bad code form a subevent of the
+deceptive samples. -/
+theorem consistentSampleMass_le_deceptiveSampleMass_of_badCode
+    (μ : PMF Input) (target : Input → Output) (m : ℕ)
+    (c : H.BadCodes target) :
+    consistentSampleMass μ target (H.decode c.1) m ≤
+      H.deceptiveSampleMass μ target m := by
+  classical
+  rw [consistentSampleMass_eq_sum_indicator, H.deceptiveSampleMass_eq_sum_indicator]
+  refine Finset.sum_le_sum ?_
+  intro sample _
+  by_cases hs : AgreesWithTarget target (H.decode c.1) sample
+  · have hdec : H.IsDeceptiveSample target sample := ⟨c.1, c.2, hs⟩
+    simp [hs, hdec]
+  · simp [hs]
+
+/-- If a bad code agrees with the target on a finite region, then samples drawn
+entirely from that region force at least `regionMass ^ m` deceptive mass. -/
+theorem regionMass_pow_le_deceptiveSampleMass_of_badCode_agrees_on
+    {μ : PMF Input} {target : Input → Output}
+    (c : H.BadCodes target)
+    (region : Finset Input)
+    (hagree : ∀ x, x ∈ region → H.decode c.1 x = target x)
+    (m : ℕ) :
+    region.sum (fun x => μ x) ^ m ≤ H.deceptiveSampleMass μ target m := by
+  exact le_trans
+    (regionMass_pow_le_consistentSampleMass_of_agrees_on
+      (μ := μ) (target := target) (predict := H.decode c.1) region hagree m)
+    (H.consistentSampleMass_le_deceptiveSampleMass_of_badCode μ target m c)
+
 /-- The weighted deceptive mass is bounded by the sum of the weighted consistent
 sample masses of the bad codes. -/
 theorem deceptiveSampleMass_le_badCodeConsistentMassSum

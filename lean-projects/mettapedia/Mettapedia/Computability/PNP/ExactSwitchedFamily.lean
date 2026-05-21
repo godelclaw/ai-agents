@@ -80,6 +80,89 @@ theorem hasBitBudget_of_factorsThrough
   change F.decode c (view x) = G.predict i x
   exact (congrFun hc (view x)).trans (hfactor i x).symm
 
+/-- If `G` factors through `view` via `H`, and `view` admits a section, then
+any exact bit budget for `G` pulls back to the same bit budget for `H`. -/
+theorem hasBitBudget_of_factorsThrough_of_rightInverse
+    {View : Type*} {s : ℕ}
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View}
+    {sec : View → Input}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsmall : G.HasBitBudget s) :
+    H.HasBitBudget s := by
+  rcases hsmall with ⟨F, hF⟩
+  refine ⟨pullbackBitFamily sec F, ?_⟩
+  intro i
+  rcases hF i with ⟨c, hc⟩
+  refine ⟨c, ?_⟩
+  funext x
+  change F.decode c (sec x) = H.predict i x
+  calc
+    F.decode c (sec x) = G.predict i (sec x) := congrFun hc (sec x)
+    _ = H.predict i (view (sec x)) := hfactor i (sec x)
+    _ = H.predict i x := by simp [hsection x]
+
+/-- If an indexed family on a finite visible surface already realizes every
+Boolean classifier on that surface, then no exact `s`-bit budget exists below
+the surface cardinality. -/
+theorem not_hasBitBudget_of_surjective_predict_fintype
+    [Fintype Input] [DecidableEq Input] {s : ℕ}
+    {G : IndexedPredictorFamily Index Input}
+    (hs : s < Fintype.card Input)
+    (hsurj : Function.Surjective G.predict) :
+    ¬ G.HasBitBudget s := by
+  intro hsmall
+  rcases hsmall with ⟨F, hF⟩
+  have hdecodeSurj : Function.Surjective F.decode := by
+    intro rule
+    rcases hsurj rule with ⟨i, hi⟩
+    rcases hF i with ⟨c, hc⟩
+    exact ⟨c, hc.trans hi⟩
+  exact not_surjective_decode_to_fullClassifier_of_lt (decode := F.decode) hs hdecodeSurj
+
+/-- Quantitative form: any exact bit budget for a finite indexed family that
+already realizes every Boolean classifier on its visible surface must use at
+least that many bits. -/
+theorem bitBudget_lowerBound_of_surjective_predict_fintype
+    [Fintype Input] [DecidableEq Input] {s : ℕ}
+    {G : IndexedPredictorFamily Index Input}
+    (hsurj : Function.Surjective G.predict)
+    (hsmall : G.HasBitBudget s) :
+    Fintype.card Input ≤ s := by
+  by_contra hlt
+  exact
+    (not_hasBitBudget_of_surjective_predict_fintype
+      (G := G) (s := s) (Nat.not_le.mp hlt) hsurj) hsmall
+
+/-- If an indexed family on `n` visible bits already realizes every local
+Boolean rule, then no exact `s`-bit budget exists below the truth-table
+threshold `2^n`. -/
+theorem not_hasBitBudget_of_surjective_predict
+    {n s : ℕ}
+    {G : IndexedPredictorFamily Index (VisibleBits n)}
+    (hs : s < 2 ^ n)
+    (hsurj : Function.Surjective G.predict) :
+    ¬ G.HasBitBudget s := by
+  have hs' : s < Fintype.card (VisibleBits n) := by
+    simpa [card_visibleBits] using hs
+  simpa [card_visibleBits] using
+    (not_hasBitBudget_of_surjective_predict_fintype
+      (G := G) (s := s) (Input := VisibleBits n) hs' hsurj)
+
+/-- Quantitative form: any exact bit budget for a family that already realizes
+all Boolean rules on `n` visible bits must use at least `2^n` bits. -/
+theorem bitBudget_lowerBound_of_surjective_predict
+    {n s : ℕ}
+    {G : IndexedPredictorFamily Index (VisibleBits n)}
+    (hsurj : Function.Surjective G.predict)
+    (hsmall : G.HasBitBudget s) :
+    2 ^ n ≤ s := by
+  simpa [card_visibleBits] using
+    (bitBudget_lowerBound_of_surjective_predict_fintype
+      (G := G) (s := s) (Input := VisibleBits n) hsurj hsmall)
+
 section TruthTable
 
 variable {View : Type*}

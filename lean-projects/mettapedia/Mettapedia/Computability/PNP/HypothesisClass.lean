@@ -103,6 +103,56 @@ theorem card_realized_le (F : BitEncodedClassifierFamily Input s) :
 
 end BitEncodedClassifierFamily
 
+/-- The full Boolean classifier space on a finite input type has size `2^|Input|`. -/
+theorem card_boolClassifierSpace (Input : Type u) [Fintype Input] [DecidableEq Input] :
+    Fintype.card (Input → Bool) = 2 ^ Fintype.card Input := by
+  simp
+
+/-- If `s` is below the full input cardinality, then `s`-bit codes cannot
+injectively represent all Boolean classifiers on that input type. -/
+theorem no_injective_bitCode_of_lt_card
+    {Input : Type u} [Fintype Input] [DecidableEq Input] {s : ℕ}
+    (hs : s < Fintype.card Input) :
+    ¬ ∃ f : (Input → Bool) → BitCode s, Function.Injective f := by
+  rintro ⟨f, hf⟩
+  have hcard : Fintype.card (Input → Bool) ≤ Fintype.card (BitCode s) :=
+    Fintype.card_le_of_injective f hf
+  rw [card_boolClassifierSpace, card_bitCode] at hcard
+  have hlt : 2 ^ s < 2 ^ Fintype.card Input :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact Nat.not_le_of_lt hlt hcard
+
+/-- Equivalently, no `s`-bit decoder can surject onto the full Boolean
+classifier space on a finite input type below that cardinality threshold. -/
+theorem not_surjective_decode_to_fullClassifier_of_lt
+    {Input : Type u} [Fintype Input] [DecidableEq Input] {s : ℕ}
+    (decode : BitCode s → Input → Bool) (hs : s < Fintype.card Input) :
+    ¬ Function.Surjective decode := by
+  intro hsurj
+  have hcard : Fintype.card (Input → Bool) ≤ Fintype.card (BitCode s) :=
+    Fintype.card_le_of_surjective decode hsurj
+  rw [card_boolClassifierSpace, card_bitCode] at hcard
+  have hlt : 2 ^ s < 2 ^ Fintype.card Input :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact Nat.not_le_of_lt hlt hcard
+
+/-- Hence an `s`-bit encoded classifier family on a finite input type cannot
+realize the full Boolean classifier class below the input-cardinality
+threshold. -/
+theorem BitEncodedClassifierFamily.realized_ne_univ_of_lt_card
+    {Input : Type u} [Fintype Input] [DecidableEq Input] {s : ℕ}
+    (F : BitEncodedClassifierFamily Input s)
+    (hs : s < Fintype.card Input) :
+    EncodedFamily.realized F.toEncodedFamily ≠ Set.univ := by
+  intro hreal
+  have hsurj : Function.Surjective F.decode := by
+    intro rule
+    have hmem : rule ∈ EncodedFamily.realized F.toEncodedFamily := by
+      rw [hreal]
+      trivial
+    simpa [BitEncodedClassifierFamily.toEncodedFamily, EncodedFamily.realized] using hmem
+  exact not_surjective_decode_to_fullClassifier_of_lt (decode := F.decode) hs hsurj
+
 /-- Optimistic bridge theorem:
 if a switched/local predictor family is explicitly compressed into `s` bits, then
 its realized hypothesis class has size at most `2^s`. -/
@@ -118,12 +168,23 @@ smaller subclass than `LocalRule n`. -/
 theorem not_surjective_decode_to_fullLocalRule_of_lt {n s : ℕ}
     (decode : BitCode s → LocalRule n) (hs : s < 2 ^ n) :
     ¬ Function.Surjective decode := by
-  intro hsurj
-  have hcard : Fintype.card (LocalRule n) ≤ Fintype.card (BitCode s) :=
-    Fintype.card_le_of_surjective decode hsurj
-  rw [card_localRule, card_bitCode] at hcard
-  have hlt : 2 ^ s < 2 ^ (2 ^ n) := Nat.pow_lt_pow_right Nat.one_lt_two hs
-  exact Nat.not_le_of_lt hlt hcard
+  have hs' : s < Fintype.card (VisibleBits n) := by
+    simpa [card_visibleBits] using hs
+  simpa [LocalRule, card_visibleBits] using
+    (not_surjective_decode_to_fullClassifier_of_lt
+      (Input := VisibleBits n) (decode := decode) hs')
+
+/-- Hence an `s`-bit encoded classifier family on `n` visible bits cannot
+realize the full local-rule class once `s < 2^n`. -/
+theorem BitEncodedClassifierFamily.realized_ne_univ_of_lt {n s : ℕ}
+    (F : BitEncodedClassifierFamily (VisibleBits n) s)
+    (hs : s < 2 ^ n) :
+    EncodedFamily.realized F.toEncodedFamily ≠ Set.univ := by
+  have hs' : s < Fintype.card (VisibleBits n) := by
+    simpa [card_visibleBits] using hs
+  simpa [card_visibleBits] using
+    (BitEncodedClassifierFamily.realized_ne_univ_of_lt_card
+      (Input := VisibleBits n) (F := F) hs')
 
 /-- Hyperseed-flavored version:
 an `s`-bit classifier over one available region of a perspective still realizes

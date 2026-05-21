@@ -49,6 +49,18 @@ theorem no_injective_bitCode_of_lt {n s : ℕ} (hs : s < 2 ^ n) :
   have hlt : 2 ^ s < 2 ^ (2 ^ n) := Nat.pow_lt_pow_right Nat.one_lt_two hs
   exact Nat.not_le_of_lt hlt hcard
 
+/-- Equivalently, no `s`-bit decoder can surject onto the full local-rule
+class on `n` visible bits once `s < 2^n`. -/
+theorem not_surjective_bitCode_to_fullLocalRule_of_lt {n s : ℕ}
+    (decode : BitCode s → LocalRule n) (hs : s < 2 ^ n) :
+    ¬ Function.Surjective decode := by
+  intro hsurj
+  have hcard : Fintype.card (LocalRule n) ≤ Fintype.card (BitCode s) :=
+    Fintype.card_le_of_surjective decode hsurj
+  rw [card_localRule, card_bitCode] at hcard
+  have hlt : 2 ^ s < 2 ^ (2 ^ n) := Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact Nat.not_le_of_lt hlt hcard
+
 /-- In particular, the full rule class on a radius-`log₂ m` bounded-degree neighborhood cannot be
 uniformly encoded with fewer than `2^m` bits. -/
   theorem no_uniform_code_below_expInput_for_binaryLogNeighborhood {d m s : ℕ}

@@ -52,7 +52,7 @@ theorem powerOfTwo_le_neighborhoodSize_at_exactBinaryLogRadius {d n : ℕ} (hd :
 theorem quarticPolylogFailsAtPowerTwo20 {d : ℕ} (hd : 2 ≤ d) :
     (Nat.log 2 (2 ^ 20)) ^ 4 < d ^ (Nat.log 2 (2 ^ 20)) := by
   rw [Nat.log_pow Nat.one_lt_two]
-  have hgap : (20 : ℕ) ^ 4 < 2 ^ 20 := by native_decide
+  have hgap : (20 : ℕ) ^ 4 < 2 ^ 20 := by norm_num
   exact lt_of_lt_of_le hgap (Nat.pow_le_pow_left hd 20)
 
 private theorem logRadiusNeighborhood_eventuallyEq_rpow {d c : ℝ}
