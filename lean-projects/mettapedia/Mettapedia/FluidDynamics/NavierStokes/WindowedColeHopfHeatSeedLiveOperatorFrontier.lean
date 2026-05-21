@@ -63,6 +63,47 @@ abbrev WeightedObservable.windowedColeHopfHeatSeedLiveOperatorCandidate
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).seedLiveOperatorCandidate O
 
+abbrev WeightedObservable.windowedColeHopfHeatSeedLiveOperatorInitialSlice_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (O : SeedLiveOperator X)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) : X → ℝ :=
+  L.windowedColeHopfHeatSeedLiveOperatorInitialSlice
+    (ι := ι) (X := X)
+    selector O c ν hc hν
+    curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+    (fun x => gamma_le_card_mul_sq_of_abs_le
+      (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+    x
+
+abbrev WeightedObservable.windowedColeHopfHeatSeedLiveOperatorCandidate_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (O : SeedLiveOperator X)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    VelocityPressureCandidate (Time := NNReal) (X := X) :=
+  L.windowedColeHopfHeatSeedLiveOperatorCandidate
+    (ι := ι) (X := X)
+    selector O c ν hc hν
+    curlFrame ((Fintype.card ι : ℝ) * curlComponentBound ^ 2) (by positivity)
+    (fun x => gamma_le_card_mul_sq_of_abs_le
+      (D := fun i => curlFrame i x) hcurlComponentBound_nonneg (hcurl x))
+    x
+
 omit [AddMonoid X] in
 theorem WeightedObservable.windowedColeHopfHeatSeedLiveOperatorCandidate_has_seedLiveOperatorCompatibility
     (L : WeightedObservable)
