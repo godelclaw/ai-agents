@@ -239,6 +239,35 @@ theorem twoModeSchwartzVelocity_exhibits_BKMEnvelope_of_abs_le
       (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
         a b f g A B T haBound hbBound)
 
+/-- On a nonnegative slab, the bounded two-mode Schwartz ansatz has the
+constant BKM envelope induced by the explicit vorticity bound. -/
+theorem twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le
+    (a b : NSTime → ℝ) (f g : NSSchwartzInitialVelocity) (A B T : ℝ)
+    (hT : 0 ≤ T)
+    (haBound : ∀ t, |a t| ≤ A)
+    (hbBound : ∀ t, |b t| ≤ B) :
+    vorticityEnvelopeOn (twoModeSchwartzVelocity a b f g) T
+        (fun _ : NSTime =>
+          A * schwartzInitialVelocityVorticityBound f +
+            B * schwartzInitialVelocityVorticityBound g) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime =>
+          A * schwartzInitialVelocityVorticityBound f +
+            B * schwartzInitialVelocityVorticityBound g)
+        T
+        (T *
+          (A * schwartzInitialVelocityVorticityBound f +
+            B * schwartzInitialVelocityVorticityBound g)) := by
+  exact
+    uniformVorticityBoundUpTo_implies_constantBKMEnvelope
+      (u := twoModeSchwartzVelocity a b f g) (T := T)
+      (B :=
+        A * schwartzInitialVelocityVorticityBound f +
+          B * schwartzInitialVelocityVorticityBound g)
+      hT
+      (uniformVorticityBoundUpTo_twoModeSchwartzVelocity_of_abs_le
+        a b f g A B T haBound hbBound)
+
 /-- The constant-one two-mode Schwartz branch has the expected explicit
 uniform vorticity bound: the two profile bounds add.  This is the concrete
 branch used by the finite-mode obstruction route. -/
@@ -269,6 +298,30 @@ theorem oneOneTwoModeSchwartzVelocity_exhibits_BKMEnvelope
       (B := schwartzInitialVelocityVorticityBound f +
         schwartzInitialVelocityVorticityBound g)
       (uniformVorticityBoundUpTo_oneOneTwoModeSchwartzVelocity f g T)
+
+/-- On a nonnegative slab, the constant-one two-mode Schwartz branch has the
+constant BKM envelope with linear integral bound from the sum of the two profile
+vorticity bounds. -/
+theorem oneOneTwoModeSchwartzVelocity_has_constantBKMEnvelope
+    (f g : NSSchwartzInitialVelocity) {T : ℝ} (hT : 0 ≤ T) :
+    vorticityEnvelopeOn
+        (twoModeSchwartzVelocity (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g)
+        T
+        (fun _ : NSTime =>
+          schwartzInitialVelocityVorticityBound f +
+            schwartzInitialVelocityVorticityBound g) ∧
+      integrableVorticityEnvelopeOn
+        (fun _ : NSTime =>
+          schwartzInitialVelocityVorticityBound f +
+            schwartzInitialVelocityVorticityBound g)
+        T
+        (T *
+          (schwartzInitialVelocityVorticityBound f +
+            schwartzInitialVelocityVorticityBound g)) := by
+  simpa using
+    (twoModeSchwartzVelocity_has_constantBKMEnvelope_of_abs_le
+      (fun _ : NSTime => 1) (fun _ : NSTime => 1) f g 1 1 T hT
+      (by intro t; simp) (by intro t; simp))
 
 end NavierStokes
 end FluidDynamics
