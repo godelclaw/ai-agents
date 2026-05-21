@@ -126,6 +126,12 @@ theorem current_pnp_randomized_residual_strict_half_deterministic_coin_slice_reg
   exact currentPNPRandomizedResidualCoveredSubrepairs_exact
     PNPRandomizedResidualSubrepairClass.strictHalfDeterministicCoinSliceWitness
 
+theorem current_pnp_randomized_residual_strict_half_coin_slice_residual_package_regression :
+    PNPRandomizedResidualSubrepairClass.strictHalfDeterministicCoinSliceResidualObstructionPackage ∈
+      currentPNPRandomizedResidualCoveredSubrepairs := by
+  exact currentPNPRandomizedResidualCoveredSubrepairs_exact
+    PNPRandomizedResidualSubrepairClass.strictHalfDeterministicCoinSliceResidualObstructionPackage
+
 theorem current_pnp_post_switch_randomized_residual_deterministic_coin_slice_regression :
     PNPRandomizedResidualSubrepairClass.postSwitchPositiveAdvantageDeterministicCoinSliceWitness ∈
       currentPNPRandomizedResidualCoveredSubrepairs := by
@@ -144,6 +150,12 @@ theorem current_pnp_post_switch_randomized_residual_strict_half_deterministic_co
   exact currentPNPRandomizedResidualCoveredSubrepairs_exact
     PNPRandomizedResidualSubrepairClass.postSwitchStrictHalfDeterministicCoinSliceWitness
 
+theorem current_pnp_post_switch_randomized_residual_strict_half_coin_slice_residual_package_regression :
+    PNPRandomizedResidualSubrepairClass.postSwitchStrictHalfDeterministicCoinSliceResidualObstructionPackage ∈
+      currentPNPRandomizedResidualCoveredSubrepairs := by
+  exact currentPNPRandomizedResidualCoveredSubrepairs_exact
+    PNPRandomizedResidualSubrepairClass.postSwitchStrictHalfDeterministicCoinSliceResidualObstructionPackage
+
 theorem current_pnp_post_switch_randomized_residual_supportwise_unresolved_subrepair_regression :
     PNPRandomizedResidualSubrepairClass.postSwitchSupportwiseUnresolvedNoAdvantage ∈
       currentPNPRandomizedResidualCoveredSubrepairs := by
@@ -153,6 +165,60 @@ theorem current_pnp_post_switch_randomized_residual_supportwise_unresolved_subre
 theorem v13_randomized_residual_subcoverage_regression :
     V13RandomizedResidualSubcoverage := by
   exact v13RandomizedResidualSubcoverage
+
+theorem randomized_residual_strict_half_coin_slice_residual_package_regression
+    {α Coin U V : Type*} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool)
+    (hτ : Function.Involutive τ)
+    (hu : ∀ x, u (τ x) = u x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+          (fun xr : α × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+        PositiveWeightSideInfoCollisionOverBase u (fun x => v x c) w ∧
+        (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+        (∃ x, 0 < w x ∧
+          ¬ SourceOnlyPredicateCapturesSideEq u (fun x => v x c) (v x c))) := by
+  exact
+    randomizedResidualCoverage_anchor_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+      τ u v y w coinWeight h hτ hu hy hw hadv
+
+theorem post_switch_randomized_residual_strict_half_coin_slice_residual_package_regression
+    {Z Coin V : Type*} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool)
+    (hy : ∀ u, y (tiInputMap u) = !(y u))
+    (hw : ∀ u, w (tiInputMap u) = w u)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : PostSwitchInput Z k × Coin =>
+            (invariantProjection xr.1, v xr.1 xr.2))
+          (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy invariantProjection (fun u => v u c) ∧
+        PositiveWeightSideInfoCollisionOverBase invariantProjection
+          (fun u => v u c) w ∧
+        (∃ u, 0 < w u ∧
+          invariantProjection (tiInputMap u) = invariantProjection u ∧
+          v (tiInputMap u) c ≠ v u c) ∧
+        (∃ u, 0 < w u ∧
+          ¬ SourceOnlyPredicateCapturesSideEq invariantProjection
+            (fun u => v u c) (v u c))) := by
+  exact
+    randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+      v y w coinWeight h hy hw hadv
 
 theorem post_switch_fork_strict_half_package_regression
     {Z : Type*} [Fintype Z] {k : ℕ}
@@ -283,11 +349,149 @@ theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_side_cha
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackSideChannelBoundary
 
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_finite_predictor_cover_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorCoverObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorCoverObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_finite_index_representative_cover_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFiniteIndexRepresentativeCoverObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFiniteIndexRepresentativeCoverObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_finite_predictor_quotient_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorQuotientObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFinitePredictorQuotientObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_exact_visible_compression_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackExactVisibleCompressionObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackExactVisibleCompressionObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_clocked_realization_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedRealizationObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedRealizationObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_clocked_payload_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackClockedPayloadObstruction
+
 theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_sparse_regression :
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySparseBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySparseBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_empty_sample_realization_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyEmptySampleRealizationBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyEmptySampleRealizationBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_radius_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_finite_predictor_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFinitePredictorCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFinitePredictorCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_radius_cover_surjectivity_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverSurjectivityBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverSurjectivityBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_pointwise_radius_cover_surjectivity_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyPointwiseRadiusCoverSurjectivityBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyPointwiseRadiusCoverSurjectivityBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_fallback_surjective_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFallbackSurjectiveBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFallbackSurjectiveBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_large_disagreement_support_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyLargeDisagreementSupportObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyLargeDisagreementSupportObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_small_subsets_product_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_small_subsets_product_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_full_radius_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFullRadiusBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyFullRadiusBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_fallback_equivalence_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFallbackEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFallbackEquivalence
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_finite_predictor_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_finite_index_representative_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFiniteIndexRepresentativeCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFiniteIndexRepresentativeCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_finite_predictor_quotient_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorQuotientBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorQuotientBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_exact_visible_compression_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleExactVisibleCompressionBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleExactVisibleCompressionBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_clocked_realization_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedRealizationBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedRealizationBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_fallback_family_zero_sample_clocked_payload_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedPayloadBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedPayloadBoundary
 
 theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_sparse_threshold_erm_visible_budget_regression :
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSparseThresholdERMVisibleBudgetBoundary ∈
@@ -295,17 +499,737 @@ theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_spar
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSparseThresholdERMVisibleBudgetBoundary
 
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_radius_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_finite_predictor_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFinitePredictorCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFinitePredictorCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_radius_cover_surjectivity_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverSurjectivityBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRadiusCoverSurjectivityBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_pointwise_radius_cover_surjectivity_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPointwiseRadiusCoverSurjectivityBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPointwiseRadiusCoverSurjectivityBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_full_radius_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFullRadiusBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFullRadiusBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_fallback_bits_deficit_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsDeficitObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsDeficitObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_fallback_bits_exact_radius_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsExactRadiusBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsExactRadiusBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_finite_predictor_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_finite_index_representative_cover_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFiniteIndexRepresentativeCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFiniteIndexRepresentativeCoverBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_finite_predictor_quotient_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorQuotientBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorQuotientBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_visible_compression_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactVisibleCompressionBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactVisibleCompressionBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_clocked_realization_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedRealizationBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedRealizationBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_clocked_payload_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedPayloadBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedPayloadBoundary
+
 theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_recovery_lightest_point_regression :
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary
 
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_full_rule_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderFullRuleBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderFullRuleBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_sparse_threshold_erm_visible_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderSparseThresholdERMVisibleBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderSparseThresholdERMVisibleBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_no_extractor_sparse_threshold_erm_visible_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorSparseThresholdERMVisibleBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorSparseThresholdERMVisibleBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_visible_width_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderVisibleWidthBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_lightest_point_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderLightestPointBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderLightestPointBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_joint_recovery_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderJointRecoveryBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderJointRecoveryBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_no_extractor_visible_width_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorVisibleWidthBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_no_extractor_lightest_point_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorLightestPointBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorLightestPointBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_no_extractor_joint_recovery_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorJointRecoveryBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorJointRecoveryBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_exact_decoder_clocked_payload_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderClockedPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackExactDecoderClockedPayloadObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_polynomial_envelope_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_polynomial_envelope_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_factor_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_factor_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackFactorSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_successor_factor_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_successor_factor_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_double_successor_factor_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_double_successor_factor_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_successor_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_successor_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_finite_predictor_cover_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorCoverObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorCoverObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_finite_index_representative_cover_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFiniteIndexRepresentativeCoverObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFiniteIndexRepresentativeCoverObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_finite_predictor_quotient_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorQuotientObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorQuotientObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_exact_visible_compression_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderExactVisibleCompressionObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderExactVisibleCompressionObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_clocked_realization_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedRealizationObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedRealizationObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_exact_decoder_clocked_payload_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedPayloadObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_zero_sample_fallback_equivalence_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFallbackEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackZeroSampleFallbackEquivalence
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_product_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_one_sample_product_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackOneSampleProductSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_two_sample_quadratic_product_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_two_sample_quadratic_product_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_two_sample_quadratic_envelope_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_two_sample_quadratic_envelope_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_small_subsets_product_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_small_subsets_product_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_sum_choose_product_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_sum_choose_product_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseProductSurjectivityObstruction
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_sum_choose_envelope_budget_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeBudgetBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeBudgetBoundary
+
+theorem current_pnp_kpoly_actual_local_bounded_sample_majority_bit_fallback_sum_choose_envelope_surjectivity_obstruction_regression :
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeSurjectivityObstruction
+
+theorem current_pnp_kpoly_surjective_actual_local_joint_recovery_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalJointRecoveryBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalJointRecoveryBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_recovery_visible_width_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryVisibleWidthBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_recovery_lightest_point_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryLightestPointBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalRecoveryLightestPointBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_no_extractor_lightest_point_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorLightestPointBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorLightestPointBoundary
+
+theorem current_pnp_kpoly_surjective_actual_local_no_extractor_visible_width_regression :
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorVisibleWidthBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveActualLocalNoExtractorVisibleWidthBoundary
+
+theorem current_pnp_kpoly_exact_visible_representative_cover_surjectivity_regression :
+    PNPKpolySubrepairClass.exactVisibleRepresentativeCoverSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleRepresentativeCoverSurjectivityObstruction
+
+theorem current_pnp_kpoly_exact_visible_predictor_quotient_surjectivity_regression :
+    PNPKpolySubrepairClass.exactVisiblePredictorQuotientSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisiblePredictorQuotientSurjectivityObstruction
+
+theorem current_pnp_kpoly_exact_visible_clocked_realization_surjectivity_regression :
+    PNPKpolySubrepairClass.exactVisibleClockedRealizationSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleClockedRealizationSurjectivityObstruction
+
+theorem current_pnp_kpoly_injective_finite_representative_index_cover_lower_bound_regression :
+    PNPKpolySubrepairClass.injectiveFiniteRepresentativeIndexCoverLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFiniteRepresentativeIndexCoverLowerBound
+
+theorem current_pnp_kpoly_injective_finite_predictor_quotient_lower_bound_regression :
+    PNPKpolySubrepairClass.injectiveFinitePredictorQuotientLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFinitePredictorQuotientLowerBound
+
+theorem current_pnp_kpoly_injective_finite_probe_exact_visible_compression_regression :
+    PNPKpolySubrepairClass.injectiveFiniteProbeExactVisibleCompressionObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFiniteProbeExactVisibleCompressionObstruction
+
+theorem current_pnp_kpoly_injective_finite_probe_clocked_realization_regression :
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedRealizationObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedRealizationObstruction
+
+theorem current_pnp_kpoly_section_backed_injective_finite_probe_pullback_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackLowerBound
+
+theorem current_pnp_kpoly_section_backed_injective_finite_probe_pullback_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbePullbackObstruction
+
+theorem current_pnp_kpoly_section_backed_injective_finite_representative_index_cover_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverLowerBound
+
+theorem current_pnp_kpoly_section_backed_injective_finite_representative_index_cover_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteRepresentativeIndexCoverObstruction
+
+theorem current_pnp_kpoly_section_backed_injective_finite_predictor_quotient_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientLowerBound
+
+theorem current_pnp_kpoly_section_backed_injective_finite_predictor_quotient_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFinitePredictorQuotientObstruction
+
+theorem current_pnp_kpoly_finite_representative_index_cover_equivalence_regression :
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverEquivalence
+
+theorem current_pnp_kpoly_exact_visible_compression_target_predictor_cover_equivalence_regression :
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorCoverEquivalence
+
+theorem current_pnp_kpoly_clocked_exact_visible_realization_predictor_cover_equivalence_regression :
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorCoverEquivalence
+
+theorem current_pnp_kpoly_clocked_finite_learning_payload_predictor_cover_equivalence_regression :
+    PNPKpolySubrepairClass.clockedFiniteLearningPayloadPredictorCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.clockedFiniteLearningPayloadPredictorCoverEquivalence
+
+theorem current_pnp_kpoly_clocked_finite_learning_payload_exact_visible_compression_equivalence_regression :
+    PNPKpolySubrepairClass.clockedFiniteLearningPayloadExactVisibleCompressionEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.clockedFiniteLearningPayloadExactVisibleCompressionEquivalence
+
+theorem current_pnp_kpoly_exact_visible_compression_target_predictor_quotient_equivalence_regression :
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorQuotientEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetPredictorQuotientEquivalence
+
+theorem current_pnp_kpoly_clocked_exact_visible_realization_predictor_quotient_equivalence_regression :
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorQuotientEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationPredictorQuotientEquivalence
+
+theorem current_pnp_kpoly_exact_visible_compression_target_representative_index_cover_equivalence_regression :
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetRepresentativeIndexCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleCompressionTargetRepresentativeIndexCoverEquivalence
+
+theorem current_pnp_kpoly_clocked_exact_visible_realization_representative_index_cover_equivalence_regression :
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationRepresentativeIndexCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.clockedExactVisibleRealizationRepresentativeIndexCoverEquivalence
+
+theorem current_pnp_kpoly_not_clocked_exact_visible_realization_representative_index_cover_equivalence_regression :
+    PNPKpolySubrepairClass.notClockedExactVisibleRealizationRepresentativeIndexCoverEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.notClockedExactVisibleRealizationRepresentativeIndexCoverEquivalence
+
+theorem current_pnp_kpoly_not_clocked_exact_visible_realization_predictor_quotient_equivalence_regression :
+    PNPKpolySubrepairClass.notClockedExactVisibleRealizationPredictorQuotientEquivalence ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.notClockedExactVisibleRealizationPredictorQuotientEquivalence
+
+theorem current_pnp_kpoly_finite_image_cover_budget_weakening_regression :
+    PNPKpolySubrepairClass.finiteImageCoverBudgetWeakening ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteImageCoverBudgetWeakening
+
+theorem current_pnp_kpoly_finite_predictor_cover_budget_weakening_regression :
+    PNPKpolySubrepairClass.finitePredictorCoverBudgetWeakeningBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finitePredictorCoverBudgetWeakeningBoundary
+
+theorem current_pnp_kpoly_finite_representative_index_cover_budget_weakening_regression :
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverBudgetWeakeningBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverBudgetWeakeningBoundary
+
+theorem current_pnp_kpoly_finite_predictor_quotient_budget_weakening_regression :
+    PNPKpolySubrepairClass.finitePredictorQuotientBudgetWeakeningBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finitePredictorQuotientBudgetWeakeningBoundary
+
+theorem current_pnp_kpoly_finite_image_cover_factor_transport_regression :
+    PNPKpolySubrepairClass.finiteImageCoverFactorTransport ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteImageCoverFactorTransport
+
+theorem current_pnp_kpoly_finite_predictor_cover_factor_transport_regression :
+    PNPKpolySubrepairClass.finitePredictorCoverFactorTransportBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finitePredictorCoverFactorTransportBoundary
+
+theorem current_pnp_kpoly_finite_representative_index_cover_factor_transport_regression :
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverFactorTransportBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteRepresentativeIndexCoverFactorTransportBoundary
+
+theorem current_pnp_kpoly_finite_predictor_quotient_factor_transport_regression :
+    PNPKpolySubrepairClass.finitePredictorQuotientFactorTransportBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finitePredictorQuotientFactorTransportBoundary
+
+theorem current_pnp_kpoly_section_backed_finite_predictor_cover_surjective_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveObstruction
+
+theorem current_pnp_kpoly_section_backed_finite_representative_index_cover_surjective_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveObstruction
+
+theorem current_pnp_kpoly_section_backed_finite_predictor_quotient_surjective_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveObstruction
+
+theorem current_pnp_kpoly_section_backed_finite_predictor_cover_surjective_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorCoverSurjectiveLowerBound
+
+theorem current_pnp_kpoly_section_backed_finite_representative_index_cover_surjective_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFiniteRepresentativeIndexCoverSurjectiveLowerBound
+
+theorem current_pnp_kpoly_section_backed_finite_predictor_quotient_surjective_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedFinitePredictorQuotientSurjectiveLowerBound
+
+theorem current_pnp_kpoly_surjective_finite_predictor_cover_lower_bound_regression :
+    PNPKpolySubrepairClass.surjectiveFinitePredictorCoverLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveFinitePredictorCoverLowerBound
+
+theorem current_pnp_kpoly_surjective_finite_representative_index_cover_lower_bound_regression :
+    PNPKpolySubrepairClass.surjectiveFiniteRepresentativeIndexCoverLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveFiniteRepresentativeIndexCoverLowerBound
+
+theorem current_pnp_kpoly_surjective_finite_predictor_quotient_lower_bound_regression :
+    PNPKpolySubrepairClass.surjectiveFinitePredictorQuotientLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.surjectiveFinitePredictorQuotientLowerBound
+
+theorem current_pnp_kpoly_finite_image_reduced_ab_pullback_obstruction_regression :
+    PNPKpolySubrepairClass.finiteImageReducedABPullbackObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteImageReducedABPullbackObstruction
+
+theorem current_pnp_kpoly_finite_image_reduced_ab_injective_probe_pullback_obstruction_regression :
+    PNPKpolySubrepairClass.finiteImageReducedABInjectiveProbePullbackObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteImageReducedABInjectiveProbePullbackObstruction
+
+theorem current_pnp_kpoly_finite_quotient_reduced_ab_pullback_obstruction_regression :
+    PNPKpolySubrepairClass.finiteQuotientReducedABPullbackObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.finiteQuotientReducedABPullbackObstruction
+
+theorem current_pnp_kpoly_exact_visible_clocked_finite_learning_payload_surjectivity_regression :
+    PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityObstruction
+
+theorem current_pnp_kpoly_injective_finite_probe_clocked_finite_learning_payload_regression :
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadObstruction
+
+theorem current_pnp_kpoly_exact_visible_clocked_finite_learning_payload_surjectivity_lower_bound_regression :
+    PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.exactVisibleClockedFiniteLearningPayloadSurjectivityLowerBound
+
+theorem current_pnp_kpoly_injective_finite_probe_clocked_finite_learning_payload_lower_bound_regression :
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.injectiveFiniteProbeClockedFiniteLearningPayloadLowerBound
+
+theorem current_pnp_kpoly_section_backed_clocked_finite_learning_payload_surjective_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveLowerBound
+
+theorem current_pnp_kpoly_section_backed_clocked_finite_learning_payload_surjective_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedClockedFiniteLearningPayloadSurjectiveObstruction
+
+theorem current_pnp_kpoly_section_backed_injective_finite_probe_clocked_finite_learning_payload_lower_bound_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadLowerBound ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadLowerBound
+
+theorem current_pnp_kpoly_section_backed_injective_finite_probe_clocked_finite_learning_payload_obstruction_regression :
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadObstruction
+
 theorem current_pnp_kpoly_exact_zab_bad_code_large_region_disagreement_regression :
     PNPKpolySubrepairClass.exactZABBadCodeLargeRegionDisagreementBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.exactZABBadCodeLargeRegionDisagreementBoundary
+
+theorem current_pnp_kpoly_product_bound_bridge_finite_image_regression :
+    PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.productBoundBridgeFiniteImageBoundary
+
+theorem current_pnp_kpoly_fielded_switching_bridge_finite_image_regression :
+    PNPKpolySubrepairClass.fieldedSwitchingBridgeFiniteImageBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.fieldedSwitchingBridgeFiniteImageBoundary
+
+theorem current_pnp_kpoly_product_bound_full_visible_regression :
+    PNPKpolySubrepairClass.productBoundOnlyFullVisibleObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.productBoundOnlyFullVisibleObstruction
+
+theorem current_pnp_kpoly_fielded_switching_full_visible_regression :
+    PNPKpolySubrepairClass.fieldedSwitchingOnlyFullVisibleObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.fieldedSwitchingOnlyFullVisibleObstruction
+
+theorem current_pnp_kpoly_product_bound_surjective_visible_regression :
+    PNPKpolySubrepairClass.productBoundOnlySurjectiveVisibleObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.productBoundOnlySurjectiveVisibleObstruction
+
+theorem current_pnp_kpoly_fielded_switching_surjective_visible_regression :
+    PNPKpolySubrepairClass.fieldedSwitchingOnlySurjectiveVisibleObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.fieldedSwitchingOnlySurjectiveVisibleObstruction
 
 theorem current_pnp_kpoly_product_bound_clocked_payload_boundary_regression :
     PNPKpolySubrepairClass.productBoundClockedPayloadBridgeFiniteImageBoundary ∈
@@ -342,6 +1266,223 @@ theorem current_pnp_kpoly_fielded_switching_clocked_payload_surjective_regressio
       currentPNPKpolyCoveredSubrepairs := by
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.fieldedSwitchingOnlyClockedPayloadSurjectiveVisibleObstruction
+
+theorem current_pnp_kpoly_actual_switched_history_bitvec_full_width_interval_regression :
+    PNPKpolySubrepairClass.actualSwitchedHistoryBitVecFullWidthIntervalObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualSwitchedHistoryBitVecFullWidthIntervalObstruction
+
+theorem current_pnp_kpoly_actual_switched_history_bitvec_full_width_interval_clocked_payload_regression :
+    PNPKpolySubrepairClass.actualSwitchedHistoryBitVecFullWidthIntervalClockedPayloadObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualSwitchedHistoryBitVecFullWidthIntervalClockedPayloadObstruction
+
+theorem kpoly_anchor_full_rule_actual_switched_history_exact_visible_interval_regression :
+    ¬ ActualSwitchedLocalInterface.SwitchedHistoryExactVisibleCompressionWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+        4
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    kpolyCoverage_anchor_not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+      (s := 4)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 1)
+      (by norm_num)
+      (by norm_num)
+
+theorem kpoly_anchor_full_rule_actual_switched_history_clocked_interval_regression :
+    ¬ ActualSwitchedLocalInterface.SwitchedHistoryClockedKpolyFiniteLearningWrapper
+        Bool
+        (fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+        4
+        0
+        ([] : List (FiniteEvent Bool))
+        ([] : List (V13FieldedStep Bool)) := by
+  exact
+    kpolyCoverage_anchor_not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 1) 1)
+      (s := 4) (clock := 0)
+      (hist := ([] : List (FiniteEvent Bool)))
+      (items := ([] : List (V13FieldedStep Bool)))
+      (by trivial)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 1) 1)
+      (by norm_num)
+      (by norm_num)
+
+theorem current_pnp_kpoly_support_full_rule_output_family_factor_regression :
+    PNPKpolySubrepairClass.supportFullRuleOutputFamilyFactorBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleOutputFamilyFactorBoundary
+
+theorem current_pnp_kpoly_support_full_rule_observed_rule_injective_surjective_regression :
+    PNPKpolySubrepairClass.supportFullRuleObservedRuleInjectiveSurjectiveBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleObservedRuleInjectiveSurjectiveBoundary
+
+theorem current_pnp_kpoly_support_full_rule_exact_decoder_surjective_regression :
+    PNPKpolySubrepairClass.supportFullRuleExactDecoderSurjectiveBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleExactDecoderSurjectiveBoundary
+
+theorem current_pnp_kpoly_support_full_rule_observed_rule_map_noninjective_regression :
+    PNPKpolySubrepairClass.supportFullRuleObservedRuleMapNoninjectiveBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleObservedRuleMapNoninjectiveBelowSurfaceCard
+
+theorem current_pnp_kpoly_support_full_rule_distinct_rules_same_output_regression :
+    PNPKpolySubrepairClass.supportFullRuleDistinctRulesSameOutputBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleDistinctRulesSameOutputBelowSurfaceCard
+
+theorem current_pnp_kpoly_support_full_rule_property_decoder_constancy_regression :
+    PNPKpolySubrepairClass.supportFullRulePropertyDecoderFiberConstancyBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRulePropertyDecoderFiberConstancyBoundary
+
+theorem current_pnp_kpoly_support_full_rule_property_decoder_iff_regression :
+    PNPKpolySubrepairClass.supportFullRulePropertyDecoderIffFiberConstancyBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRulePropertyDecoderIffFiberConstancyBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_property_decoder_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoPropertyDecoderSameOutputBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoPropertyDecoderSameOutputBoundary
+
+theorem current_pnp_kpoly_support_full_rule_eval_decoder_range_regression :
+    PNPKpolySubrepairClass.supportFullRuleEvalDecoderRangeBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleEvalDecoderRangeBoundary
+
+theorem current_pnp_kpoly_support_full_rule_all_eval_decoders_surjective_regression :
+    PNPKpolySubrepairClass.supportFullRuleAllEvalDecodersSurjectiveBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleAllEvalDecodersSurjectiveBoundary
+
+theorem current_pnp_kpoly_support_full_rule_query_decoder_range_regression :
+    PNPKpolySubrepairClass.supportFullRuleQueryDecoderRangeBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleQueryDecoderRangeBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_query_decoder_missed_query_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoQueryDecoderMissedQueryBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoQueryDecoderMissedQueryBoundary
+
+theorem current_pnp_kpoly_support_full_rule_adaptive_query_decoder_reachable_regression :
+    PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderReachableBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderReachableBoundary
+
+theorem current_pnp_kpoly_support_full_rule_adaptive_query_decoder_iff_regression :
+    PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderIffFiberConstancyBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleAdaptiveQueryDecoderIffFiberConstancyBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_adaptive_query_decoder_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoAdaptiveQueryDecoderSameOutputEvalBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoAdaptiveQueryDecoderSameOutputEvalBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_root_adaptive_query_decoder_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoRootAdaptiveQueryDecoderMissedPointBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoRootAdaptiveQueryDecoderMissedPointBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_exact_decoder_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoExactDecoderBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoExactDecoderBelowSurfaceCard
+
+theorem current_pnp_kpoly_support_full_rule_unobservable_eval_regression :
+    PNPKpolySubrepairClass.supportFullRuleUnobservableEvalBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleUnobservableEvalBelowSurfaceCard
+
+theorem current_pnp_kpoly_support_full_rule_observed_small_cover_regression :
+    PNPKpolySubrepairClass.supportFullRuleObservedSmallNotExactVisibleCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleObservedSmallNotExactVisibleCoverBoundary
+
+theorem current_pnp_kpoly_support_full_rule_not_clocked_payload_regression :
+    PNPKpolySubrepairClass.supportFullRuleNotClockedPayloadBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNotClockedPayloadBelowSurfaceCard
+
+theorem current_pnp_kpoly_support_full_rule_uniform_section_finite_cover_regression :
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionFinitePredictorCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionFinitePredictorCoverBoundary
+
+theorem current_pnp_kpoly_support_full_rule_uniform_section_clocked_payload_regression :
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionClockedPayloadBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionClockedPayloadBoundary
+
+theorem current_pnp_kpoly_support_full_rule_uniform_section_surface_card_regression :
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionSurfaceCardBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleUniformSectionSurfaceCardBoundary
+
+theorem current_pnp_kpoly_support_full_rule_no_uniform_section_regression :
+    PNPKpolySubrepairClass.supportFullRuleNoUniformSectionBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.supportFullRuleNoUniformSectionBelowSurfaceCard
+
+theorem current_pnp_kpoly_one_block_full_rule_observed_small_cover_regression :
+    PNPKpolySubrepairClass.oneBlockFullRuleObservedSmallNotExactVisibleCoverBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.oneBlockFullRuleObservedSmallNotExactVisibleCoverBoundary
+
+theorem current_pnp_kpoly_one_block_full_rule_not_clocked_payload_regression :
+    PNPKpolySubrepairClass.oneBlockFullRuleNotClockedPayloadBelowSurfaceCard ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.oneBlockFullRuleNotClockedPayloadBelowSurfaceCard
+
+theorem current_pnp_kpoly_one_block_full_rule_no_exact_decoder_regression :
+    PNPKpolySubrepairClass.oneBlockFullRuleNoExactDecoderOneLtSurfaceCardBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.oneBlockFullRuleNoExactDecoderOneLtSurfaceCardBoundary
+
+theorem current_pnp_kpoly_one_block_full_rule_unobservable_eval_regression :
+    PNPKpolySubrepairClass.oneBlockFullRuleUnobservableEvalOneLtSurfaceCardBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.oneBlockFullRuleUnobservableEvalOneLtSurfaceCardBoundary
 
 theorem kpoly_anchor_product_bound_clocked_payload_bridge_iff_finite_image_regression
     {Ω : Type u} {Z : Type v} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
@@ -441,6 +1582,236 @@ theorem current_pnp_packet_randomized_residual_uncovered_regression :
 theorem current_pnp_packet_same_source_finite_count_approximation_covered_regression :
     currentPNPLocalCruxPacket.covers .sameSourceFiniteCountApproximation := by
   exact sameSourceFiniteCountApproximation_covered_currentPNPLocalCruxPacket
+
+theorem current_pnp_residual_promoted_packet_extends_current_regression :
+    currentPNPResidualPromotedPacket.Extends currentPNPLocalCruxPacket := by
+  exact currentPNPResidualPromotedPacket_extends_current
+
+theorem current_pnp_residual_promoted_packet_residual_side_information_covered_regression :
+    currentPNPResidualPromotedPacket.covers .residualSideInformation := by
+  exact residualSideInformation_covered_currentPNPResidualPromotedPacket
+
+theorem current_pnp_residual_promoted_packet_randomized_residual_uncovered_regression :
+    ¬ currentPNPResidualPromotedPacket.covers .randomizedResidual := by
+  exact randomizedResidual_uncovered_currentPNPResidualPromotedPacket
+
+theorem current_pnp_residual_promoted_packet_approximate_decorrelation_uncovered_regression :
+    ¬ currentPNPResidualPromotedPacket.covers .approximateDecorrelation := by
+  exact approximateDecorrelation_uncovered_currentPNPResidualPromotedPacket
+
+theorem current_pnp_residual_promoted_packet_kpoly_bridge_uncovered_regression :
+    ¬ currentPNPResidualPromotedPacket.covers .kpolyCompressionBridge := by
+  exact kpolyCompressionBridge_uncovered_currentPNPResidualPromotedPacket
+
+theorem current_pnp_residual_promoted_packet_not_stop_grade_regression :
+    ¬ currentPNPResidualPromotedPacket.StopGrade := by
+  exact not_stopGrade_currentPNPResidualPromotedPacket
+
+theorem current_pnp_residual_promoted_packet_next_target_uncovered_regression :
+    ¬ currentPNPResidualPromotedPacket.covers
+      currentPNPResidualPromotedNextMarginalTarget := by
+  exact currentPNPResidualPromotedNextMarginalTarget_uncovered
+
+theorem current_pnp_residual_promoted_packet_next_target_mem_uncovered_regression :
+    currentPNPResidualPromotedNextMarginalTarget ∈
+      currentPNPResidualPromotedUncoveredRepairClasses := by
+  exact currentPNPResidualPromotedNextMarginalTarget_mem_uncovered
+
+theorem current_pnp_residual_promoted_packet_status_regression :
+    currentPNPResidualPromotedPacket.Extends currentPNPLocalCruxPacket ∧
+      currentPNPResidualPromotedPacket.covers .residualSideInformation ∧
+      ¬ currentPNPResidualPromotedPacket.covers .randomizedResidual ∧
+      ¬ currentPNPResidualPromotedPacket.covers .approximateDecorrelation ∧
+      ¬ currentPNPResidualPromotedPacket.covers .kpolyCompressionBridge ∧
+      ¬ currentPNPResidualPromotedPacket.StopGrade := by
+  exact currentPNPResidualPromotedStatus
+
+theorem current_pnp_randomized_residual_promoted_packet_extends_residual_promoted_regression :
+    currentPNPRandomizedResidualPromotedPacket.Extends
+      currentPNPResidualPromotedPacket := by
+  exact currentPNPRandomizedResidualPromotedPacket_extends_residualPromoted
+
+theorem current_pnp_randomized_residual_promoted_packet_residual_side_information_covered_regression :
+    currentPNPRandomizedResidualPromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    residualSideInformation_covered_currentPNPRandomizedResidualPromotedPacket
+
+theorem current_pnp_randomized_residual_promoted_packet_randomized_residual_covered_regression :
+    currentPNPRandomizedResidualPromotedPacket.covers .randomizedResidual := by
+  exact randomizedResidual_covered_currentPNPRandomizedResidualPromotedPacket
+
+theorem current_pnp_randomized_residual_promoted_packet_approximate_decorrelation_uncovered_regression :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      .approximateDecorrelation := by
+  exact
+    approximateDecorrelation_uncovered_currentPNPRandomizedResidualPromotedPacket
+
+theorem current_pnp_randomized_residual_promoted_packet_kpoly_bridge_uncovered_regression :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      .kpolyCompressionBridge := by
+  exact
+    kpolyCompressionBridge_uncovered_currentPNPRandomizedResidualPromotedPacket
+
+theorem current_pnp_randomized_residual_promoted_packet_not_stop_grade_regression :
+    ¬ currentPNPRandomizedResidualPromotedPacket.StopGrade := by
+  exact not_stopGrade_currentPNPRandomizedResidualPromotedPacket
+
+theorem current_pnp_randomized_residual_promoted_packet_next_target_uncovered_regression :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      currentPNPRandomizedResidualPromotedNextMarginalTarget := by
+  exact currentPNPRandomizedResidualPromotedNextMarginalTarget_uncovered
+
+theorem current_pnp_randomized_residual_promoted_packet_next_target_mem_uncovered_regression :
+    currentPNPRandomizedResidualPromotedNextMarginalTarget ∈
+      currentPNPRandomizedResidualPromotedUncoveredRepairClasses := by
+  exact currentPNPRandomizedResidualPromotedNextMarginalTarget_mem_uncovered
+
+theorem current_pnp_randomized_residual_promoted_packet_status_regression :
+    currentPNPRandomizedResidualPromotedPacket.Extends
+        currentPNPResidualPromotedPacket ∧
+      currentPNPRandomizedResidualPromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPRandomizedResidualPromotedPacket.covers .randomizedResidual ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.covers
+        .approximateDecorrelation ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.StopGrade := by
+  exact currentPNPRandomizedResidualPromotedStatus
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_extends_randomized_residual_promoted_regression :
+    currentPNPApproximateDecorrelationPromotedPacket.Extends
+      currentPNPRandomizedResidualPromotedPacket := by
+  exact
+    currentPNPApproximateDecorrelationPromotedPacket_extends_randomizedResidualPromoted
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_residual_side_information_covered_regression :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    residualSideInformation_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_randomized_residual_covered_regression :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .randomizedResidual := by
+  exact randomizedResidual_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_approximate_decorrelation_covered_regression :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .approximateDecorrelation := by
+  exact
+    approximateDecorrelation_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_kpoly_bridge_uncovered_regression :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+      .kpolyCompressionBridge := by
+  exact
+    kpolyCompressionBridge_uncovered_currentPNPApproximateDecorrelationPromotedPacket
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_not_stop_grade_regression :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.StopGrade := by
+  exact not_stopGrade_currentPNPApproximateDecorrelationPromotedPacket
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_next_target_uncovered_regression :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+      currentPNPApproximateDecorrelationPromotedNextMarginalTarget := by
+  exact currentPNPApproximateDecorrelationPromotedNextMarginalTarget_uncovered
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_next_target_mem_uncovered_regression :
+    currentPNPApproximateDecorrelationPromotedNextMarginalTarget ∈
+      currentPNPApproximateDecorrelationPromotedUncoveredRepairClasses := by
+  exact
+    currentPNPApproximateDecorrelationPromotedNextMarginalTarget_mem_uncovered
+
+theorem current_pnp_approximate_decorrelation_promoted_packet_status_regression :
+    currentPNPApproximateDecorrelationPromotedPacket.Extends
+        currentPNPRandomizedResidualPromotedPacket ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .randomizedResidual ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .approximateDecorrelation ∧
+      ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      ¬ currentPNPApproximateDecorrelationPromotedPacket.StopGrade := by
+  exact currentPNPApproximateDecorrelationPromotedStatus
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_extends_approximate_decorrelation_promoted_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.Extends
+      currentPNPApproximateDecorrelationPromotedPacket := by
+  exact
+    currentPNPKpolyCompressionBridgePromotedPacket_extends_approximateDecorrelationPromoted
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_residual_side_information_covered_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    residualSideInformation_covered_currentPNPKpolyCompressionBridgePromotedPacket
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_randomized_residual_covered_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .randomizedResidual := by
+  exact randomizedResidual_covered_currentPNPKpolyCompressionBridgePromotedPacket
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_approximate_decorrelation_covered_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .approximateDecorrelation := by
+  exact
+    approximateDecorrelation_covered_currentPNPKpolyCompressionBridgePromotedPacket
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_kpoly_bridge_covered_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .kpolyCompressionBridge := by
+  exact
+    kpolyCompressionBridge_covered_currentPNPKpolyCompressionBridgePromotedPacket
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_covers_current_gaps_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.CoversList
+      currentPNPUncoveredRepairClasses := by
+  exact currentPNPKpolyCompressionBridgePromotedPacket_covers_current_gaps
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_stop_grade_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.StopGrade := by
+  exact stopGrade_currentPNPKpolyCompressionBridgePromotedPacket
+
+theorem current_pnp_kpoly_compression_bridge_promoted_packet_status_regression :
+    currentPNPKpolyCompressionBridgePromotedPacket.Extends
+        currentPNPApproximateDecorrelationPromotedPacket ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .randomizedResidual ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .approximateDecorrelation ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.StopGrade := by
+  exact currentPNPKpolyCompressionBridgePromotedStatus
+
+theorem canonical_zab_erm_route_coverage_regression :
+    CanonicalZABERMRouteCoverage := by
+  exact canonicalZABERMRouteCoverage
+
+theorem canonical_zab_erm_route_clocked_payload_and_strict_budget_regression
+    {Z : Type v} [Fintype Z] {r k clock : ℕ} {Index : Type u}
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index} {q : ℝ≥0∞}
+    (h :
+  CanonicalZABERMRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
+    ClockedKpolyFiniteLearningPayload G (r + 2 * k + 1) clock ∧
+      (r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k) →
+        ¬ Function.Surjective G.predict) := by
+  rcases
+      canonicalZABERMRouteCoverage
+        (Z := Z) (r := r) (k := k) (clock := clock) (Index := Index)
+        (μ := μ) (zfeat := zfeat) (G := G) (q := q) h
+    with
+    ⟨_, _, _, _, hpayload, hstrict⟩
+  exact ⟨hpayload, hstrict⟩
 
 theorem current_pnp_packet_v13_repeated_positive_fielded_pivot_covered_regression :
     currentPNPLocalCruxPacket.covers .repeatedPositiveFieldedPivot := by
@@ -1853,6 +3224,29 @@ theorem kpoly_anchor_surjective_actual_local_no_extractor_visible_width_plugin_s
       (kpolyCoverage_anchor_pluginSampleMajority_surjective (BitVec 2) 0)
       (by decide)
 
+theorem kpoly_anchor_surjective_actual_local_not_exists_recovery_of_visible_width_gap_or_lt_one_sub_apply_lightest_point_full_rule_regression
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec 2) 0))
+    (q : ℝ≥0∞) :
+    ¬ ∃ zfeat : BitVec 2 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+            zfeat
+            q) := by
+  letI : Nonempty (ExactVisiblePostSwitchSurface (BitVec 2) 0) :=
+    ⟨⟨zeroVec, zeroVec, zeroVec⟩⟩
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
+      (n := 2)
+      (k := 0)
+      (r := 0)
+      (μ := μ)
+      (T := fullRuleActualSwitchedLocalInterface (BitVec 2) 0)
+      (q := q)
+      (fullRuleActualSwitchedLocalInterface_surjective (BitVec 2) 0)
+      (Or.inl (by decide))
+
 theorem kpoly_anchor_bounded_sample_majority_surjective_iff_regression
     (Z : Type v) (k sampleBound : ℕ) [Fintype Z] :
     Function.Surjective
@@ -1950,6 +3344,47 @@ theorem kpoly_anchor_bounded_sample_majority_fallback_no_finite_cover_regression
     kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finitePredictorCover_of_lt_surfaceCard
       (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs
 
+theorem kpoly_anchor_bounded_sample_majority_fallback_no_finite_index_representative_cover_regression
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finiteIndexRepresentativeCover_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_no_finite_predictor_quotient_regression
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finitePredictorQuotient_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_no_exact_visible_compression_regression
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BoundedSampleFallbackIndex
+          (ExactVisiblePostSwitchSurface Z k) sampleBound)
+        (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+          Z k sampleBound).predictorFamily s := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_exactVisibleCompressionTarget_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_no_clocked_realization_regression
+    {Z : Type v} [Fintype Z] {k s sampleBound clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+          Z k sampleBound).predictorFamily.RealizedByClockedBitFamily F := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_clockedRealization_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) (clock := clock) hs
+
 theorem kpoly_anchor_bounded_sample_majority_fallback_no_clocked_payload_regression
     {Z : Type v} [Fintype Z] {k s sampleBound clock : ℕ}
     (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
@@ -2007,6 +3442,76 @@ theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_surject
   exact
     kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_surjective_iff_fallback_surjective
       (Z := Z) (k := k) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_finite_predictor_cover_regression
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FinitePredictorCover N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FinitePredictorCover N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finitePredictorCover_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_finite_index_representative_cover_regression
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FiniteIndexRepresentativeCover N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FiniteIndexRepresentativeCover N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finiteIndexRepresentativeCover_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_finite_predictor_quotient_regression
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FinitePredictorQuotient N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FinitePredictorQuotient N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finitePredictorQuotient_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_exact_visible_compression_regression
+    {FallbackIndex : Type v} {Z : Type v} {k s : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := FallbackZeroSampleImage.ZeroSampleIndex FallbackIndex Z k)
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily s ↔
+      ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := FallbackIndex)
+        (FallbackZeroSampleImage.fallbackFamily fallback) s := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_clocked_realization_regression
+    {FallbackIndex : Type v} {Z : Type v} {k s clock : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily.RealizedByClockedBitFamily F) ↔
+      ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (FallbackZeroSampleImage.fallbackFamily fallback).RealizedByClockedBitFamily F := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exists_clockedExactVisibleRealization_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) (clock := clock) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_fallback_family_zero_sample_clocked_payload_regression
+    {FallbackIndex : Type v} {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily s clock ↔
+      ClockedKpolyFiniteLearningPayload
+        (FallbackZeroSampleImage.fallbackFamily fallback) s clock := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_clockedPayload_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) (clock := clock) fallback
 
 theorem kpoly_anchor_bounded_sample_majority_fallback_family_not_realizes_large_disagreement_support_regression
     {FallbackIndex : Type v} {Z : Type v} [Fintype Z] {k sampleBound : ℕ}
@@ -2110,6 +3615,66 @@ theorem kpoly_anchor_bounded_sample_majority_fallback_family_hamming_cover_produ
   exact
     kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_boolClassifierSpace_card_le_code_mul_smallSubsets_card_of_surjective
       (Z := Z) (k := k) (sampleBound := sampleBound) fallback hsurj
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_exact_radius_cover_regression
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k)
+    (rule : ExactVisibleRule Z k) :
+    (∃ index,
+      (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict index =
+        rule) ↔
+      rule ∈
+        PluginSampleMajority.fallbackFamilyRadiusCover
+          (fun code : ULift.{v} (BitCode fallbackBits) => fallback code.down)
+          sampleBound := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_realizes_rule_iff_mem_fallbackFamilyRadiusCover
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fallbackBits := fallbackBits) fallback rule
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_finite_cover_regression
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k sampleBound fallbackBits fallback).predictorFamily.FinitePredictorCover
+      (2 ^ fallbackBits *
+        (PluginSampleMajority.smallSubsets
+          (ExactVisiblePostSwitchSurface Z k) sampleBound).card) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_finitePredictorCover
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fallbackBits := fallbackBits) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_surjective_iff_radius_cover_univ_regression
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    Function.Surjective
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict ↔
+      PluginSampleMajority.fallbackFamilyRadiusCover
+          (fun code : ULift.{v} (BitCode fallbackBits) => fallback code.down)
+          sampleBound =
+        (Finset.univ : Finset (ExactVisibleRule Z k)) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_iff_fallbackFamilyRadiusCover_eq_univ
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fallbackBits := fallbackBits) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_surjective_iff_pointwise_radius_cover_regression
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    Function.Surjective
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict ↔
+      ∀ rule : ExactVisibleRule Z k,
+        ∃ code : BitCode fallbackBits,
+          (PluginSampleMajority.disagreementSupport (fallback code) rule).card ≤
+            sampleBound := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_iff_forall_exists_disagreementSupport_card_le_sampleBound
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fallbackBits := fallbackBits) fallback
 
 theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_not_surjective_small_hamming_cover_regression
     {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
@@ -2272,6 +3837,61 @@ theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exa
     kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_zeroSample_exactVisibleRuleDecode
       (Z := Z) (k := k)
 
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_finite_predictor_cover_regression
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FinitePredictorCover (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finitePredictorCover_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_finite_index_representative_cover_regression
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finiteIndexRepresentativeCover_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_finite_predictor_quotient_regression
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finitePredictorQuotient_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_exact_visible_compression_regression
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitFallbackZeroSampleImage.ZeroSampleIndex
+          Z k (Fintype.card (ExactVisiblePostSwitchSurface Z k)))
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_exactVisibleCompressionTarget_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_clocked_exact_visible_realization_regression
+    {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.RealizedByClockedBitFamily F := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_exists_clockedExactVisibleRealization_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (clock := clock) hs
+
 theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_surjective_iff_fallback_surjective_regression
     {Z : Type v} {k fallbackBits : ℕ}
     (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
@@ -2282,6 +3902,76 @@ theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_sur
   exact
     kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_surjective_iff_fallback_surjective
       (Z := Z) (k := k) (fallbackBits := fallbackBits) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_finite_predictor_cover_regression
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FinitePredictorCover N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FinitePredictorCover N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finitePredictorCover_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_finite_index_representative_cover_regression
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FiniteIndexRepresentativeCover N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FiniteIndexRepresentativeCover N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finiteIndexRepresentativeCover_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_finite_predictor_quotient_regression
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FinitePredictorQuotient N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FinitePredictorQuotient N := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finitePredictorQuotient_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_visible_compression_regression
+    {Z : Type v} {k fallbackBits s : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitFallbackZeroSampleImage.ZeroSampleIndex Z k fallbackBits)
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily s ↔
+      ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitCode fallbackBits)
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_clocked_exact_visible_realization_regression
+    {Z : Type v} {k fallbackBits s clock : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily.RealizedByClockedBitFamily F) ↔
+      ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).RealizedByClockedBitFamily F := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exists_clockedExactVisibleRealization_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) (clock := clock) fallback
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_clocked_payload_regression
+    {Z : Type v} [Fintype Z] {k fallbackBits s clock : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily s clock ↔
+      ClockedKpolyFiniteLearningPayload
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s clock := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_clockedPayload_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) (clock := clock) fallback
 
 theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_exact_decoder_surjective_regression
     {Z : Type v} [Fintype Z] {k sampleBound : ℕ} :
@@ -2297,6 +3987,62 @@ theorem kpoly_anchor_exact_visible_rule_decode_surjective_regression
     {Z : Type v} [Fintype Z] {k : ℕ} :
     Function.Surjective (exactVisibleRuleDecode (Z := Z) (k := k)) := by
   exact kpolyCoverage_anchor_exactVisibleRuleDecode_surjective (Z := Z) (k := k)
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_exact_decoder_no_clocked_payload_regression
+    {Z : Type v} [Fintype Z] {k sampleBound s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s clock := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_clockedPayload_of_exactVisibleRuleDecode_of_lt_surfaceCard
+      (Z := Z) (k := k) (sampleBound := sampleBound) (s := s) (clock := clock) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_zero_sample_exact_decoder_no_clocked_payload_regression
+    {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s clock := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_clockedPayload_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (clock := clock) hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_sparse_threshold_erm_obstruction_exact_decoder_regression
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    (zfeat : Z → BitVec r)
+    (hs :
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) <
+        Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+            (exactVisibleRuleDecode (Z := Z) (k := k)))
+          zfeat) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_sharedExactZABSparseThresholdERMData_of_exactVisibleRuleDecode_of_lt_surfaceCard
+      (k := k) (r := r) (sampleBound := sampleBound) zfeat hs
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_no_extractor_sparse_threshold_erm_visible_budget_exact_decoder_regression
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    (hs :
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) <
+        Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              Z k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+              (exactVisibleRuleDecode (Z := Z) (k := k)))
+            zfeat) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_sharedExactZABSparseThresholdERMData_of_exactVisibleRuleDecode_of_lt_surfaceCard
+      (k := k) (sampleBound := sampleBound) (r := r) hs
 
 theorem kpoly_anchor_surjective_actual_local_lightest_point_exact_decoder_fallback_regression
     {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
@@ -2354,6 +4100,108 @@ theorem kpoly_anchor_surjective_actual_local_no_extractor_lightest_point_exact_d
         (Z := Z) (k := k) (sampleBound := sampleBound))
       hq_lt
 
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_no_extractor_lightest_point_exact_decoder_regression
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface Z k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (q : ℝ≥0∞)
+    (hq_lt : q < 1 - μ (PMF.lightestPoint μ)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              Z k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+              (exactVisibleRuleDecode (Z := Z) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_lt_one_sub_apply_lightestPoint
+      (k := k) (sampleBound := sampleBound) (r := r) μ q hq_lt
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_visible_width_threshold_exact_decoder_regression
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            (BitVec n) k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+            (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+          zfeat
+          q)) :
+    n ≤ 2 * r + 2 * k + 1 := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_recovery_of_exactVisibleRuleDecode
+      (k := k) (r := r) (sampleBound := sampleBound)
+      (μ := μ) (q := q) zfeat h
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_lightest_point_threshold_exact_decoder_regression
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface Z k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)} {q : ℝ≥0∞}
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+            (exactVisibleRuleDecode (Z := Z) (k := k)))
+          zfeat
+          q)) :
+    1 - μ (PMF.lightestPoint μ) ≤ q := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_one_sub_apply_lightestPoint_le_of_nonempty_recovery_of_exactVisibleRuleDecode
+      (k := k) (r := r) (sampleBound := sampleBound)
+      (μ := μ) (q := q) zfeat h
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_visible_width_obstruction_exact_decoder_regression
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (hgap : 2 * r + 2 * k + 1 < n) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            (BitVec n) k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+            (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+          zfeat
+          q) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_recovery_of_exactVisibleRuleDecode_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+      (k := k) (r := r) (sampleBound := sampleBound)
+      (μ := μ) (q := q) zfeat hgap
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_no_extractor_visible_width_exact_decoder_regression
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hgap : 2 * r + 2 * k + 1 < n) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              (BitVec n) k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+              (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+      (k := k) (sampleBound := sampleBound) (r := r) μ q hgap
+
 theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_joint_recovery_threshold_exact_decoder_regression
     {n k sampleBound r : ℕ}
     [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
@@ -2395,6 +4243,26 @@ theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_joint_obstructi
     kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_recovery_of_exactVisibleRuleDecode_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
       (k := k) (r := r) (sampleBound := sampleBound)
       (μ := μ) (q := q) zfeat hbad
+
+theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_no_extractor_joint_obstruction_exact_decoder_regression
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hbad : 2 * r + 2 * k + 1 < n ∨ q < 1 - μ (PMF.lightestPoint μ)) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              (BitVec n) k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+              (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
+      (k := k) (sampleBound := sampleBound) (r := r) μ q hbad
 
 theorem kpoly_anchor_bounded_sample_majority_bit_fallback_family_polynomial_product_lower_bound_regression
     {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
@@ -2823,6 +4691,31 @@ theorem kpoly_anchor_uniform_visible_section_transfers_observed_cover_regression
     kpolyCoverage_anchor_uniformVisibleSection_transfers_observed_cover
       T hsec hcover
 
+theorem kpoly_anchor_support_full_rule_uniform_section_finite_cover_regression
+    {Z : Type v} [Fintype Z] {Block : Type v} [Fintype Block] {k : ℕ}
+    (visibleOf : Block → ExactVisiblePostSwitchSurface Z k)
+    {sec : ExactVisiblePostSwitchSurface Z k → Block}
+    (hsec :
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).HasUniformVisibleSection sec) :
+    (supportFullRuleActualSwitchedLocalInterface visibleOf).predictorFamily.FinitePredictorCover
+      (2 ^ Fintype.card Block) := by
+  exact
+    kpolyCoverage_anchor_supportFullRule_finitePredictorCover_card_of_uniformVisibleSection
+      visibleOf hsec
+
+theorem kpoly_anchor_support_full_rule_uniform_section_clocked_payload_regression
+    {Z : Type v} [Fintype Z] {Block : Type v} [Fintype Block] {k clock : ℕ}
+    (visibleOf : Block → ExactVisiblePostSwitchSurface Z k)
+    {sec : ExactVisiblePostSwitchSurface Z k → Block}
+    (hsec :
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).HasUniformVisibleSection sec) :
+    ClockedKpolyFiniteLearningPayload
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).predictorFamily
+      (Fintype.card Block) clock := by
+  exact
+    kpolyCoverage_anchor_supportFullRule_clockedPayload_card_of_uniformVisibleSection
+      visibleOf hsec
+
 theorem kpoly_anchor_support_full_rule_uniform_section_forces_card_regression
     {Z : Type v} [Fintype Z] {Block : Type v} [Fintype Block] {k : ℕ}
     (visibleOf : Block → ExactVisiblePostSwitchSurface Z k)
@@ -3112,6 +5005,27 @@ theorem kpoly_anchor_support_full_rule_exists_unobservable_eval_regression
     kpolyCoverage_anchor_supportFullRule_exists_unobservable_eval_below_surfaceCard
       visibleOf hcard
 
+theorem kpoly_anchor_one_block_full_rule_observed_small_not_exact_visible_cover_regression
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (u0 : ExactVisiblePostSwitchSurface Z k)
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    (oneBlockFullRuleActualSwitchedLocalInterface u0).outputFamily.FinitePredictorCover 2 ∧
+      ¬ (oneBlockFullRuleActualSwitchedLocalInterface u0).predictorFamily.FinitePredictorCover
+        (2 ^ s) := by
+  exact
+    kpolyCoverage_anchor_oneBlockFullRule_observedSmall_and_not_exactVisibleCover
+      u0 hs
+
+theorem kpoly_anchor_one_block_full_rule_not_clocked_payload_regression
+    {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (u0 : ExactVisiblePostSwitchSurface Z k)
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ClockedKpolyFiniteLearningPayload
+        (oneBlockFullRuleActualSwitchedLocalInterface u0).predictorFamily s clock := by
+  exact
+    kpolyCoverage_anchor_oneBlockFullRule_not_clockedPayload_of_lt_surfaceCard
+      u0 hs
+
 theorem kpoly_anchor_one_block_full_rule_no_exact_decoder_regression
     {Z : Type v} [Fintype Z] {k : ℕ}
     (u0 : ExactVisiblePostSwitchSurface Z k)
@@ -3141,6 +5055,50 @@ theorem kpoly_anchor_finitePredictorCover_iff_finiteIndexRepresentativeCover_reg
     {Index Input : Type*} {G : IndexedPredictorFamily Index Input} {N : ℕ} :
     G.FinitePredictorCover N ↔ G.FiniteIndexRepresentativeCover N := by
   exact kpolyCoverage_anchor_finitePredictorCover_iff_finiteIndexRepresentativeCover
+
+theorem kpoly_anchor_exact_visible_compression_target_iff_finitePredictorCover_regression
+    {Z : Type*} {k s : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s ↔
+      G.FinitePredictorCover (2 ^ s) := by
+  exact kpolyCoverage_anchor_exactVisibleCompressionTarget_iff_finitePredictorCover
+
+theorem kpoly_anchor_clocked_realization_iff_finitePredictorCover_regression
+    {Z : Type*} {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        G.RealizedByClockedBitFamily F) ↔
+      G.FinitePredictorCover (2 ^ s) := by
+  exact kpolyCoverage_anchor_clockedRealization_iff_finitePredictorCover
+
+theorem kpoly_anchor_clocked_finite_learning_payload_iff_finitePredictorCover_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    ClockedKpolyFiniteLearningPayload G s clock ↔
+      G.FinitePredictorCover (2 ^ s) := by
+  exact kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover
+
+theorem kpoly_anchor_clocked_finite_learning_payload_iff_exact_visible_compression_target_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    ClockedKpolyFiniteLearningPayload G s clock ↔
+      ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s := by
+  exact kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+
+theorem kpoly_anchor_exact_visible_compression_target_iff_finitePredictorQuotient_regression
+    {Z : Type*} {k s : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s ↔
+      G.FinitePredictorQuotient (2 ^ s) := by
+  exact kpolyCoverage_anchor_exactVisibleCompressionTarget_iff_finitePredictorQuotient
+
+theorem kpoly_anchor_clocked_realization_iff_finitePredictorQuotient_regression
+    {Z : Type*} {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index} :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        G.RealizedByClockedBitFamily F) ↔
+      G.FinitePredictorQuotient (2 ^ s) := by
+  exact kpolyCoverage_anchor_clockedRealization_iff_finitePredictorQuotient
 
 theorem kpoly_anchor_exact_visible_compression_target_iff_finiteIndexRepresentativeCover_regression
     {Z : Type*} {k s : ℕ} {Index : Type*}
@@ -3187,6 +5145,12 @@ theorem kpoly_anchor_finiteIndexRepresentativeCover_mono_regression
     G.FiniteIndexRepresentativeCover M := by
   exact kpolyCoverage_anchor_finiteIndexRepresentativeCover_mono hNM hrep
 
+theorem kpoly_anchor_finitePredictorQuotient_mono_regression
+    {Index Input : Type*} {G : IndexedPredictorFamily Index Input} {N M : ℕ}
+    (hNM : N ≤ M) (hquot : G.FinitePredictorQuotient N) :
+    G.FinitePredictorQuotient M := by
+  exact kpolyCoverage_anchor_finitePredictorQuotient_mono hNM hquot
+
 theorem kpoly_anchor_finitePredictorCover_of_factorsThrough_regression
     {Index Input View : Type*} {G : IndexedPredictorFamily Index Input}
     {H : IndexedPredictorFamily Index View} {view : Input → View} {N : ℕ}
@@ -3227,6 +5191,26 @@ theorem kpoly_anchor_finiteIndexRepresentativeCover_of_factorsThrough_of_rightIn
   exact kpolyCoverage_anchor_finiteIndexRepresentativeCover_of_factorsThrough_of_rightInverse
     hfactor hsection hrep
 
+theorem kpoly_anchor_finitePredictorQuotient_of_factorsThrough_regression
+    {Index Input View : Type*} {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View} {view : Input → View} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hquot : H.FinitePredictorQuotient N) :
+    G.FinitePredictorQuotient N := by
+  exact kpolyCoverage_anchor_finitePredictorQuotient_of_factorsThrough
+    hfactor hquot
+
+theorem kpoly_anchor_finitePredictorQuotient_of_factorsThrough_of_rightInverse_regression
+    {Index Input View : Type*} {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View} {view : Input → View}
+    {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hquot : G.FinitePredictorQuotient N) :
+    H.FinitePredictorQuotient N := by
+  exact kpolyCoverage_anchor_finitePredictorQuotient_of_factorsThrough_of_rightInverse
+    hfactor hsection hquot
+
 theorem kpoly_anchor_not_finitePredictorCover_of_factorsThrough_of_rightInverse_regression
     {Index Input View : Type*} [Fintype View]
     {G : IndexedPredictorFamily Index Input}
@@ -3252,6 +5236,91 @@ theorem kpoly_anchor_not_finiteIndexRepresentativeCover_of_factorsThrough_of_rig
     ¬ G.FiniteIndexRepresentativeCover N := by
   exact kpolyCoverage_anchor_not_finiteIndexRepresentativeCover_of_factorsThrough_of_rightInverse
     hN hfactor hsection hsurj
+
+theorem kpoly_anchor_not_finitePredictorQuotient_of_factorsThrough_of_rightInverse_regression
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hN : N < 2 ^ Fintype.card View)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict) :
+    ¬ G.FinitePredictorQuotient N := by
+  exact kpolyCoverage_anchor_not_finitePredictorQuotient_of_factorsThrough_of_rightInverse
+    hN hfactor hsection hsurj
+
+theorem kpoly_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict_regression
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hcover : G.FinitePredictorCover N) :
+    2 ^ Fintype.card View ≤ N := by
+  exact
+    kpolyCoverage_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+      hfactor hsection hsurj hcover
+
+theorem kpoly_anchor_finiteIndexRepresentativeCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict_regression
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hrep : G.FiniteIndexRepresentativeCover N) :
+    2 ^ Fintype.card View ≤ N := by
+  exact
+    kpolyCoverage_anchor_finiteIndexRepresentativeCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+      hfactor hsection hsurj hrep
+
+theorem kpoly_anchor_finitePredictorQuotient_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict_regression
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hquot : G.FinitePredictorQuotient N) :
+    2 ^ Fintype.card View ≤ N := by
+  exact
+    kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+      hfactor hsection hsurj hquot
+
+theorem kpoly_anchor_clocked_finite_learning_payload_card_le_of_factorsThrough_rightInverse_surjective_predict_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index View : Type*} [Fintype View]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    2 ^ Fintype.card View ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+      hfactor hsection hsurj hpayload
+
+theorem kpoly_anchor_not_clocked_finite_learning_payload_of_factorsThrough_rightInverse_surjective_predict_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index View : Type*} [Fintype View]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (hs : 2 ^ s < 2 ^ Fintype.card View)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  exact
+    kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_factorsThrough_of_rightInverse_of_surjective_predict_of_lt_card
+      hs hfactor hsection hsurj
 
 theorem kpoly_anchor_not_finitePredictorCover_of_factorsThrough_ab_and_surjective_predict_regression
     {Z : Type*} [Inhabited Z] {k : ℕ} {Index : Type*}
@@ -3371,6 +5440,34 @@ theorem kpoly_anchor_finitePredictorCover_card_le_of_surjective_predict_regressi
   exact kpolyCoverage_anchor_finitePredictorCover_card_le_of_surjective_predict
     hsurj hcover
 
+theorem kpoly_anchor_finiteIndexRepresentativeCover_card_le_of_surjective_predict_regression
+    {Index Input : Type*} [Fintype Input]
+    {G : IndexedPredictorFamily Index Input} {N : ℕ}
+    (hsurj : Function.Surjective G.predict)
+    (hrep : G.FiniteIndexRepresentativeCover N) :
+    2 ^ Fintype.card Input ≤ N := by
+  exact kpolyCoverage_anchor_finiteIndexRepresentativeCover_card_le_of_surjective_predict
+    hsurj hrep
+
+theorem kpoly_anchor_finitePredictorQuotient_card_le_of_surjective_predict_regression
+    {Index Input : Type*} [Fintype Input]
+    {G : IndexedPredictorFamily Index Input} {N : ℕ}
+    (hsurj : Function.Surjective G.predict)
+    (hquot : G.FinitePredictorQuotient N) :
+    2 ^ Fintype.card Input ≤ N := by
+  exact kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_surjective_predict
+    hsurj hquot
+
+theorem kpoly_anchor_clocked_finite_learning_payload_card_le_of_surjective_predict_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_surjective_predict
+      hsurj hpayload
+
 theorem kpoly_anchor_finitePredictorCover_card_le_of_injective_realization_regression
     {Probe Index Input : Type*} [Fintype Probe]
     {G : IndexedPredictorFamily Index Input} {N : ℕ}
@@ -3405,6 +5502,18 @@ theorem kpoly_anchor_finitePredictorQuotient_card_le_of_injective_realization_re
   exact kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_injective_realization
     target hinj hreal hquot
 
+theorem kpoly_anchor_clocked_finite_learning_payload_card_le_of_injective_realization_regression
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (target : Probe → ExactVisiblePostSwitchSurface Z k → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, G.predict i = target p)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    Fintype.card Probe ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_injective_realization
+      target hinj hreal hpayload
+
 theorem kpoly_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_injective_realization_regression
     {Probe Index Input View : Type*} [Fintype Probe]
     {G : IndexedPredictorFamily Index Input}
@@ -3420,6 +5529,42 @@ theorem kpoly_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInve
   exact
     kpolyCoverage_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_injective_realization
       target hinj hreal hfactor hsection hcover
+
+theorem kpoly_anchor_clocked_finite_learning_payload_card_le_of_factorsThrough_rightInverse_injective_realization_regression
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ}
+    {Index View : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (target : Probe → View → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, H.predict i = target p)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    Fintype.card Probe ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_injective_realization
+      target hinj hreal hfactor hsection hpayload
+
+theorem kpoly_anchor_not_clocked_finite_learning_payload_of_factorsThrough_rightInverse_injective_realization_regression
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ}
+    {Index View : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (target : Probe → View → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, H.predict i = target p)
+    (hs : 2 ^ s < Fintype.card Probe)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  exact
+    kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_factorsThrough_of_rightInverse_of_injective_realization_of_lt_card
+      target hinj hreal hs hfactor hsection
 
 theorem kpoly_anchor_not_finitePredictorCover_of_factorsThrough_of_rightInverse_of_injective_realization_of_lt_card_regression
     {Probe Index Input View : Type*} [Fintype Probe]
@@ -3538,6 +5683,16 @@ theorem kpoly_anchor_not_clocked_realization_of_surjective_predict_of_lt_predict
   exact kpolyCoverage_anchor_not_clockedRealization_of_surjective_predict_of_lt_predictorCard
     hs hsurj
 
+theorem kpoly_anchor_not_clocked_finite_learning_payload_of_surjective_predict_of_lt_predictorCard_regression
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hs : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k))
+    (hsurj : Function.Surjective G.predict) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  exact
+    kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_surjective_predict_of_lt_predictorCard
+      hs hsurj
+
 theorem kpoly_anchor_not_exact_visible_compression_target_of_injective_realization_of_lt_card_regression
     {Probe Z : Type*} [Fintype Probe] {k s : ℕ} {Index : Type*}
     {G : ExactVisibleSwitchedFamily Z k Index}
@@ -3561,6 +5716,18 @@ theorem kpoly_anchor_not_clocked_realization_of_injective_realization_of_lt_card
         G.RealizedByClockedBitFamily F := by
   exact
     kpolyCoverage_anchor_not_clockedRealization_of_injective_realization_of_lt_card
+      target hinj hreal hs
+
+theorem kpoly_anchor_not_clocked_finite_learning_payload_of_injective_realization_of_lt_card_regression
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (target : Probe → ExactVisiblePostSwitchSurface Z k → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, G.predict i = target p)
+    (hs : 2 ^ s < Fintype.card Probe) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  exact
+    kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_injective_realization_of_lt_card
       target hinj hreal hs
 
 theorem current_pnp_packet_kpoly_compression_bridge_uncovered_regression :
@@ -4076,26 +6243,4 @@ theorem current_pnp_gap_completed_packet_covers_next_marginal_target_regression 
     currentPNPGapCompletedPacket.covers currentPNPNextMarginalTarget := by
   exact currentPNPGapCompletedPacket_covers_currentPNPNextMarginalTarget
 
-
-theorem canonical_zab_erm_route_coverage_regression :
-    CanonicalZABERMRouteCoverage := by
-  exact canonicalZABERMRouteCoverage
-
-theorem canonical_zab_erm_route_clocked_payload_and_strict_budget_regression
-    {Z : Type v} [Fintype Z] {r k clock : ℕ} {Index : Type u}
-    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
-    {zfeat : Z → BitVec r}
-    {G : ExactVisibleSwitchedFamily Z k Index} {q : ℝ≥0∞}
-    (h :
-      CanonicalZABERMRecoveryData
-        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
-    ClockedKpolyFiniteLearningPayload G (r + 2 * k + 1) clock ∧
-      (r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k) →
-        ¬ Function.Surjective G.predict) := by
-  rcases
-      canonicalZABERMRouteCoverage
-        (Z := Z) (r := r) (k := k) (clock := clock) (Index := Index)
-        (μ := μ) (zfeat := zfeat) (G := G) (q := q) h
-    with ⟨_, _, _, _, hpayload, hstrict⟩
-  exact ⟨hpayload, hstrict⟩
 end Mettapedia.Computability.PNP.CruxSynthesisRegression

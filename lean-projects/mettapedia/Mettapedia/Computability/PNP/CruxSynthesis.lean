@@ -11,7 +11,9 @@ import Mettapedia.Computability.PNP.ClockedKpolyGapAssessment
 import Mettapedia.Computability.PNP.ClockedKpolyActualGapClosure
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSupportObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalBoundedSampleMajorityObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalFallbackZeroSampleImage
 import Mettapedia.Computability.PNP.ActualSwitchedLocalPluginSampleMajoritySparseThresholdERMObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalBitFallbackZeroSampleImage
 import Mettapedia.Computability.PNP.ActualSwitchedLocalBitFallbackWrapperSparseThresholdERMObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalBitFallbackWrapperSparseThresholdERMRecoveryHeavyRegionCharacterization
 import Mettapedia.Computability.PNP.BadCodeAgreementObstruction
@@ -31,6 +33,7 @@ import Mettapedia.Computability.PNP.ABDecisionListObstruction
 import Mettapedia.Computability.PNP.SharedABFeatureObstruction
 import Mettapedia.Computability.PNP.ABVisibleInvariantSurjectivityObstruction
 import Mettapedia.Computability.PNP.CanonicalZABERMInterface
+import Mettapedia.Computability.PNP.ActualSwitchedHistoryBitVecBudgetObstruction
 
 /-!
 # PNP crux synthesis ledger
@@ -916,6 +919,10 @@ inductive PNPRandomizedResidualSubrepairClass where
   already witnessed by a deterministic positive-weight coin slice with
   positive ordinary resolving mass. -/
   | strictHalfDeterministicCoinSliceWitness
+  /-- Even strict half-accuracy finite-coin randomized-residual advantage is
+  already witnessed by a deterministic positive-weight coin slice carrying the
+  ordinary invariant-base residual-side-information obstruction package. -/
+  | strictHalfDeterministicCoinSliceResidualObstructionPackage
   /-- The exact post-switch invariant-projection surface inherits the same
   supportwise-unresolved blocker. -/
   | postSwitchSupportwiseUnresolvedNoAdvantage
@@ -933,6 +940,10 @@ inductive PNPRandomizedResidualSubrepairClass where
   advantage already exposes a deterministic positive-weight coin slice with
   positive ordinary resolving mass. -/
   | postSwitchStrictHalfDeterministicCoinSliceWitness
+  /-- On the exact post-switch surface, even strict half-accuracy finite-coin
+  advantage already exposes a deterministic positive-weight coin slice
+  carrying the ordinary invariant-projection residual obstruction package. -/
+  | postSwitchStrictHalfDeterministicCoinSliceResidualObstructionPackage
   deriving DecidableEq, Repr
 
 /-- The exact narrow randomized-residual subrepairs covered by the current
@@ -945,11 +956,13 @@ def currentPNPRandomizedResidualCoveredSubrepairs :
     .positiveAdvantageResolutionWitness,
     .positiveAdvantageDeterministicCoinSliceWitness,
     .strictHalfDeterministicCoinSliceWitness,
+    .strictHalfDeterministicCoinSliceResidualObstructionPackage,
     .postSwitchSupportwiseUnresolvedNoAdvantage,
     .postSwitchExactSupportNoStrictHalfAdvantage,
     .postSwitchPositiveAdvantageResolutionWitness,
     .postSwitchPositiveAdvantageDeterministicCoinSliceWitness,
-    .postSwitchStrictHalfDeterministicCoinSliceWitness]
+    .postSwitchStrictHalfDeterministicCoinSliceWitness,
+    .postSwitchStrictHalfDeterministicCoinSliceResidualObstructionPackage]
 
 /-- Narrow `Kpoly` subrepair classes already covered by the current exact-visible
 stack.  These are useful local closures, not a proof of the broad
@@ -1078,44 +1091,497 @@ inductive PNPKpolySubrepairClass where
   /-- An input-dependent tie fallback for bounded sample-level plug-in majority
   is already a full exact-visible lookup table, even with the empty sample. -/
   | actualLocalBoundedSampleMajorityFallbackSideChannelBoundary
+  /-- That same full-rule fallback side channel still has no small finite
+  predictor-image cover below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackFinitePredictorCoverObstruction
+  /-- That same full-rule fallback side channel still has no finite selected-
+  index representative cover below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackFiniteIndexRepresentativeCoverObstruction
+  /-- The same full-rule fallback side channel also has no finite quotient-code
+  presentation below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackFinitePredictorQuotientObstruction
+  /-- The same fallback side channel therefore admits no exact-visible
+  compression target below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackExactVisibleCompressionObstruction
+  /-- The same fallback side channel also admits no clocked exact-visible
+  realization below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackClockedRealizationObstruction
+  /-- The same fallback side channel cannot provide the full clocked finite-
+  learning payload below the full exact-visible Boolean rule cube either. -/
+  | actualLocalBoundedSampleMajorityFallbackClockedPayloadObstruction
   /-- If the input-dependent fallback is restricted to a structured fallback
   family, bounded samples only produce sparse point changes from the selected
   fallback rule. -/
   | actualLocalBoundedSampleMajorityFallbackFamilySparseBoundary
+  /-- For any structured fallback code, the empty sampled override set realizes
+  that fallback rule exactly. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyEmptySampleRealizationBoundary
+  /-- If every structured fallback code disagrees with a target rule on more
+  than `sampleBound` surface points, bounded samples cannot realize that rule
+  at all. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyLargeDisagreementSupportObstruction
+  /-- For a structured fallback family, a target rule is realizable exactly
+  when it lies in the radius-`sampleBound` Hamming cover of the fallback
+  codes. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverBoundary
+  /-- The same structured fallback-family endpoint has predictor image covered
+  by at most `|FallbackIndex| * |smallSubsets surface sampleBound|` rules. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyFinitePredictorCoverBoundary
+  /-- Full-rule expressivity of the structured fallback-family endpoint is
+  equivalent to the radius-`sampleBound` Hamming cover already filling the
+  whole exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverSurjectivityBoundary
+  /-- Full-rule expressivity of the structured fallback-family endpoint is
+  equivalently the pointwise condition that every exact-visible rule lie
+  within disagreement radius `sampleBound` of some fallback code. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyPointwiseRadiusCoverSurjectivityBoundary
+  /-- If a structured fallback family is already full-rule expressive, bounded
+  samples preserve that full exact-visible expressivity. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyFallbackSurjectiveBoundary
+  /-- Full-rule expressivity already forces the abstract fallback-family
+  support product `|FallbackIndex| * |smallSubsets surface sampleBound|`. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductBoundary
+  /-- The same abstract fallback-family support product blocks surjectivity
+  whenever it stays strictly below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductSurjectivityObstruction
+  /-- Once the sample bound reaches the exact-visible alphabet size, any
+  nonempty structured fallback family is already full-rule expressive. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyFullRadiusBoundary
+  /-- At zero sparse-support radius, the wrapper contributes no hidden
+  expressivity: surjectivity of the endpoint is equivalent to surjectivity of
+  the fallback family itself. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFallbackEquivalence
+  /-- At zero sparse-support radius, the structured fallback wrapper has
+  exactly the same finite predictor-image covers as the raw fallback family
+  itself. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorCoverBoundary
+  /-- At zero sparse-support radius, the structured fallback wrapper has
+  exactly the same finite selected-index representative covers as the raw
+  fallback family itself. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFiniteIndexRepresentativeCoverBoundary
+  /-- At zero sparse-support radius, the structured fallback wrapper has
+  exactly the same finite quotient-code presentations as the raw fallback
+  family itself. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorQuotientBoundary
+  /-- Radius-zero exact visible compression claims for the structured fallback
+  wrapper are exactly the corresponding compression claims for the raw
+  fallback family. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleExactVisibleCompressionBoundary
+  /-- Radius-zero clocked exact-visible realization claims for the structured
+  fallback wrapper are exactly the corresponding claims for the raw fallback
+  family. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedRealizationBoundary
+  /-- Radius-zero clocked finite-learning payload claims for the structured
+  fallback wrapper are exactly the corresponding payload claims for the raw
+  fallback family. -/
+  | actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedPayloadBoundary
   /-- A bit-coded full-rule fallback decoder does not rescue bounded
   sample-level plug-in majority from the shared sparse-threshold ERM visible-
   budget boundary. -/
   | actualLocalBoundedSampleMajorityBitFallbackSparseThresholdERMVisibleBudgetBoundary
+  /-- For a bit-coded structured fallback family, a target rule is realizable
+  exactly when it lies in the radius-`sampleBound` Hamming cover of the lifted
+  fallback codes. -/
+  | actualLocalBoundedSampleMajorityBitFallbackRadiusCoverBoundary
+  /-- The same bit-coded structured fallback-family endpoint has predictor
+  image covered by at most `2 ^ fallbackBits * |smallSubsets surface
+  sampleBound|` rules. -/
+  | actualLocalBoundedSampleMajorityBitFallbackFinitePredictorCoverBoundary
+  /-- Full-rule expressivity of the bit-coded structured fallback-family
+  endpoint is equivalent to the lifted radius-`sampleBound` Hamming cover
+  already filling the whole exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackRadiusCoverSurjectivityBoundary
+  /-- Full-rule expressivity of the bit-coded structured fallback-family
+  endpoint is equivalently the pointwise condition that every exact-visible
+  rule lie within disagreement radius `sampleBound` of some fallback code. -/
+  | actualLocalBoundedSampleMajorityBitFallbackPointwiseRadiusCoverSurjectivityBoundary
+  /-- At full sample radius, any bit-coded structured fallback family is
+  already full-rule expressive, independently of the fallback-bit budget. -/
+  | actualLocalBoundedSampleMajorityBitFallbackFullRadiusBoundary
+  /-- With zero fallback bits, a bounded-sample sparse-override endpoint is
+  not full-rule expressive below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsDeficitObstruction
+  /-- With zero fallback bits, full-rule expressivity is exactly equivalent to
+  allowing sampled overrides on the whole exact-visible alphabet. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsExactRadiusBoundary
   /-- If a bit-coded structured fallback decoder is already full-rule
   expressive, then the bounded-sample wrapper still inherits the later
   lightest-point recovery threshold. -/
   | actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary
+  /-- For the canonical exact-visible truth-table fallback decoder, bounded
+  sample-level plug-in majority is already full-rule expressive for every
+  sample bound, so the wrapper contributes no `Kpoly` compression on that
+  route by itself. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderFullRuleBoundary
+  /-- For the same canonical exact-visible truth-table decoder, the weaker
+  manuscript-facing shared sparse-threshold ERM packet already fails below the
+  unconditional point-block visible-budget threshold. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderSparseThresholdERMVisibleBudgetBoundary
+  /-- For the same canonical exact-visible truth-table decoder, the same
+  point-block visible-budget gap already rules out every extractor for the
+  shared sparse-threshold ERM packet. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorSparseThresholdERMVisibleBudgetBoundary
+  /-- For the same canonical exact-visible truth-table decoder, any
+  manuscript-facing sparse-threshold recovery packet must satisfy the
+  unconditional visible-width ceiling. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderVisibleWidthBoundary
+  /-- For the same canonical exact-visible truth-table decoder, any
+  manuscript-facing sparse-threshold recovery packet must satisfy the
+  intrinsic lightest-point threshold. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderLightestPointBoundary
+  /-- For the same canonical exact-visible truth-table decoder, any
+  manuscript-facing sparse-threshold recovery packet must satisfy both the
+  visible-width ceiling and the lightest-point threshold; violating either
+  rules the route out. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderJointRecoveryBoundary
+  /-- For the same canonical exact-visible truth-table decoder, a visible-width
+  gap alone already rules out every extractor. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorVisibleWidthBoundary
+  /-- For the same canonical exact-visible truth-table decoder, falling below
+  the intrinsic lightest-point threshold already rules out every extractor. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorLightestPointBoundary
+  /-- For the same canonical exact-visible truth-table decoder, a visible-width
+  gap or lightest-point deficit already rules out every extractor. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorJointRecoveryBoundary
+  /-- For the same canonical exact-visible truth-table decoder, the wrapper
+  already admits no clocked finite-learning payload below the exact-visible
+  surface threshold. -/
+  | actualLocalBoundedSampleMajorityBitFallbackExactDecoderClockedPayloadObstruction
+  /-- For a structured bit-coded fallback family, even a coarse polynomial
+  envelope on sampled sparse overrides still forces the total fallback-plus-
+  overhead bit budget to reach the exact-visible alphabet size under full-rule
+  expressivity. -/
+  | actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeBudgetBoundary
+  /-- If that same coarse polynomial sparse-override envelope fits into
+  `overheadBits` bits but the total fallback-plus-overhead budget is still
+  below the exact-visible alphabet size, the endpoint is not full-rule
+  expressive. -/
+  | actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeSurjectivityObstruction
+  /-- If a route separately budgets the sparse-override radius and visible
+  alphabet base in bits, full-rule expressivity still forces the resulting
+  additive fallback-plus-factor budget to reach the exact-visible alphabet
+  size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackFactorBudgetBoundary
+  /-- The same separately-budgeted radius/base certificate still blocks the
+  endpoint whenever its total fallback-plus-factor bit count stays below the
+  exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackFactorSurjectivityObstruction
+  /-- If a route states only raw-value bit bounds for the sample radius and
+  visible alphabet size, the sparse-support envelope still pays one successor
+  bit for each factor. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorBudgetBoundary
+  /-- The same raw-value radius/base certificate still blocks surjectivity once
+  those two successor bits are paid and the total fallback-plus-factor budget
+  remains below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorSurjectivityObstruction
+  /-- If a route budgets both the raw sample-radius value and the raw visible
+  alphabet size value, the sparse-support envelope pays a successor bit for
+  each of them. -/
+  | actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorBudgetBoundary
+  /-- The same doubly raw-valued certificate still blocks surjectivity once
+  both successor bits are paid and the total fallback-plus-factor budget stays
+  below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorSurjectivityObstruction
+  /-- In the one-sample special case, the exact successor-count envelope
+  already forces the fallback-plus-visible-bit budget to reach the exact-
+  visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleBudgetBoundary
+  /-- The same exact one-sample successor-count certificate blocks
+  surjectivity whenever the fallback-plus-visible-bit budget stays strictly
+  below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleSurjectivityObstruction
+  /-- If the one-sample route only budgets the raw visible alphabet size,
+  the support envelope still pays one successor bit on that factor. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorBudgetBoundary
+  /-- The same raw one-sample visible-size certificate blocks surjectivity
+  once that successor bit is paid and the total budget remains strictly below
+  the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorSurjectivityObstruction
+  /-- At zero sparse-support radius, full-rule expressivity already forces the
+  fallback code itself to have at least the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleBudgetBoundary
+  /-- The same zero-sample route is not surjective whenever the fallback code
+  has strictly fewer bits than the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleSurjectivityObstruction
+  /-- The zero-sample boundary is sharp: with the canonical exact-visible
+  decoder, the bit-coded fallback endpoint is already fully expressive. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderBoundary
+  /-- At zero sparse-support radius, the canonical exact-visible truth-table
+  decoder leaves no finite predictor-image cover below the full Boolean rule
+  cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorCoverObstruction
+  /-- At zero sparse-support radius, the same canonical exact-visible
+  truth-table decoder leaves no finite selected-index representative cover
+  below the full Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFiniteIndexRepresentativeCoverObstruction
+  /-- At zero sparse-support radius, the same canonical exact-visible
+  truth-table decoder leaves no finite quotient-code presentation below the
+  full Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorQuotientObstruction
+  /-- At zero sparse-support radius, the same canonical exact-visible
+  truth-table decoder admits no exact-visible compression target below the
+  truth-table bit budget. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderExactVisibleCompressionObstruction
+  /-- At zero sparse-support radius, the same canonical exact-visible
+  truth-table decoder admits no clocked exact-visible realization below the
+  truth-table bit budget. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedRealizationObstruction
+  /-- At zero sparse-support radius, the same canonical exact-visible
+  truth-table decoder admits no clocked finite-learning payload below the
+  truth-table bit budget. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedPayloadObstruction
+  /-- At zero sparse-support radius, the wrapper contributes no hidden
+  expressivity: surjectivity of the endpoint is equivalent to surjectivity of
+  the fallback decoder itself. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleFallbackEquivalence
+  /-- At zero sparse-support radius, the wrapper has exactly the same finite
+  predictor-image covers as the raw fallback decoder family itself. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorCoverBoundary
+  /-- At zero sparse-support radius, the wrapper has exactly the same finite
+  selected-index representative covers as the raw fallback decoder family
+  itself. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleFiniteIndexRepresentativeCoverBoundary
+  /-- At zero sparse-support radius, the wrapper has exactly the same finite
+  quotient-code presentations as the raw fallback decoder family itself. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorQuotientBoundary
+  /-- Radius-zero exact visible compression claims for the wrapper are exactly
+  the corresponding compression claims for the raw fallback decoder family. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactVisibleCompressionBoundary
+  /-- Radius-zero clocked exact-visible realization claims for the wrapper are
+  exactly the corresponding claims for the raw fallback decoder family. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedRealizationBoundary
+  /-- Radius-zero clocked finite-learning payload claims for the wrapper are
+  exactly the corresponding payload claims for the raw fallback decoder
+  family. -/
+  | actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedPayloadBoundary
+  /-- With one sampled sparse override, full-rule expressivity already forces
+  the exact product budget `2 ^ fallbackBits * (surfaceCard + 1)`. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleProductBoundary
+  /-- The same exact one-sample product budget blocks surjectivity whenever it
+  stays strictly below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackOneSampleProductSurjectivityObstruction
+  /-- With two sampled sparse overrides, full-rule expressivity already forces
+  the exact quadratic product budget `2 ^ fallbackBits * (1 + surfaceCard +
+  choose surfaceCard 2)`. -/
+  | actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductBoundary
+  /-- The same exact two-sample quadratic product budget blocks surjectivity
+  whenever it stays strictly below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductSurjectivityObstruction
+  /-- If the exact two-sample quadratic support envelope fits into
+  `overheadBits` bits, full-rule expressivity still forces the total fallback-
+  plus-overhead bit budget to reach the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeBudgetBoundary
+  /-- The same exact two-sample quadratic support envelope blocks surjectivity
+  whenever the resulting fallback-plus-overhead bit budget stays strictly
+  below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeSurjectivityObstruction
+  /-- Full-rule expressivity already forces the abstract sparse-support
+  product budget `2 ^ fallbackBits * |smallSubsets surface sampleBound|`. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductBoundary
+  /-- The same abstract sparse-support product budget blocks surjectivity
+  whenever it stays strictly below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductSurjectivityObstruction
+  /-- For the full exact bounded-sample support count, full-rule expressivity
+  already forces the exact product budget
+  `2 ^ fallbackBits * ∑_{i ≤ sampleBound} choose surfaceCard i`. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSumChooseProductBoundary
+  /-- The same exact bounded-sample product budget blocks surjectivity
+  whenever it stays strictly below the full exact-visible Boolean rule cube. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSumChooseProductSurjectivityObstruction
+  /-- If the exact bounded-sample support envelope itself fits into
+  `overheadBits` bits, full-rule expressivity still forces the total fallback-
+  plus-overhead bit budget to reach the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeBudgetBoundary
+  /-- The same exact bounded-sample support envelope blocks surjectivity
+  whenever the resulting fallback-plus-overhead bit budget stays strictly
+  below the exact-visible alphabet size. -/
+  | actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeSurjectivityObstruction
+  /-- On any surjective actual-local endpoint, the manuscript-facing sparse-
+  threshold recovery packet must satisfy both the unconditional half-width
+  ceiling and the intrinsic lightest-point threshold; violating either rules
+  the route out. -/
+  | surjectiveActualLocalJointRecoveryBoundary
+  /-- On any surjective actual-local endpoint, the manuscript-facing sparse-
+  threshold recovery packet already forces the unconditional half-width
+  ceiling. -/
+  | surjectiveActualLocalRecoveryVisibleWidthBoundary
+  /-- On any surjective actual-local endpoint, the manuscript-facing sparse-
+  threshold recovery packet already forces the intrinsic lightest-point
+  threshold. -/
+  | surjectiveActualLocalRecoveryLightestPointBoundary
+  /-- Below the intrinsic lightest-point threshold, no extractor at all can
+  support the manuscript-facing sparse-threshold recovery packet on a
+  surjective actual-local endpoint. -/
+  | surjectiveActualLocalNoExtractorLightestPointBoundary
+  /-- If the visible width itself already exceeds the unconditional
+  surjective actual-local half-width ceiling, then no extractor at all can
+  support the manuscript-facing sparse-threshold recovery packet. -/
+  | surjectiveActualLocalNoExtractorVisibleWidthBoundary
+  /-- Exact visible compression targets are equivalently finite
+  predictor-image covers at the same bit budget. -/
+  | exactVisibleCompressionTargetPredictorCoverEquivalence
+  /-- Clocked exact-visible realization targets are equivalently finite
+  predictor-image covers at the same bit budget. -/
+  | clockedExactVisibleRealizationPredictorCoverEquivalence
+  /-- The bundled clocked finite-learning payload is equivalently a finite
+  predictor-image cover at the same bit budget. -/
+  | clockedFiniteLearningPayloadPredictorCoverEquivalence
+  /-- The bundled clocked finite-learning payload is equivalently the exact
+  visible compression target at the same bit budget. -/
+  | clockedFiniteLearningPayloadExactVisibleCompressionEquivalence
   /-- Finite predictor-image covers are equivalently finite quotient-code
   presentations with an index encoder and predictor decoder. -/
   | finitePredictorQuotientEquivalence
+  /-- Exact visible compression targets are equivalently finite quotient-code
+  presentations at the same bit budget. -/
+  | exactVisibleCompressionTargetPredictorQuotientEquivalence
+  /-- Clocked exact-visible realization targets are equivalently finite
+  quotient-code presentations at the same bit budget. -/
+  | clockedExactVisibleRealizationPredictorQuotientEquivalence
+  /-- Exact visible compression targets are equivalently finite
+  representative-index covers at the same bit budget. -/
+  | exactVisibleCompressionTargetRepresentativeIndexCoverEquivalence
+  /-- Clocked exact-visible realization targets are equivalently finite
+  representative-index covers at the same bit budget. -/
+  | clockedExactVisibleRealizationRepresentativeIndexCoverEquivalence
+  /-- Failure of clocked exact-visible realization is equivalently failure of
+  a finite representative-index cover at the same bit budget. -/
+  | notClockedExactVisibleRealizationRepresentativeIndexCoverEquivalence
+  /-- Failure of clocked exact-visible realization is equivalently failure of
+  a finite quotient-code presentation at the same bit budget. -/
+  | notClockedExactVisibleRealizationPredictorQuotientEquivalence
   /-- A fully expressive exact visible family cannot have a finite
   predictor-image cover below the full Boolean classifier-space cardinality. -/
   | exactVisibleImageSurjectivityObstruction
+  /-- The same fully expressive exact visible family cannot have a finite
+  representative-index cover below the full Boolean classifier-space
+  cardinality. -/
+  | exactVisibleRepresentativeCoverSurjectivityObstruction
+  /-- Nor can it admit a finite quotient-code presentation below that full
+  Boolean classifier-space cardinality. -/
+  | exactVisiblePredictorQuotientSurjectivityObstruction
+  /-- The same surjective exact-visible regime already blocks the clocked
+  exact-visible realization target below the full predictor-image
+  cardinality. -/
+  | exactVisibleClockedRealizationSurjectivityObstruction
   /-- Any injectively indexed finite probe family already realized by the
   switched predictors gives the same finite-image lower bound, without needing
   full surjectivity onto every Boolean classifier. -/
   | injectiveFiniteProbeImageLowerBound
-  /-- The same surjectivity and finite-probe lower bounds refute the bundled
-  clocked finite-learning payload below the corresponding image size. -/
+  /-- The same injective finite-probe realization bound also applies to finite
+  representative-index covers. -/
+  | injectiveFiniteRepresentativeIndexCoverLowerBound
+  /-- And it equally applies to finite quotient-code presentations. -/
+  | injectiveFinitePredictorQuotientLowerBound
+  /-- The same injective finite-probe lower bound already blocks exact-visible
+  compression below the realized probe cardinality. -/
+  | injectiveFiniteProbeExactVisibleCompressionObstruction
+  /-- And it equally blocks clocked exact-visible realization below that same
+  realized probe cardinality. -/
+  | injectiveFiniteProbeClockedRealizationObstruction
+  /-- A fully expressive exact visible family already refutes the bundled
+  clocked finite-learning payload below the full Boolean image size. -/
+  | exactVisibleClockedFiniteLearningPayloadSurjectivityObstruction
+  /-- Any injectively realized finite probe family already refutes the bundled
+  clocked finite-learning payload below the realized probe cardinality. -/
+  | injectiveFiniteProbeClockedFiniteLearningPayloadObstruction
+  /-- The same surjectivity and finite-probe lower bounds jointly refute the
+  bundled clocked finite-learning payload below the corresponding image size. -/
   | clockedFiniteLearningPayloadImageObstruction
+  /-- A fully expressive exact-visible family forces every bundled clocked
+  finite-learning payload to budget at least the full Boolean image size. -/
+  | exactVisibleClockedFiniteLearningPayloadSurjectivityLowerBound
+  /-- Any injectively realized finite probe family forces the bundled clocked
+  finite-learning payload to budget at least the realized probe cardinality. -/
+  | injectiveFiniteProbeClockedFiniteLearningPayloadLowerBound
+  /-- A section-backed factorization through a fully expressive finite summary
+  forces the same full-Boolean lower bound on the bundled clocked
+  finite-learning payload. -/
+  | sectionBackedClockedFiniteLearningPayloadSurjectiveLowerBound
+  /-- Therefore such a section-backed fully expressive finite summary already
+  refutes the bundled clocked finite-learning payload below its Boolean image
+  size. -/
+  | sectionBackedClockedFiniteLearningPayloadSurjectiveObstruction
+  /-- Section-backed factor maps preserve injective finite-probe lower bounds
+  for the bundled clocked finite-learning payload. -/
+  | sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadLowerBound
+  /-- Hence section-backed pullbacks also refute the bundled clocked
+  finite-learning payload below the realized probe cardinality. -/
+  | sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadObstruction
   /-- Section-backed factor maps preserve finite-probe lower bounds from a
   reduced view, without needing the reduced family to be fully surjective. -/
   | sectionBackedInjectiveFiniteProbePullbackLowerBound
+  /-- The same section-backed pullback already refutes finite predictor-image
+  covers below the realized probe cardinality. -/
+  | sectionBackedInjectiveFiniteProbePullbackObstruction
+  /-- Section-backed factor maps preserve the same finite-probe lower bound
+  for representative-index covers. -/
+  | sectionBackedInjectiveFiniteRepresentativeIndexCoverLowerBound
+  /-- And therefore refute representative-index covers below the realized
+  probe cardinality as well. -/
+  | sectionBackedInjectiveFiniteRepresentativeIndexCoverObstruction
+  /-- The same section-backed lower bound also transfers to finite
+  quotient-code presentations. -/
+  | sectionBackedInjectiveFinitePredictorQuotientLowerBound
+  /-- Hence section-backed pullbacks also refute quotient-code presentations
+  below the realized probe cardinality. -/
+  | sectionBackedInjectiveFinitePredictorQuotientObstruction
   /-- Finite predictor-image covers are equivalently finite representative
   index covers using actual selected predictors. -/
   | finiteRepresentativeIndexCoverEquivalence
   /-- Finite predictor-image covers, representative-index covers, and
   quotient-code presentations are monotone in the allowed finite-image budget. -/
   | finiteImageCoverBudgetWeakening
+  /-- Finite predictor-image covers are monotone in the allowed finite-image
+  budget. -/
+  | finitePredictorCoverBudgetWeakeningBoundary
+  /-- Finite representative-index covers are monotone in the allowed
+  finite-image budget. -/
+  | finiteRepresentativeIndexCoverBudgetWeakeningBoundary
+  /-- Finite quotient-code presentations are monotone in the allowed
+  finite-image budget. -/
+  | finitePredictorQuotientBudgetWeakeningBoundary
   /-- Finite predictor-image covers, representative-index covers, and
   quotient-code presentations transport across explicit factor maps, and push
   back along factorizations with a section. -/
   | finiteImageCoverFactorTransport
+  /-- Finite predictor-image covers transport across explicit factor maps and
+  push back along factorizations with a section. -/
+  | finitePredictorCoverFactorTransportBoundary
+  /-- Finite representative-index covers transport across explicit factor maps
+  and push back along factorizations with a section. -/
+  | finiteRepresentativeIndexCoverFactorTransportBoundary
+  /-- Finite quotient-code presentations transport across explicit factor maps
+  and push back along factorizations with a section. -/
+  | finitePredictorQuotientFactorTransportBoundary
+  /-- If a family factors through a finite summary with a section and the
+  summary is fully expressive, finite predictor-image covers below the summary
+  Boolean classifier-space cardinality are impossible. -/
+  | sectionBackedFinitePredictorCoverSurjectiveObstruction
+  /-- The same section-backed fully expressive finite-summary obstruction
+  holds for representative-index covers. -/
+  | sectionBackedFiniteRepresentativeIndexCoverSurjectiveObstruction
+  /-- The same section-backed fully expressive finite-summary obstruction
+  holds for quotient-code presentations. -/
+  | sectionBackedFinitePredictorQuotientSurjectiveObstruction
+  /-- A section-backed factorization through a fully expressive finite summary
+  forces the same full-Boolean lower bound on predictor-image covers. -/
+  | sectionBackedFinitePredictorCoverSurjectiveLowerBound
+  /-- The same section-backed fully expressive finite-summary lower bound
+  holds for representative-index covers. -/
+  | sectionBackedFiniteRepresentativeIndexCoverSurjectiveLowerBound
+  /-- The same section-backed fully expressive finite-summary lower bound
+  holds for quotient-code presentations. -/
+  | sectionBackedFinitePredictorQuotientSurjectiveLowerBound
+  /-- A fully expressive finite family forces every finite predictor-image
+  cover to have at least the full Boolean classifier-space cardinality. -/
+  | surjectiveFinitePredictorCoverLowerBound
+  /-- The same generic full-Boolean lower bound holds for representative-index
+  covers. -/
+  | surjectiveFiniteRepresentativeIndexCoverLowerBound
+  /-- The same generic full-Boolean lower bound holds for quotient-code
+  presentations. -/
+  | surjectiveFinitePredictorQuotientLowerBound
   /-- If an exact family factors through `(a,b)` and the reduced family is
   still fully expressive, finite-image covers below the reduced Boolean
   classifier-space cardinality are impossible. -/
@@ -1168,6 +1634,105 @@ inductive PNPKpolySubrepairClass where
   below the Boolean predictor-space threshold by any already-surjective
   exact-visible family. -/
   | fieldedSwitchingOnlyClockedPayloadSurjectiveVisibleObstruction
+  /-- On bit-valued latent data, once the visible width is at least `2`, every
+  actual switched-history exact-visible wrapper with budget
+  `s ≤ n + 2*k + 1` is already impossible under true fielded switching and
+  surjectivity of the actual switched family. -/
+  | actualSwitchedHistoryBitVecFullWidthIntervalObstruction
+  /-- The same full-width interval obstruction holds for the actual
+  switched-history clocked finite-learning wrapper. -/
+  | actualSwitchedHistoryBitVecFullWidthIntervalClockedPayloadObstruction
+  /-- Finite observed support can coexist with a full exact-visible family that
+  still has no below-surface predictor cover. -/
+  | supportFullRuleObservedSmallNotExactVisibleCoverBoundary
+  /-- The same observed-support regime still refutes every clocked
+  finite-learning payload below exact-visible surface cardinality. -/
+  | supportFullRuleNotClockedPayloadBelowSurfaceCard
+  /-- If a uniform visible section exists, the observed block truth-table
+  cover really does transfer to a finite predictor-image cover of the full
+  exact-visible family. -/
+  | supportFullRuleUniformSectionFinitePredictorCoverBoundary
+  /-- Under the same uniform visible section, the observed-output bit budget
+  lifts to a clocked finite-learning payload for the full exact-visible
+  family at block cardinality. -/
+  | supportFullRuleUniformSectionClockedPayloadBoundary
+  /-- Any uniform visible section for the support-full-rule interface already
+  forces the observed block support to be at least as large as the full
+  exact-visible surface. -/
+  | supportFullRuleUniformSectionSurfaceCardBoundary
+  /-- Therefore no uniform visible section exists once the observed block
+  support is smaller than the full exact-visible surface. -/
+  | supportFullRuleNoUniformSectionBelowSurfaceCard
+  /-- The observed block-output family is only the pullback of the full
+  exact-visible family along the reachable-support map. -/
+  | supportFullRuleOutputFamilyFactorBoundary
+  /-- Therefore an injective observed-output quotient on full exact-visible
+  rules already forces the reachable-support map to be surjective. -/
+  | supportFullRuleObservedRuleInjectiveSurjectiveBoundary
+  /-- In particular any exact decoder from observed block-output traces to
+  full exact-visible rules already forces reachable-support surjectivity. -/
+  | supportFullRuleExactDecoderSurjectiveBoundary
+  /-- If observed block-output support is smaller than the exact-visible
+  surface, the observed-output quotient map cannot be injective on full
+  exact-visible rules. -/
+  | supportFullRuleObservedRuleMapNoninjectiveBelowSurfaceCard
+  /-- Under the same observed-support deficit, two distinct full exact-visible
+  rules collapse to the same observed block-output trace. -/
+  | supportFullRuleDistinctRulesSameOutputBelowSurfaceCard
+  /-- Any property decoded from observed block-output traces must be constant
+  on observed-output fibers of the full exact-visible family. -/
+  | supportFullRulePropertyDecoderFiberConstancyBoundary
+  /-- A downstream property is decodable from observed block-output traces
+  exactly when it is constant on observed-output fibers. -/
+  | supportFullRulePropertyDecoderIffFiberConstancyBoundary
+  /-- Therefore any property separating two full rules with the same observed
+  trace cannot be decoded from observed block-output traces. -/
+  | supportFullRuleNoPropertyDecoderSameOutputBoundary
+  /-- A single exact-visible point query is decodable from observed
+  block-output traces exactly when that point lies in reachable support. -/
+  | supportFullRuleEvalDecoderRangeBoundary
+  /-- Decoding every exact-visible point query from observed block-output
+  traces is equivalent to full reachable-support surjectivity. -/
+  | supportFullRuleAllEvalDecodersSurjectiveBoundary
+  /-- A whole family of exact-visible point queries is decodable from observed
+  block-output traces exactly when every queried point lies in reachable
+  support. -/
+  | supportFullRuleQueryDecoderRangeBoundary
+  /-- Any query family containing one unreachable exact-visible point is
+  undecodable from observed block-output traces. -/
+  | supportFullRuleNoQueryDecoderMissedQueryBoundary
+  /-- An adaptive exact-visible query tree is decodable from observed
+  block-output traces whenever all of its queried points lie in reachable
+  support. -/
+  | supportFullRuleAdaptiveQueryDecoderReachableBoundary
+  /-- Such an adaptive exact-visible query tree is decodable exactly when its
+  output is constant on observed-output fibers. -/
+  | supportFullRuleAdaptiveQueryDecoderIffFiberConstancyBoundary
+  /-- Any observed-output collision that separates an adaptive query tree
+  refutes every observed-trace decoder for that tree. -/
+  | supportFullRuleNoAdaptiveQueryDecoderSameOutputEvalBoundary
+  /-- Missing a queried surface point already refutes every nontrivial root
+  adaptive-query decoder over observed block-output traces. -/
+  | supportFullRuleNoRootAdaptiveQueryDecoderMissedPointBoundary
+  /-- If observed block-output support is smaller than the exact-visible
+  surface, no post-processing decoder can recover every full exact-visible
+  rule from the observed quotient. -/
+  | supportFullRuleNoExactDecoderBelowSurfaceCard
+  /-- Under the same observed-support deficit, at least one exact-visible
+  point query remains undecodable from observed block-output traces. -/
+  | supportFullRuleUnobservableEvalBelowSurfaceCard
+  /-- The one-block actual-local interface already exhibits the small-support
+  finite-cover / exact-visible-cover gap. -/
+  | oneBlockFullRuleObservedSmallNotExactVisibleCoverBoundary
+  /-- The same one-block actual-local interface already refutes every clocked
+  finite-learning payload below exact-visible surface cardinality. -/
+  | oneBlockFullRuleNotClockedPayloadBelowSurfaceCard
+  /-- Once the exact-visible surface has more than one point, no decoder from
+  the one-block observed quotient recovers every full exact-visible rule. -/
+  | oneBlockFullRuleNoExactDecoderOneLtSurfaceCardBoundary
+  /-- Under the same one-block cardinality hypothesis, at least one
+  exact-visible point query remains unobservable from the observed quotient. -/
+  | oneBlockFullRuleUnobservableEvalOneLtSurfaceCardBoundary
   deriving DecidableEq, Repr
 
 /-- The exact narrow `Kpoly` subrepairs covered by the current stack. -/
@@ -1210,17 +1775,147 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .actualLocalBoundedSampleMajorityFalseSupportBoundary,
     .actualLocalBoundedSampleMajorityDefaultTieBoundary,
     .actualLocalBoundedSampleMajorityFallbackSideChannelBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFinitePredictorCoverObstruction,
+    .actualLocalBoundedSampleMajorityFallbackFiniteIndexRepresentativeCoverObstruction,
+    .actualLocalBoundedSampleMajorityFallbackFinitePredictorQuotientObstruction,
+    .actualLocalBoundedSampleMajorityFallbackExactVisibleCompressionObstruction,
+    .actualLocalBoundedSampleMajorityFallbackClockedRealizationObstruction,
+    .actualLocalBoundedSampleMajorityFallbackClockedPayloadObstruction,
     .actualLocalBoundedSampleMajorityFallbackFamilySparseBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyEmptySampleRealizationBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyLargeDisagreementSupportObstruction,
+    .actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyFinitePredictorCoverBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyRadiusCoverSurjectivityBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyPointwiseRadiusCoverSurjectivityBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyFallbackSurjectiveBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilySmallSubsetsProductSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityFallbackFamilyFullRadiusBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFallbackEquivalence,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorCoverBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFiniteIndexRepresentativeCoverBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleFinitePredictorQuotientBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleExactVisibleCompressionBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedRealizationBoundary,
+    .actualLocalBoundedSampleMajorityFallbackFamilyZeroSampleClockedPayloadBoundary,
     .actualLocalBoundedSampleMajorityBitFallbackSparseThresholdERMVisibleBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackRadiusCoverBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackFinitePredictorCoverBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackRadiusCoverSurjectivityBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackPointwiseRadiusCoverSurjectivityBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackFullRadiusBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsDeficitObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroFallbackBitsExactRadiusBoundary,
     .actualLocalBoundedSampleMajorityBitFallbackRecoveryLightestPointBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderFullRuleBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderSparseThresholdERMVisibleBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorSparseThresholdERMVisibleBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderVisibleWidthBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderLightestPointBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderJointRecoveryBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorVisibleWidthBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorLightestPointBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderNoExtractorJointRecoveryBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackExactDecoderClockedPayloadObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackPolynomialEnvelopeSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackFactorBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackFactorSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackSuccessorFactorSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackDoubleSuccessorFactorSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleSuccessorSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorCoverObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFiniteIndexRepresentativeCoverObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderFinitePredictorQuotientObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderExactVisibleCompressionObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedRealizationObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactDecoderClockedPayloadObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleFallbackEquivalence,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorCoverBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleFiniteIndexRepresentativeCoverBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleFinitePredictorQuotientBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleExactVisibleCompressionBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedRealizationBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackZeroSampleClockedPayloadBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleProductBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackOneSampleProductSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticProductSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackTwoSampleQuadraticEnvelopeSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackSmallSubsetsProductSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackSumChooseProductBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackSumChooseProductSurjectivityObstruction,
+    .actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeBudgetBoundary,
+    .actualLocalBoundedSampleMajorityBitFallbackSumChooseEnvelopeSurjectivityObstruction,
+    .surjectiveActualLocalJointRecoveryBoundary,
+    .surjectiveActualLocalRecoveryVisibleWidthBoundary,
+    .surjectiveActualLocalRecoveryLightestPointBoundary,
+    .surjectiveActualLocalNoExtractorLightestPointBoundary,
+    .surjectiveActualLocalNoExtractorVisibleWidthBoundary,
+    .exactVisibleCompressionTargetPredictorCoverEquivalence,
+    .clockedExactVisibleRealizationPredictorCoverEquivalence,
+    .clockedFiniteLearningPayloadPredictorCoverEquivalence,
+    .clockedFiniteLearningPayloadExactVisibleCompressionEquivalence,
     .finitePredictorQuotientEquivalence,
+    .exactVisibleCompressionTargetPredictorQuotientEquivalence,
+    .clockedExactVisibleRealizationPredictorQuotientEquivalence,
+    .exactVisibleCompressionTargetRepresentativeIndexCoverEquivalence,
+    .clockedExactVisibleRealizationRepresentativeIndexCoverEquivalence,
+    .notClockedExactVisibleRealizationRepresentativeIndexCoverEquivalence,
+    .notClockedExactVisibleRealizationPredictorQuotientEquivalence,
     .exactVisibleImageSurjectivityObstruction,
+    .exactVisibleRepresentativeCoverSurjectivityObstruction,
+    .exactVisiblePredictorQuotientSurjectivityObstruction,
+    .exactVisibleClockedRealizationSurjectivityObstruction,
     .injectiveFiniteProbeImageLowerBound,
+    .injectiveFiniteRepresentativeIndexCoverLowerBound,
+    .injectiveFinitePredictorQuotientLowerBound,
+    .injectiveFiniteProbeExactVisibleCompressionObstruction,
+    .injectiveFiniteProbeClockedRealizationObstruction,
+    .exactVisibleClockedFiniteLearningPayloadSurjectivityObstruction,
+    .injectiveFiniteProbeClockedFiniteLearningPayloadObstruction,
     .clockedFiniteLearningPayloadImageObstruction,
+    .exactVisibleClockedFiniteLearningPayloadSurjectivityLowerBound,
+    .injectiveFiniteProbeClockedFiniteLearningPayloadLowerBound,
+    .sectionBackedClockedFiniteLearningPayloadSurjectiveLowerBound,
+    .sectionBackedClockedFiniteLearningPayloadSurjectiveObstruction,
+    .sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadLowerBound,
+    .sectionBackedInjectiveFiniteProbeClockedFiniteLearningPayloadObstruction,
     .sectionBackedInjectiveFiniteProbePullbackLowerBound,
+    .sectionBackedInjectiveFiniteProbePullbackObstruction,
+    .sectionBackedInjectiveFiniteRepresentativeIndexCoverLowerBound,
+    .sectionBackedInjectiveFiniteRepresentativeIndexCoverObstruction,
+    .sectionBackedInjectiveFinitePredictorQuotientLowerBound,
+    .sectionBackedInjectiveFinitePredictorQuotientObstruction,
     .finiteRepresentativeIndexCoverEquivalence,
     .finiteImageCoverBudgetWeakening,
+    .finitePredictorCoverBudgetWeakeningBoundary,
+    .finiteRepresentativeIndexCoverBudgetWeakeningBoundary,
+    .finitePredictorQuotientBudgetWeakeningBoundary,
     .finiteImageCoverFactorTransport,
+    .finitePredictorCoverFactorTransportBoundary,
+    .finiteRepresentativeIndexCoverFactorTransportBoundary,
+    .finitePredictorQuotientFactorTransportBoundary,
+    .sectionBackedFinitePredictorCoverSurjectiveObstruction,
+    .sectionBackedFiniteRepresentativeIndexCoverSurjectiveObstruction,
+    .sectionBackedFinitePredictorQuotientSurjectiveObstruction,
+    .sectionBackedFinitePredictorCoverSurjectiveLowerBound,
+    .sectionBackedFiniteRepresentativeIndexCoverSurjectiveLowerBound,
+    .sectionBackedFinitePredictorQuotientSurjectiveLowerBound,
+    .surjectiveFinitePredictorCoverLowerBound,
+    .surjectiveFiniteRepresentativeIndexCoverLowerBound,
+    .surjectiveFinitePredictorQuotientLowerBound,
     .finiteImageReducedABPullbackObstruction,
     .finiteImageReducedABInjectiveProbePullbackObstruction,
     .finiteQuotientReducedABPullbackObstruction,
@@ -1235,7 +1930,37 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .productBoundOnlyClockedPayloadFullVisibleObstruction,
     .fieldedSwitchingOnlyClockedPayloadFullVisibleObstruction,
     .productBoundOnlyClockedPayloadSurjectiveVisibleObstruction,
-    .fieldedSwitchingOnlyClockedPayloadSurjectiveVisibleObstruction]
+    .fieldedSwitchingOnlyClockedPayloadSurjectiveVisibleObstruction,
+    .actualSwitchedHistoryBitVecFullWidthIntervalObstruction,
+    .actualSwitchedHistoryBitVecFullWidthIntervalClockedPayloadObstruction,
+    .supportFullRuleObservedSmallNotExactVisibleCoverBoundary,
+    .supportFullRuleNotClockedPayloadBelowSurfaceCard,
+    .supportFullRuleUniformSectionFinitePredictorCoverBoundary,
+    .supportFullRuleUniformSectionClockedPayloadBoundary,
+    .supportFullRuleUniformSectionSurfaceCardBoundary,
+    .supportFullRuleNoUniformSectionBelowSurfaceCard,
+    .supportFullRuleOutputFamilyFactorBoundary,
+    .supportFullRuleObservedRuleInjectiveSurjectiveBoundary,
+    .supportFullRuleExactDecoderSurjectiveBoundary,
+    .supportFullRuleObservedRuleMapNoninjectiveBelowSurfaceCard,
+    .supportFullRuleDistinctRulesSameOutputBelowSurfaceCard,
+    .supportFullRulePropertyDecoderFiberConstancyBoundary,
+    .supportFullRulePropertyDecoderIffFiberConstancyBoundary,
+    .supportFullRuleNoPropertyDecoderSameOutputBoundary,
+    .supportFullRuleEvalDecoderRangeBoundary,
+    .supportFullRuleAllEvalDecodersSurjectiveBoundary,
+    .supportFullRuleQueryDecoderRangeBoundary,
+    .supportFullRuleNoQueryDecoderMissedQueryBoundary,
+    .supportFullRuleAdaptiveQueryDecoderReachableBoundary,
+    .supportFullRuleAdaptiveQueryDecoderIffFiberConstancyBoundary,
+    .supportFullRuleNoAdaptiveQueryDecoderSameOutputEvalBoundary,
+    .supportFullRuleNoRootAdaptiveQueryDecoderMissedPointBoundary,
+    .supportFullRuleNoExactDecoderBelowSurfaceCard,
+    .supportFullRuleUnobservableEvalBelowSurfaceCard,
+    .oneBlockFullRuleObservedSmallNotExactVisibleCoverBoundary,
+    .oneBlockFullRuleNotClockedPayloadBelowSurfaceCard,
+    .oneBlockFullRuleNoExactDecoderOneLtSurfaceCardBoundary,
+    .oneBlockFullRuleUnobservableEvalOneLtSurfaceCardBoundary]
 
 /-- The covered-class list is exact for the current PNP crux packet. -/
 theorem currentPNPCoveredRepairClasses_exact (repair : PNPRepairClass) :
@@ -1307,7 +2032,7 @@ theorem currentPNPRandomizedResidualCoveredSubrepairs_exact
 theorem currentPNPKpolyCoveredSubrepairs_exact
     (repair : PNPKpolySubrepairClass) :
     repair ∈ currentPNPKpolyCoveredSubrepairs := by
-  cases repair <;> simp [currentPNPKpolyCoveredSubrepairs]
+  cases repair <;> decide
 
 /-- The finite-coin stack contributes to the same-source finite-count branch of
 the ledger. -/
@@ -2342,6 +3067,200 @@ def V13ResidualSideInformationSubcoverage : Prop :=
       residualSideInformationCoverage_anchor_strict_half_advantage_prediction_separation
         τ base side y w h hτ hbase hy hw hadv
 
+/-- The broad residual-side-information repair class is covered in the precise
+theorem-backed sense that same-base residual collisions already block
+source-only decoding, positive invariant-base advantage forces the supported
+residual obstruction package, and the manuscript's concrete exact post-switch
+active orbit already realizes both the pure residual and fork-obstruction
+packages. -/
+def ResidualSideInformationCoverage : Prop :=
+  (∀ {Ω Base Side : Type} {base : Ω → Base} {side : Ω → Side}
+    {x y : Ω},
+      base x = base y →
+        side x ≠ side y →
+          ¬ SideInfoDeterminedBy base side) ∧
+  (∀ {α Base Side : Type} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) (h : Base × Side → Bool),
+      Function.Involutive τ →
+        (∀ x, base (τ x) = base x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              0 < doubledAdvantage (fun x => (base x, side x)) y w h →
+                0 < resolvedMass τ side w ∧
+                  ¬ SideInfoDeterminedBy base side ∧
+                  ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+                  (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+                  (∃ x, 0 < w x ∧
+                    ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+                  (∃ x, 0 < w x ∧
+                    h (base (τ x), side (τ x)) ≠ h (base x, side x))) ∧
+  (∀ {Z : Type} [Fintype Z] (z0 : Z),
+      0 < resolvedMass tiInputMap
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          (activeOrbitWeight z0) ∧
+        ¬ SideInfoDeterminedBy invariantVisibleData
+            (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) ∧
+        PositiveWeightSideInfoCollisionOverBase invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          (activeOrbitWeight z0) ∧
+        (∃ u : ExactVisiblePostSwitchSurface Z 1,
+          0 < activeOrbitWeight z0 u ∧
+            invariantVisibleData (tiInputMap u) = invariantVisibleData u ∧
+            (tiInputMap u).b ≠ u.b) ∧
+        (∃ u : ExactVisiblePostSwitchSurface Z 1,
+          0 < activeOrbitWeight z0 u ∧
+            ¬ SourceOnlyPredicateCapturesSideEq invariantVisibleData
+              (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) (u.b))) ∧
+  (∀ {Z : Type} [Fintype Z] (z0 : Z),
+      ((∀ u : ExactVisiblePostSwitchSurface Z 1,
+          invariantVisibleData (tiInputMap u) = invariantVisibleData u) ∧
+        (∀ u : ExactVisiblePostSwitchSurface Z 1,
+          activeOrbitWeight z0 (tiInputMap u) = activeOrbitWeight z0 u) ∧
+        (∀ u : ExactVisiblePostSwitchSurface Z 1, 0 < activeOrbitWeight z0 u →
+          activeOrbitTarget (tiInputMap u) = !(activeOrbitTarget u)) ∧
+        0 <
+          doubledAdvantage
+            activeOrbitFeatures
+            activeOrbitTarget
+            (activeOrbitWeight z0)
+            activeOrbitClassifier ∧
+        (∃ u : ExactVisiblePostSwitchSurface Z 1,
+          0 < activeOrbitWeight z0 u ∧
+            activeOrbitClassifier (activeOrbitFeatures (tiInputMap u)) ≠
+              activeOrbitClassifier (activeOrbitFeatures u))) ∧
+        weightedTotalMass (activeOrbitWeight z0) <
+          2 * weightedCorrectMass
+            activeOrbitFeatures
+            activeOrbitTarget
+            (activeOrbitWeight z0)
+            activeOrbitClassifier ∧
+        0 <
+          sliceMass
+            (fun u : ExactVisiblePostSwitchSurface Z 1 => nonzeroColumn u.a)
+            (activeOrbitWeight z0) ∧
+        ¬ exactInputInvariantWeightedSupport (activeOrbitWeight z0))
+
+@[simp] theorem residualSideInformationCoverage :
+    ResidualSideInformationCoverage := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro Ω Base Side base side x y hbase hside
+    exact
+      residualSideInformationCoverage_anchor_collision_blocks_source_decoder
+        hbase hside
+  · intro α Base Side _Fintypeα τ base side y w h hτ hbase hy hw hadv
+    exact
+      residualSideInformationCoverage_anchor_positive_advantage_forces_supported_obstruction_package
+        τ base side y w h hτ hbase hy hw hadv
+  · intro Z _FintypeZ z0
+    exact
+      residualSideInformationCoverage_anchor_exactPostSwitch_activeOrbit_pure_residual_package
+        (Z := Z) z0
+  · intro Z _FintypeZ z0
+    exact
+      residualSideInformationCoverage_anchor_exactPostSwitch_prediction_witness_forces_fork_obstruction
+        (Z := Z) z0
+
+/-- The current local packet extended only by the fully theorem-backed
+residual-side-information obstruction layer.  This still leaves the randomized
+residual, approximate-decorrelation, and manuscript-specific `Kpoly` bridge
+repairs open. -/
+def currentPNPResidualPromotedPacket : PNPCruxPacket where
+  covers
+    | .residualSideInformation => ResidualSideInformationCoverage
+    | repair => currentPNPLocalCruxPacket.covers repair
+
+/-- Broad repair classes covered by the residual-promoted packet. -/
+def currentPNPResidualPromotedCoveredRepairClasses : List PNPRepairClass :=
+  currentPNPCoveredRepairClasses ++ [.residualSideInformation]
+
+/-- Broad repair classes still open after promoting the theorem-backed
+residual-side-information packet. -/
+def currentPNPResidualPromotedUncoveredRepairClasses : List PNPRepairClass :=
+  [.randomizedResidual,
+    .approximateDecorrelation,
+    .kpolyCompressionBridge]
+
+/-- The residual-promoted packet extends the current local packet. -/
+theorem currentPNPResidualPromotedPacket_extends_current :
+    currentPNPResidualPromotedPacket.Extends currentPNPLocalCruxPacket := by
+  intro repair hCurrent
+  cases repair <;> try exact hCurrent
+  case residualSideInformation =>
+    cases hCurrent
+
+/-- The residual-promoted packet covers the broad residual-side-information
+repair class. -/
+theorem residualSideInformation_covered_currentPNPResidualPromotedPacket :
+    currentPNPResidualPromotedPacket.covers .residualSideInformation := by
+  exact residualSideInformationCoverage
+
+/-- Even after promoting the theorem-backed residual-side-information layer,
+randomized residual repairs remain outside the packet. -/
+theorem randomizedResidual_uncovered_currentPNPResidualPromotedPacket :
+    ¬ currentPNPResidualPromotedPacket.covers .randomizedResidual := by
+  simp [currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- Approximate-decorrelation repairs remain outside the residual-promoted
+packet. -/
+theorem approximateDecorrelation_uncovered_currentPNPResidualPromotedPacket :
+    ¬ currentPNPResidualPromotedPacket.covers .approximateDecorrelation := by
+  simp [currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The manuscript-specific `Kpoly` bridge remains outside the
+residual-promoted packet. -/
+theorem kpolyCompressionBridge_uncovered_currentPNPResidualPromotedPacket :
+    ¬ currentPNPResidualPromotedPacket.covers .kpolyCompressionBridge := by
+  simp [currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The residual-promoted packet is still not stop-grade because randomized
+residual repairs remain open. -/
+theorem not_stopGrade_currentPNPResidualPromotedPacket :
+    ¬ currentPNPResidualPromotedPacket.StopGrade := by
+  intro hstop
+  exact randomizedResidual_uncovered_currentPNPResidualPromotedPacket
+    (hstop .randomizedResidual)
+
+/-- After promoting the residual-side-information packet, the next broad gap is
+the randomized residual route. -/
+def currentPNPResidualPromotedNextMarginalTarget : PNPRepairClass :=
+  .randomizedResidual
+
+/-- The selected next target for the residual-promoted packet is still
+uncovered. -/
+theorem currentPNPResidualPromotedNextMarginalTarget_uncovered :
+    ¬ currentPNPResidualPromotedPacket.covers
+      currentPNPResidualPromotedNextMarginalTarget := by
+  simp [currentPNPResidualPromotedNextMarginalTarget,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The selected next target for the residual-promoted packet is one of its
+remaining broad gaps. -/
+theorem currentPNPResidualPromotedNextMarginalTarget_mem_uncovered :
+    currentPNPResidualPromotedNextMarginalTarget ∈
+      currentPNPResidualPromotedUncoveredRepairClasses := by
+  simp [currentPNPResidualPromotedNextMarginalTarget,
+    currentPNPResidualPromotedUncoveredRepairClasses]
+
+/-- Strongest honest status for the residual-promoted packet: the current local
+packet is extended, broad residual-side-information repairs are now covered in
+their theorem-backed sense, but randomized residual, approximate decorrelation,
+and the manuscript-specific `Kpoly` bridge remain open. -/
+theorem currentPNPResidualPromotedStatus :
+    currentPNPResidualPromotedPacket.Extends currentPNPLocalCruxPacket ∧
+      currentPNPResidualPromotedPacket.covers .residualSideInformation ∧
+      ¬ currentPNPResidualPromotedPacket.covers .randomizedResidual ∧
+      ¬ currentPNPResidualPromotedPacket.covers .approximateDecorrelation ∧
+      ¬ currentPNPResidualPromotedPacket.covers .kpolyCompressionBridge ∧
+      ¬ currentPNPResidualPromotedPacket.StopGrade := by
+  exact
+    ⟨currentPNPResidualPromotedPacket_extends_current,
+      residualSideInformation_covered_currentPNPResidualPromotedPacket,
+      randomizedResidual_uncovered_currentPNPResidualPromotedPacket,
+      approximateDecorrelation_uncovered_currentPNPResidualPromotedPacket,
+      kpolyCompressionBridge_uncovered_currentPNPResidualPromotedPacket,
+      not_stopGrade_currentPNPResidualPromotedPacket⟩
+
 /-- Route-coverage anchor: decoding every selected predictor from the one
 global distinction-weakness scalar cannot cover all Boolean classifiers on a
 nontrivial state space. -/
@@ -2651,6 +3570,34 @@ theorem randomizedResidualCoverage_anchor_strict_half_advantage_witnesses_determ
   exists_positive_coin_resolvedMass_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual
     τ u v y w coinWeight h hτ hu hy hw hadv
 
+/-- Route-coverage anchor: strict half-accuracy finite-coin randomized-
+residual advantage is not an independent escape route.  It already yields a
+deterministic positive-weight coin slice carrying the ordinary invariant-base
+residual-side-information obstruction package. -/
+theorem randomizedResidualCoverage_anchor_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+    {α Coin U V : Type*} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool)
+    (hτ : Function.Involutive τ)
+    (hu : ∀ x, u (τ x) = u x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+          (fun xr : α × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+        PositiveWeightSideInfoCollisionOverBase u (fun x => v x c) w ∧
+        (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+        (∃ x, 0 < w x ∧
+          ¬ SourceOnlyPredicateCapturesSideEq u (fun x => v x c) (v x c))) :=
+  exists_positive_coin_obstruction_package_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual
+    τ u v y w coinWeight h hτ hu hy hw hadv
+
 /-- Route-coverage anchor: on the exact post-switch surface, supportwise-
 unresolved finite-coin randomized residuals cannot provide positive doubled
 advantage over the invariant projection. -/
@@ -2761,6 +3708,38 @@ theorem randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_witne
   exists_positive_coin_resolvedMass_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual_invariantProjection
     v y w coinWeight h hy hw hadv
 
+/-- Route-coverage anchor: on the exact post-switch surface, strict half-
+accuracy finite-coin randomized-residual advantage already collapses to a
+deterministic positive-weight coin slice carrying the ordinary invariant-
+projection residual obstruction package. -/
+theorem randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+    {Z Coin V : Type*} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool)
+    (hy : ∀ u, y (tiInputMap u) = !(y u))
+    (hw : ∀ u, w (tiInputMap u) = w u)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : PostSwitchInput Z k × Coin =>
+            (invariantProjection xr.1, v xr.1 xr.2))
+          (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy invariantProjection (fun u => v u c) ∧
+        PositiveWeightSideInfoCollisionOverBase invariantProjection
+          (fun u => v u c) w ∧
+        (∃ u, 0 < w u ∧
+          invariantProjection (tiInputMap u) = invariantProjection u ∧
+          v (tiInputMap u) c ≠ v u c) ∧
+        (∃ u, 0 < w u ∧
+          ¬ SourceOnlyPredicateCapturesSideEq invariantProjection
+            (fun u => v u c) (v u c))) :=
+  exists_positive_coin_obstruction_package_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual_invariantProjection
+    v y w coinWeight h hy hw hadv
+
 /-- The current randomized-residual subledger is theorem-backed at the narrow
 finite-coin/product boundary: randomized residuals stay under the ordinary
 resolution budget on the source/coin product; supportwise unresolvedness kills
@@ -2768,10 +3747,12 @@ the joint resolving mass and therefore kills positive doubled advantage; any
 surviving positive advantage must expose a positive joint-support resolving
 coin and in fact a deterministic positive-weight coin slice with positive
 ordinary resolving mass, with the same deterministic coin-slice conclusion
-already available on the strict half-accuracy surface; and the exact post-
-switch specialization inherits the same unresolved blocker, the strict-half
-exact-support blocker, and the same deterministic coin-slice witness
-obligations. -/
+already available on the strict half-accuracy surface; that strict half-
+accuracy deterministic coin slice already carries the ordinary residual-side-
+information obstruction package; and the exact post-switch specialization
+inherits the same unresolved blocker, the strict-half exact-support blocker,
+the same deterministic coin-slice witness obligations, and the same
+coin-slice-to-residual-package collapse. -/
 def V13RandomizedResidualSubcoverage : Prop :=
   (∀ {α Coin U V : Type*} [Fintype α] [Fintype Coin]
     (τ : α → α) (u : α → U) (v : α → Coin → V)
@@ -2845,6 +3826,27 @@ def V13RandomizedResidualSubcoverage : Prop :=
                   (productWeight w coinWeight) h →
                 ∃ c, 0 < coinWeight c ∧
                   0 < resolvedMass τ (fun x => v x c) w) ∧
+  (∀ {α Coin U V : Type*} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool),
+      Function.Involutive τ →
+        (∀ x, u (τ x) = u x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              weightedTotalMass (productWeight w coinWeight) <
+                2 * weightedCorrectMass
+                  (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+                  (fun xr : α × Coin => y xr.1)
+                  (productWeight w coinWeight) h →
+                ∃ c, 0 < coinWeight c ∧
+                  (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+                    PositiveWeightSideInfoCollisionOverBase u
+                      (fun x => v x c) w ∧
+                    (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+                    (∃ x, 0 < w x ∧
+                      ¬ SourceOnlyPredicateCapturesSideEq u
+                        (fun x => v x c) (v x c)))) ∧
   (∀ {Z Coin V : Type*} {k : ℕ} [Fintype Z] [Fintype Coin]
     (v : PostSwitchInput Z k → Coin → V)
     (y : PostSwitchInput Z k → Bool)
@@ -2899,6 +3901,21 @@ def V13RandomizedResidualSubcoverage : Prop :=
               (productWeight w coinWeight) h →
             ∃ c, 0 < coinWeight c ∧
               0 < resolvedMass tiInputMap (fun u => v u c) w) ∧
+  (∀ {Z Coin V : Type*} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool),
+      (∀ u, y (tiInputMap u) = !(y u)) →
+        (∀ u, w (tiInputMap u) = w u) →
+          weightedTotalMass (productWeight w coinWeight) <
+            2 * weightedCorrectMass
+              (fun xr : PostSwitchInput Z k × Coin =>
+                (invariantProjection xr.1, v xr.1 xr.2))
+              (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+              (productWeight w coinWeight) h →
+            ∃ c, 0 < coinWeight c ∧
+              0 < resolvedMass tiInputMap (fun u => v u c) w) ∧
   ∀ {Z Coin V : Type*} {k : ℕ} [Fintype Z] [Fintype Coin]
     (v : PostSwitchInput Z k → Coin → V)
     (y : PostSwitchInput Z k → Bool)
@@ -2913,11 +3930,19 @@ def V13RandomizedResidualSubcoverage : Prop :=
               (fun xr : PostSwitchInput Z k × Coin => y xr.1)
               (productWeight w coinWeight) h →
             ∃ c, 0 < coinWeight c ∧
-              0 < resolvedMass tiInputMap (fun u => v u c) w
+              (¬ SideInfoDeterminedBy invariantProjection (fun u => v u c) ∧
+                PositiveWeightSideInfoCollisionOverBase invariantProjection
+                  (fun u => v u c) w ∧
+                (∃ u, 0 < w u ∧
+                  invariantProjection (tiInputMap u) = invariantProjection u ∧
+                  v (tiInputMap u) c ≠ v u c) ∧
+                (∃ u, 0 < w u ∧
+                  ¬ SourceOnlyPredicateCapturesSideEq invariantProjection
+                    (fun u => v u c) (v u c)))
 
 @[simp] theorem v13RandomizedResidualSubcoverage :
     V13RandomizedResidualSubcoverage := by
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw
     exact
       doubledAdvantage_randomizedResidual_le_resolvedMass
@@ -2942,6 +3967,10 @@ def V13RandomizedResidualSubcoverage : Prop :=
     exact
       randomizedResidualCoverage_anchor_strict_half_advantage_witnesses_deterministic_coin_slice
         τ u v y w coinWeight h hτ hu hy hw hadv
+  · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw hadv
+    exact
+      randomizedResidualCoverage_anchor_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+        τ u v y w coinWeight h hτ hu hy hw hadv
   · intro Z Coin V k _FintypeZ _FintypeCoin v y w coinWeight h hy hw hunresolved
     exact
       randomizedResidualCoverage_anchor_postSwitch_supportwise_unresolved_no_positive_advantage
@@ -2962,6 +3991,451 @@ def V13RandomizedResidualSubcoverage : Prop :=
     exact
       randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_witnesses_deterministic_coin_slice
         v y w coinWeight h hy hw hadv
+  · intro Z Coin V k _FintypeZ _FintypeCoin v y w coinWeight h hy hw hadv
+    exact
+      randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+        v y w coinWeight h hy hw hadv
+
+/-- The broad randomized-residual repair class is covered in the precise
+theorem-backed sense that finite-coin randomized residuals stay under the
+ordinary resolving-mass budget, supportwise-unresolved randomized residuals
+have zero joint resolving mass and hence no positive doubled advantage, any
+surviving positive advantage already yields a deterministic positive-weight coin
+slice with positive ordinary resolving mass, and any strict half-accuracy
+advantage already collapses to an ordinary residual-side-information
+obstruction package on such a deterministic slice.  The exact post-switch
+specialization inherits the same supportwise-unresolved blocker, the
+exact-support strict-half blocker, and the same coin-slice collapse to an
+ordinary invariant-projection residual obstruction package. -/
+def RandomizedResidualCoverage : Prop :=
+  (∀ {α Coin U V : Type} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool),
+      Function.Involutive τ →
+        (∀ x, u (τ x) = u x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              doubledAdvantage
+                  (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+                  (fun xr : α × Coin => y xr.1)
+                  (productWeight w coinWeight) h
+                ≤ randomizedResidualResolvedMass τ v w coinWeight) ∧
+  (∀ {α Coin V : Type} [Fintype α] [Fintype Coin]
+    (τ : α → α) (v : α → Coin → V)
+    (w : α → ℕ) (coinWeight : Coin → ℕ),
+      (∀ x c, 0 < w x * coinWeight c → v (τ x) c = v x c) →
+        randomizedResidualResolvedMass τ v w coinWeight = 0) ∧
+  (∀ {α Coin U V : Type} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool),
+      Function.Involutive τ →
+        (∀ x, u (τ x) = u x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              (∀ x c, 0 < w x * coinWeight c → v (τ x) c = v x c) →
+                ¬ 0 < doubledAdvantage
+                    (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+                    (fun xr : α × Coin => y xr.1)
+                    (productWeight w coinWeight) h) ∧
+  (∀ {α Coin U V : Type} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool),
+      Function.Involutive τ →
+        (∀ x, u (τ x) = u x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              0 < doubledAdvantage
+                  (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+                  (fun xr : α × Coin => y xr.1)
+                  (productWeight w coinWeight) h →
+                ∃ c, 0 < coinWeight c ∧
+                  0 < resolvedMass τ (fun x => v x c) w) ∧
+  (∀ {α Coin U V : Type} [Fintype α] [Fintype Coin]
+    (τ : α → α) (u : α → U) (v : α → Coin → V)
+    (y : α → Bool) (w : α → ℕ) (coinWeight : Coin → ℕ)
+    (h : U × V → Bool),
+      Function.Involutive τ →
+        (∀ x, u (τ x) = u x) →
+          (∀ x, y (τ x) = !(y x)) →
+            (∀ x, w (τ x) = w x) →
+              weightedTotalMass (productWeight w coinWeight) <
+                2 * weightedCorrectMass
+                  (fun xr : α × Coin => (u xr.1, v xr.1 xr.2))
+                  (fun xr : α × Coin => y xr.1)
+                  (productWeight w coinWeight) h →
+                ∃ c, 0 < coinWeight c ∧
+                  (¬ SideInfoDeterminedBy u (fun x => v x c) ∧
+                    PositiveWeightSideInfoCollisionOverBase u
+                      (fun x => v x c) w ∧
+                    (∃ x, 0 < w x ∧ u (τ x) = u x ∧ v (τ x) c ≠ v x c) ∧
+                    (∃ x, 0 < w x ∧
+                      ¬ SourceOnlyPredicateCapturesSideEq u
+                        (fun x => v x c) (v x c)))) ∧
+  (∀ {Z Coin V : Type} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool),
+      (∀ u, y (tiInputMap u) = !(y u)) →
+        (∀ u, w (tiInputMap u) = w u) →
+          (∀ u c, 0 < w u * coinWeight c → v (tiInputMap u) c = v u c) →
+            ¬ 0 < doubledAdvantage
+                (fun xr : PostSwitchInput Z k × Coin =>
+                  (invariantProjection xr.1, v xr.1 xr.2))
+                (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+                (productWeight w coinWeight) h) ∧
+  (∀ {Z Coin V : Type} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool),
+      (∀ u, y (tiInputMap u) = !(y u)) →
+        (∀ u, w (tiInputMap u) = w u) →
+          exactInputInvariantWeightedSupport w →
+            ¬ weightedTotalMass (productWeight w coinWeight) <
+              2 * weightedCorrectMass
+                (fun xr : PostSwitchInput Z k × Coin =>
+                  (invariantProjection xr.1, v xr.1 xr.2))
+                (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+                (productWeight w coinWeight) h) ∧
+  ∀ {Z Coin V : Type} {k : ℕ} [Fintype Z] [Fintype Coin]
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool),
+      (∀ u, y (tiInputMap u) = !(y u)) →
+        (∀ u, w (tiInputMap u) = w u) →
+          weightedTotalMass (productWeight w coinWeight) <
+            2 * weightedCorrectMass
+              (fun xr : PostSwitchInput Z k × Coin =>
+                (invariantProjection xr.1, v xr.1 xr.2))
+              (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+              (productWeight w coinWeight) h →
+            ∃ c, 0 < coinWeight c ∧
+              (¬ SideInfoDeterminedBy invariantProjection (fun u => v u c) ∧
+                PositiveWeightSideInfoCollisionOverBase invariantProjection
+                  (fun u => v u c) w ∧
+                (∃ u, 0 < w u ∧
+                  invariantProjection (tiInputMap u) = invariantProjection u ∧
+                  v (tiInputMap u) c ≠ v u c) ∧
+                (∃ u, 0 < w u ∧
+                  ¬ SourceOnlyPredicateCapturesSideEq invariantProjection
+                    (fun u => v u c) (v u c)))
+
+theorem randomizedResidualCoverage :
+    RandomizedResidualCoverage := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw
+    exact
+      doubledAdvantage_randomizedResidual_le_resolvedMass
+        τ u v y w coinWeight h hτ hu hy hw
+  · intro α Coin V _Fintypeα _FintypeCoin τ v w coinWeight hunresolved
+    exact
+      randomizedResidualResolvedMass_eq_zero_of_supportwise_unresolved
+        τ v w coinWeight hunresolved
+  · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw hunresolved
+    exact
+      randomizedResidualCoverage_anchor_supportwise_unresolved_no_positive_advantage
+        τ u v y w coinWeight h hτ hu hy hw hunresolved
+  · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw hadv
+    exact
+      randomizedResidualCoverage_anchor_positive_advantage_witnesses_deterministic_coin_slice
+        τ u v y w coinWeight h hτ hu hy hw hadv
+  · intro α Coin U V _Fintypeα _FintypeCoin τ u v y w coinWeight h hτ hu hy hw hadv
+    exact
+      randomizedResidualCoverage_anchor_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+        τ u v y w coinWeight h hτ hu hy hw hadv
+  · intro Z Coin V k _FintypeZ _FintypeCoin v y w coinWeight h hy hw hunresolved
+    exact
+      randomizedResidualCoverage_anchor_postSwitch_supportwise_unresolved_no_positive_advantage
+        v y w coinWeight h hy hw hunresolved
+  · intro Z Coin V k _FintypeZ _FintypeCoin v y w coinWeight h hy hw hsupport
+    exact
+      randomizedResidualCoverage_anchor_postSwitch_exact_support_no_strict_half_advantage
+        v y w coinWeight h hy hw hsupport
+  · intro Z Coin V k _FintypeZ _FintypeCoin v y w coinWeight h hy hw hadv
+    exact
+      randomizedResidualCoverage_anchor_postSwitch_strict_half_advantage_coin_slice_forces_residual_obstruction_package
+        v y w coinWeight h hy hw hadv
+
+/-- The residual-promoted packet further extended by the fully theorem-backed
+randomized-residual collapse to deterministic coin-slice obstructions.  This
+still leaves the approximate-decorrelation and manuscript-specific `Kpoly`
+bridge repairs open. -/
+def currentPNPRandomizedResidualPromotedPacket : PNPCruxPacket where
+  covers
+    | .randomizedResidual => RandomizedResidualCoverage
+    | repair => currentPNPResidualPromotedPacket.covers repair
+
+/-- Broad repair classes still open after promoting the theorem-backed
+randomized-residual packet. -/
+def currentPNPRandomizedResidualPromotedUncoveredRepairClasses :
+    List PNPRepairClass :=
+  [.approximateDecorrelation, .kpolyCompressionBridge]
+
+/-- The randomized-residual-promoted packet extends the
+residual-side-information-promoted packet. -/
+theorem currentPNPRandomizedResidualPromotedPacket_extends_residualPromoted :
+    currentPNPRandomizedResidualPromotedPacket.Extends
+      currentPNPResidualPromotedPacket := by
+  intro repair hCurrent
+  cases repair <;> try exact hCurrent
+  case randomizedResidual =>
+    cases hCurrent
+
+/-- The randomized-residual-promoted packet still covers the broad
+residual-side-information repair class. -/
+theorem residualSideInformation_covered_currentPNPRandomizedResidualPromotedPacket :
+    currentPNPRandomizedResidualPromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    currentPNPRandomizedResidualPromotedPacket_extends_residualPromoted
+      .residualSideInformation
+      residualSideInformation_covered_currentPNPResidualPromotedPacket
+
+/-- The randomized-residual-promoted packet covers the broad randomized-
+residual repair class. -/
+theorem randomizedResidual_covered_currentPNPRandomizedResidualPromotedPacket :
+    currentPNPRandomizedResidualPromotedPacket.covers .randomizedResidual := by
+  exact randomizedResidualCoverage
+
+/-- Approximate-decorrelation repairs remain outside the randomized-residual-
+promoted packet. -/
+theorem approximateDecorrelation_uncovered_currentPNPRandomizedResidualPromotedPacket :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      .approximateDecorrelation := by
+  simp [currentPNPRandomizedResidualPromotedPacket,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The manuscript-specific `Kpoly` bridge remains outside the
+randomized-residual-promoted packet. -/
+theorem kpolyCompressionBridge_uncovered_currentPNPRandomizedResidualPromotedPacket :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      .kpolyCompressionBridge := by
+  simp [currentPNPRandomizedResidualPromotedPacket,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The randomized-residual-promoted packet is still not stop-grade because
+approximate-decorrelation repairs remain open. -/
+theorem not_stopGrade_currentPNPRandomizedResidualPromotedPacket :
+    ¬ currentPNPRandomizedResidualPromotedPacket.StopGrade := by
+  intro hstop
+  exact approximateDecorrelation_uncovered_currentPNPRandomizedResidualPromotedPacket
+    (hstop .approximateDecorrelation)
+
+/-- After promoting the randomized-residual packet, the next broad gap is the
+approximate-decorrelation route. -/
+def currentPNPRandomizedResidualPromotedNextMarginalTarget : PNPRepairClass :=
+  .approximateDecorrelation
+
+/-- The selected next target for the randomized-residual-promoted packet is
+still uncovered. -/
+theorem currentPNPRandomizedResidualPromotedNextMarginalTarget_uncovered :
+    ¬ currentPNPRandomizedResidualPromotedPacket.covers
+      currentPNPRandomizedResidualPromotedNextMarginalTarget := by
+  simp [currentPNPRandomizedResidualPromotedNextMarginalTarget,
+    currentPNPRandomizedResidualPromotedPacket,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The selected next target for the randomized-residual-promoted packet is
+one of its remaining broad gaps. -/
+theorem currentPNPRandomizedResidualPromotedNextMarginalTarget_mem_uncovered :
+    currentPNPRandomizedResidualPromotedNextMarginalTarget ∈
+      currentPNPRandomizedResidualPromotedUncoveredRepairClasses := by
+  simp [currentPNPRandomizedResidualPromotedNextMarginalTarget,
+    currentPNPRandomizedResidualPromotedUncoveredRepairClasses]
+
+/-- Strongest honest status for the randomized-residual-promoted packet: the
+residual-side-information-promoted packet is extended, broad randomized
+residual repairs are now covered in their theorem-backed sense, but
+approximate decorrelation and the manuscript-specific `Kpoly` bridge remain
+open. -/
+theorem currentPNPRandomizedResidualPromotedStatus :
+    currentPNPRandomizedResidualPromotedPacket.Extends
+        currentPNPResidualPromotedPacket ∧
+      currentPNPRandomizedResidualPromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPRandomizedResidualPromotedPacket.covers .randomizedResidual ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.covers
+        .approximateDecorrelation ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      ¬ currentPNPRandomizedResidualPromotedPacket.StopGrade := by
+  exact
+    ⟨currentPNPRandomizedResidualPromotedPacket_extends_residualPromoted,
+      residualSideInformation_covered_currentPNPRandomizedResidualPromotedPacket,
+      randomizedResidual_covered_currentPNPRandomizedResidualPromotedPacket,
+      approximateDecorrelation_uncovered_currentPNPRandomizedResidualPromotedPacket,
+      kpolyCompressionBridge_uncovered_currentPNPRandomizedResidualPromotedPacket,
+      not_stopGrade_currentPNPRandomizedResidualPromotedPacket⟩
+
+/-- The broad approximate-decorrelation repair class is covered in the precise
+theorem-backed sense that below the natural source/coin threshold,
+approximate independence of a postprocessed retained-side observation is
+already equivalent to an exact preserving coin equivalence, while the concrete
+three-coin skew witness shows that two-sided support collisions and even a
+one-sided preserving map still fail below the tolerance threshold `3`. -/
+def ApproximateDecorrelationCoverage : Prop :=
+  (∀ {Ω Coin α Side β : Type} [Fintype Ω] [Fintype Coin] [DecidableEq β]
+    (C E : Ω → Prop) [DecidablePred C] [DecidablePred E]
+    (r : Bool → Coin → α) (side : Coin → Side) (post : α × Side → β)
+    {τ : Nat},
+      τ <
+          finiteEventCount Ω (fun ω => C ω ∧ E ω) *
+            finiteEventCount Ω (fun ω => C ω ∧ ¬ E ω) *
+              Fintype.card Coin →
+        (CountIndependentWithinToleranceOutput (Ω := Ω × Coin)
+            (fun xr => C xr.1) (fun xr => E xr.1)
+            (fun xr => post (r (decide (E xr.1)) xr.2, side xr.2)) τ ↔
+          ∃ e : Coin ≃ Coin,
+            ∀ c : Coin,
+              post (r true c, side c) =
+                post (r false (e c), side (e c)))) ∧
+  (∀ {τ : Nat}, τ < 3 →
+      ((∀ cTrue : Fin 3,
+          ∃ cFalse : Fin 3,
+            postprocessedSidePointwiseCollisionSkewRecoding true cTrue =
+              postprocessedSidePointwiseCollisionSkewRecoding false cFalse) ∧
+        (∀ cFalse : Fin 3,
+          ∃ cTrue : Fin 3,
+            postprocessedSidePointwiseCollisionSkewRecoding true cTrue =
+              postprocessedSidePointwiseCollisionSkewRecoding false cFalse)) ∧
+      (∃ f : Fin 3 → Fin 3,
+        ∀ c : Fin 3,
+          postprocessedSidePointwiseCollisionSkewRecoding true c =
+            postprocessedSidePointwiseCollisionSkewRecoding false (f c)) ∧
+      ¬ CountIndependentWithinToleranceOutput (Ω := Bool × Fin 3)
+          (fun _xr => True)
+          (fun xr => xr.1 = true)
+          (fun xr =>
+            postprocessedSidePointwiseCollisionSkewRecoding xr.1 xr.2) τ)
+
+@[simp] theorem approximateDecorrelationCoverage :
+    ApproximateDecorrelationCoverage := by
+  refine ⟨?_, ?_⟩
+  · intro Ω Coin α Side β _ _ _ C E _ _ r side post τ hlt
+    exact
+      countIndependentWithinToleranceOutput_postprocessedSide_lt_sourceCoinProduct_iff_coinEquiv_preserving
+        C E r side post hlt
+  · intro τ htol
+    exact
+      postprocessedSidePointwiseCollisionSkew_collision_and_oneSidedMap_counterexample_of_lt_three
+        htol
+
+/-- The current local packet extended by the theorem-backed
+approximate-decorrelation boundary.  At this point only the manuscript-specific
+exact-visible / clocked `Kpoly` bridge remains outside the promoted packet. -/
+def currentPNPApproximateDecorrelationPromotedPacket : PNPCruxPacket where
+  covers
+    | .approximateDecorrelation => ApproximateDecorrelationCoverage
+    | repair => currentPNPRandomizedResidualPromotedPacket.covers repair
+
+/-- Broad repair classes still open after promoting the theorem-backed
+approximate-decorrelation packet. -/
+def currentPNPApproximateDecorrelationPromotedUncoveredRepairClasses :
+    List PNPRepairClass :=
+  [.kpolyCompressionBridge]
+
+/-- The approximate-decorrelation-promoted packet extends the
+randomized-residual-promoted packet. -/
+theorem currentPNPApproximateDecorrelationPromotedPacket_extends_randomizedResidualPromoted :
+    currentPNPApproximateDecorrelationPromotedPacket.Extends
+      currentPNPRandomizedResidualPromotedPacket := by
+  intro repair hCurrent
+  cases repair <;> try exact hCurrent
+  case approximateDecorrelation =>
+    cases hCurrent
+
+/-- The approximate-decorrelation-promoted packet still covers the broad
+residual-side-information repair class. -/
+theorem residualSideInformation_covered_currentPNPApproximateDecorrelationPromotedPacket :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    residualSideInformation_covered_currentPNPRandomizedResidualPromotedPacket
+
+/-- The approximate-decorrelation-promoted packet still covers the broad
+randomized-residual repair class. -/
+theorem randomizedResidual_covered_currentPNPApproximateDecorrelationPromotedPacket :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .randomizedResidual := by
+  exact randomizedResidual_covered_currentPNPRandomizedResidualPromotedPacket
+
+/-- The approximate-decorrelation-promoted packet covers the broad
+approximate-decorrelation repair class in the precise theorem-backed sense. -/
+theorem approximateDecorrelation_covered_currentPNPApproximateDecorrelationPromotedPacket :
+    currentPNPApproximateDecorrelationPromotedPacket.covers
+      .approximateDecorrelation := by
+  exact approximateDecorrelationCoverage
+
+/-- Even after promoting the theorem-backed approximate-decorrelation layer,
+the manuscript-specific `Kpoly` bridge remains outside the packet. -/
+theorem kpolyCompressionBridge_uncovered_currentPNPApproximateDecorrelationPromotedPacket :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+      .kpolyCompressionBridge := by
+  simp [currentPNPApproximateDecorrelationPromotedPacket,
+    currentPNPRandomizedResidualPromotedPacket,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The approximate-decorrelation-promoted packet is still not stop-grade
+because the manuscript-specific `Kpoly` bridge remains open. -/
+theorem not_stopGrade_currentPNPApproximateDecorrelationPromotedPacket :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.StopGrade := by
+  intro hstop
+  exact kpolyCompressionBridge_uncovered_currentPNPApproximateDecorrelationPromotedPacket
+    (hstop .kpolyCompressionBridge)
+
+/-- After promoting the approximate-decorrelation packet, the next broad gap is
+the manuscript-specific `Kpoly` bridge. -/
+def currentPNPApproximateDecorrelationPromotedNextMarginalTarget :
+    PNPRepairClass :=
+  .kpolyCompressionBridge
+
+/-- The selected next target for the approximate-decorrelation-promoted packet
+is still uncovered. -/
+theorem currentPNPApproximateDecorrelationPromotedNextMarginalTarget_uncovered :
+    ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+      currentPNPApproximateDecorrelationPromotedNextMarginalTarget := by
+  simp [currentPNPApproximateDecorrelationPromotedNextMarginalTarget,
+    currentPNPApproximateDecorrelationPromotedPacket,
+    currentPNPRandomizedResidualPromotedPacket,
+    currentPNPResidualPromotedPacket, currentPNPLocalCruxPacket]
+
+/-- The selected next target for the approximate-decorrelation-promoted packet
+is one of its remaining broad gaps. -/
+theorem currentPNPApproximateDecorrelationPromotedNextMarginalTarget_mem_uncovered :
+    currentPNPApproximateDecorrelationPromotedNextMarginalTarget ∈
+      currentPNPApproximateDecorrelationPromotedUncoveredRepairClasses := by
+  simp [currentPNPApproximateDecorrelationPromotedNextMarginalTarget,
+    currentPNPApproximateDecorrelationPromotedUncoveredRepairClasses]
+
+/-- Strongest honest status for the approximate-decorrelation-promoted packet:
+the randomized-residual-promoted packet is extended, broad residual,
+randomized-residual, and approximate-decorrelation repairs are now covered in
+their theorem-backed senses, and only the manuscript-specific `Kpoly` bridge
+remains open. -/
+theorem currentPNPApproximateDecorrelationPromotedStatus :
+    currentPNPApproximateDecorrelationPromotedPacket.Extends
+        currentPNPRandomizedResidualPromotedPacket ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .randomizedResidual ∧
+      currentPNPApproximateDecorrelationPromotedPacket.covers
+        .approximateDecorrelation ∧
+      ¬ currentPNPApproximateDecorrelationPromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      ¬ currentPNPApproximateDecorrelationPromotedPacket.StopGrade := by
+  exact
+    ⟨currentPNPApproximateDecorrelationPromotedPacket_extends_randomizedResidualPromoted,
+      residualSideInformation_covered_currentPNPApproximateDecorrelationPromotedPacket,
+      randomizedResidual_covered_currentPNPApproximateDecorrelationPromotedPacket,
+      approximateDecorrelation_covered_currentPNPApproximateDecorrelationPromotedPacket,
+      kpolyCompressionBridge_uncovered_currentPNPApproximateDecorrelationPromotedPacket,
+      not_stopGrade_currentPNPApproximateDecorrelationPromotedPacket⟩
 
 /-- Route-coverage anchor for the `Kpoly` gap: at the current abstraction
 level, a clocked exact-visible realization family is exactly an exact visible
@@ -3490,6 +4964,68 @@ theorem kpolyCoverage_anchor_not_fieldedSwitchingOnlyClockedKpolyFiniteLearningB
   not_fieldedSwitchingOnlyClockedKpolyFiniteLearningBridge_of_true_fieldedSwitching_of_surjective_predict_of_lt_predictorCard
     G hfield hsurj hs
 
+/-- Route-coverage anchor: on bit-valued latent data, once the visible width
+is at least `2`, every actual switched-history exact-visible wrapper whose
+budget stays at or below the manuscript's full-width linear threshold is
+already impossible under true fielded switching and surjectivity of the actual
+switched family. -/
+theorem kpolyCoverage_anchor_not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+    {Ω : Type u} [Fintype Ω] {n k s : ℕ} {Index : Type v} {Block : Type w}
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hs : s ≤ n + 2 * k + 1)
+    (hwidth : 2 ≤ n + 2 * k) :
+    ¬ ActualSwitchedLocalInterface.SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items :=
+  ActualSwitchedLocalInterface.not_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := T) (s := s) (hist := hist) (items := items) hfield hsurj hs hwidth
+
+/-- Route-coverage anchor: the same full-width interval obstruction holds for
+the actual switched-history clocked finite-learning wrapper. -/
+theorem kpolyCoverage_anchor_not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+    {Ω : Type u} [Fintype Ω] {n k s clock : ℕ} {Index : Type v} {Block : Type w}
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hs : s ≤ n + 2 * k + 1)
+    (hwidth : 2 ≤ n + 2 * k) :
+    ¬ ActualSwitchedLocalInterface.SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items :=
+  ActualSwitchedLocalInterface.not_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_surjective_predict_of_le_fullWidthBudget
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items)
+      hfield hsurj hs hwidth
+
+/-- Route-coverage anchor: equivalently, any such actual switched-history
+exact-visible wrapper already forces non-surjectivity of the actual switched
+family on the full bit-valued exact visible surface. -/
+theorem kpolyCoverage_anchor_not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_le_fullWidthBudget
+    {Ω : Type u} [Fintype Ω] {n k s : ℕ} {Index : Type v} {Block : Type w}
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hwrap : ActualSwitchedLocalInterface.SwitchedHistoryExactVisibleCompressionWrapper Ω T s hist items)
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hs : s ≤ n + 2 * k + 1)
+    (hwidth : 2 ≤ n + 2 * k) :
+    ¬ Function.Surjective T.predictorFamily.predict :=
+  ActualSwitchedLocalInterface.not_surjective_predict_of_switchedHistoryExactVisibleCompressionWrapper_of_true_fieldedSwitching_of_le_fullWidthBudget
+      (T := T) (s := s) (hist := hist) (items := items) hwrap hfield hs hwidth
+
+/-- Route-coverage anchor: and likewise for the actual switched-history
+clocked finite-learning wrapper on the same full-width interval. -/
+theorem kpolyCoverage_anchor_not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_le_fullWidthBudget
+    {Ω : Type u} [Fintype Ω] {n k s clock : ℕ} {Index : Type v} {Block : Type w}
+    {T : ActualSwitchedLocalInterface (BitVec n) k Index Block}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    (hwrap : ActualSwitchedLocalInterface.SwitchedHistoryClockedKpolyFiniteLearningWrapper Ω T s clock hist items)
+    (hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (hs : s ≤ n + 2 * k + 1)
+    (hwidth : 2 ≤ n + 2 * k) :
+    ¬ Function.Surjective T.predictorFamily.predict :=
+  ActualSwitchedLocalInterface.not_surjective_predict_of_switchedHistoryClockedKpolyFiniteLearningWrapper_of_true_fieldedSwitching_of_le_fullWidthBudget
+      (T := T) (s := s) (clock := clock) (hist := hist) (items := items)
+      hwrap hfield hs hwidth
+
 /-- Route-coverage anchor: the clocked exact-visible realization interface has
 the same finite predictor-image content. -/
 theorem kpolyCoverage_anchor_clockedRealization_iff_finitePredictorCover
@@ -3552,6 +5088,240 @@ def CanonicalZABERMRouteCoverage : Prop :=
         h.compressionTarget
   · intro hs
     exact h.not_surjective_predict_of_lt_surfaceCard hs
+
+/-- The broad manuscript-specific `Kpoly` bridge class is covered in the
+precise theorem-backed sense that product-bound-only and fielded-switching-only
+bridges, whether phrased as exact-visible compression or as bundled clocked
+finite-learning payload, are exactly finite predictor-image obligations; the
+parallel clocked formulations do not remove that semantic burden; and the full
+exact-visible counterexamples refute those bridge schemas below the relevant
+surface-cardinality and predictor-cardinality thresholds. -/
+def KpolyCompressionBridgeCoverage : Prop :=
+  (∀ {Ω Z : Type} [Fintype Ω] {k s : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)},
+      ProductBoundOnlyExactVisibleCompressionBridge Ω Z k s hist items ↔
+        ∀ {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index),
+          ProductBoundSemanticFiniteImageBridge Ω Z k s hist items G) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] {k s : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)},
+      FieldedSwitchingOnlyExactVisibleCompressionBridge Ω Z k s hist items ↔
+        ∀ {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index),
+          FieldedSwitchingSemanticFiniteImageBridge Ω Z k s hist items G) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)},
+      ProductBoundOnlyClockedKpolyFiniteLearningBridge Ω Z k s clock hist items ↔
+        ∀ {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index),
+          ProductBoundSemanticFiniteImageBridge Ω Z k s hist items G) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)},
+      FieldedSwitchingOnlyClockedKpolyFiniteLearningBridge Ω Z k s clock hist items ↔
+        ∀ {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index),
+          FieldedSwitchingSemanticFiniteImageBridge Ω Z k s hist items G) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    (_hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ ProductBoundOnlyClockedKpolyFiniteLearningBridge
+          Ω Z k s clock
+          ([] : List (FiniteEvent Ω)) ([] : List (V13FieldedStep Ω))) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    (_hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ FieldedSwitchingOnlyClockedKpolyFiniteLearningBridge
+          Ω Z k s clock
+          ([] : List (FiniteEvent Ω)) ([] : List (V13FieldedStep Ω))) ∧
+  (∀ {Z : Type} [Fintype Z] {k s clock : ℕ}
+    (_hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ ProductBoundOnlyClockedKpolyFiniteLearningBridge
+          (Bool × Bool) Z k s clock
+          ([] : List (FiniteEvent (Bool × Bool)))
+          [v13BoolPairUnitFieldedStep]) ∧
+  (∀ {Z : Type} [Fintype Z] {k s clock : ℕ}
+    (_hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ FieldedSwitchingOnlyClockedKpolyFiniteLearningBridge
+          (Bool × Bool) Z k s clock
+          ([] : List (FiniteEvent (Bool × Bool)))
+          [v13BoolPairUnitFieldedStep]) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index)
+    (_hprod : V13FieldedProductBoundFrom Ω hist items)
+    (_hsurj : Function.Surjective G.predict)
+    (_hs : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ ProductBoundOnlyClockedKpolyFiniteLearningBridge
+          Ω Z k s clock hist items) ∧
+  (∀ {Ω Z : Type} [Fintype Ω] [Fintype Z] {k s clock : ℕ}
+    {hist : List (FiniteEvent Ω)} {items : List (V13FieldedStep Ω)}
+    {Index : Type} (G : ExactVisibleSwitchedFamily Z k Index)
+    (_hfield : V13FieldSwitchingInstantiatedFrom hist items)
+    (_hsurj : Function.Surjective G.predict)
+    (_hs : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k)),
+      ¬ FieldedSwitchingOnlyClockedKpolyFiniteLearningBridge
+          Ω Z k s clock hist items) ∧
+  (∀ {Z : Type} [Fintype Z] {k s clock : ℕ} {Index : Type}
+    {G : ExactVisibleSwitchedFamily Z k Index},
+      ClockedKpolyFiniteLearningPayload G s clock ↔
+        G.FinitePredictorCover (2 ^ s)) ∧
+  (∀ {Z : Type} [Fintype Z] {k s clock : ℕ} {Index : Type}
+    {G : ExactVisibleSwitchedFamily Z k Index},
+      ClockedKpolyFiniteLearningPayload G s clock ↔
+        ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s)
+
+@[simp] theorem kpolyCompressionBridgeCoverage :
+    KpolyCompressionBridgeCoverage := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro Ω Z _ k s hist items
+    exact
+      kpolyCoverage_anchor_productBoundOnlyExactVisibleCompressionBridge_iff_forall_semanticFiniteImageBridge
+  · intro Ω Z _ k s hist items
+    exact
+      kpolyCoverage_anchor_fieldedSwitchingOnlyExactVisibleCompressionBridge_iff_forall_semanticFiniteImageBridge
+  · intro Ω Z _ _ k s clock hist items
+    exact
+      kpolyCoverage_anchor_productBoundOnlyClockedKpolyFiniteLearningBridge_iff_forall_semanticFiniteImageBridge
+  · intro Ω Z _ _ k s clock hist items
+    exact
+      kpolyCoverage_anchor_fieldedSwitchingOnlyClockedKpolyFiniteLearningBridge_iff_forall_semanticFiniteImageBridge
+  · intro Ω Z _ _ k s clock hs
+    exact
+      kpolyCoverage_anchor_not_productBoundOnlyClockedKpolyFiniteLearningBridge_nil_of_lt_surfaceCard
+        (Ω := Ω) (Z := Z) (k := k) (s := s) (clock := clock) hs
+  · intro Ω Z _ _ k s clock hs
+    exact
+      kpolyCoverage_anchor_not_fieldedSwitchingOnlyClockedKpolyFiniteLearningBridge_nil_of_lt_surfaceCard
+        (Ω := Ω) (Z := Z) (k := k) (s := s) (clock := clock) hs
+  · intro Z _ k s clock hs
+    exact
+      kpolyCoverage_anchor_not_productBoundOnlyClockedKpolyFiniteLearningBridge_boolPair_one_step_of_lt_surfaceCard
+        (Z := Z) (k := k) (s := s) (clock := clock) hs
+  · intro Z _ k s clock hs
+    exact
+      kpolyCoverage_anchor_not_fieldedSwitchingOnlyClockedKpolyFiniteLearningBridge_boolPair_one_step_of_lt_surfaceCard
+        (Z := Z) (k := k) (s := s) (clock := clock) hs
+  · intro Ω Z _ _ k s clock hist items Index G hprod hsurj hs
+    exact
+      kpolyCoverage_anchor_not_productBoundOnlyClockedKpolyFiniteLearningBridge_of_true_productBound_of_surjective_predict_of_lt_predictorCard
+        (G := G) (clock := clock) hprod hsurj hs
+  · intro Ω Z _ _ k s clock hist items Index G hfield hsurj hs
+    exact
+      kpolyCoverage_anchor_not_fieldedSwitchingOnlyClockedKpolyFiniteLearningBridge_of_true_fieldedSwitching_of_surjective_predict_of_lt_predictorCard
+        (G := G) (clock := clock) hfield hsurj hs
+  · intro Z _ k s clock Index G
+    exact
+      kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover
+        (G := G) (s := s) (clock := clock)
+  · intro Z _ k s clock Index G
+    exact
+      kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := G) (s := s) (clock := clock)
+
+/-- The current local packet extended by the theorem-backed blocker for the
+manuscript's remaining `Kpoly` bridge-from-product-success route.  This closes
+the current broad PNP ledger. -/
+def currentPNPKpolyCompressionBridgePromotedPacket : PNPCruxPacket where
+  covers
+    | .kpolyCompressionBridge => KpolyCompressionBridgeCoverage
+    | repair => currentPNPApproximateDecorrelationPromotedPacket.covers repair
+
+/-- The `Kpoly`-bridge-promoted packet extends the
+approximate-decorrelation-promoted packet. -/
+theorem currentPNPKpolyCompressionBridgePromotedPacket_extends_approximateDecorrelationPromoted :
+    currentPNPKpolyCompressionBridgePromotedPacket.Extends
+      currentPNPApproximateDecorrelationPromotedPacket := by
+  intro repair hCurrent
+  cases repair <;> try exact hCurrent
+  case kpolyCompressionBridge =>
+    cases hCurrent
+
+/-- The `Kpoly`-bridge-promoted packet extends the baseline current packet. -/
+theorem currentPNPKpolyCompressionBridgePromotedPacket_extends_current :
+    currentPNPKpolyCompressionBridgePromotedPacket.Extends
+      currentPNPLocalCruxPacket := by
+  intro repair hCurrent
+  exact
+    currentPNPKpolyCompressionBridgePromotedPacket_extends_approximateDecorrelationPromoted
+      repair
+      (currentPNPApproximateDecorrelationPromotedPacket_extends_randomizedResidualPromoted
+        repair
+        (currentPNPRandomizedResidualPromotedPacket_extends_residualPromoted
+          repair
+          (currentPNPResidualPromotedPacket_extends_current repair hCurrent)))
+
+/-- The `Kpoly`-bridge-promoted packet still covers the broad
+residual-side-information repair class. -/
+theorem residualSideInformation_covered_currentPNPKpolyCompressionBridgePromotedPacket :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .residualSideInformation := by
+  exact
+    residualSideInformation_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+/-- The `Kpoly`-bridge-promoted packet still covers the broad randomized
+residual repair class. -/
+theorem randomizedResidual_covered_currentPNPKpolyCompressionBridgePromotedPacket :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .randomizedResidual := by
+  exact randomizedResidual_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+/-- The `Kpoly`-bridge-promoted packet still covers the broad
+approximate-decorrelation repair class. -/
+theorem approximateDecorrelation_covered_currentPNPKpolyCompressionBridgePromotedPacket :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .approximateDecorrelation := by
+  exact
+    approximateDecorrelation_covered_currentPNPApproximateDecorrelationPromotedPacket
+
+/-- The `Kpoly`-bridge-promoted packet covers the remaining broad bridge class
+in the precise theorem-backed route-blocking sense. -/
+theorem kpolyCompressionBridge_covered_currentPNPKpolyCompressionBridgePromotedPacket :
+    currentPNPKpolyCompressionBridgePromotedPacket.covers
+      .kpolyCompressionBridge := by
+  exact kpolyCompressionBridgeCoverage
+
+/-- The `Kpoly`-bridge-promoted packet covers the original current gap list. -/
+theorem currentPNPKpolyCompressionBridgePromotedPacket_covers_current_gaps :
+    currentPNPKpolyCompressionBridgePromotedPacket.CoversList
+      currentPNPUncoveredRepairClasses := by
+  intro repair hrepair
+  simp [currentPNPUncoveredRepairClasses] at hrepair
+  rcases hrepair with rfl | rfl | rfl | rfl
+  · exact residualSideInformation_covered_currentPNPKpolyCompressionBridgePromotedPacket
+  · exact randomizedResidual_covered_currentPNPKpolyCompressionBridgePromotedPacket
+  · exact approximateDecorrelation_covered_currentPNPKpolyCompressionBridgePromotedPacket
+  · exact kpolyCompressionBridge_covered_currentPNPKpolyCompressionBridgePromotedPacket
+
+/-- The `Kpoly`-bridge-promoted packet is stop-grade for the current PNP
+ledger. -/
+theorem stopGrade_currentPNPKpolyCompressionBridgePromotedPacket :
+    currentPNPKpolyCompressionBridgePromotedPacket.StopGrade := by
+  intro repair
+  by_cases hCurrent : currentPNPLocalCruxPacket.covers repair
+  · exact
+      currentPNPKpolyCompressionBridgePromotedPacket_extends_current
+        repair hCurrent
+  · exact
+      currentPNPKpolyCompressionBridgePromotedPacket_covers_current_gaps
+        repair ((currentPNPUncoveredRepairClasses_exact repair).2 hCurrent)
+
+/-- Strongest honest status for the `Kpoly`-bridge-promoted packet: the
+approximate-decorrelation-promoted packet is extended, all currently named
+broad PNP repair classes are covered in theorem-backed form, and the packet is
+therefore stop-grade for this ledger. -/
+theorem currentPNPKpolyCompressionBridgePromotedStatus :
+    currentPNPKpolyCompressionBridgePromotedPacket.Extends
+        currentPNPApproximateDecorrelationPromotedPacket ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .residualSideInformation ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .randomizedResidual ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .approximateDecorrelation ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.covers
+        .kpolyCompressionBridge ∧
+      currentPNPKpolyCompressionBridgePromotedPacket.StopGrade := by
+  exact
+    ⟨currentPNPKpolyCompressionBridgePromotedPacket_extends_approximateDecorrelationPromoted,
+      residualSideInformation_covered_currentPNPKpolyCompressionBridgePromotedPacket,
+      randomizedResidual_covered_currentPNPKpolyCompressionBridgePromotedPacket,
+      approximateDecorrelation_covered_currentPNPKpolyCompressionBridgePromotedPacket,
+      kpolyCompressionBridge_covered_currentPNPKpolyCompressionBridgePromotedPacket,
+      stopGrade_currentPNPKpolyCompressionBridgePromotedPacket⟩
 
 /-- Route-coverage anchor: the concrete exact `(zfeat(z), a, b)`
 decision-list ERM family closes the bundled clocked finite-learning payload at
@@ -3883,6 +5653,78 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finitePredict
   boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface_not_finitePredictorCover_of_lt_surfaceCard
     (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs
 
+/-- Route-coverage anchor: the same full-rule fallback side channel has no
+finite selected-index representative cover below the exact-visible truth-table
+budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finiteIndexRepresentativeCover_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exactVisible_finiteIndexRepresentativeCover_of_surjective_predict
+      (G := (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily)
+      (N := 2 ^ s) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithFallback_surjective Z k sampleBound)
+
+/-- Route-coverage anchor: the same full-rule fallback side channel has no
+finite quotient-code presentation below the exact-visible truth-table budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finitePredictorQuotient_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exactVisible_finitePredictorQuotient_of_surjective_predict
+      (G := (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily)
+      (N := 2 ^ s) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithFallback_surjective Z k sampleBound)
+
+/-- Route-coverage anchor: the same full-rule fallback side channel has no
+exact-visible compression target below the exact-visible truth-table budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_exactVisibleCompressionTarget_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s sampleBound : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BoundedSampleFallbackIndex
+          (ExactVisiblePostSwitchSurface Z k) sampleBound)
+        (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+          Z k sampleBound).predictorFamily s := by
+  intro hcomp
+  have hcover :
+      (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+          Z k sampleBound).predictorFamily.FinitePredictorCover (2 ^ s) :=
+    (kpolyCoverage_anchor_exactVisibleCompressionTarget_iff_finitePredictorCover
+      (G := (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily)).1 hcomp
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_finitePredictorCover_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) (sampleBound := sampleBound) hs hcover
+
+/-- Route-coverage anchor: the same fallback side channel admits no clocked
+exact-visible realization below the exact-visible truth-table budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_clockedRealization_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s sampleBound clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+          Z k sampleBound).predictorFamily.RealizedByClockedBitFamily F := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exists_clockedExactVisibleRealization_of_surjective_predict_of_lt_predictorCard
+      (G := (boundedSamplePluginMajorityWithFallbackActualSwitchedLocalInterface
+        Z k sampleBound).predictorFamily)
+      (clock := clock) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithFallback_surjective Z k sampleBound)
+
 /-- Route-coverage anchor: the same fallback side channel cannot provide the
 clocked finite-learning payload below the exact-visible truth-table budget. -/
 theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallback_not_clockedPayload_of_lt_surfaceCard
@@ -3950,6 +5792,133 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_
       Function.Surjective fallback :=
   boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_zeroSample_surjective_iff_fallback_surjective
     (Z := Z) (k := k) fallback
+
+/-- Route-coverage anchor: at zero sample radius, the structured fallback
+wrapper has exactly the same finite predictor-image covers as the raw fallback
+family itself. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finitePredictorCover_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FinitePredictorCover N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FinitePredictorCover N := by
+  simpa [FallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (FallbackZeroSampleImage.finitePredictorCover_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, the structured fallback
+wrapper has exactly the same finite selected-index representative covers as
+the raw fallback family itself. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finiteIndexRepresentativeCover_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FiniteIndexRepresentativeCover N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FiniteIndexRepresentativeCover N := by
+  simpa [FallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (FallbackZeroSampleImage.finiteIndexRepresentativeCover_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, the structured fallback
+wrapper has exactly the same finite quotient-code presentations as the raw
+fallback family itself. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_finitePredictorQuotient_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} {k N : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+        FallbackIndex Z k 0 fallback).predictorFamily.FinitePredictorQuotient N ↔
+      (FallbackZeroSampleImage.fallbackFamily fallback).FinitePredictorQuotient N := by
+  simpa [FallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (FallbackZeroSampleImage.finitePredictorQuotient_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, exact visible compression of
+the wrapper is exactly exact visible compression of the raw fallback family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} {k s : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := FallbackZeroSampleImage.ZeroSampleIndex FallbackIndex Z k)
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily s ↔
+      ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := FallbackIndex)
+        (FallbackZeroSampleImage.fallbackFamily fallback) s := by
+  simpa [FallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (FallbackZeroSampleImage.exactVisibleCompressionTarget_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, clocked exact-visible
+realization of the wrapper is exactly clocked realization of the raw fallback
+family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exists_clockedExactVisibleRealization_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} {k s clock : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily.RealizedByClockedBitFamily F) ↔
+      ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (FallbackZeroSampleImage.fallbackFamily fallback).RealizedByClockedBitFamily F := by
+  simpa [FallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (FallbackZeroSampleImage.exists_clockedExactVisibleRealization_iff_fallbackFamily
+      (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) (clock := clock) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, the structured fallback
+wrapper has exactly the same clocked finite-learning payload claims as the raw
+fallback family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_clockedPayload_iff_fallbackFamily
+    {FallbackIndex : Type v} {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (fallback : FallbackIndex → ExactVisibleRule Z k) :
+    ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily s clock ↔
+      ClockedKpolyFiniteLearningPayload
+        (FallbackZeroSampleImage.fallbackFamily fallback) s clock := by
+  constructor
+  · intro hpayload
+    have hcomp :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k)
+          (Index := FallbackZeroSampleImage.ZeroSampleIndex FallbackIndex Z k)
+          (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+            FallbackIndex Z k 0 fallback).predictorFamily s :=
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily)
+        (s := s) (clock := clock)).1 hpayload
+    have hcomp' :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k) (Index := FallbackIndex)
+          (FallbackZeroSampleImage.fallbackFamily fallback) s :=
+      (kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackFamily
+        (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) fallback).1 hcomp
+    exact
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := FallbackZeroSampleImage.fallbackFamily fallback)
+        (s := s) (clock := clock)).2 hcomp'
+  · intro hpayload
+    have hcomp :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k) (Index := FallbackIndex)
+          (FallbackZeroSampleImage.fallbackFamily fallback) s :=
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := FallbackZeroSampleImage.fallbackFamily fallback)
+        (s := s) (clock := clock)).1 hpayload
+    have hcomp' :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k)
+          (Index := FallbackZeroSampleImage.ZeroSampleIndex FallbackIndex Z k)
+          (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+            FallbackIndex Z k 0 fallback).predictorFamily s :=
+      (kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackFamily
+        (FallbackIndex := FallbackIndex) (Z := Z) (k := k) (s := s) fallback).2 hcomp
+    exact
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface
+          FallbackIndex Z k 0 fallback).predictorFamily)
+        (s := s) (clock := clock)).2 hcomp'
 
 /-- Route-coverage anchor: a structured fallback family plus bounded samples
 cannot realize a rule that is farther than `sampleBound` from every fallback
@@ -4081,6 +6050,82 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithFallbackFamily_boolClassif
           (ExactVisiblePostSwitchSurface Z k) sampleBound).card :=
   boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_boolClassifierSpace_card_le_code_mul_smallSubsets_card_of_surjective
     (Z := Z) (k := k) (sampleBound := sampleBound) fallback hsurj
+
+/-- Route-coverage anchor: bit-coded structured fallback plus bounded samples
+realizes exactly the finite Hamming-radius cover around the lifted fallback
+codes. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_realizes_rule_iff_mem_fallbackFamilyRadiusCover
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k)
+    (rule : ExactVisibleRule Z k) :
+    (∃ index,
+      (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict index =
+        rule) ↔
+      rule ∈
+        PluginSampleMajority.fallbackFamilyRadiusCover
+          (fun code : ULift.{v} (BitCode fallbackBits) => fallback code.down)
+          sampleBound := by
+  simpa [boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface] using
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_realizes_rule_iff_mem_fallbackFamilyRadiusCover
+      (FallbackIndex := ULift.{v} (BitCode fallbackBits))
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fun code => fallback code.down) rule)
+
+/-- Route-coverage anchor: bit-coded structured fallback plus bounded samples
+has predictor image covered by at most one Hamming ball per bit code. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_finitePredictorCover
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k sampleBound fallbackBits fallback).predictorFamily.FinitePredictorCover
+      (2 ^ fallbackBits *
+        (PluginSampleMajority.smallSubsets
+          (ExactVisiblePostSwitchSurface Z k) sampleBound).card) := by
+  simpa [boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface,
+    card_bitCode] using
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_finitePredictorCover
+      (FallbackIndex := ULift.{v} (BitCode fallbackBits))
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fun code => fallback code.down))
+
+/-- Route-coverage anchor: bit-coded structured fallback plus bounded samples
+is surjective exactly when the lifted fallback-code Hamming cover is the full
+rule cube. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_iff_fallbackFamilyRadiusCover_eq_univ
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    Function.Surjective
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict ↔
+      PluginSampleMajority.fallbackFamilyRadiusCover
+          (fun code : ULift.{v} (BitCode fallbackBits) => fallback code.down)
+          sampleBound =
+        (Finset.univ : Finset (ExactVisibleRule Z k)) := by
+  simpa [boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface] using
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_surjective_iff_fallbackFamilyRadiusCover_eq_univ
+      (FallbackIndex := ULift.{v} (BitCode fallbackBits))
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fun code => fallback code.down))
+
+/-- Route-coverage anchor: the exact pointwise repair condition for bit-coded
+structured fallback plus bounded samples is radius-`sampleBound` coverage of
+every exact-visible rule by some fallback code. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_iff_forall_exists_disagreementSupport_card_le_sampleBound
+    {Z : Type v} [Fintype Z] {k sampleBound fallbackBits : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    Function.Surjective
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound fallbackBits fallback).predictorFamily.predict ↔
+      ∀ rule : ExactVisibleRule Z k,
+        ∃ code : BitCode fallbackBits,
+          (PluginSampleMajority.disagreementSupport (fallback code) rule).card ≤
+            sampleBound := by
+  simpa [boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface] using
+    (boundedSamplePluginMajorityWithFallbackFamilyActualSwitchedLocalInterface_surjective_iff_forall_exists_disagreementSupport_card_le_sampleBound
+      (FallbackIndex := ULift.{v} (BitCode fallbackBits))
+      (Z := Z) (k := k) (sampleBound := sampleBound)
+      (fun code => fallback code.down))
 
 /-- Route-coverage anchor: full-rule expressivity of a `fallbackBits`-bit
 structured fallback family plus bounded samples forces the explicit bit-code
@@ -4477,6 +6522,114 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjecti
   boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface_surjective_zeroSample_exactVisibleRuleDecode
     (Z := Z) (k := k)
 
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already has no finite predictor-image cover below
+the full Boolean rule cube. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finitePredictorCover_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FinitePredictorCover (2 ^ s) := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exactVisible_finitePredictorCover_of_surjective_predict
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)
+      (N := 2 ^ s) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_zeroSample_exactVisibleRuleDecode
+        (Z := Z) (k := k))
+
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already has no finite selected-index
+representative cover below the full Boolean rule cube. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finiteIndexRepresentativeCover_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FiniteIndexRepresentativeCover (2 ^ s) := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exactVisible_finiteIndexRepresentativeCover_of_surjective_predict
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)
+      (N := 2 ^ s) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_zeroSample_exactVisibleRuleDecode
+        (Z := Z) (k := k))
+
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already has no finite quotient-code presentation
+below the full Boolean rule cube. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finitePredictorQuotient_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FinitePredictorQuotient (2 ^ s) := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exactVisible_finitePredictorQuotient_of_surjective_predict
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)
+      (N := 2 ^ s) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_zeroSample_exactVisibleRuleDecode
+        (Z := Z) (k := k))
+
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already admits no exact-visible compression target
+below the truth-table bit budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_exactVisibleCompressionTarget_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitFallbackZeroSampleImage.ZeroSampleIndex
+          Z k (Fintype.card (ExactVisiblePostSwitchSurface Z k)))
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s := by
+  intro hcomp
+  have hcover :
+      (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.FinitePredictorCover
+        (2 ^ s) :=
+    (kpolyCoverage_anchor_exactVisibleCompressionTarget_iff_finitePredictorCover
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)).1 hcomp
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_finitePredictorCover_of_lt_surfaceCard
+      (Z := Z) (k := k) (s := s) hs hcover
+
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already admits no clocked exact-visible
+realization below the truth-table bit budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_exists_clockedExactVisibleRealization_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily.RealizedByClockedBitFamily F := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_exists_clockedExactVisibleRealization_of_surjective_predict_of_lt_predictorCard
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)
+      (clock := clock) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_zeroSample_exactVisibleRuleDecode
+        (Z := Z) (k := k))
+
 /-- Route-coverage anchor: with no sampled overrides, a bit-coded structured
 fallback endpoint is full-rule expressive exactly when its fallback decoder is
 full-rule expressive. -/
@@ -4489,6 +6642,130 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSamp
       Function.Surjective fallback :=
   boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface_zeroSample_surjective_iff_fallback_surjective
     (Z := Z) (k := k) (fallbackBits := fallbackBits) fallback
+
+/-- Route-coverage anchor: at zero sample radius, the wrapper has exactly the
+same finite predictor-image covers as the raw fallback decoder family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finitePredictorCover_iff_fallbackDecoderFamily
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FinitePredictorCover N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FinitePredictorCover N := by
+  simpa [BitFallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (BitFallbackZeroSampleImage.finitePredictorCover_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, finite selected-index
+representative covers of the wrapper are exactly those of the raw fallback
+decoder family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finiteIndexRepresentativeCover_iff_fallbackDecoderFamily
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FiniteIndexRepresentativeCover N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FiniteIndexRepresentativeCover N := by
+  simpa [BitFallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (BitFallbackZeroSampleImage.finiteIndexRepresentativeCover_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, finite quotient-code
+presentations of the wrapper are exactly those of the raw fallback decoder
+family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_finitePredictorQuotient_iff_fallbackDecoderFamily
+    {Z : Type v} {k fallbackBits N : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k 0 fallbackBits fallback).predictorFamily.FinitePredictorQuotient N ↔
+      (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).FinitePredictorQuotient N := by
+  simpa [BitFallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (BitFallbackZeroSampleImage.finitePredictorQuotient_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (N := N) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, exact visible compression of
+the wrapper is exactly exact visible compression of the raw fallback decoder
+family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackDecoderFamily
+    {Z : Type v} {k fallbackBits s : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitFallbackZeroSampleImage.ZeroSampleIndex Z k fallbackBits)
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily s ↔
+      ExactVisibleCompressionTarget
+        (Z := Z) (k := k)
+        (Index := BitCode fallbackBits)
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s := by
+  simpa [BitFallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (BitFallbackZeroSampleImage.exactVisibleCompressionTarget_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, clocked exact-visible
+realization of the wrapper is exactly clocked realization of the raw fallback
+decoder family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exists_clockedExactVisibleRealization_iff_fallbackDecoderFamily
+    {Z : Type v} {k fallbackBits s clock : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    (∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily.RealizedByClockedBitFamily F) ↔
+      ∃ F : ClockedBitCodeFamily (ExactVisiblePostSwitchSurface Z k) s clock,
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback).RealizedByClockedBitFamily F := by
+  simpa [BitFallbackZeroSampleImage.zeroSampleWrapperFamily] using
+    (BitFallbackZeroSampleImage.exists_clockedExactVisibleRealization_iff_fallbackDecoderFamily
+      (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) (clock := clock) fallback)
+
+/-- Route-coverage anchor: at zero sample radius, the wrapper has exactly the
+same clocked finite-learning payload claims as the raw fallback decoder family. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_clockedPayload_iff_fallbackDecoderFamily
+    {Z : Type v} [Fintype Z] {k fallbackBits s clock : ℕ}
+    (fallback : BitCode fallbackBits → ExactVisibleRule Z k) :
+    ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily s clock ↔
+      ClockedKpolyFiniteLearningPayload
+        (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s clock := by
+  constructor
+  · intro hpayload
+    have hcomp :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k)
+          (Index := BitFallbackZeroSampleImage.ZeroSampleIndex Z k fallbackBits)
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k 0 fallbackBits fallback).predictorFamily s :=
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily) (s := s) (clock := clock)).1 hpayload
+    have hcomp' :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k) (Index := BitCode fallbackBits)
+          (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s :=
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackDecoderFamily
+        (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) fallback).1 hcomp
+    exact
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := BitFallbackZeroSampleImage.fallbackDecoderFamily fallback)
+        (s := s) (clock := clock)).2 hcomp'
+  · intro hpayload
+    have hcomp :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k) (Index := BitCode fallbackBits)
+          (BitFallbackZeroSampleImage.fallbackDecoderFamily fallback) s :=
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := BitFallbackZeroSampleImage.fallbackDecoderFamily fallback)
+        (s := s) (clock := clock)).1 hpayload
+    have hcomp' :
+        ExactVisibleCompressionTarget
+          (Z := Z) (k := k)
+          (Index := BitFallbackZeroSampleImage.ZeroSampleIndex Z k fallbackBits)
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k 0 fallbackBits fallback).predictorFamily s :=
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleCompressionTarget_iff_fallbackDecoderFamily
+        (Z := Z) (k := k) (fallbackBits := fallbackBits) (s := s) fallback).2 hcomp
+    exact
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_exactVisibleCompressionTarget
+        (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 fallbackBits fallback).predictorFamily) (s := s) (clock := clock)).2 hcomp'
 
 /-- Route-coverage anchor: the canonical full truth-table fallback decoder is
 full-rule expressive for every sample bound; the empty sample is enough. -/
@@ -4512,6 +6789,42 @@ theorem kpolyCoverage_anchor_exactVisibleRuleDecode_surjective
   refine ⟨exactVisibleRuleEncode (Z := Z) (k := k) rule, ?_⟩
   simpa using exactVisibleRuleDecode_encode (Z := Z) (k := k) rule
 
+/-- Route-coverage anchor: for the canonical exact-visible truth-table
+fallback decoder, bounded sample-level plug-in majority already admits no
+clocked finite-learning payload below the full exact-visible surface
+threshold. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_clockedPayload_of_exactVisibleRuleDecode_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k sampleBound s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k sampleBound (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s clock := by
+  have hpow : 2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
+    Nat.pow_lt_pow_right Nat.one_lt_two hs
+  exact
+    not_clockedKpolyFiniteLearningPayload_of_surjective_predict_of_lt_predictorCard
+      (G := (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k sampleBound (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily)
+      (clock := clock) hpow
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_exactVisibleRuleDecode
+        (Z := Z) (k := k) (sampleBound := sampleBound))
+
+/-- Route-coverage anchor: at zero sample radius, the canonical exact-visible
+truth-table fallback decoder already admits no clocked finite-learning payload
+below the truth-table bit budget. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_zeroSample_exactVisibleRuleDecode_not_clockedPayload_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k s clock : ℕ}
+    (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ClockedKpolyFiniteLearningPayload
+        (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+          Z k 0 (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+          (exactVisibleRuleDecode (Z := Z) (k := k))).predictorFamily s clock := by
+  simpa using
+    (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_clockedPayload_of_exactVisibleRuleDecode_of_lt_surfaceCard
+      (Z := Z) (k := k) (sampleBound := 0) (s := s) (clock := clock) hs)
+
 /-- Route-coverage anchor: if a bit-coded fallback decoder is already
 full-rule expressive, then the wrapped bounded-sample endpoint cannot carry
 shared exact sparse-threshold ERM data below the point-block visible-budget
@@ -4532,6 +6845,55 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_none
   boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMData_of_fallback_surjective_of_lt_surfaceCard
     (Z := Z) (k := k) (sampleBound := sampleBound)
     (fallbackBits := fallbackBits) fallback hsurj zfeat hs
+
+/-- Route-coverage anchor: on the canonical exact-visible truth-table fallback
+decoder, the weaker manuscript-facing shared sparse-threshold ERM packet
+already fails below the unconditional point-block visible-budget threshold. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_sharedExactZABSparseThresholdERMData_of_exactVisibleRuleDecode_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k r sampleBound : ℕ}
+    (zfeat : Z → BitVec r)
+    (hs :
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) <
+        Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+            (exactVisibleRuleDecode (Z := Z) (k := k)))
+          zfeat) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_sharedExactZABSparseThresholdERMData_of_fallback_surjective_of_lt_surfaceCard
+      (k := k) (r := r) (sampleBound := sampleBound)
+      (fallbackBits := Fintype.card (ExactVisiblePostSwitchSurface Z k))
+      (exactVisibleRuleDecode (Z := Z) (k := k))
+      (kpolyCoverage_anchor_exactVisibleRuleDecode_surjective
+        (Z := Z) (k := k))
+      zfeat
+      hs
+
+/-- Route-coverage anchor: equivalently, on the canonical exact-visible
+truth-table fallback decoder, the same point-block visible-budget gap already
+rules out every extractor for the weaker manuscript-facing sparse-threshold
+ERM packet. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_sharedExactZABSparseThresholdERMData_of_exactVisibleRuleDecode_of_lt_surfaceCard
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    (hs :
+      2 * allAffinePointBlockFeatureCount (r + (k + k)) <
+        Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMData
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              Z k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+              (exactVisibleRuleDecode (Z := Z) (k := k)))
+            zfeat) := by
+  intro h
+  rcases h with ⟨zfeat, hnonempty⟩
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_sharedExactZABSparseThresholdERMData_of_exactVisibleRuleDecode_of_lt_surfaceCard
+      (k := k) (r := r) (sampleBound := sampleBound) zfeat hs hnonempty
 
 /-- Route-coverage anchor: on `BitVec n`, a bit-coded full-rule fallback side
 channel does not rescue the stronger sparse-threshold recovery packet below
@@ -4612,6 +6974,25 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_visibleW
         fallback hsurj zfeat h
 
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
+manuscript-facing sparse-threshold recovery packet already forces the
+unconditional half-width ceiling.  The fallback-side visible-width repairs are
+only concrete specializations of this surjective actual-local barrier. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_recovery
+    {n k r : ℕ} {Index : Type u} {Block : Type w}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (T : ActualSwitchedLocalInterface (BitVec n) k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q)) :
+    n ≤ 2 * r + 2 * k + 1 := by
+  rcases h with ⟨h⟩
+  exact h.visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_surjective_predict hsurj
+
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
 manuscript-facing sparse-threshold recovery packet already forces the intrinsic
 lightest-point threshold.  The fallback-side repairs are only concrete
 specializations of this surjective actual-local barrier. -/
@@ -4629,6 +7010,55 @@ theorem kpolyCoverage_anchor_surjectiveActualLocal_one_sub_apply_lightestPoint_l
     1 - μ (PMF.lightestPoint μ) ≤ q := by
   rcases h with ⟨h⟩
   exact h.one_sub_apply_lightestPoint_le_of_surjective_predict hsurj
+
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint, the
+same recovery witness must satisfy both the unconditional half-width ceiling
+and the intrinsic lightest-point threshold together. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_and_lightestPoint_threshold_of_nonempty_recovery
+    {n k r : ℕ} {Index : Type u} {Block : Type w}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (T : ActualSwitchedLocalInterface (BitVec n) k Index Block)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q)) :
+    n ≤ 2 * r + 2 * k + 1 ∧
+      1 - μ (PMF.lightestPoint μ) ≤ q := by
+  refine ⟨?_, ?_⟩
+  · exact
+      kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_recovery
+        (k := k) (r := r) T hsurj zfeat h
+  · exact
+      kpolyCoverage_anchor_surjectiveActualLocal_one_sub_apply_lightestPoint_le_of_nonempty_recovery
+        (k := k) (r := r) T hsurj zfeat h
+
+/-- Route-coverage anchor: on any finite surjective actual-local endpoint,
+violating either the unconditional half-width ceiling or the intrinsic
+lightest-point threshold already rules out the manuscript-facing sparse-
+threshold recovery packet. -/
+theorem kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
+    {n k r : ℕ} {Index : Type u} {Block : Type w}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (T : ActualSwitchedLocalInterface (BitVec n) k Index Block)
+    (q : ℝ≥0∞)
+    (hsurj : Function.Surjective T.predictorFamily.predict)
+    (hbad : 2 * r + 2 * k + 1 < n ∨ q < 1 - μ (PMF.lightestPoint μ)) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ T zfeat q) := by
+  rcases hbad with hgap | hq_lt
+  · exact
+      kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+        (n := n) (k := k) (r := r) (μ := μ) (T := T) (q := q) hsurj hgap
+  · rintro ⟨zfeat, hdata⟩
+    exact
+      ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_surjective_predict_of_lt_one_sub_apply_lightestPoint
+        (μ := μ) (T := T) (zfeat := zfeat) hsurj hq_lt hdata
 
 /-- Route-coverage anchor: below the intrinsic lightest-point threshold, no
 extractor at all can support the manuscript-facing sparse-threshold recovery
@@ -4670,6 +7100,98 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_none
           q) :=
   boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_exactVisibleRuleDecode_of_lt_one_sub_apply_lightestPoint
     (Z := Z) (k := k) (sampleBound := sampleBound) zfeat hq_lt
+
+/-- Route-coverage anchor: equivalently, below the intrinsic lightest-point
+threshold, the canonical truth-table fallback decoder admits no extractor at
+all for the manuscript-facing sparse-threshold recovery packet. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_lt_one_sub_apply_lightestPoint
+    {Z : Type v} [Fintype Z] {k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface Z k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (q : ℝ≥0∞)
+    (hq_lt : q < 1 - μ (PMF.lightestPoint μ)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              Z k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+              (exactVisibleRuleDecode (Z := Z) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_one_sub_apply_lightestPoint
+      (r := r)
+      (μ := μ)
+      (T := boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        Z k sampleBound
+        (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+        (exactVisibleRuleDecode (Z := Z) (k := k)))
+      (q := q)
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_exactVisibleRuleDecode
+        (Z := Z) (k := k) (sampleBound := sampleBound))
+      hq_lt
+
+/-- Route-coverage anchor: for the canonical exact-visible truth-table fallback
+decoder, any hypothetical recovery witness on the wrapped bounded-sample
+endpoint must satisfy the unconditional visible-width ceiling. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_recovery_of_exactVisibleRuleDecode
+    {n k r sampleBound : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            (BitVec n) k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+            (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+          zfeat
+          q)) :
+    n ≤ 2 * r + 2 * k + 1 := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_visibleWidth_le_two_mul_extractorWidth_add_two_mul_k_succ_of_nonempty_recovery
+      (k := k) (r := r)
+      (T := boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        (BitVec n) k sampleBound
+        (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+        (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_exactVisibleRuleDecode
+        (Z := BitVec n) (k := k) (sampleBound := sampleBound))
+      zfeat
+      h
+
+/-- Route-coverage anchor: for the canonical exact-visible truth-table fallback
+decoder, any hypothetical recovery witness on the wrapped bounded-sample
+endpoint must satisfy the intrinsic lightest-point threshold. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_one_sub_apply_lightestPoint_le_of_nonempty_recovery_of_exactVisibleRuleDecode
+    {Z : Type v} [Fintype Z] {k r sampleBound : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface Z k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)} {q : ℝ≥0∞}
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            Z k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface Z k))
+            (exactVisibleRuleDecode (Z := Z) (k := k)))
+          zfeat
+          q)) :
+    1 - μ (PMF.lightestPoint μ) ≤ q := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_one_sub_apply_lightestPoint_le_of_nonempty_recovery_of_fallback_surjective
+      (k := k) (r := r) (sampleBound := sampleBound)
+      (fallbackBits := Fintype.card (ExactVisiblePostSwitchSurface Z k))
+      (exactVisibleRuleDecode (Z := Z) (k := k))
+      (kpolyCoverage_anchor_exactVisibleRuleDecode_surjective
+        (Z := Z) (k := k))
+      zfeat
+      h
 
 /-- Route-coverage anchor: for the canonical exact-visible truth-table fallback
 decoder, any hypothetical recovery witness on the wrapped bounded-sample
@@ -4733,6 +7255,98 @@ theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_none
       kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_recovery_of_exactVisibleRuleDecode_of_lt_one_sub_apply_lightestPoint
         (k := k) (r := r) (sampleBound := sampleBound)
         (μ := μ) (q := q) zfeat hq_lt
+
+/-- Route-coverage anchor: on the canonical exact-visible truth-table fallback
+decoder, an unconditional visible-width gap already rules out the manuscript-
+facing sparse-threshold recovery packet. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_recovery_of_exactVisibleRuleDecode_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+    {n k r sampleBound : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    {μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k)} {q : ℝ≥0∞}
+    (zfeat : BitVec n → BitVec r)
+    (hgap : 2 * r + 2 * k + 1 < n) :
+    ¬ Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ
+          (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+            (BitVec n) k sampleBound
+            (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+            (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+          zfeat
+          q) := by
+  exact
+    kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_fallback_surjective_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+      (sampleBound := sampleBound)
+      (fallbackBits := Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+      (exactVisibleRuleDecode (Z := BitVec n) (k := k))
+      (kpolyCoverage_anchor_exactVisibleRuleDecode_surjective
+        (Z := BitVec n) (k := k))
+      μ zfeat q hgap
+
+/-- Route-coverage anchor: equivalently, on the canonical exact-visible
+truth-table fallback decoder, an unconditional visible-width gap already rules
+out every extractor for the manuscript-facing sparse-threshold recovery
+packet. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hgap : 2 * r + 2 * k + 1 < n) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              (BitVec n) k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+              (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_two_mul_extractorWidth_add_two_mul_k_succ_lt_visibleWidth
+      (n := n) (k := k) (r := r)
+      (μ := μ)
+      (T := boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        (BitVec n) k sampleBound
+        (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+        (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+      (q := q)
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_exactVisibleRuleDecode
+        (Z := BitVec n) (k := k) (sampleBound := sampleBound))
+      hgap
+
+/-- Route-coverage anchor: equivalently, on the canonical exact-visible
+truth-table fallback decoder, a visible-width gap or lightest-point deficit
+already rules out every extractor for the manuscript-facing recovery packet. -/
+theorem kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_not_exists_recovery_of_exactVisibleRuleDecode_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
+    {n k sampleBound r : ℕ}
+    [Nonempty (ExactVisiblePostSwitchSurface (BitVec n) k)]
+    (μ : PMF (ExactVisiblePostSwitchSurface (BitVec n) k))
+    (q : ℝ≥0∞)
+    (hbad : 2 * r + 2 * k + 1 < n ∨ q < 1 - μ (PMF.lightestPoint μ)) :
+    ¬ ∃ zfeat : BitVec n → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ
+            (boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+              (BitVec n) k sampleBound
+              (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+              (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+            zfeat
+            q) := by
+  exact
+    kpolyCoverage_anchor_surjectiveActualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_visibleWidth_gap_or_lt_one_sub_apply_lightestPoint
+      (n := n) (k := k) (r := r)
+      (μ := μ)
+      (T := boundedSamplePluginMajorityWithBitFallbackFamilyActualSwitchedLocalInterface
+        (BitVec n) k sampleBound
+        (Fintype.card (ExactVisiblePostSwitchSurface (BitVec n) k))
+        (exactVisibleRuleDecode (Z := BitVec n) (k := k)))
+      (q := q)
+      (kpolyCoverage_anchor_boundedSampleMajorityWithBitFallbackFamily_surjective_exactVisibleRuleDecode
+        (Z := BitVec n) (k := k) (sampleBound := sampleBound))
+      hbad
 
 /-- Route-coverage anchor: with one sampled sparse override, full-rule
 expressivity of a bit-coded structured fallback endpoint forces the concrete
@@ -4975,6 +7589,35 @@ theorem kpolyCoverage_anchor_uniformVisibleSection_transfers_observed_cover
     T.predictorFamily.FinitePredictorCover N :=
   T.predictorFamily_finitePredictorCover_of_outputFamily_finitePredictorCover
     hsec hcover
+
+/-- Route-coverage anchor: in the support-full-rule construction, a uniform
+visible section really does lift the observed block truth-table cover to the
+full exact-visible predictor family. -/
+theorem kpolyCoverage_anchor_supportFullRule_finitePredictorCover_card_of_uniformVisibleSection
+    {Z : Type v} [Fintype Z] {Block : Type v} [Fintype Block] {k : ℕ}
+    (visibleOf : Block → ExactVisiblePostSwitchSurface Z k)
+    {sec : ExactVisiblePostSwitchSurface Z k → Block}
+    (hsec :
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).HasUniformVisibleSection sec) :
+    (supportFullRuleActualSwitchedLocalInterface visibleOf).predictorFamily.FinitePredictorCover
+      (2 ^ Fintype.card Block) :=
+  supportFullRule_predictorFamily_finitePredictorCover_card_of_uniformVisibleSection
+    (Z := Z) (k := k) (Block := Block) visibleOf hsec
+
+/-- Route-coverage anchor: under the same uniform visible section, the
+observed-output bit budget lifts to a clocked finite-learning payload for the
+full exact-visible family at block cardinality. -/
+theorem kpolyCoverage_anchor_supportFullRule_clockedPayload_card_of_uniformVisibleSection
+    {Z : Type v} [Fintype Z] {Block : Type v} [Fintype Block] {k clock : ℕ}
+    (visibleOf : Block → ExactVisiblePostSwitchSurface Z k)
+    {sec : ExactVisiblePostSwitchSurface Z k → Block}
+    (hsec :
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).HasUniformVisibleSection sec) :
+    ClockedKpolyFiniteLearningPayload
+      (supportFullRuleActualSwitchedLocalInterface visibleOf).predictorFamily
+      (Fintype.card Block) clock :=
+  supportFullRule_clockedKpolyFiniteLearningPayload_card_of_uniformVisibleSection
+    (Z := Z) (k := k) (Block := Block) visibleOf hsec
 
 /-- Route-coverage anchor: in the support-full-rule construction, a uniform
 visible section forces the actual block support to be at least as large as the
@@ -5558,6 +8201,96 @@ theorem kpolyCoverage_anchor_not_finitePredictorQuotient_of_factorsThrough_of_ri
   IndexedPredictorFamily.not_finitePredictorQuotient_of_factorsThrough_of_rightInverse_of_surjective_predict
     hN hfactor hsection hsurj
 
+/-- Route-coverage anchor: a section-backed factorization through a surjective
+finite summary forces the full Boolean lower bound on predictor-image covers. -/
+theorem kpolyCoverage_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hcover : G.FinitePredictorCover N) :
+    2 ^ Fintype.card View ≤ N := by
+  by_contra hN
+  exact
+    (kpolyCoverage_anchor_not_finitePredictorCover_of_factorsThrough_of_rightInverse
+      (Nat.not_le.mp hN) hfactor hsection hsurj) hcover
+
+/-- Route-coverage anchor: the same section-backed surjective-summary lower
+bound holds for representative-index covers. -/
+theorem kpolyCoverage_anchor_finiteIndexRepresentativeCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hrep : G.FiniteIndexRepresentativeCover N) :
+    2 ^ Fintype.card View ≤ N := by
+  by_contra hN
+  exact
+    (kpolyCoverage_anchor_not_finiteIndexRepresentativeCover_of_factorsThrough_of_rightInverse
+      (Nat.not_le.mp hN) hfactor hsection hsurj) hrep
+
+/-- Route-coverage anchor: the same section-backed surjective-summary lower
+bound holds for quotient-code presentations. -/
+theorem kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+    {Index Input View : Type*} [Fintype View]
+    {G : IndexedPredictorFamily Index Input}
+    {H : IndexedPredictorFamily Index View}
+    {view : Input → View} {sec : View → Input} {N : ℕ}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hquot : G.FinitePredictorQuotient N) :
+    2 ^ Fintype.card View ≤ N := by
+  by_contra hN
+  exact
+    (kpolyCoverage_anchor_not_finitePredictorQuotient_of_factorsThrough_of_rightInverse
+      (Nat.not_le.mp hN) hfactor hsection hsurj) hquot
+
+/-- Route-coverage anchor: a section-backed factorization through a fully
+expressive finite summary forces the same full-Boolean lower bound on the
+bundled clocked finite-learning payload. -/
+theorem kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index View : Type*} [Fintype View]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    2 ^ Fintype.card View ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+      hfactor hsection hsurj
+      ((kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover).1 hpayload)
+
+/-- Route-coverage anchor: the same section-backed surjective-summary lower
+bound already refutes the bundled clocked finite-learning payload below the
+summary Boolean image size. -/
+theorem kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_factorsThrough_of_rightInverse_of_surjective_predict_of_lt_card
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index View : Type*} [Fintype View]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (hs : 2 ^ s < 2 ^ Fintype.card View)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hsurj : Function.Surjective H.predict) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  intro hpayload
+  exact
+    (Nat.not_le_of_gt hs)
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_surjective_predict
+        hfactor hsection hsurj hpayload)
+
 /-- Route-coverage anchor: finite predictor-image covers cannot rescue an
 exact family that factors through `(a,b)` when the reduced family is still
 fully expressive and the cover is below the reduced Boolean classifier-space
@@ -5693,6 +8426,43 @@ theorem kpolyCoverage_anchor_finitePredictorCover_card_le_of_surjective_predict
   IndexedPredictorFamily.finitePredictorCover_card_le_of_surjective_predict
     hsurj hcover
 
+/-- Route-coverage anchor: representative-index covers obey the same generic
+full-Boolean lower bound under surjectivity. -/
+theorem kpolyCoverage_anchor_finiteIndexRepresentativeCover_card_le_of_surjective_predict
+    {Index Input : Type*} [Fintype Input]
+    {G : IndexedPredictorFamily Index Input} {N : ℕ}
+    (hsurj : Function.Surjective G.predict)
+    (hrep : G.FiniteIndexRepresentativeCover N) :
+    2 ^ Fintype.card Input ≤ N := by
+  have hcover : G.FinitePredictorCover N :=
+    (kpolyCoverage_anchor_finitePredictorCover_iff_finiteIndexRepresentativeCover).2 hrep
+  exact kpolyCoverage_anchor_finitePredictorCover_card_le_of_surjective_predict hsurj hcover
+
+/-- Route-coverage anchor: quotient-code presentations obey the same generic
+full-Boolean lower bound under surjectivity. -/
+theorem kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_surjective_predict
+    {Index Input : Type*} [Fintype Input]
+    {G : IndexedPredictorFamily Index Input} {N : ℕ}
+    (hsurj : Function.Surjective G.predict)
+    (hquot : G.FinitePredictorQuotient N) :
+    2 ^ Fintype.card Input ≤ N := by
+  have hcover : G.FinitePredictorCover N :=
+    (kpolyCoverage_anchor_finitePredictorCover_iff_finitePredictorQuotient).2 hquot
+  exact kpolyCoverage_anchor_finitePredictorCover_card_le_of_surjective_predict hsurj hcover
+
+/-- Route-coverage anchor: a fully expressive exact-visible family forces the
+bundled clocked finite-learning payload to budget at least the full Boolean
+image size. -/
+theorem kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_surjective_predict
+    {Z : Type*} [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_finitePredictorCover_card_le_of_surjective_predict hsurj
+      ((kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover).1 hpayload)
+
 /-- Route-coverage anchor: finite predictor-image covers must be at least as
 large as any injectively indexed finite probe family already realized by the
 indexed predictors. -/
@@ -5732,6 +8502,22 @@ theorem kpolyCoverage_anchor_finitePredictorQuotient_card_le_of_injective_realiz
     Fintype.card Probe ≤ N :=
   IndexedPredictorFamily.finitePredictorQuotient_card_le_of_injective_realization
     target hinj hreal hquot
+
+/-- Route-coverage anchor: any injectively realized finite probe family also
+forces the bundled clocked finite-learning payload to budget at least the
+realized probe cardinality. -/
+theorem kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_injective_realization
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ} {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (target : Probe → ExactVisiblePostSwitchSurface Z k → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, G.predict i = target p)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    Fintype.card Probe ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_finitePredictorCover_card_le_of_injective_realization
+      target hinj hreal
+      ((kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover).1 hpayload)
 
 /-- Route-coverage anchor: if an indexed family factors through a section-backed
 reduced view, finite predictor-image covers inherit every injective finite-probe
@@ -5835,6 +8621,50 @@ theorem kpolyCoverage_anchor_not_finitePredictorQuotient_of_factorsThrough_of_ri
     ¬ G.FinitePredictorQuotient N :=
   IndexedPredictorFamily.not_finitePredictorQuotient_of_factorsThrough_of_rightInverse_of_injective_realization_of_lt_card
     target hinj hreal hN hfactor hsection
+
+/-- Route-coverage anchor: section-backed pullbacks preserve injective
+finite-probe lower bounds for the bundled clocked finite-learning payload. -/
+theorem kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_injective_realization
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ}
+    {Index View : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (target : Probe → View → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, H.predict i = target p)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view)
+    (hpayload : ClockedKpolyFiniteLearningPayload G s clock) :
+    Fintype.card Probe ≤ 2 ^ s := by
+  exact
+    kpolyCoverage_anchor_finitePredictorCover_card_le_of_factorsThrough_of_rightInverse_of_injective_realization
+      target hinj hreal hfactor hsection
+      ((kpolyCoverage_anchor_clockedFiniteLearningPayload_iff_finitePredictorCover).1 hpayload)
+
+/-- Route-coverage anchor: the same section-backed finite-probe lower bound
+already refutes the bundled clocked finite-learning payload below the realized
+probe cardinality. -/
+theorem kpolyCoverage_anchor_not_clockedFiniteLearningPayload_of_factorsThrough_of_rightInverse_of_injective_realization_of_lt_card
+    {Probe Z : Type*} [Fintype Probe] [Fintype Z] {k s clock : ℕ}
+    {Index View : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {H : IndexedPredictorFamily Index View}
+    {view : ExactVisiblePostSwitchSurface Z k → View}
+    {sec : View → ExactVisiblePostSwitchSurface Z k}
+    (target : Probe → View → Bool)
+    (hinj : Function.Injective target)
+    (hreal : ∀ p, ∃ i, H.predict i = target p)
+    (hs : 2 ^ s < Fintype.card Probe)
+    (hfactor : G.FactorsThrough view H)
+    (hsection : Function.RightInverse sec view) :
+    ¬ ClockedKpolyFiniteLearningPayload G s clock := by
+  intro hpayload
+  exact
+    (Nat.not_le_of_gt hs)
+      (kpolyCoverage_anchor_clockedFiniteLearningPayload_card_le_of_factorsThrough_of_rightInverse_of_injective_realization
+        target hinj hreal hfactor hsection hpayload)
 
 /-- Route-coverage anchor: a fully expressive exact visible family has no finite
 predictor-image cover below the full exact visible Boolean classifier space. -/
