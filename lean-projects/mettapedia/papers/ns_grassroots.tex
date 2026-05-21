@@ -1217,6 +1217,24 @@ contains its own abstract \texttt{gamma}-bound escape hatch either; the
 remaining sampled obstruction burden moves past the specialization step and
 into later descendants.
 
+Lean now also records a separate incoherence in the current scalar
+component-shadow surface.  In
+\texttt{NavierStokesComponentShadowIncoherence.lean},
+\texttt{componentShadowZeroOutput} shows that if one coordinate of the initial
+velocity vanishes, the scalar component clause can be inhabited by the zero
+scalar field even though the initial-condition slot is witnessed by a different
+time-independent vector field.  The theorem
+\texttt{componentFeffermanClause\_without\_concreteClause\_constantInitialVelocity}
+specializes this to nonzero constant initial data with one zero coordinate:
+the scalar component clause holds, while the full concrete vector-valued
+Navier--Stokes clause is false by the whole-space bounded-energy obstruction
+for nonzero constants.  Consequently
+\texttt{not\_componentFeffermanClause\_implies\_concreteNavierStokesGlobalRegularityClause}
+rules out a universal bridge from the present scalar component shadow back to
+the concrete vector theorem surface.  Any repaired component route must carry a
+shared vector witness or an equivalent coherence condition; the current
+per-slot existential shadow is too weak.
+
 \section{Why This Matters}
 
 The value of this kernel is not that it proves a Millennium problem.  The value
