@@ -118,6 +118,27 @@ def WeightedObservable.windowedColeHopfHeatSharedPackage
     (smoothWindowCutoff_abs_le_inv_forall hc)
     curlFrame curlBound curlBound_nonneg hcurl
 
+/-- The same concrete windowed heat package, but built from a componentwise
+curl-frame bound instead of an abstract `gamma`-energy hypothesis. -/
+def WeightedObservable.windowedColeHopfHeatSharedPackage_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound) :
+    SharedApproximationPackage (Time := NNReal) (ι := ι) (X := X)
+      radiusSq (matchingObservable L) :=
+  L.geometricColeHopfHeatApproximation_of_componentwise_abs_le
+    selector ν c⁻¹ hν (by positivity)
+    (smoothWindowCutoff c)
+    (continuous_smoothWindowCutoff c)
+    (smoothWindowCutoff_abs_le_inv_forall hc)
+    curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl
+
 /-- The corresponding concrete uniform vorticity tendril at base state `x`. -/
 def WeightedObservable.windowedColeHopfHeatUniformVorticityTendril
     (L : WeightedObservable)
@@ -134,6 +155,24 @@ def WeightedObservable.windowedColeHopfHeatUniformVorticityTendril
   (L.windowedColeHopfHeatSharedPackage
     (ι := ι) (X := X)
     selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl).toUniformVorticityTendril x
+
+/-- The corresponding concrete uniform vorticity tendril built from a
+componentwise curl-frame bound. -/
+def WeightedObservable.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    UniformVorticityTendril (Time := NNReal) (X := X) :=
+  (L.windowedColeHopfHeatSharedPackage_of_componentwise_abs_le
+    (ι := ι) (X := X)
+    selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl).toUniformVorticityTendril x
 
 theorem WeightedObservable.windowedColeHopfHeat_abs_vorticity_le_uniform
     (L : WeightedObservable)
@@ -157,6 +196,29 @@ theorem WeightedObservable.windowedColeHopfHeat_abs_vorticity_le_uniform
     (L.windowedColeHopfHeatUniformVorticityTendril
       (ι := ι) (X := X)
       selector c ν hc hν curlFrame curlBound curlBound_nonneg hcurl x).abs_vorticity_le_uniform
+
+theorem WeightedObservable.windowedColeHopfHeat_abs_vorticity_le_uniform_of_componentwise_abs_le
+    (L : WeightedObservable)
+    (selector : ι → ℕ)
+    (c ν : ℝ)
+    (hc : 0 < c)
+    (hν : 0 < ν)
+    (curlFrame : ι → X → ℝ)
+    (curlComponentBound : ℝ)
+    (hcurlComponentBound_nonneg : 0 ≤ curlComponentBound)
+    (hcurl : ∀ x i, |curlFrame i x| ≤ curlComponentBound)
+    (x : ModeState) :
+    ∀ t y,
+      |(L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).vorticity t y| ≤
+      (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+        (ι := ι) (X := X)
+        selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).envelope := by
+  exact
+    (L.windowedColeHopfHeatUniformVorticityTendril_of_componentwise_abs_le
+      (ι := ι) (X := X)
+      selector c ν hc hν curlFrame curlComponentBound hcurlComponentBound_nonneg hcurl x).abs_vorticity_le_uniform
 
 end WindowedColeHopfHeatPackage
 
