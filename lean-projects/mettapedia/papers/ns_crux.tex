@@ -120,6 +120,9 @@ The Navier--Stokes Lean work currently lives in:
   \item \texttt{FluidDynamics/NavierStokes/FeffermanTargetBack.lean},
   \item \texttt{FluidDynamics/NavierStokes/FeffermanTopDownBridge.lean},
   \item \texttt{FluidDynamics/NavierStokes/NavierStokesEquationTarget.lean},
+  \item \texttt{FluidDynamics/NavierStokes/NavierStokesComponentShadowIncoherence.lean},
+  \item \texttt{FluidDynamics/NavierStokes/NavierStokesSharedWitnessComponent.lean},
+  \item \texttt{FluidDynamics/NavierStokes/NavierStokesSharedWitnessBridgeObstruction.lean},
   \item \texttt{FluidDynamics/NavierStokes/FeffermanCompatibilityFrontier.lean},
   \item \texttt{FluidDynamics/NavierStokes/FeffermanWeakSelfModel.lean},
   \item \texttt{FluidDynamics/NavierStokes/FeffermanSeededSelfModel.lean},
@@ -173,6 +176,7 @@ The Navier--Stokes Lean work currently lives in:
   \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSaturatedShiftKernelIdentitySampleSpecialization.lean},
   \item \texttt{FluidDynamics/NavierStokes/WindowedColeHopfHeatSaturatedIdentitySampleKernelObstruction.lean},
   \item \texttt{FluidDynamics/NavierStokes/IdentityEnergy.lean},
+  \item \texttt{FluidDynamics/NavierStokes/ColeHopfPositiveLowerBound.lean},
   \item \texttt{FluidDynamics/NavierStokes/ColeHopfInterface.lean},
   \item \texttt{FluidDynamics/NavierStokes/KernelSemigroupInterface.lean}.
 \end{enumerate}
@@ -553,6 +557,55 @@ and proves:
 
 So the finite algebraic spine of the identity-only bound is already Lean-backed.
 
+\subsection{Cole--Hopf Positivity Gate}
+
+The manuscript's Appendix B log-chain and HJB conversion steps are not just
+formal heat-equation algebra: they require a strictly positive heat field at
+the log transform.  The new module
+\texttt{ColeHopfPositiveLowerBound.lean} records this as an explicit Lean gate.
+It proves that every \texttt{ColeHopfIdentityData} package has
+\(\Phi(t)>0\) at every time and, conversely, that if a proposed heat field has
+\(\Phi(t_0)\le 0\), then no \texttt{ColeHopfIdentityData} package with that
+field exists.  The zero-valued corollary is
+\texttt{not\_exists\_ColeHopfIdentityData\_of\_zero\_phi}.
+The same module now closes the next natural repair attempt as well:
+\texttt{HasArbitrarilySmallColeHopfValues} says that for every \(m>0\) some
+value of \(\Phi\) lies below \(m\), and
+\texttt{not\_exists\_ColeHopfIdentityData\_of\_arbitrarilySmall\_phi} proves
+that no identity-level Cole--Hopf package can use such a field.  The regression
+suite includes a concrete strictly positive example, \(\Phi(x)=x\) on the
+positive real ray, whose values are nevertheless arbitrarily close to zero.
+
+The newest quotient-level result targets a stronger creative repair.  Suppose
+one keeps pointwise positivity but lets \(\Phi\) approach zero, while a scalar
+derivative \(d\Phi\) stays bounded below in absolute value by some \(a>0\).
+Lean proves that \(|d\Phi/\Phi|\) then exceeds every real threshold somewhere,
+and that the corresponding one-direction finite \(\gamma\)-energy has no
+uniform real bound.  Thus a repair that drops the uniform positive lower bound
+cannot still reuse the manuscript's identity-energy estimate merely by
+asserting pointwise positivity; it would also need a real theorem forcing the
+relevant derivatives to vanish at least proportionally to \(\Phi\) near every
+near-zero point.
+
+That last sentence is now Lean-backed as a necessary condition, not just a
+diagnosis.  The theorem
+\texttt{abs\_derivative\_arbitrarilySmall\_of\_uniform\_abs\_logDerivative\_bound}
+proves that if \(\Phi>0\), \(\Phi\) has arbitrarily small values, and
+\(|d\Phi/\Phi|\) is uniformly bounded, then \(d\Phi\) has arbitrarily small
+absolute values.  Consequently
+\texttt{not\_exists\_absDerivativeLowerBound\_of\_uniform\_abs\_logDerivative\_bound}
+rules out any uniform positive lower bound on \(|d\Phi|\).  The positive-ray
+regression \(d\Phi=\Phi=x\) shows that this proportional-vanishing condition is
+logically coherent at the quotient layer, so it is the next real analytic
+obligation rather than a free repair.
+
+This is a modest but hard-edged repair blocker.  Replacing strict positivity
+by nonnegativity does not preserve the checked route, and neither does
+replacing uniform positivity by pointwise positivity.  A single zero value, or
+strictly positive values with no uniform lower bound, already prevents the field
+from entering the identity-level Cole--Hopf interface; with a nonvanishing
+derivative lower bound, the denominator quotient itself becomes unbounded.
+
 \subsection{Abstract Cole--Hopf/Vorticity Interface}
 
 In \texttt{ColeHopfInterface.lean}, the finite identity-energy algebra is
@@ -672,6 +725,58 @@ associated \texttt{FeffermanPredicateKit}.  So the current route is now pinned
 against an actual PDE-side target, but only through its scalar component
 shadow.
 
+The new file \texttt{NavierStokesComponentShadowIncoherence.lean} makes the
+main weakness of that shadow explicit.  The theorem
+\texttt{componentShadowZeroOutput} proves that if one component of the initial
+datum vanishes identically, then the current component predicate kit is already
+inhabited by the zero scalar field: smoothness, PDE, incompressibility, and
+bounded energy are witnessed by the zero vector field, while the initial
+condition is witnessed separately by the time-independent seed of the full
+initial datum.  So the present scalar shadow does not encode one coherent
+vector-valued NS witness.  The same file then specializes this to nonzero
+constant initial data with one vanishing coordinate and proves
+\texttt{componentFeffermanClause\_without\_concreteClause\_constantInitialVelocity}:
+the scalar component clause is true while the full concrete vector-valued
+clause is false by the whole-space kinetic-energy obstruction.  Lean now also
+packages the datum-uniform failure as
+\texttt{not\_componentFeffermanClause\_implies\_concreteNavierStokesGlobalRegularityClause}:
+there is no theorem from one current scalar component shadow back to the full
+concrete vector-valued clause.  This is a real route-level blocker, not just a
+typing annoyance: any repair of the current scalar Fefferman bridge has to
+supply a shared vector witness across all slots, not merely separate existential
+lifts for each scalar predicate.
+
+The follow-up file \texttt{NavierStokesSharedWitnessComponent.lean} packages
+that missing burden explicitly.  It defines a shared-witness component clause
+whose witness is one concrete vector-valued NS solution together with one chosen
+scalar coordinate, and Lean proves
+\texttt{sharedWitnessComponentRegularityClause\_iff\_globalClause}: this
+shared-witness clause is exactly equivalent to the full vector-valued concrete
+NS clause.  The same file then combines that equivalence with the previous
+constant-data counterexample and proves
+\texttt{componentFeffermanClause\_without\_sharedWitnessComponentClause\_constantInitialVelocity}:
+the current scalar component shadow still does not imply even the weakest
+coherent ``one shared vector witness'' repair.  So any same-route rescue now
+has to add genuinely new coupling structure beyond the present
+\texttt{toComponentPredicateKit}; reinterpreting the existing scalar shadow as a
+coherent vector witness is formally blocked.
+
+The next file \texttt{NavierStokesSharedWitnessBridgeObstruction.lean} packages
+the stronger theorem-surface consequence.  For each fixed coordinate
+\(i \in \{0,1,2\}\), Lean proves that there is no datum-uniform bridge theorem
+from the current scalar shadow clause
+\texttt{FeffermanGlobalRegularityClause (toComponentPredicateKit P i)} to the
+coherent shared-witness clause.  The obstruction theorems
+\texttt{not\_uniform\_componentShadowBridge\_to\_sharedWitnessComponent\_nsCoord0},
+\texttt{...nsCoord1}, and \texttt{...nsCoord2} use constant initial data pointing
+in a different coordinate; the summary theorem
+\texttt{not\_uniform\_componentShadowBridge\_to\_sharedWitnessComponent} then
+shows there is no coordinate-uniform upgrade theorem either.  This sharpens the
+route blocker again: Ben does not just need a better interpretation on a bad
+datum, he needs genuinely new structure because the current component-shadow API
+cannot support any theorem of the required form even when the coordinate is
+fixed in advance.
+
 The next small but real strengthening is that one operator is no longer merely
 named.  In the partially concrete constructor
 \texttt{mkWithConcreteDivergence}, the divergence slot is fixed to the trace of
@@ -763,6 +868,50 @@ plus the corresponding coordinate-derivative facts and concrete vorticity
 identities (zero field and scalar-multiplication commutation).  This is
 meant as curriculum-style material with independent value, not more interface
 packaging.
+The same concrete file now also proves exact pointwise vorticity-norm formulas
+for steady linear shear, damped heat shear, transported heat shear, and the
+transported full-drift heat-shear family.  In particular, Lean has the reusable
+phase-independent envelope bounds
+\texttt{norm\_spatialVorticity\_heatShearVelocityField\_le\_exp\_abs},
+\texttt{norm\_spatialVorticity\_heatShearTransportVelocityField\_le\_exp\_abs},
+and
+\texttt{norm\_spatialVorticity\_heatShearTransportFullDriftVelocityField\_le\_exp\_abs}.
+These keep the damping factor
+\(\exp(-(\nu k^2)t)\) rather than immediately collapsing the estimate to a
+coarser slab constant, so later BKM-envelope work can cite a concrete
+\(\mathbb{R}^3\) curl calculation instead of reproving the trigonometric
+bound inside each continuation shell.
+That citation path is now present in the BKM layer itself: the definition
+\texttt{heatShearExpVorticityEnvelope} records the damped scalar envelope, and
+\texttt{heatShearVelocityField\_has\_expBKMEnvelope},
+\texttt{heatShearTransportVelocityField\_has\_expBKMEnvelope}, and
+\texttt{heatShearTransportFullDriftVelocityField\_has\_expBKMEnvelope} package
+it as integrable BKM data on every nonnegative slab when \(\nu\ge 0\).  The
+integral bound is still the coarse \(T|ak|\), so this is not a new continuation
+theorem; it is a sharper, reusable route from explicit curl computation to the
+existing BKM-envelope interface.
+That coarse-budget limitation is now removed for the nondegenerate damped
+branch.  Lean proves the exact interval integral
+\[
+  \int_0^T |a|\,\exp(-(\nu k^2)t)\,|k|\,dt
+  = |a|\,|k|\,\frac{1-\exp(-(\nu k^2)T)}{\nu k^2}
+\]
+when \(T\ge 0\), \(\nu>0\), and \(k\ne 0\), and packages the pure,
+transported, and transported full-drift heat-shear candidates with this exact
+BKM budget through the corresponding
+\texttt{\_has\_exactExpBKMEnvelope} theorems.  This is still not analytic
+continuation progress; it says the heat-shear obstruction below does not depend
+on the earlier coarse integral estimate either.
+The energy/BKM bridge now consumes this sharper package in its obstruction
+statements as well.  The theorems
+\texttt{heatShearVelocityField\_has\_expBKMEnvelope\_but\_not\_energyBKMBridge\_kineticIntegrabilityOnSlab}
+and
+\texttt{heatShearTransportFullDriftVelocityField\_has\_expBKMEnvelope\_but\_not\_energyBKMBridge\_kineticIntegrabilityOnSlab}
+show that the pure and transported full-drift heat-shear candidates can carry
+the damped BKM envelope itself while still failing the corrected energy/BKM
+bridge's kinetic-integrability input.  The obstruction is not a weak choice of
+constant envelope; it is the time-zero finite-energy mismatch of the matched
+whole-space initial datum.
 
 The next file, \texttt{NavierStokesUniformVorticityContinuationTarget.lean},
 adds the first concrete analytic bridge surface on top of that literal theorem.
@@ -932,12 +1081,66 @@ already agrees with the forbidden constant one.  Concretely,
 \texttt{not\_boundedKineticEnergyUpTo\_of\_matchesInitialVelocity\_constantInitialVelocity},
 and \texttt{not\_boundedKineticEnergy\_of\_matchesInitialVelocity\_constantInitialVelocity}
 push the obstruction from the special ansatz \(u(t,x) \equiv c\) to any field
-with nonzero constant initial slice.  Consequently
+with nonzero constant initial slice.  The same whole-space energy gate is now
+also factored through the reusable concrete theorems
+\texttt{not\_boundedKineticEnergyUpTo\_of\_not\_integrable\_kineticEnergyDensity\_zero}
+and
+\texttt{not\_boundedKineticEnergy\_of\_not\_integrable\_kineticEnergyDensity\_zero},
+plus the matched-data contrapositive
+\texttt{not\_boundedKineticEnergyUpTo\_of\_matchesInitialVelocity\_of\_not\_finiteInitialKineticEnergy}.
+So the constant, heat-shear, transported heat-shear, and linear-shear
+matched-data bounded-energy obstructions on this surface are now corollaries of
+one concrete time-zero integrability blocker rather than separately re-running
+the same slab-energy extraction argument.  Consequently
 \texttt{not\_nonempty\_ExplicitFiniteTimeRegularityWitness\_constantInitialVelocity},
 \texttt{not\_ExplicitConcreteNavierStokesGlobalOutput\_constantInitialVelocity},
 and \texttt{not\_ExplicitConcreteNavierStokesRegularityClause\_constantInitialVelocity}
 show that the current explicit witness, global-output, and regularity-clause
 surfaces all honestly reject nonzero constant initial data on \(\mathbb{R}^3\).
+The new module \texttt{NavierStokesConstantFieldWitnessObstruction.lean} now
+pushes that same point down to the exact finite-time witness surface itself.
+For any smooth time-only pressure gauge \(p(t,x)=\pi(t)\), Lean proves that the
+pair \((u,p)\) with \(u(t,x)\equiv c\neq 0\) satisfies every witness field
+except bounded energy: smoothness, the slab momentum equation, incompressibility,
+and the initial condition are all available literally on
+\(\mathbb{R}\times\mathbb{R}^3\).  But
+\texttt{not\_exists\_constantVelocityField\_finiteTimeWitness\_of\_nonzero} and
+its time-only-pressure corollary show that no
+\texttt{ExplicitFiniteTimeRegularityWitness} can carry that exact velocity.
+So the constant-field route does not fail because of a missing pressure choice
+or a hidden PDE identity; it fails exactly at the whole-space
+\texttt{bounded\_energy\_on} slot.
+Lean now also packages the exact classification theorem on this concrete
+ansatz.  On any nonnegative slab,
+\texttt{constantVelocityField\_finiteTimeWitness\_iff\_zero\_and\_spatialPressureGradient\_zero}
+shows that a witness with velocity \(u(t,x)\equiv c\) and fixed smooth
+pressure \(p\) exists if and only if \(c=0\) and the spatial pressure gradient
+vanishes on the slab.  So even on the most favorable steady exact field, the
+whole-space witness surface collapses all the way back to the zero-data
+pressure-gauge case.
+Lean now also packages the stronger type-level boundary:
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_constantInitialVelocity\_iff}
+shows that on any nonnegative slab the entire witness type for constant initial
+data \(u_0(x)\equiv c\) is inhabited if and only if \(c=0\).  So there is no
+creative escape through a nonconstant evolving witness with the same initial
+slice; the whole constant-initial-data route collapses exactly to the zero
+datum.
+Lean now also pushes this exact boundary down to the repaired whole-space
+energy gate itself.  \texttt{finiteInitialKineticEnergy\_constantInitialVelocity\_iff}
+shows that constant initial data have finite initial kinetic energy if and only
+if \(c=0\).  So the constant family now collapses exactly already at the
+whole-space finite-energy surface, not only at the witness and route-facing
+theorem layers.
+Lean now pushes that same exact boundary onto the route-facing theorem
+surfaces.  \texttt{ExplicitConcreteNavierStokesGlobalOutput\_constantInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_constantInitialVelocity\_iff},
+and \texttt{concreteNavierStokesGlobalRegularityClause\_constantInitialVelocity\_iff}
+show that the explicit global-output surface, the unrepaired explicit
+regularity clause, and the fully concrete structured clause all hold for
+constant initial data if and only if \(c=0\) (for the latter two, at positive
+viscosity where those clause surfaces are stated).  So the constant-initial-data
+route is now exact not only on the candidate and witness layers, but also on
+the concrete theorem surfaces the proof attempt would actually need to inhabit.
 Lean now also contains the first genuinely nonconstant version of the same
 obstruction.  The vector-calculus layer introduces
 \texttt{linearShearMap}, \texttt{linearShearInitialVelocity}, and the actual
@@ -1083,6 +1286,391 @@ Lean now also packages the positive converse for fixed concrete data:
 once viscosity positivity, initial smoothness, and initial divergence-freeness
 are fixed, inhabiting the repaired structured input surface is equivalent to
 having finite initial kinetic energy.
+Lean now also pushes that input exclusion down to the corrected
+energy/continuation bridge itself.  In
+\texttt{NavierStokesEnergyContinuationBridge.lean},
+\texttt{finiteInitialKineticEnergy\_of\_matchesInitialVelocity\_of\_kineticIntegrabilityOnSlab}
+shows that the bridge's raw slab kinetic-integrability input already forces
+finite initial energy for matched data on any nonnegative slab, and
+\texttt{not\_energyContinuationBridge\_kineticIntegrabilityOnSlab\_of\_matchesInitialVelocity\_of\_not\_finiteInitialKineticEnergy}
+packages the contrapositive.  So the whole-space obstruction no longer appears
+only after the bridge has produced \texttt{boundedKineticEnergyUpTo}; for
+non-finite-energy data the bridge cannot even be instantiated.  The concrete
+theorem
+\texttt{constantVelocityField\_has\_coordinateEnergyIdentity\_but\_not\_energyContinuationBridge\_kineticIntegrabilityOnSlab}
+makes this exact on the constant-field ansatz: the corrected coordinate energy
+identity still holds, but the bridge's time-zero kinetic-integrability input
+does not.
+Lean now also makes that bridge input exact on stationary seeds.
+\texttt{kineticIntegrabilityOnSlab\_timeIndependentVelocity\_iff} identifies
+the slab kinetic-integrability hypothesis for \texttt{timeIndependentVelocity
+\;u\_0} with \texttt{finiteInitialKineticEnergy \;u\_0}, and
+\texttt{kineticIntegrabilityOnSlab\_constantVelocityField\_iff} collapses the
+constant-field case all the way down to \texttt{c = 0}.  So on the seed family
+the route actually uses, there is no residual flexibility in the bridge input:
+whole-space finite energy is exactly the gate.
+Lean now makes the actual bounded-energy witness slot exact on that same
+stationary-seed family.  \texttt{boundedKineticEnergyUpTo\_timeIndependentVelocity\_iff}
+identifies the finite-time bounded-energy predicate for
+\texttt{timeIndependentVelocity \;u\_0} with
+\texttt{finiteInitialKineticEnergy \;u\_0}, and
+\texttt{boundedKineticEnergyUpTo\_constantVelocityField\_iff} again collapses
+the constant-field case to \texttt{c = 0}.  So there is no remaining gap
+between the bridge input and the witness slot on stationary seeds: both exact
+surfaces are the same whole-space finite-energy gate.
+Lean now also folds that gate into the full stationary-seed witness theorem
+itself.  On nonnegative slabs,
+\texttt{timeIndependentVelocity\_finiteTimeWitness\_iff\_finiteInitialKineticEnergy\_and\_stationaryMomentum}
+shows that a witness with velocity \texttt{timeIndependentVelocity \;u\_0} and
+fixed pressure \(p\) exists exactly when \texttt{finiteInitialKineticEnergy
+\;u\_0} holds and the stationary momentum balance is satisfied on the slab.
+So the steady-seed route no longer has a hidden external energy side condition:
+the exact witness surface itself already exposes finite whole-space energy as
+part of the theorem statement.
+On the positive finite-mode side, the energy/continuation bridge now has a
+less specialized middle theorem for bounded two-profile Schwartz velocity
+fields.  The theorem
+\texttt{boundedKineticEnergyUpTo\_of\_add\_scalar\_smul\_schwartz\_of\_abs\_le\_of\_spatialDivergence\_zero\_of\_pressureIntegrable}
+works for an arbitrary pressure field \(p\): it assumes the pointwise
+Navier--Stokes momentum equation, pressure-pairing integrability, zero
+pressure work, and slice-wise divergence-freeness, and then supplies the
+\texttt{boundedKineticEnergyUpTo} witness slot.  The bounded Schwartz velocity
+class supplies kinetic-energy integrability, viscous-pairing integrability, and
+nonlinear energy cancellation internally.  This is not a pressure theorem:
+pressure-pairing integrability and zero pressure work remain real obligations.
+But it removes an artificial route restriction to affine-plus-localized
+Schwartz pressures at the continuation-bridge layer.
+Lean now closes that pressure obligation for a broader concrete decay class.
+In \texttt{NavierStokesEnergyInequality.lean},
+\texttt{pressureEnergyPairing\_schwartzPressureSlice} expands
+\(u\cdot\nabla p\) coordinatewise for any time-indexed Schwartz pressure slice
+\(p(t,\cdot)\).  The theorem
+\texttt{integrable\_pressureEnergyPairing\_of\_schwartzSlice\_schwartzPressureSlice}
+proves integrability against a Schwartz velocity slice, and
+\texttt{integral\_pressureEnergyPairing\_of\_schwartzSlice\_schwartzPressureSlice\_of\_spatialDivergence\_zero}
+proves zero pressure work by integration by parts from the divergence-free
+condition.  The continuation theorem
+\texttt{boundedKineticEnergyUpTo\_of\_add\_scalar\_smul\_schwartz\_of\_abs\_le\_of\_spatialDivergence\_zero\_schwartzPressureSlice}
+then applies the energy bridge directly to bounded two-profile Schwartz
+velocities with arbitrary time-varying Schwartz pressure slices.  This is a
+real strengthening over the affine-plus-fixed-profile pressure lane: the
+remaining pressure burden is no longer present for spatially Schwartz pressure
+slices, while genuinely nondecaying or nonsmooth pressures remain outside the
+proved class.
+Lean now also connects this pressure-slice class to the finite-time witness and
+BKM-premise layers.  The constructor
+\texttt{ExplicitFiniteTimeRegularityWitness.of\_add\_scalar\_smul\_schwartz\_of\_abs\_le\_of\_spatialDivergence\_zero\_schwartzPressureSlice}
+uses the pressure-slice energy theorem to fill \texttt{bounded\_energy\_on}
+without assuming pressure-pairing integrability or zero pressure work as
+external hypotheses.  The theorem
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_finiteTimeWitness\_of\_momentumEquation\_schwartzPressureSlice}
+specializes this to the bounded two-mode divergence-free Schwartz ansatz, and
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_of\_momentumEquation\_schwartzPressureSlice}
+adds the internally proved finite-mode vorticity envelope.  Thus the
+pressure-slice lane reaches the repaired BKM input surface with smooth pressure,
+bounded amplitudes, profile-level divergence freedom, and the pointwise
+momentum equation as the remaining explicit hypotheses.  It does not prove the
+continuation clause; it removes another artificial pressure-shape restriction
+from the finite-mode premise.
+The pointwise momentum-equation hypothesis in that last sentence has also been
+sharpened into a concrete residual identity.  The theorem
+\texttt{momentumEquation\_twoModeSchwartzVelocity\_schwartzPressureSlice\_of\_explicitClosure}
+rewrites the pressure-slice momentum equation into its finite-mode expansion:
+scalar amplitude derivatives, four self/mixed convection terms, the
+pressure-slice gradient, and the two linear Laplacian terms.  The bridge theorem
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_of\_explicitClosure\_schwartzPressureSlice}
+then reaches the BKM-premise surface from this expanded closure directly.  This
+is not a continuation theorem and it does not solve the closure equation for a
+nontrivial profile; it makes the next repair target small and inspectable.
+The pressure-slice closure route also now contains the exact anti-profile
+zero-flow baseline.  Lean proves
+\texttt{explicitClosure\_oneOneAntiProfileSchwartzVelocity\_schwartzPressureSlice\_zeroPressure}:
+for any Schwartz profile \(f\), the pair \(f,-f\), unit amplitudes, and zero
+Schwartz pressure slice satisfy the expanded pressure-slice residual closure.
+The corresponding bridge
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_oneOneAntiProfile\_schwartzPressureSlice\_zeroPressure}
+then reaches BKM-premise data for zero initial velocity when \(f\) is
+divergence-free and \(\nu\ge 0\).  This removes a small artificial mismatch
+between the pressure-slice explicit-closure route and the older zero-pressure
+sanity baseline, but it is still pure cancellation: it neither supplies a
+nonzero initial datum nor solves the non-cancelling closure equation.
+Lean has now generalized that pressure-slice cancellation boundary from unit
+amplitudes to arbitrary smooth equal amplitudes.  The theorem
+\texttt{explicitClosure\_equalAmplitudeAntiProfileSchwartzVelocity\_schwartzPressureSlice\_zeroPressure}
+expands the residual for \(a(t)f+a(t)(-f)\), and
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_equalAmplitudeAntiProfile\_schwartzPressureSlice\_zeroPressure}
+routes any uniformly bounded smooth equal-amplitude anti-profile through the
+BKM-premise bridge.  Thus a coefficient-time-dependence repair of the
+anti-profile baseline is already accounted for; the remaining finite-mode
+target must be genuinely non-cancelling.
+Lean now also proves that this zero-flow anti-profile boundary is exact for
+nonzero profiles:
+\texttt{antiProfileSchwartzVelocity\_eq\_zero\_iff\_equalAmplitude} says that
+\(a(t)f+b(t)(-f)\) vanishes identically if and only if the amplitudes are
+pointwise equal, provided \(f\) is not the zero profile.  The initial-slice
+version
+\texttt{antiProfileSchwartzInitialVelocity\_eq\_zero\_iff\_equalAmplitude}
+gives the corresponding \(a_0=b_0\) criterion, and
+\texttt{exists\_antiProfileSchwartzVelocity\_ne\_zero\_of\_exists\_amplitude\_ne}
+records the contrapositive.  Therefore an anti-profile route cannot present an
+unequal-amplitude zero-flow repair; once amplitudes differ, the candidate is a
+genuine nonzero-flow problem again.
+The affine pressure-gauge variant has now been audited as well.  The theorem
+\texttt{momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_affineTimeOnlyPressure}
+shows that replacing the zero pressure slice by any time-only
+affine-plus-Schwartz gauge still leaves the equal-amplitude anti-profile
+velocity equal to zero.  The BKM bridge theorem
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_equalAmplitudeAntiProfile\_affineTimeOnlyPressure\_zeroWitness\_zeroEnvelope}
+then packages the same branch with zero velocity, the stated time-only gauge
+pressure, the zero vorticity envelope, and zero integral budget.  Thus a
+time-only pressure-gauge repair is classified as pressure gauge freedom on the
+zero flow, not as a new finite-mode construction.  The canonical-gauge
+refinement
+\texttt{...\_affineTimeOnlyPressure\_canonicalGaugeWitness} strengthens this to
+an equality with \texttt{zeroFiniteTimeRegularityWitness} after applying the same
+\texttt{addTimeOnlyPressure} gauge, so the branch is not even a distinct witness
+modulo pressure gauge.
+Lean also rules out the next nearby pressure repair: a nonzero spatial-affine
+pressure gradient cannot be inserted on the same zero-flow branch.  The gradient
+calculation
+\texttt{spatialPressureGradient\_affineAddScalarSchwartzPressure\_spatialAffine}
+shows that the pure spatial-affine member of the affine-plus-Schwartz pressure
+class has gradient \(c(t)\).  The witness-level theorem
+\texttt{ExplicitFiniteTimeRegularityWitness.zeroVelocity\_spatialAffinePressure\_implies\_zeroAffineCoeffOn}
+then proves that any finite-time witness with zero velocity and such a pressure
+must have \(c(t)=0\) throughout its certified slab, and
+\texttt{not\_momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_spatialAffinePressure\_of\_exists\_nonzeroAffineCoeff}
+gives the global momentum-equation contrapositive for the equal-amplitude
+anti-profile.  Thus the spatial-affine pressure coefficient is not gauge freedom
+on the zero branch; it is forbidden unless it vanishes.  Lean now also records
+two broader BKM-layer classifications.  First,
+\texttt{BKMData\_zeroVelocity\_implies\_initialVelocity\_zero} proves that any
+zero-velocity BKM-data package must have zero initial velocity data.  Its
+contrapositive
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_initialVelocity\_ne\_zero}
+rules out pairing the zero-flow branch with nonzero initial data.  Second,
+\texttt{BKMData\_zeroVelocity\_implies\_spatialPressureGradient\_zero} proves
+that for an arbitrary pressure field \(p\), any zero-velocity BKM-data package
+forces \(\nabla p(t,x)=0\) everywhere on its certified slab.  Its contrapositive
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+turns a single nonzero pressure gradient into a no-go theorem for zero-velocity
+BKM data with that pressure.  The combined classification
+\texttt{BKMData\_zeroVelocity\_implies\_initialVelocity\_zero\_and\_spatialPressureGradient\_zero}
+bundles these two necessary conditions into one theorem, and the combined
+contrapositive
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_initialVelocity\_ne\_zero\_or\_exists\_spatialPressureGradient\_ne\_zero}
+blocks any zero-flow BKM package as soon as either the initial datum is nonzero
+or the pressure has one certified nonzero spatial-gradient value.  The
+classification is now exact for smooth pressure fields:
+\texttt{BKMData\_zeroVelocity\_iff\_initialVelocity\_zero\_and\_spatialPressureGradient\_zero}
+proves that such a BKM package exists if and only if those two conditions hold.
+The reverse direction reuses the lower-level
+\texttt{zeroVelocity\_finiteTimeWitness\_iff\_spatialPressureGradient\_zero}
+from \texttt{NavierStokesWitnessConstruction} and supplies the zero vorticity
+envelope, so the BKM layer is conservative over the finite-time zero-flow
+witness surface.  The surviving gauge is now named as a theorem:
+\texttt{BKMData\_zeroVelocity\_timeOnlyPressure\_iff\_initialVelocity\_zero}
+states that for every smooth time-only pressure, zero-velocity BKM data exists
+exactly for zero initial velocity data.  Its constructive half is exposed as
+\texttt{BKMData\_zeroVelocity\_timeOnlyPressure}, and the matching nonzero-data
+blocker is
+\texttt{not\_exists\_BKMData\_zeroVelocity\_timeOnlyPressure\_of\_initialVelocity\_ne\_zero}.
+The spatial-affine pressure subclass is exact as well:
+\texttt{BKMData\_zeroVelocity\_spatialAffinePressure\_iff\_initialVelocity\_zero\_and\_affineCoeff\_zeroOn}
+uses the affine-gradient computation to replace the abstract pressure-gradient
+condition by the concrete statement that \(c(t)=0\) throughout the certified
+slab.  Its constructive side is exposed as
+\texttt{BKMData\_zeroVelocity\_spatialAffinePressure\_of\_affineCoeff\_zeroOn},
+and the combined no-go theorem
+\texttt{not\_exists\_BKMData\_zeroVelocity\_spatialAffinePressure\_of\_initialVelocity\_ne\_zero\_or\_exists\_nonzeroAffineCoeffOn}
+blocks the spatial-affine zero-flow package if either the initial datum is
+nonzero or the affine pressure coefficient is nonzero at one certified time.
+The older coefficient-only no-go
+\texttt{not\_exists\_BKMData\_zeroVelocity\_spatialAffinePressure\_of\_exists\_nonzeroAffineCoeffOn}
+remains as the assumption-light direct obstruction.
+The full affine-plus-localized pressure class is now exact as well.  Lean first
+records the concrete gradient computation
+\texttt{spatialPressureGradient\_affineAddScalarSchwartzPressure}, reducing the
+zero-flow pressure force to
+\[
+  c(t)+\rho(t)\nabla q(x).
+\]
+Then
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_iff\_initialVelocity\_zero\_and\_pressureGradientBalanceOn}
+proves that zero-flow BKM data with pressure
+\(\langle c(t),x\rangle+\pi(t)+\rho(t)q(x)\) exists exactly when \(u_0=0\)
+and this balance vanishes at every point of the certified slab.  Its
+constructive half is named
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_of\_pressureGradientBalanceOn},
+and the direct balance-failure no-go is
+\texttt{not\_exists\_BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_of\_initialVelocity\_ne\_zero\_or\_exists\_pressureGradientBalanceFailureOn}.
+Most importantly for the manuscript repair route,
+\texttt{not\_exists\_BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_of\_initialVelocity\_ne\_zero\_or\_exists\_nonconstant\_schwartzPressureGradientOn}
+shows that if \(\rho(t)\neq 0\) and the spatial gradient of \(q\) takes two
+different values at that time, no choice of affine coefficient can hide the
+localized pressure force inside a zero-flow BKM package.
+Lean now also records the positive consequence behind that no-go:
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_implies\_schwartzPressureGradient\_constantOn\_of\_nonzeroAmplitude}.
+Any surviving zero-flow BKM datum in this pressure class, at any slab time with
+\(\rho(t)\neq0\), forces \(\nabla q(x)=\nabla q(y)\) for every pair of spatial
+points.  The follow-up lemma
+\texttt{schwartzMap\_gradient\_constant\_eq\_zero} removes that residual
+freedom: a Schwartz profile on \(\mathbb R^3\) cannot have a nonzero globally
+constant gradient, since boundedness contradicts the affine growth forced by a
+nonzero derivative.  Consequently
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_implies\_schwartzPressureGradient\_zero\_of\_nonzeroAmplitude}
+and
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_implies\_affineCoeff\_zero\_of\_nonzeroAmplitude}
+show that every nonzero-amplitude zero-flow BKM datum in this class has
+\(\nabla q=0\) and \(c(t)=0\) on that time slice.
+The newest Lean theorem packages this as the exact collapsed classification
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_iff\_initialVelocity\_zero\_and\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}:
+zero-flow BKM data in this pressure class exists exactly when \(u_0=0\), the
+affine spatial coefficient vanishes throughout the certified slab, and the
+presence of any nonzero localized amplitude on that slab forces the fixed
+Schwartz pressure gradient to vanish everywhere.  Thus the affine repair has
+no remaining constant-gradient loophole: a nonzero localized pressure force is
+not merely hard to tune, but excluded by the exact classification.
+The same collapse is now also available one layer lower, at the raw momentum
+equation for the equal-amplitude anti-profile branch:
+\texttt{momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zero\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitude}.
+Because \texttt{twoModeSchwartzVelocity a a f (-f)} is definitionally a
+zero velocity field after the anti-profile cancellation theorem, the full
+pointwise equation with pressure
+\(\langle c(t),x\rangle+\pi(t)+\rho(t)q(x)\) holds exactly when \(c(t)=0\)
+for every time and any nonzero localized amplitude forces the fixed Schwartz
+pressure gradient to vanish everywhere.  Hence the pressure repair is already
+collapsed before adding BKM witness packaging.
+The BKM witness layer has now been checked explicitly for that same branch:
+\texttt{BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}
+states that BKM data with velocity
+\texttt{twoModeSchwartzVelocity a a f (-f)} and the full affine-plus-localized
+pressure exists exactly under the slabwise collapsed conditions.  This removes
+the last distinction between the anti-profile BKM premise and the zero-flow
+pressure classification.
+The reusable normalization underneath this result is now explicit:
+\texttt{BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_zeroVelocity}
+and
+\texttt{BKMData\_equalAmplitudeAntiProfileInitialVelocity\_iff\_zeroVelocity}
+identify the cancelled velocity and cancelled initial-datum witness surfaces
+with zero-initial, zero-velocity BKM data for an arbitrary pressure field.
+The affine-plus-localized pressure classifications now factor through these
+general iff statements rather than through a pressure-specific rewrite.
+This normalization has also been promoted to an arbitrary-pressure exact
+boundary:
+\texttt{BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_spatialPressureGradient\_zero}
+and
+\texttt{BKMData\_equalAmplitudeAntiProfileInitialVelocity\_iff\_spatialPressureGradient\_zero}
+say that, for any smooth pressure field, the anti-profile BKM-data package
+exists exactly when the pressure has zero spatial gradient on the certified
+slab.  The companion no-go theorems
+\texttt{not\_exists\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+and
+\texttt{not\_exists\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+remove the affine-plus-localized ansatz from the obstruction: any proposed
+pressure family with a nonzero slabwise spatial gradient is already impossible
+for the cancelled branch.
+That obstruction now reaches the repaired clause/data separation layer:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_zero\_and\_not\_exists\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_not\_exists\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+state that the repaired finite-energy BKM clause remains inhabited at the
+zero or syntactic anti-profile initial datum, while matching BKM data is
+impossible for any pressure with nonzero slabwise spatial gradient.  Thus this
+repair gap is no longer tied to the affine-plus-localized pressure family.
+Lean also records the exact repaired-clause/BKM-data boundary for arbitrary
+smooth pressures:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_zero\_and\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_spatialPressureGradient\_zero}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_iff\_spatialPressureGradient\_zero}.
+These say that the conjunction of the repaired finite-energy BKM clause and a
+matching anti-profile BKM-data package exists exactly when the arbitrary
+pressure field is spatially constant on the certified slab.  The previous
+no-go statements are therefore not merely one-way obstructions: they are the
+negative face of the exact boundary for this clause-plus-data repair route.
+Lean now also pins the raw constructor-input layer for arbitrary pressure:
+\texttt{momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_spatialPressureGradient\_zero}
+states that the full pointwise momentum equation for the cancelled
+equal-amplitude anti-profile velocity holds exactly when the arbitrary pressure
+has zero spatial gradient everywhere.  Consequently
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_not\_momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+keeps the repaired finite-energy BKM clause inhabited over the syntactic
+anti-profile initial datum, but rules out the momentum equation for any
+arbitrary pressure with a nonzero spatial gradient.  This blocks a pressure
+repair before the BKM-data witness package is even formed, and it does so
+without returning to the affine-plus-localized ansatz.
+The exact version is
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_spatialPressureGradient\_zero}:
+the repaired finite-energy BKM clause over the syntactic anti-profile initial
+datum together with the raw pointwise momentum equation exists exactly when the
+arbitrary pressure has zero spatial gradient everywhere.  Thus the
+constructor-input route has a complete pressure-independent boundary, not only a
+negative counterexample family.
+Finally, the combined route-facing package is exact as well:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_and\_momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_iff\_spatialPressureGradient\_zero}
+states that adding matching BKM data to the repaired clause and raw constructor
+equation still leaves exactly the global zero-gradient condition.  The BKM-data
+surface only asks for slabwise zero gradient by itself, but it cannot weaken the
+global pressure restriction imposed by the pointwise momentum equation.
+For the concrete affine-plus-localized Schwartz pressure family, Lean now
+also exposes the same exact paired boundary directly:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_zero\_and\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}.
+Thus the repaired finite-energy BKM clause plus a matching anti-profile
+BKM-data package exists exactly under the collapsed slabwise pressure
+conditions: the affine coefficient vanishes on the certified slab, and any
+active localized amplitude forces the fixed Schwartz pressure gradient to
+vanish.  This direct theorem prevents a future argument from treating the
+bare repaired clause as if it certified the affine-plus-localized pressure
+ansatz.
+The exact classification is now also exposed over the syntactic anti-profile
+initial datum:
+\texttt{BKMData\_equalAmplitudeAntiProfileInitialVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}.
+Its left-hand side uses
+\(\texttt{ExplicitFiniteTimeRegularityWitness}\ \nu\
+(\texttt{twoModeSchwartzInitialVelocity}\ (a\,0)\ (a\,0)\ f\ (-f))\ T\), but
+the right-hand side is still exactly the same slabwise zero-flow pressure
+classification.  The companion direct no-go theorem
+\texttt{not\_exists\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_affineAddScalarSchwartzPressure\_of\_exists\_affineCoeff\_ne\_zero\_on\_or\_active\_schwartzPressureGradient\_ne\_zero}
+rules out that syntactic witness package under the same bad-pressure
+hypotheses.
+Lean also records the direct no-go form
+\texttt{not\_exists\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_of\_exists\_affineCoeff\_ne\_zero\_on\_or\_active\_schwartzPressureGradient\_ne\_zero}:
+if the affine coefficient is nonzero somewhere on the slab, or if a nonzero
+localized amplitude is paired with a nonzero spatial gradient of the fixed
+Schwartz pressure, then the anti-profile BKM-data package does not exist.
+Lean now separates this obstruction from the bare repaired continuation clause:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_zero\_and\_not\_exists\_BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_of\_exists\_affineCoeff\_ne\_zero\_on\_or\_active\_schwartzPressureGradient\_ne\_zero}
+proves that the repaired finite-energy BKM continuation clause for the zero
+datum can still hold while the structured anti-profile BKM-data package with
+the proposed pressure is impossible.  Thus a repair that cites only the bare
+continuation clause has forgotten exactly the velocity and pressure fields
+needed to certify the manuscript ansatz.
+The same obstruction is now stated over the syntactic anti-profile initial
+datum itself:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_not\_exists\_BKMData\_equalAmplitudeAntiProfileInitialVelocity\_affineAddScalarSchwartzPressure\_of\_exists\_affineCoeff\_ne\_zero\_on\_or\_active\_schwartzPressureGradient\_ne\_zero}
+inhabits the repaired finite-energy BKM clause for
+\(\texttt{twoModeSchwartzInitialVelocity}\ (a\,0)\ (a\,0)\ f\ (-f)\), but
+rules out the matching structured BKM-data package over that same initial
+datum when the affine-plus-localized pressure is bad.  This closes the
+syntactic repair in which the zero-normalized initial datum is presented as a
+separate finite-mode BKM witness surface.
+Lean also blocks the corresponding constructor-input repair:
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_and\_not\_momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_of\_exists\_affineCoeff\_ne\_zero\_or\_active\_schwartzPressureGradient\_ne\_zero}
+inhabits the repaired finite-energy BKM clause for the cancelled
+anti-profile initial datum, but proves that the full pointwise momentum
+equation needed to use that anti-profile velocity with the bad pressure cannot
+hold.  Therefore the generic finite-mode BKM clause constructor cannot rescue
+the bad pressure family by bypassing the structured BKM-data statement.
+The BKM clause module now records the underlying normalization explicitly:
+\texttt{ExplicitBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_iff\_zero}
+and
+\texttt{ExplicitFiniteEnergyBKMContinuationClause\_equalAmplitudeAntiProfileInitialVelocity\_iff\_zero}
+identify the unrepaired and repaired BKM clauses for an equal-amplitude
+anti-profile initial slice with the corresponding zero-datum clauses.  This
+keeps the anti-profile continuation clause from being treated as a separate
+finite-mode object carrying pressure information.
 At the clause level,
 \texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_iff} now makes
 the same repaired surface explicit: for a fixed finite-energy datum, the
@@ -1330,6 +1918,163 @@ and
 \texttt{not\_ExplicitConcreteNavierStokesRegularityClause\_linearShearInitialVelocity}
 show that the current explicit bounded-energy theorem surfaces also reject this
 genuinely nonconstant initial-data family.
+Lean now also makes that family exact on the same route-facing surfaces.
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_linearShearInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_linearShearInitialVelocity\_iff},
+and \texttt{concreteNavierStokesGlobalRegularityClause\_linearShearInitialVelocity\_iff}
+show that the explicit global-output surface, the unrepaired explicit
+regularity clause, and the fully concrete structured clause hold for
+\texttt{linearShearInitialVelocity a} if and only if \(a=0\).  So the first
+genuinely nonconstant obstruction family now collapses exactly to the zero
+datum on the concrete theorem surfaces too, not merely at the nonzero
+obstruction level.
+Lean now extends the same exact collapse to the affine full-drift family
+\(x \mapsto (a x_1, b, c)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_linearShearFullDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_linearShearFullDriftInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_linearShearFullDriftInitialVelocity\_iff}
+show that these three route-facing theorem surfaces hold for
+\texttt{linearShearFullDriftInitialVelocity a b c} if and only if
+\(a = 0\), \(b = 0\), and \(c = 0\).  So even after adding both constant drift
+directions, the affine linear-shear extension still collapses exactly to the
+zero datum on the theorem surfaces themselves.
+Lean now also isolates the one-drift affine linear-shear subfamilies
+\(x \mapsto (a x_1, 0, b)\) and \(x \mapsto (a x_1, b, 0)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_linearShearVerticalDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_linearShearVerticalDriftInitialVelocity\_iff},
+\texttt{concreteNavierStokesGlobalRegularityClause\_linearShearVerticalDriftInitialVelocity\_iff},
+and their horizontal-drift analogues show that these route-facing theorem
+surfaces hold for each one-drift branch exactly when both coefficients vanish.
+Lean now also proves the lower-layer exact statements
+\texttt{finiteInitialKineticEnergy\_linearShearFullDriftInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_linearShearFullDriftInitialVelocity\_iff},
+together with the corresponding base, vertical-drift, and horizontal-drift
+specializations.  So the whole affine linear-shear hierarchy now collapses
+exactly to the zero datum already at the whole-space finite-energy surface and
+at the finite-time witness type, not only at the outer route-facing clauses.
+Lean now also isolates the base heat-shear family
+\(x \mapsto (a \sin(k x_1), 0, 0)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearInitialVelocity a k} exactly when \(a k = 0\).  Lean now also
+proves the lower-layer exact statements
+\texttt{finiteInitialKineticEnergy\_heatShearInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearInitialVelocity\_iff}.
+So the bare oscillatory heat-shear family already collapses exactly to the zero
+datum at the route-facing surfaces, at the whole-space finite-energy surface,
+and at the finite-time witness type itself.
+Lean now also isolates the vertical-drift heat-shear subfamily
+\(x \mapsto (a \sin(k x_1), 0, c)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearVerticalDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearVerticalDriftInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearVerticalDriftInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearVerticalDriftInitialVelocity a k c} exactly when
+\(c = 0\) and \(a k = 0\).  Lean now also proves the lower-layer exact
+statements
+\texttt{finiteInitialKineticEnergy\_heatShearVerticalDriftInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearVerticalDriftInitialVelocity\_iff}.
+So this simpler oscillatory family already collapses exactly to the zero datum
+at the route-facing surfaces, at the whole-space finite-energy surface, and at
+the finite-time witness type itself.
+Lean now also isolates the streamwise-drift heat-shear subfamily
+\(x \mapsto (d + a \sin(k x_1), 0, 0)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearStreamwiseDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearStreamwiseDriftInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearStreamwiseDriftInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearStreamwiseDriftInitialVelocity a k d} exactly when
+\(d = 0\) and \(a k = 0\).  Lean now also proves the lower-layer exact
+statements
+\texttt{finiteInitialKineticEnergy\_heatShearStreamwiseDriftInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearStreamwiseDriftInitialVelocity\_iff}.
+So this horizontally drifted oscillatory family already collapses exactly to
+the zero datum at the route-facing surfaces, at the whole-space finite-energy
+surface, and at the finite-time witness type itself.
+Lean now does the same for the damped heat-shear family with full constant
+drift \(x \mapsto (d + a \sin(k x_1), 0, c)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearFullDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearFullDriftInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearFullDriftInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearFullDriftInitialVelocity a k d c} exactly when
+\(d = 0\), \(c = 0\), and \(a k = 0\).  So even after adding both constant
+drifts to the oscillatory heat-shear profile, the whole-space route-facing
+surfaces still collapse exactly to the zero datum.
+Lean now also proves the lower-layer exact statements
+\texttt{finiteInitialKineticEnergy\_heatShearFullDriftInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearFullDriftInitialVelocity\_iff}.
+So the same boundary is exact already at the whole-space finite-energy surface
+and at the witness type itself for the non-transport full-drift family, not
+just at the outer route-facing clauses.
+Lean now also isolates the transported heat-shear subfamily
+\(x \mapsto (a \sin(k x_1), b, 0)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearTransportInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearTransportInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearTransportInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearTransportInitialVelocity a k b} exactly when
+\(b = 0\) and \(a k = 0\).  Lean now also proves the lower-layer exact
+statements
+\texttt{finiteInitialKineticEnergy\_heatShearTransportInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearTransportInitialVelocity\_iff}.
+So this transported oscillatory family already collapses exactly to the zero
+datum at the route-facing surfaces, at the whole-space finite-energy surface,
+and at the finite-time witness type itself.
+Lean now does the same for the transported full-drift heat-shear family with
+datum \(x \mapsto (d + a \sin(k x_1), b, c)\).  Theorems
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_heatShearTransportFullDriftInitialVelocity\_iff},
+\texttt{ExplicitConcreteNavierStokesRegularityClause\_heatShearTransportFullDriftInitialVelocity\_iff},
+and
+\texttt{concreteNavierStokesGlobalRegularityClause\_heatShearTransportFullDriftInitialVelocity\_iff}
+show that the same three route-facing theorem surfaces hold for
+\texttt{heatShearTransportFullDriftInitialVelocity a k b d c} exactly when
+\(b = 0\), \(d = 0\), \(c = 0\), and \(a k = 0\).  So adding transport in the
+second coordinate does not reopen the route: the only surviving case is again
+the zero datum.
+Lean now also proves the lower-layer exact statements
+\texttt{finiteInitialKineticEnergy\_heatShearTransportFullDriftInitialVelocity\_iff}
+and, on nonnegative slabs,
+\texttt{nonempty\_ExplicitFiniteTimeRegularityWitness\_heatShearTransportFullDriftInitialVelocity\_iff}.
+So the same boundary is exact already at the whole-space finite-energy surface
+and at the witness type itself, not just at the outer route-facing clauses.
+Lean now also proves that the repaired explicit finite-energy regularity clause
+itself is completely nonrestrictive on these explicit families.  Theorems
+\texttt{ExplicitFiniteEnergyAdmissibleNavierStokesRegularityClause\_constantInitialVelocity\_all},
+\texttt{...linearShearFullDriftInitialVelocity\_all},
+\texttt{...heatShearFullDriftInitialVelocity\_all}, and
+\texttt{...heatShearTransportFullDriftInitialVelocity\_all}, together with the
+base and one-drift specializations derived from them, show that the repaired
+clause always holds on the constant, affine linear-shear, full-drift
+heat-shear, and transported full-drift heat-shear hierarchies.  Combined with
+the exact finite-energy collapse theorems above, this means the repaired clause
+contributes no further obstruction on these ansatz classes: it is realized at
+the zero datum and vacuous everywhere else.
+Lean now pushes the same point one layer higher, to the repaired structured
+fully concrete theorem surface itself.  Theorems
+\texttt{finiteEnergyConcreteNavierStokesGlobalRegularityClause\_constantInitialVelocity\_all},
+\texttt{...linearShearFullDriftInitialVelocity\_all},
+\texttt{...heatShearFullDriftInitialVelocity\_all}, and
+\texttt{...heatShearTransportFullDriftInitialVelocity\_all} show that once one
+of these explicit ansatz data is packaged as an actual
+\texttt{FiniteEnergyAdmissibleNavierStokesProblemData}, the repaired structured
+clause already holds automatically.  So on these families even the repaired
+structured theorem surface contributes no additional analytic burden beyond the
+finite-energy admissibility gate.
 At the same time, Lean now exposes a precise target-shape caveat: the current
 continuation clauses themselves remain true on such impossible data, but only
 vacuously, because they quantify over a finite-time witness type that is
@@ -1369,7 +2114,32 @@ control, but genuinely nonzero inhabited finite-time witnesses still fail here
 precisely at the bounded-energy slot.  This again isolates a defect in the
 present local whole-space continuation surface; it does not by itself rule out
 reasonable torus or Schwartz-restricted adaptations of the Goertzel route.
-On the positive API side, the same file now also packages the repaired-to-unrepaired
+Lean now pushes the same point onto a genuinely time-dependent transported
+heat-shear family.  The new file
+\texttt{NavierStokesHeatShearTransportFullDriftWitnessObstruction.lean} proves
+that for nonnegative viscosity and any smooth time-only pressure gauge
+\(p(t,x)=\pi(t)\), the exact pair
+\((u,p) = (\texttt{heatShearTransportFullDriftVelocityField}, \pi(t))\)
+satisfies the smoothness, slab momentum, incompressibility, initial-condition,
+and explicit slab-vorticity fields required by
+\texttt{ExplicitFiniteTimeRegularityWitness}; the vorticity bound is again
+literal, \(B = |a k|\).  But if the transport speed \(b \neq 0\), then
+\texttt{not\_exists\_heatShearTransportFullDriftVelocityField\_finiteTimeWitness\_of\_nonzero\_transport}
+and
+\texttt{heatShearTransportFullDriftVelocityField\_timeOnlyPressure\_exhibits\_nonEnergyFiniteTimeFields\_without\_exactWitness}
+show that no exact witness can carry that velocity on any nonnegative slab.
+So even on this more route-shaped whole-space ansatz, the obstruction is still
+the same concrete one: the exact witness fails at
+\texttt{bounded\_energy\_on}, not at a pressure-gauge choice or a missing PDE
+identity.
+Cleanup note, 2026-05-05: this full-drift witness-layer file pair is now
+archived under
+\texttt{/home/zarclaw/automation/aihub/archive/mil-cleanup-20260505/}.  It is
+retained as a historical bounded-energy obstruction, but it is no longer an
+active route module: later residual-curl target compositions and the multi-mode
+BKM-data over-determination obstruction carry the route-relevant pressure and
+target-surface failures more directly.
+Historically, the same archived file also packaged the repaired-to-unrepaired
 uniform forgetful step on nonnegative slabs directly as
 \texttt{ExplicitFiniteEnergyUniformVorticityContinuationClause\_implies\_uniformVorticityContinuationClause\_of\_nonneg\_horizon}
 and its target-to-fixed-horizon corollary
@@ -1613,6 +2383,29 @@ explicit shorter-slab zero BKM envelope, and
 \texttt{ExplicitBKMContinuationClause\_implies\_zeroGlobalOutput\_timeOnlyPressure}
 shows that a smaller-slab BKM clause can therefore be applied directly to that
 concrete gauged zero witness.
+Lean now also records the matching bridge-side obstruction on a genuinely
+time-dependent whole-space ansatz.  In
+\texttt{NavierStokesEnergyBKMBridge.lean},
+\texttt{not\_energyBKMBridge\_kineticIntegrabilityOnSlab\_of\_matchesInitialVelocity\_heatShearTransportFullDriftInitialVelocity}
+shows that any field whose initial slice matches transported full-drift
+heat-shear data with nonzero transport speed already fails the kinetic-energy
+integrability input of the energy/BKM bridge at time \(0\).  At the exact
+candidate level,
+\texttt{heatShearTransportFullDriftVelocityField\_has\_BKMEnvelope\_but\_not\_energyBKMBridge\_kineticIntegrabilityOnSlab}
+packages the route-shaped consequence: on every nonnegative slab with
+nonnegative viscosity, the transported full-drift heat-shear field carries an
+explicit constant BKM envelope \( \Omega(t)=|a k| \), but it still cannot enter
+the energy/BKM bridge because the whole-space kinetic-energy integrability
+hypothesis is already false.  So even after the new time-only-pressure and
+exact-witness audits, the BKM route fails at the same honest whole-space energy
+gate rather than at a missing envelope construction.  Lean now also factors
+this through one reusable bridge theorem:
+\texttt{not\_energyBKMBridge\_kineticIntegrabilityOnSlab\_of\_matchesInitialVelocity\_of\_not\_finiteInitialKineticEnergy}
+says that on any nonnegative slab, once the prescribed datum already has
+infinite initial kinetic energy, every matched field is excluded from the
+energy/BKM bridge immediately at the time-zero integrability input.  The
+constant, heat-shear, and transported full-drift obstructions are now just
+named corollaries of that generic whole-space energy fact.
 
 \subsection{Compatibility Frontier}
 
@@ -2229,7 +3022,13 @@ whose seed and live anchors are both the identity.  Lean proves that such a
 family collapses back to the affine seed-blend route with coefficients given by
 the total live and seed masses.  So finite repetition at the same point still
 does not create a new same-route escape corridor; it merely repackages the old
-affine obstruction in a larger finite shell.
+affine obstruction in a larger finite shell.  The latest pass also exports the
+two missing contrapositive blockers for this identity-anchor shell: under the
+zero-initial/nonzero-live witness, any same-route bridge forces total live mass
+\(=1\), and under the zero-live/nonzero-initial witness it forces total seed
+mass \(=0\).  Therefore a finite identity-anchor sampled kernel with the wrong
+live or seed total is ruled out directly at the top-down bridge level, not just
+after manually unpacking the affine reduction.
 
 In \texttt{WindowedColeHopfHeatSeedBlendObstruction.lean}, Lean proves bridge-
 level rigidity laws for the same-route mouth:
@@ -2381,7 +3180,37 @@ kernel, if the finite shift-kernel candidate coincides with the nonlinear
 saturated descendant and the total coefficient mass is nonzero, then every two
 nonzero witnesses must have the same absolute magnitude.  So the full invariant
 finite-kernel corridor is no longer only constructive; it is already exact in
-the same constant-magnitude sense.
+the same constant-magnitude sense.  This candidate-level statement now also has
+its own zero-mass audit: without assuming nonzero total mass, exact candidate
+equality forces either \(a_{\mathrm{seed}}+a_{\mathrm{live}}=0\) or the same
+equal-absolute-magnitude conclusion.  Equivalently, if two nonzero witnesses
+have unequal magnitudes and the finite shift-kernel candidate still equals the
+nonlinear saturated descendant, then the total coefficient mass must be zero.
+The zero-mass escape has now been audited one layer further.  At every nonzero
+witness, exact candidate equality forces
+\[
+  (a_{\mathrm{seed}}+a_{\mathrm{live}})(1+|\omega(t,x)|)=a.
+\]
+Consequently, if the total coefficient mass is zero and \(a\neq 0\), the
+invariant finite shift-kernel candidate cannot equal the saturated descendant at
+all.  The remaining zero-mass corridor is therefore only the trivial
+zero-saturation case, not a nonlinear continuation repair.
+The latest strengthening removes a second possible workaround: exact equality
+at a nonzero witness also forces the sign of the finite kernel's total
+coefficient mass to match the sign of the saturated coefficient.  In Lean, if
+\(a>0\), then candidate equality forces
+\(0<a_{\mathrm{seed}}+a_{\mathrm{live}}\); if \(a<0\), it forces
+\(a_{\mathrm{seed}}+a_{\mathrm{live}}<0\).  Consequently a nonpositive total
+mass with positive saturated coefficient, or a nonnegative total mass with
+negative saturated coefficient, rules out candidate equality outright.
+The coefficient formula also gives a size audit: since \(1+|\omega(t,x)|\ge 1\),
+exact equality at a nonzero witness forces
+\[
+  |a_{\mathrm{seed}}+a_{\mathrm{live}}|\le |a|.
+\]
+Thus an invariant finite kernel whose total coefficient mass is larger than
+the saturated coefficient in absolute value cannot realize the nonlinear
+saturated candidate, even if its sign is correct.
 
 That file now also contains the corresponding proof-carrying bridge-level
 corollary.  If a top-down bridge through the same finite invariant shift-kernel
@@ -2390,6 +3219,64 @@ equal-absolute-magnitude conclusion follows; equivalently, unequal nonzero
 witness magnitudes rule out the existence of such a bridge.  So the full
 invariant shell now has both sides in Lean: a constructive corridor and a
 matching \(\neg \exists B\) obstruction.
+The bridge theorem has now also been strengthened into a zero-mass audit:
+without assuming nonzero total kernel mass, Lean proves that bridge equality
+forces either \(a_{\mathrm{seed}}+a_{\mathrm{live}}=0\) or the same
+equal-absolute-magnitude conclusion.  Thus the nonzero-mass hypothesis is not
+hidden in the proof path; it is isolated as the only degenerate escape hatch
+for this same-route bridge.  Lean also packages the corresponding classifier:
+if such a bridge does exist in the presence of two nonzero witnesses with
+unequal magnitudes, then its total shift-kernel coefficient mass must be zero.
+The same sign audit is now present at the bridge level: a bridge whose
+candidate is exactly the nonlinear saturated descendant forces positive total
+mass when \(a>0\) and negative total mass when \(a<0\).  Therefore the
+wrong-sign aggregate-kernel cases are not merely candidate-level failures; they
+block the existence of a top-down bridge through this invariant finite
+shift-kernel shell.
+The bridge layer now has the same absolute-mass audit as well: any top-down
+bridge realizing the saturated descendant through this invariant finite
+shift-kernel shell forces
+\(|a_{\mathrm{seed}}+a_{\mathrm{live}}|\le |a|\).  Therefore overlarge
+aggregate kernels are excluded at bridge level, not merely at the raw
+candidate-equality level.
+The absolute-mass audit has also been sharpened at both levels: if the total
+aggregate mass is nonzero and the comparison is made at a nonzero vorticity
+witness, exact equality forces the strict inequality
+\[
+  |a_{\mathrm{seed}}+a_{\mathrm{live}}| < |a|.
+\]
+Consequently the old overlarge-mass obstruction now closes the equality
+boundary as well: under nonzero total mass, even
+\(|a|\le |a_{\mathrm{seed}}+a_{\mathrm{live}}|\) rules out exact candidate
+equality and rules out the corresponding top-down bridge.  This does not
+contradict the constant-magnitude survivor; it says that the survivor must use
+the coefficient-matched smaller aggregate mass
+\(a/(1+|\omega|)\), not a same-magnitude aggregate coefficient.
+The shared regression file now pins both the candidate-level and bridge-level
+generic obstructions directly, including the zero-mass-or-equal-magnitude
+versions and the unequal-witness zero-mass classifiers, not only through the
+later anchored specialization, so future edits cannot silently retain the
+concrete anchored corollary while losing the full finite shift-kernel theorem
+surface.
+It also pins the new coefficient formula and the zero-mass/nonzero-saturation
+nonexistence theorem at both candidate and bridge level, and now also pins the
+wrong-sign, overlarge-mass, and nonzero-mass equality-boundary nonexistence
+theorems.  This makes the degenerate escape hatch explicit rather than tacit.
+
+\paragraph{Current blocker status.}
+The invariant finite shift-kernel audit is now a strong same-route rigidity
+theorem, not just a heuristic objection.  It blocks any exact saturated
+candidate or bridge whose total mass is zero with \(a\neq 0\), has the wrong
+sign, has nonzero total mass with \(|a|\le\) the aggregate absolute mass, or
+has nonzero total mass in the presence of two nonzero witnesses with unequal
+absolute vorticity magnitude.  It is not yet a global \(>90\%\) blocker for
+the NS proof attempt, because the constant-magnitude, coefficient-matched
+corridor remains formally constructive, and a future analytic route could
+bypass this exact finite invariant shift-kernel bridge.  To upgrade it, one
+must show that the manuscript's SG-Cole-Hopf continuation step necessarily
+factors through this exact invariant finite-kernel/saturated bridge on a
+nonconstant vorticity profile, or prove that every admissible repair still
+reduces to the same coefficient identity.
 
 The next file
 \texttt{WindowedColeHopfHeatSaturatedAnchoredShiftInvariantFrontier.lean}
@@ -2415,12 +3302,27 @@ The companion file
 \texttt{WindowedColeHopfHeatSaturatedAnchoredShiftInvariantObstruction.lean}
 then proves that this concrete anchored corridor is already exact at the
 candidate-equality level once the total coefficient sum \(b+c+d\) is nonzero.
-Under the same stationarity and the same invariance under \(x \mapsto x+s\), if
-the anchored spatial candidate coincides with the nonlinear saturated
-descendant, then every two nonzero witnesses must have the same absolute
-magnitude.  So unequal nonzero magnitudes do not just block the older sampled or
-masked shells; they already rule out exact equality for this first concrete
-spatial survivor itself.
+The same anchored file now also inherits the strict mass audit from the full
+finite shift-kernel layer: exact anchored candidate equality at a nonzero
+witness forces
+\[
+  |b+c+d| < |a|.
+\]
+Thus the concrete anchored survivor cannot use a same-magnitude aggregate
+coefficient; if \(|a|\le |b+c+d|\) and \(b+c+d\neq 0\), the anchored candidate
+cannot equal the saturated descendant at that nonzero witness.
+It now also proves the corresponding bridge-level obstruction for the
+proof-carrying anchored translation-kernel route.  Under the same stationarity
+and the same invariance under \(x \mapsto x+s\), if a top-down bridge through
+the anchored shift-kernel compatibility predicate has candidate equal to the
+nonlinear saturated descendant, then every two nonzero witnesses must have the
+same absolute magnitude.  So unequal nonzero magnitudes do not just block the
+older sampled or masked shells, and do not merely block syntactic candidate
+equality; they already rule out a proof-carrying anchored spatial same-route
+bridge for this first concrete survivor itself.
+The bridge layer now carries the same equality-boundary mass blocker as well:
+under \(b+c+d\neq0\), \(|a|\le |b+c+d|\) rules out any anchored top-down bridge
+whose candidate is the nonlinear saturated descendant at a nonzero witness.
 
 The follow-up file
 \texttt{WindowedColeHopfHeatSaturatedShiftKernelInvariantAnchoredSpecialization.lean}
@@ -2504,6 +3406,52 @@ nonlinear saturated clause; with stationarity, Lean upgrades it to a
 proof-carrying diagonal sampled-kernel bridge whose candidate is exactly the
 nonlinear saturated descendant.  So the old affine one-point shell now has a
 direct constructive saturated wrapper in addition to its exactness laws.
+
+\section{Finite-Mode Galerkin Toy ODE Cell}
+
+The pivot away from the shear and cancelled anti-profile cells is now recorded
+in the finite-dimensional projected ODE layer.  In
+\texttt{NavierStokesFiniteModeGalerkinToy.lean}, the existing equilibrium audit
+already proves that the zero coefficient curve solves the projected ODE exactly
+when the forcing vector vanishes, and that a frozen coefficient curve solves it
+exactly when the projected RHS vanishes at that coefficient vector.  The newest
+Lean pass adds two constructive non-frozen global solution families.  For pure
+forcing coefficients, \texttt{finiteModeProjectedNSRHS\_pureForcing} identifies
+the RHS with the forcing vector and
+\texttt{finiteModeAffineForcingCurve\_solves} proves that \(a_0+t f\) solves
+\(a'=f\) in every finite mode dimension.  For decoupled diagonal-linear
+coefficients, \texttt{finiteModeProjectedNSRHS\_diagonalLinear} identifies the
+RHS componentwise as \(\lambda_i a_i\), and
+\texttt{finiteModeDiagonalLinearExpCurve\_solves} proves that
+\(a_i(t)=a_{0,i}\exp(\lambda_i t)\) solves \(a_i'=\lambda_i a_i\).  The next
+pass adds the inhomogeneous diagonal-affine family
+\(a_i'=f_i+\lambda_i a_i\): Lean proves
+\texttt{finiteModeProjectedNSRHS\_diagonalAffine} and the
+equilibrium-centered solution theorem
+\texttt{finiteModeDiagonalAffineEquilibriumCurve\_solves}.  If the supplied
+center satisfies \(f_i+\lambda_i a^{\mathrm{eq}}_i=0\), then
+\[
+  a_i(t)=a^{\mathrm{eq}}_i+
+    (a_{0,i}-a^{\mathrm{eq}}_i)\exp(\lambda_i t)
+\]
+solves the projected ODE globally, with no division or nonzero-rate side
+condition.  The same file now also exposes a finite-mode energy identity:
+\texttt{finiteModeEnergy} reuses the existing finite square-sum
+\texttt{gamma}, and
+\texttt{finiteModeEnergy\_hasDerivAt\_of\_projectedNS} proves that any
+coefficient path solving the projected ODE has energy derivative
+\[
+  \frac{d}{dt}\sum_i a_i(t)^2 =
+    2\sum_i a_i(t)\,\mathrm{RHS}_i(a(t)).
+\]
+For nonpositive diagonal-linear rates,
+\texttt{finiteModeDiagonalLinearEnergyRHS\_nonpos} proves the corresponding
+dissipativity inequality, and
+\texttt{finiteModeDiagonalLinearExpCurve\_energy\_hasDerivAt} gives the exact
+energy derivative along the explicit exponential solution.  These are
+ODE-level sanity anchors rather than PDE pressure repairs: they make the
+finite-mode Galerkin base constructive on simple families while leaving the
+hard reconstruction and Navier--Stokes closure obligations untouched.
 
 \section{Bounded-Energy Finite-Mode Schwartz Cell}
 
@@ -2726,6 +3674,398 @@ states that, for every \(\nu>0\), there exist nonzero Schwartz profiles
 expanded viscous residual closure.  This is an exact Lean construction, but it
 is still a cancellation construction: it does not yet provide a non-cancelling
 positive-viscosity finite-energy flow.
+The same cancellation baseline has now been lifted to the time-indexed
+Schwartz pressure-slice route via
+\texttt{explicitClosure\_oneOneAntiProfileSchwartzVelocity\_schwartzPressureSlice\_zeroPressure}
+and
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_oneOneAntiProfile\_schwartzPressureSlice\_zeroPressure}.
+That confirms the repaired pressure-slice bridge has no hidden incompatibility
+with the zero-flow sanity case, while leaving the same non-cancelling
+positive-viscosity profile problem as the real finite-mode target.
+The latest equal-amplitude strengthening proves the same statement for every
+smooth scalar amplitude \(a(t)\) with a uniform bound.  This rules out a
+time-dependent equal-coefficient workaround to the cancellation baseline, but
+does not change the current boundary: a useful positive-viscosity construction
+still needs profiles and coefficients whose total velocity does not cancel.
+The newest exactness result closes that loophole as a theorem: for a nonzero
+profile \(f\), anti-profile zero flow is equivalent to equal amplitudes, and
+unequal amplitudes force the two-mode velocity to be nonzero somewhere.  This
+does not prove that the resulting unequal-amplitude residual closure is
+impossible, but it does prevent the zero-flow cancellation baseline from being
+quietly rebranded as an unequal-amplitude construction.
+The witness-level sharpening then makes the BKM-premise artifact explicit:
+\texttt{twoModeSchwartzDivergenceFreeInitialVelocity\_exhibits\_BKMContinuationPremise\_equalAmplitudeAntiProfile\_schwartzPressureSlice\_zeroPressure\_zeroWitness}
+returns a finite-time witness whose velocity is literally \(0\) and whose
+pressure is the zero time-indexed Schwartz pressure slice.  Thus the
+equal-amplitude anti-profile BKM branch cannot be used as evidence for a
+nonzero finite-mode flow; any such route must leave this classified
+zero-witness case.  The follow-up
+\texttt{...\_zeroWitness\_zeroEnvelope} theorem sharpens this again: the same
+witness carries the zero vorticity envelope and zero integral budget.  Hence
+the BKM datum on this branch is not merely bounded by a generic finite-mode
+estimate; it is exactly the zero-envelope baseline.  Finally,
+\texttt{...\_canonicalZeroWitness} identifies the finite-mode witness itself
+with \texttt{zeroFiniteTimeRegularityWitness}.  The equal-amplitude branch has
+therefore collapsed to the canonical zero finite-time witness, not a distinct
+two-mode construction.
+The affine time-only pressure-gauge variant closes the adjacent repair
+loophole: \texttt{...\_affineTimeOnlyPressure\_zeroWitness\_zeroEnvelope}
+allows any smooth time-only gauge pressure in the affine-plus-Schwartz pressure
+class, but still returns zero velocity, the stated gauge pressure, the zero
+vorticity envelope, and zero integral budget.  Hence this repair only changes
+the pressure gauge on the zero flow; it does not produce a nonzero finite-mode
+BKM branch.  The follow-up
+\texttt{...\_affineTimeOnlyPressure\_canonicalGaugeWitness} identifies the
+witness itself with the canonical zero finite-time witness after
+\texttt{addTimeOnlyPressure}.  This removes the possible repair that treats a
+time-only pressure gauge as a separate BKM construction.
+The pure spatial-affine pressure variant is now blocked rather than normalized:
+\texttt{spatialPressureGradient\_affineAddScalarSchwartzPressure\_spatialAffine}
+computes the gradient as \(c(t)\), and
+\texttt{ExplicitFiniteTimeRegularityWitness.zeroVelocity\_spatialAffinePressure\_implies\_zeroAffineCoeffOn}
+forces \(c(t)=0\) on every certified time in any zero-velocity finite-time
+witness.  Therefore a nonzero spatial-affine pressure coefficient cannot be used
+as a pressure-gauge workaround for the equal-amplitude anti-profile collapse.
+The BKM-layer theorem
+\texttt{BKMData\_zeroVelocity\_implies\_initialVelocity\_zero}
+closes the initial-data side: zero-velocity BKM data can only be packaged for
+zero initial data.  Its contrapositive
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_initialVelocity\_ne\_zero}
+blocks any nonzero initial-data workaround.  The theorem
+\texttt{BKMData\_zeroVelocity\_implies\_spatialPressureGradient\_zero}
+is the pressure classification statement: zero-velocity BKM data can only carry a
+pressure whose spatial gradient vanishes on the certified slab.  Its
+contrapositive
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_exists\_spatialPressureGradient\_ne\_zero}
+is the arbitrary-pressure obstruction at one certified slab point, and
+\texttt{BKMData\_zeroVelocity\_implies\_initialVelocity\_zero\_and\_spatialPressureGradient\_zero}
+records the combined necessary condition.  The corresponding disjunctive
+no-go theorem
+\texttt{not\_exists\_BKMData\_zeroVelocity\_of\_initialVelocity\_ne\_zero\_or\_exists\_spatialPressureGradient\_ne\_zero}
+prevents a repair from treating the initial datum and pressure-gradient
+requirements independently: either failure already rules out the zero-flow BKM
+package.  The exact iff theorem
+\texttt{BKMData\_zeroVelocity\_iff\_initialVelocity\_zero\_and\_spatialPressureGradient\_zero}
+also records the positive side for smooth pressure fields: if the initial datum
+is zero and the spatial pressure gradient vanishes on the certified slab, the
+zero finite-time witness carries the zero vorticity envelope and integral
+budget.  Thus the BKM package neither repairs nor weakens the finite-time
+zero-flow witness classification.  The time-only pressure survivor is also
+packaged exactly through
+\texttt{BKMData\_zeroVelocity\_timeOnlyPressure\_iff\_initialVelocity\_zero},
+with the positive theorem
+\texttt{BKMData\_zeroVelocity\_timeOnlyPressure} and the nonzero-data no-go
+\texttt{not\_exists\_BKMData\_zeroVelocity\_timeOnlyPressure\_of\_initialVelocity\_ne\_zero}
+as reusable corollaries.  The spatial-affine pressure subclass now has the
+same exact treatment:
+\texttt{BKMData\_zeroVelocity\_spatialAffinePressure\_iff\_initialVelocity\_zero\_and\_affineCoeff\_zeroOn}
+classifies it by zero initial data and slabwise vanishing of \(c\), while
+\texttt{BKMData\_zeroVelocity\_spatialAffinePressure\_of\_affineCoeff\_zeroOn}
+and
+\texttt{not\_exists\_BKMData\_zeroVelocity\_spatialAffinePressure\_of\_initialVelocity\_ne\_zero\_or\_exists\_nonzeroAffineCoeffOn}
+record the positive and combined negative sides.  Supplying a vorticity
+envelope and an integral budget on the same finite-time witness does not
+convert a genuine affine pressure force into gauge freedom.  The full
+affine-plus-localized class now has the matching exact theorem
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_iff\_initialVelocity\_zero\_and\_pressureGradientBalanceOn}.
+It replaces the abstract condition \(\nabla p=0\) by the concrete balance
+\(c(t)+\rho(t)\nabla q(x)=0\).  The no-go
+\texttt{not\_exists\_BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_of\_initialVelocity\_ne\_zero\_or\_exists\_nonconstant\_schwartzPressureGradientOn}
+then closes the obvious affine-cancellation repair: a nonzero localized
+amplitude cannot be canceled by one vector \(c(t)\) when the Schwartz pressure
+profile has nonconstant spatial gradient.  The companion theorem
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_implies\_schwartzPressureGradient\_constantOn\_of\_nonzeroAmplitude}
+states the residual burden directly: if such BKM data exists and
+\(\rho(t)\neq0\) on the certified slab, the fixed Schwartz pressure profile has
+the same spatial gradient at all spatial points on that time slice.  Lean then
+proves
+\texttt{schwartzMap\_gradient\_constant\_eq\_zero}, so this residual burden
+collapses to zero gradient for any Schwartz profile.  The derived BKM theorem
+\texttt{BKMData\_zeroVelocity\_affineAddScalarSchwartzPressure\_implies\_affineCoeff\_zero\_of\_nonzeroAmplitude}
+therefore also forces \(c(t)=0\).  The surviving nonzero-amplitude localized
+pressure term is only time-gauge-equivalent in the zero-flow BKM package; it
+cannot carry a spatial force.
+The raw equal-amplitude anti-profile momentum equation now has the same
+collapsed characterization through
+\texttt{momentumEquation\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zero\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitude}.
+Thus the affine-plus-localized pressure ansatz cannot rescue the cancellation
+branch even before the finite-time BKM witness layer is introduced: the only
+surviving spatial pressure force is zero.
+The actual finite-time witness layer now has the arbitrary-pressure version of
+that boundary as well:
+\texttt{exists\_ExplicitFiniteTimeRegularityWitness\_equalAmplitudeAntiProfileInitialVelocity\_velocity\_pressure\_iff\_spatialPressureGradient\_zero\_on}
+classifies witnesses whose velocity is the cancelled two-mode field and whose
+pressure is an arbitrary smooth pressure by zero spatial pressure gradient on
+the certified slab.  Its no-go corollary
+\texttt{not\_exists\_ExplicitFiniteTimeRegularityWitness\_equalAmplitudeAntiProfileInitialVelocity\_velocity\_pressure\_of\_exists\_spatialPressureGradient\_ne\_zero\_on}
+rules out such a witness from a single nonzero slabwise pressure-gradient
+point.  This is a witness-structure statement, not merely another conjunction
+of the repaired clause and BKM-data exact theorems.  The internal-pressure
+variant
+\texttt{ExplicitFiniteTimeRegularityWitness\_equalAmplitudeAntiProfileInitialVelocity\_velocity\_implies\_spatialPressureGradient\_pressure\_zero\_on}
+then removes the remaining bookkeeping escape hatch: if an actual witness
+itself carries the cancelled anti-profile velocity, then the pressure stored
+inside that witness has zero spatial gradient on the certified slab.  The
+same-witness BKM-envelope theorem
+\texttt{ExplicitFiniteTimeRegularityWitness\_equalAmplitudeAntiProfileInitialVelocity\_velocity\_has\_zero\_vorticityEnvelope}
+adds the complementary positive fact: the very same witness admits the
+identically zero vorticity envelope with zero integral budget.  Thus the BKM
+layer has no hidden analytic content on the cancelled branch; the pressure
+equation is the active boundary.  The BKM-data normal-form theorem
+\texttt{BKMData\_equalAmplitudeAntiProfileInitialVelocity\_iff\_zeroVorticityEnvelope\_zeroBudget}
+now packages this as an exact equivalence: arbitrary envelope and budget data
+on the syntactic cancelled initial datum exists iff the same BKM witness can be
+presented with the zero vorticity envelope and zero integral budget.  The
+finite-mode bridge has therefore stopped extending this cancelled
+same-witness zero-envelope cell and moved to a genuinely non-cancelling
+branch:
+\texttt{oneOneTwoModeSchwartzVelocity\_nonzero\_inviscidZeroPressure\_BKMPremise\_of\_convectionClosure}
+assumes two divergence-free Schwartz profiles whose pointwise sum is nonzero
+somewhere and whose explicit inviscid convection closure vanishes.  Lean then
+packages a nonzero constant-one two-profile velocity, its inviscid
+zero-pressure finite-time witness, and an internally supplied BKM envelope for
+that same witness.  This is a positive finite-mode construction outside the
+cancelled anti-profile normal-form family.
+Lean now also records why this positive branch cannot simply be re-used as a
+positive-viscosity zero-pressure construction.  The residual extraction theorem
+\texttt{explicitClosure\_oneOneTwoModeSchwartzVelocity\_zeroPressure\_of\_momentumEquation}
+shows that any constant-one two-mode zero-pressure momentum equation must
+identify the explicit convection residual with
+\(\nu(\Delta f+\Delta g)\).  Consequently
+\texttt{not\_momentumEquation\_oneOneTwoMode\_zeroPressure\_of\_inviscidClosure\_lapSum\_ne\_zero}
+proves the no-go form: if \(\nu>0\), the inviscid convection residual vanishes,
+and \(\Delta f+\Delta g\) is nonzero at even one space-time point, then the
+zero-pressure positive-viscosity momentum equation is impossible.  Thus the
+new non-cancelling anchor is genuinely an Euler-boundary sanity check; the
+positive-viscosity route must either supply a compensating pressure gradient or
+prove a strong Laplacian cancellation, not merely appeal to the inviscid BKM
+package.
+The follow-up theorem names this compensating-pressure boundary exactly:
+\texttt{momentumEquation\_oneOneTwoModeSchwartzVelocity\_iff\_pressureGradient\_lapSum\_of\_inviscidClosure}
+proves that, under the same inviscid convection closure, the full momentum
+equation with an arbitrary pressure field is equivalent to
+\[
+  \nabla p(t,x)=\nu(\Delta f(t,x)+\Delta g(t,x)).
+\]
+The companion no-go theorem
+\texttt{not\_momentumEquation\_oneOneTwoMode\_of\_inviscidClosure\_pressureGradient\_lapSum\_mismatch}
+rules out the branch from a single failed pointwise equality.  For the
+affine-plus-localized pressure class, Lean also proves the positive package
+\texttt{oneOneTwoModeSchwartzVelocity\_nonzero\_posViscosity\_BKMPremise\_of\_inviscidClosure\_pressureGradient}:
+if the pressure ansatz satisfies that exact gradient balance, then the same
+nonzero constant-one two-mode velocity yields a positive-viscosity finite-time
+witness and an internally supplied BKM envelope.  The pressure repair is
+therefore not left as a vague task; it has been reduced to one explicit
+pointwise gradient balance, with both the positive packaging theorem and the
+single-point mismatch obstruction formalized.
+For the concrete affine-plus-localized pressure family, this boundary has now
+been sharpened to a pair-difference obstruction.  The theorem
+\texttt{not\_momentumEquation\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_lapSum\_pair\_mismatch}
+uses
+\[
+  p(t,x)=\langle c(t),x\rangle+\pi(t)+\rho(t)q(x)
+\]
+inside the arbitrary-pressure exact balance and subtracts the equation at two
+spatial points.  The affine coefficient and time-only gauge cancel, so any
+successful structured repair must satisfy
+\[
+  \nu\big((\Delta f+\Delta g)(t,x)-(\Delta f+\Delta g)(t,y)\big)
+  =
+  \rho(t)\big(\nabla q(x)-\nabla q(y)\big)
+\]
+for every pair of spatial points.  A single pair mismatch blocks the full
+momentum equation.  The corollary
+\texttt{not\_momentumEquation\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_zeroLocalizedAmplitude\_lapSum\_pair\_ne}
+handles the inactive localized-pressure slice: when \(\rho(t)=0\) and
+\(\nu>0\), the summed viscous Laplacian residual must be spatially constant at
+that time.
+The new no-existence theorem
+\texttt{not\_exists\_momentumEquation\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_no\_scalar\_lapSum\_pair\_fit}
+removes the chosen-amplitude loophole: if at some time no scalar \(r\) can
+match the viscous pair-differences to the fixed \(q\)-gradient
+pair-differences, then no functions \(c,\pi,\rho\) in this pressure family can
+satisfy the full momentum equation.  The two-pair theorem
+\texttt{not\_exists\_momentumEquation\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_same\_pressureGradient\_pair\_lapSum\_pair\_ne}
+turns this into a finite witness: if two spatial pairs at one time have the
+same fixed \(q\)-gradient pair-difference but different summed viscous
+Laplacian residual pair-differences, then the shared scalar amplitude
+\(\rho(t)\) cannot fit both pairs.  Its repeated-gradient corollary
+\texttt{not\_exists\_momentumEquation\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_pressureGradient\_pair\_eq\_lapSum\_pair\_ne}
+is the most concrete obstruction: when two points have the same
+\(\nabla q\)-value but different summed viscous Laplacian residuals, the
+localized scalar amplitude cannot repair that branch at all.
+This obstruction is now composed at the BKM-data layer rather than stopping at
+the raw global momentum-equation surface.  The theorem
+\texttt{not\_exists\_BKMData\_oneOneTwoMode\_affineAddScalarSchwartzPressure\_of\_same\_pressureGradient\_pair\_lapSum\_pair\_ne\_on}
+assumes the two-pair witness time lies inside the certified slab
+\(0\le t\le T\).  From a proposed finite-time witness it reads off the four
+slabwise momentum equations stored in the witness record, subtracts the two
+pairs, and obtains the same contradiction: equal fixed \(q\)-gradient
+pair-differences would force equal summed Laplacian residual
+pair-differences.  Hence adding a vorticity envelope and integral budget does
+not create a hidden repair channel for the affine-plus-one-Schwartz pressure
+family.
+The composition theorem
+\texttt{oneOneTwoModeSchwartzVelocity\_inviscidBKM\_and\_not\_exists\_posViscosity\_BKMData\_affineAddScalarSchwartzPressure\_of\_same\_pressureGradient\_pair\_lapSum\_pair\_ne\_on}
+pairs the positive non-cancelling inviscid finite-time BKM-premise package with
+this positive-viscosity no-data theorem.  This is the route-level
+over-determination result: the nonzero constant-one two-mode branch exists as
+an inviscid BKM premise, but under the finite two-pair mismatch it cannot be
+promoted to positive-viscosity BKM data by choosing any affine coefficient,
+time gauge, or scalar localized Schwartz pressure amplitude.
+The finite-time witness layer now also has the corresponding pressure-family
+independent curl obstruction.  In
+\texttt{NavierStokesUniformVorticityContinuationTarget.lean}, theorem
+\texttt{not\_exists\_ExplicitFiniteTimeRegularityWitness\_velocity\_of\_momentumPressureResidual\_vorticity\_ne\_zero\_on}
+states that if the exact pressure residual
+\[
+  R_\nu(u)=\nu\Delta u-\partial_tu-(u\cdot\nabla)u
+\]
+has nonzero curl at any point of the certified slab \(0\le t\le T\), then no
+finite-time smooth witness over that slab can have velocity \(u\).  The proof
+uses the witness's own slabwise momentum equation to identify
+\(\nabla p\) with \(R_\nu(u)\) on the time slice, then applies
+\(\nabla\times\nabla p=0\) for the stored smooth pressure.  The BKM corollary
+\texttt{not\_exists\_BKMData\_velocity\_of\_momentumPressureResidual\_vorticity\_ne\_zero\_on}
+in \texttt{NavierStokesBKMContinuationTarget.lean} strips off the extra
+vorticity-envelope and integral-budget package.  Thus any future route that
+tries to repair a non-curl-free residual by changing the pressure family is
+blocked at the finite-time witness surface, not merely at a chosen ansatz.
+This obstruction has now been factored into positive necessary-condition
+lemmas.  The finite-time witness theorem
+\texttt{ExplicitFiniteTimeRegularityWitness.spatialVorticity\_momentumPressureResidual\_zero\_on}
+states directly that every certified witness has curl-free exact pressure
+residual on its slab, and
+\texttt{ExplicitFiniteTimeRegularityWitness.spatialVorticity\_momentumPressureResidual\_of\_velocity\_eq\_zero\_on}
+transports that statement across an identified velocity field.  The BKM layer
+adds matching lemmas
+\texttt{BKMData\_momentumPressureResidual\_vorticity\_zero\_on} and
+\texttt{BKMData\_momentumPressureResidual\_vorticity\_of\_velocity\_eq\_zero\_on}.
+These are the reusable interface points: a later concrete residual computation
+need only produce one nonzero curl point on the certified slab, and the
+finite-time/BKM witness package is ruled out without opening any pressure
+family-specific normal form.
+The same invariant now reaches the global-output surface.  The definition
+\texttt{ExplicitConcreteNavierStokesGlobalOutputWithVelocity} packages the
+old explicit global output with a prescribed velocity field, and
+\texttt{ExplicitConcreteNavierStokesGlobalOutput\_iff\_exists\_velocity}
+checks that the old proposition is exactly its existential closure.  The lemma
+\texttt{ExplicitConcreteNavierStokesGlobalOutputWithVelocity.spatialVorticity\_momentumPressureResidual\_zero}
+then states the global analogue of the witness invariant: any prescribed
+velocity that is part of a smooth global output has curl-free exact pressure
+residual at every spacetime point.  The no-go theorem
+\texttt{not\_ExplicitConcreteNavierStokesGlobalOutputWithVelocity\_of\_momentumPressureResidual\_vorticity\_ne\_zero}
+therefore lets a single nonzero residual-curl computation rule out a candidate
+velocity as a global output, before considering BKM or continuation packaging.
+The concrete transported-shear residual-curl computation is now consumed at
+these target surfaces in
+\texttt{NavierStokesTransportedShearResidualCurlObstruction.lean}.  The theorem
+\texttt{not\_exists\_ExplicitFiniteTimeRegularityWitness\_velocity\_amplitudeShearTransportVelocityField\_of\_heatODE\_mismatch\_at}
+states that if an arbitrary transported amplitude \(A(t)\sin(k(x_1-bt))e_0+be_1\)
+fails the sampled heat ODE \(A'(t)+\nu k^2A(t)=0\) at a point of the certified
+slab and \(k\neq0\), then no finite-time witness on that slab can have this
+velocity.  Its BKM companion
+\texttt{not\_exists\_BKMData\_velocity\_amplitudeShearTransportVelocityField\_of\_heatODE\_mismatch\_at}
+shows that an envelope and integral budget do not repair the failure, and
+\texttt{not\_ExplicitConcreteNavierStokesGlobalOutputWithVelocity\_amplitudeShearTransportVelocityField\_of\_heatODE\_mismatch\_at}
+rules out the same prescribed velocity at the global-output surface.  This is
+the first direct composition from the transported heat-ODE residual-curl
+calculation to all three exact target slots.
+Lean has now also moved one layer outside this structured pressure family.  In
+\texttt{VectorCalculusR3.lean},
+\texttt{spatialVorticity\_pressureGradientVelocityField} proves the exact
+integrability condition for arbitrary smooth pressure fields: the velocity
+field \(u(t,x)=\nabla_x p(t,x)\) is curl-free at every point.  The theorem
+\texttt{not\_exists\_smoothPressure\_pressureGradientVelocityField\_eq\_of\_spatialVorticity\_ne\_zero}
+therefore blocks any attempt to recast a nonzero-vorticity velocity as a pure
+smooth pressure gradient.  The regression
+\texttt{linear\_shear\_unit\_not\_smooth\_pressure\_gradient\_regression}
+instantiates this obstruction on the unit linear shear.  This is a
+bottom-up vector-calculus obstruction, not a BKM or Sobolev continuation
+theorem; it rules out pressure-as-velocity repairs for nonzero-curl fields but
+does not by itself solve the residual-balancing problem for arbitrary
+pressure-forced momentum equations.
+The same file now lifts this from a pure representation no-go to a necessary
+condition for the actual momentum equation.  The definition
+\texttt{momentumPressureResidual} names
+\[
+  R_\nu(u)=\nu\Delta u-\partial_tu-(u\cdot\nabla)u,
+\]
+and
+\texttt{pressureGradientVelocityField\_eq\_momentumPressureResidual\_of\_momentumEquation}
+shows that any smooth-pressure solution must satisfy
+\(\nabla p=R_\nu(u)\).  Combining this with curl-of-gradient gives
+\texttt{spatialVorticity\_momentumPressureResidual\_of\_momentumEquation} and
+the no-go theorem
+\texttt{not\_exists\_smoothPressure\_momentumEquation\_of\_momentumPressureResidual\_vorticity\_ne\_zero}.
+The concrete witness
+\texttt{not\_exists\_smoothPressure\_momentumEquation\_undampedUnitHeatShearVelocityField\_unitViscosity}
+uses the undamped unit heat-shear profile at unit viscosity: its pressure
+residual is the negative profile, whose curl is nonzero at the origin.  Thus
+that velocity cannot be repaired by any smooth pressure, not merely by any
+previously named affine or localized pressure class.
+This has now been generalized from the unit example to the full wrong-viscosity
+heat-shear family.  The theorem
+\texttt{momentumPressureResidual\_heatShearVelocityField} computes
+\[
+  R_\mu(u_\nu)=(\nu-\mu)k^2u_\nu
+\]
+for the heat-shear profile evolved at viscosity \(\nu\) but tested against a
+momentum equation at viscosity \(\mu\).  Consequently
+\texttt{spatialVorticity\_momentumPressureResidual\_heatShearVelocityField\_origin}
+identifies the origin curl as
+\((\mu-\nu)ak^3e_2\), and
+\texttt{not\_exists\_smoothPressure\_momentumEquation\_heatShearVelocityField\_wrongViscosity}
+rules out every smooth pressure when \(\mu\neq\nu\), \(a\neq0\), and \(k\neq0\).
+This is a real family-level obstruction: a pressure cannot compensate for using
+the wrong viscous heat decay on any nondegenerate heat-shear mode.
+Lean now pushes this one level further, beyond fixed exponential heat decay.
+The general ansatz
+\texttt{amplitudeShearVelocityField} has the form
+\[
+  u(t,x)=A(t)\sin(kx_1)e_0 .
+\]
+The file proves the slice-congruence lemmas needed to reuse the heat-shear
+spatial calculations at a sampled time, and
+\texttt{momentumPressureResidual\_amplitudeShearVelocityField\_slice}
+computes
+\[
+  R_\mu(u)(t,\cdot)=-(A'(t)+\mu k^2A(t))\sin(kx_1)e_0
+\]
+whenever \(A\) has derivative \(A'(t)\) at that time.  The origin-curl theorem
+\texttt{spatialVorticity\_momentumPressureResidual\_amplitudeShearVelocityField\_origin}
+therefore identifies the obstruction as
+\((A'(t)+\mu k^2A(t))ke_2\).  Consequently
+\texttt{not\_exists\_smoothPressure\_momentumEquation\_amplitudeShearVelocityField\_of\_heatODE\_mismatch\_at}
+rules out every smooth pressure whenever the sampled scalar heat ODE
+\(A'(t)+\mu k^2A(t)=0\) fails and \(k\neq0\).  This blocks arbitrary
+time-amplitude reparametrizations of the shear mode: the missing heat ODE cannot
+be hidden in pressure.
+Lean now proves the same point for the transported arbitrary-amplitude shear
+\[
+  u(t,x)=A(t)\sin(k(x_1-bt))e_0+be_1 .
+\]
+\texttt{momentumPressureResidual\_amplitudeShearTransportVelocityField\_slice}
+shows that the transport contribution cancels the phase derivative, leaving the
+same scalar heat-ODE residual
+\(-(A'(t)+\mu k^2A(t))\sin(k(x_1-bt))e_0\).  The phase-point curl theorem
+\texttt{spatialVorticity\_momentumPressureResidual\_amplitudeShearTransportVelocityField\_phasePoint}
+tests at \(x_1=bt\) and obtains
+\((A'(t)+\mu k^2A(t))ke_2\).  Consequently
+\texttt{not\_exists\_smoothPressure\_momentumEquation\_amplitudeShearTransportVelocityField\_of\_heatODE\_mismatch\_at}
+rules out every smooth pressure whenever the transported scalar heat ODE fails
+and \(k\neq0\).  Thus adding constant transport cannot hide a bad amplitude in
+the advection term.
+The negative restatement
+\texttt{not\_exists\_ExplicitFiniteTimeRegularityWitness\_equalAmplitudeAntiProfileInitialVelocity\_velocity\_of\_exists\_pressure\_spatialPressureGradient\_ne\_zero\_on}
+rules out any such witness whose hidden pressure contains even one nonzero
+spatial-gradient point on that slab.
+Lean now also packages the finite-time BKM layer for the same anti-profile
+branch:
+\texttt{BKMData\_equalAmplitudeAntiProfileSchwartzVelocity\_affineAddScalarSchwartzPressure\_iff\_affineCoeff\_zeroOn\_and\_schwartzPressureGradient\_zero\_if\_nonzeroAmplitudeOn}.
+This theorem says that asking for BKM data with the cancelled two-mode velocity
+is equivalent to the slabwise zero-flow pressure classification, not a weaker
+or independently repairable premise.
 
 \section{Current Boundary}
 
@@ -2759,7 +4099,8 @@ but not the manuscript-specific analytic instantiations.
 
 \section{Verification}\label{sec:ns-verification}
 
-The newest invariant-shell exactness step was checked directly with:
+The newest invariant-shell exactness and generic bridge regression step was
+checked directly with:
 \begin{verbatim}
 lake build Mettapedia.FluidDynamics.NavierStokes.\
 WindowedColeHopfHeatSaturatedShiftKernelInvariantObstruction
@@ -2769,6 +4110,7 @@ lake build Mettapedia.FluidDynamics.NavierStokes.\
 WindowedColeHopfHeatSaturatedAnchoredShiftInvariantObstruction
 lake build Mettapedia.FluidDynamics.NavierStokes.\
 WindowedColeHopfHeatSaturatedShiftKernelInvariantAnchoredSpecialization
+lake build Mettapedia.FluidDynamics.NavierStokes.ContinuationRegression
 \end{verbatim}
 The newest bounded-energy finite-mode Schwartz step was checked directly with:
 \begin{verbatim}
@@ -2777,6 +4119,733 @@ NavierStokesFiniteModeBoundedEnergy
 lake build Mettapedia.FluidDynamics.NavierStokes.\
 NavierStokesFiniteModeBoundedEnergyRegression
 \end{verbatim}
+The pressure-integrable energy/continuation bridge step was checked with the
+project wrapper:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesEnergyContinuationBridgeRegression
+\end{verbatim}
+Focused dependency reports were written to:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T173145-energy-continuation-pressure-integrable.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T173145-energy-continuation-pressure-integrable-regression.txt
+\end{verbatim}
+Both reports record zero direct and zero recursive sorries for the checked
+bridge and regression declarations.
+The Schwartz-pressure-slice strengthening was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesEnergyContinuationBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T174530-energy-pressure-schwartz-slices.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T174531-energy-continuation-schwartz-pressure-slices.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T174531-energy-continuation-schwartz-pressure-slices-regression.txt
+\end{verbatim}
+These reports record zero direct and zero recursive sorries for the pressure
+slice lemmas, the bridge theorem, and the regression theorem.
+The pressure-slice witness and finite-mode BKM-premise connection was then
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesEnergyContinuationBridgeRegression
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeSchwartzBKMBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T175704-energy-continuation-schwartz-pressure-slice-witness.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T175709-energy-continuation-schwartz-pressure-slice-witness-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T175959-finite-mode-schwartz-bkm-pressure-slice-premise-visible.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T175859-finite-mode-schwartz-bkm-pressure-slice-premise-regression.txt
+\end{verbatim}
+These reports record zero direct and zero recursive sorries for the new witness,
+finite-mode BKM-premise, and regression declarations.
+The explicit pressure-slice residual-closure bridge was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergyRegression
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeSchwartzBKMBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T181127-finite-mode-pressure-slice-explicit-closure.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T181132-finite-mode-pressure-slice-explicit-closure-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T181135-finite-mode-pressure-slice-explicit-closure-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T181139-finite-mode-pressure-slice-explicit-closure-bkm-regression.txt
+\end{verbatim}
+These reports record zero direct and zero recursive sorries for the expanded
+momentum-closure theorem, its finite-mode BKM bridge, and their regressions.
+The pressure-slice anti-profile cancellation baseline was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergyRegression
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeSchwartzBKMBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T182427-finite-mode-pressure-slice-antiprofile-closure.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T182432-finite-mode-pressure-slice-antiprofile-closure-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T182436-finite-mode-pressure-slice-antiprofile-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T182441-finite-mode-pressure-slice-antiprofile-bkm-regression.txt
+\end{verbatim}
+These reports record 49 bounded-energy declarations, 40 bounded-energy
+regression declarations, 4 finite-mode BKM declarations, and 7 finite-mode BKM
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The equal-amplitude anti-profile strengthening was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergyRegression
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeSchwartzBKMBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T183449-finite-mode-pressure-slice-equal-antiprofile-closure.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T183449-finite-mode-pressure-slice-equal-antiprofile-closure-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T183449-finite-mode-pressure-slice-equal-antiprofile-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T183449-finite-mode-pressure-slice-equal-antiprofile-bkm-regression.txt
+\end{verbatim}
+These reports record 53 bounded-energy declarations, 41 bounded-energy
+regression declarations, 5 finite-mode BKM declarations, and 8 finite-mode BKM
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The anti-profile zero-flow exactness boundary was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeBoundedEnergyRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T184624-finite-mode-antiprofile-zero-exactness.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T184624-finite-mode-antiprofile-zero-exactness-regression.txt
+\end{verbatim}
+These reports record 56 bounded-energy declarations and 44 bounded-energy
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The witness-level zero-flow audit was then checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeSchwartzBKMBridgeRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T190035-finite-mode-equal-antiprofile-zero-witness.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T190034-finite-mode-equal-antiprofile-zero-witness-regression.txt
+\end{verbatim}
+These reports record 6 finite-mode BKM bridge declarations and 9 bridge
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The zero-envelope refinement was checked with the same focused build and with
+focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T191246-finite-mode-equal-antiprofile-zero-envelope.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T191246-finite-mode-equal-antiprofile-zero-envelope-regression.txt
+\end{verbatim}
+These reports record 7 finite-mode BKM bridge declarations and 10 bridge
+regression declarations respectively, again all with zero direct and zero
+recursive sorries.
+The canonical-zero-witness refinement was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T192509-finite-mode-equal-antiprofile-canonical-zero-witness.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T192509-finite-mode-equal-antiprofile-canonical-zero-witness-regression.txt
+\end{verbatim}
+These reports record 8 finite-mode BKM bridge declarations and 11 bridge
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The affine time-only pressure-gauge audit was checked with the lower
+finite-mode and BKM bridge builds and with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T194340-finite-mode-antiprofile-affine-time-only.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T194349-finite-mode-antiprofile-affine-time-only-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T194355-finite-mode-antiprofile-affine-time-only-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T194359-finite-mode-antiprofile-affine-time-only-bkm-regression.txt
+\end{verbatim}
+These reports record 57 bounded-energy declarations, 45 bounded-energy
+regression declarations, 9 BKM bridge declarations, and 12 BKM bridge
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The canonical-gauge witness refinement was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T195624-finite-mode-antiprofile-affine-time-only-canonical-gauge.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T195628-finite-mode-antiprofile-affine-time-only-canonical-gauge-regression.txt
+\end{verbatim}
+These reports record 10 BKM bridge declarations and 13 BKM bridge regression
+declarations respectively, again all with zero direct and zero recursive
+sorries.
+The spatial-affine pressure obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T201255-finite-mode-antiprofile-spatial-affine-pressure-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T201303-finite-mode-antiprofile-spatial-affine-pressure-obstruction-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T201308-finite-mode-antiprofile-spatial-affine-pressure-obstruction-bkm-regression.txt
+\end{verbatim}
+These reports record 62 bounded-energy declarations, 50 bounded-energy
+regression declarations, and 13 BKM bridge regression declarations respectively,
+all with zero direct and zero recursive sorries.
+The BKM-data lift was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T202220-finite-mode-bkm-spatial-affine-pressure-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T202220-finite-mode-bkm-spatial-affine-pressure-obstruction-regression.txt
+\end{verbatim}
+These reports record 11 BKM bridge declarations and 14 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The broader BKM pressure-gradient obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T203139-finite-mode-bkm-pressure-gradient-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T203143-finite-mode-bkm-pressure-gradient-obstruction-regression.txt
+\end{verbatim}
+These reports record 12 BKM bridge declarations and 15 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The zero-velocity BKM pressure-gradient classification was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T203905-finite-mode-bkm-zero-velocity-pressure-gradient-classification.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T203909-finite-mode-bkm-zero-velocity-pressure-gradient-classification-regression.txt
+\end{verbatim}
+These reports record 13 BKM bridge declarations and 16 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The zero-velocity BKM initial-data obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T204702-finite-mode-bkm-zero-velocity-initial-data-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T204708-finite-mode-bkm-zero-velocity-initial-data-obstruction-regression.txt
+\end{verbatim}
+These reports record 15 BKM bridge declarations and 18 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The combined zero-velocity BKM classification and disjunctive no-go theorem
+were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T205836-finite-mode-bkm-zero-velocity-combined-classification-layout-fixed.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T205840-finite-mode-bkm-zero-velocity-combined-classification-layout-fixed-regression.txt
+\end{verbatim}
+These reports record 17 BKM bridge declarations and 20 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact zero-velocity BKM classification was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T210805-finite-mode-bkm-zero-velocity-exact-classification.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T210805-finite-mode-bkm-zero-velocity-exact-classification-regression.txt
+\end{verbatim}
+These reports record 18 BKM bridge declarations and 22 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The time-only zero-velocity BKM gauge specialization was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T211701-finite-mode-bkm-time-only-classification.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T211701-finite-mode-bkm-time-only-classification-regression.txt
+\end{verbatim}
+These reports record 21 BKM bridge declarations and 24 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact spatial-affine zero-velocity BKM classification was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T212437-finite-mode-bkm-spatial-affine-exact-classification-layout-fixed.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T212437-finite-mode-bkm-spatial-affine-exact-classification-layout-fixed-regression.txt
+\end{verbatim}
+These reports record 24 BKM bridge declarations and 27 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact full affine-plus-localized zero-velocity BKM classification was
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T213803-finite-mode-bkm-full-affine-localized-classification.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T213803-finite-mode-bkm-full-affine-localized-classification-regression.txt
+\end{verbatim}
+These reports record 30 BKM bridge declarations and 33 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The nonzero-amplitude constant-gradient consequence was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T214530-finite-mode-bkm-nonzero-amplitude-constant-gradient.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T214533-finite-mode-bkm-nonzero-amplitude-constant-gradient-regression.txt
+\end{verbatim}
+These reports record 31 BKM bridge declarations and 34 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The stronger Schwartz constant-gradient collapse and its BKM consequences were
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T215836-finite-mode-bkm-schwartz-constant-gradient-zero.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T215839-finite-mode-bkm-schwartz-constant-gradient-zero-regression.txt
+\end{verbatim}
+These reports record 34 BKM bridge declarations and 37 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact collapsed zero-flow classification was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T220735-finite-mode-bkm-exact-collapsed-zero-flow.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T220735-finite-mode-bkm-exact-collapsed-zero-flow-regression.txt
+\end{verbatim}
+These reports record 35 BKM bridge declarations and 38 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The equal-amplitude anti-profile momentum-equation collapse for the full
+affine-plus-localized pressure class was checked with the same focused build
+and with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T221833-finite-mode-antiprofile-full-affine-localized-momentum-collapse.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T221833-finite-mode-antiprofile-full-affine-localized-momentum-collapse-regression.txt
+\end{verbatim}
+These reports record 36 BKM bridge declarations and 39 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The matching BKM-data collapse for the same anti-profile pressure family was
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T222809-finite-mode-antiprofile-full-affine-localized-bkm-collapse.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T222809-finite-mode-antiprofile-full-affine-localized-bkm-collapse-regression.txt
+\end{verbatim}
+These reports record 37 BKM bridge declarations and 40 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The direct no-go corollary for the same BKM-data surface was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T224212-finite-mode-antiprofile-full-affine-localized-bkm-no-go.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T224212-finite-mode-antiprofile-full-affine-localized-bkm-no-go-regression.txt
+\end{verbatim}
+These reports record 38 BKM bridge declarations and 41 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The follow-up clause/data separation theorem for the same bad pressure surface
+was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T224952-finite-mode-antiprofile-bare-bkm-clause-mismatch.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T224955-finite-mode-antiprofile-bare-bkm-clause-mismatch-regression.txt
+\end{verbatim}
+These reports record 39 BKM bridge declarations and 42 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The constructor-input separation theorem for the same anti-profile pressure
+family was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T225853-finite-mode-antiprofile-bkm-clause-momentum-input-mismatch.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T225857-finite-mode-antiprofile-bkm-clause-momentum-input-mismatch-regression.txt
+\end{verbatim}
+These reports record 40 BKM bridge declarations and 43 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The matching data-level anti-profile initial-datum no-go was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T231542-finite-mode-antiprofile-initial-clause-data-mismatch.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T231542-finite-mode-antiprofile-initial-clause-data-mismatch-regression.txt
+\end{verbatim}
+These reports record 41 BKM bridge declarations and 44 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact initial-datum BKM-data collapse was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T232245-finite-mode-antiprofile-initial-bkm-data-exact-collapse.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T232245-finite-mode-antiprofile-initial-bkm-data-exact-collapse-regression.txt
+\end{verbatim}
+These reports record 43 BKM bridge declarations and 46 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The reusable pressure-independent anti-profile BKM-data normalizations were
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T233022-finite-mode-antiprofile-bkm-data-general-normalization.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T233022-finite-mode-antiprofile-bkm-data-general-normalization-regression.txt
+\end{verbatim}
+These reports record 45 BKM bridge declarations and 48 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The arbitrary-pressure anti-profile BKM-data exact boundary and no-go forms
+were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T233950-finite-mode-antiprofile-bkm-data-arbitrary-pressure.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T233950-finite-mode-antiprofile-bkm-data-arbitrary-pressure-regression.txt
+\end{verbatim}
+These reports record 49 BKM bridge declarations and 52 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The corresponding arbitrary-pressure finite-energy clause/data separation was
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T234907-finite-mode-antiprofile-arbitrary-pressure-clause-data-separation.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T234907-finite-mode-antiprofile-arbitrary-pressure-clause-data-separation-regression.txt
+\end{verbatim}
+These reports record 51 BKM bridge declarations and 54 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact arbitrary-pressure repaired-clause/BKM-data boundary was checked
+with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T235603-finite-mode-antiprofile-arbitrary-pressure-clause-data-exact.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T235606-finite-mode-antiprofile-arbitrary-pressure-clause-data-exact-regression.txt
+\end{verbatim}
+These reports record 53 BKM bridge declarations and 56 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The arbitrary-pressure raw momentum-equation boundary and constructor-input
+separation were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T001726-finite-mode-antiprofile-arbitrary-pressure-momentum-boundary.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T001744-finite-mode-antiprofile-arbitrary-pressure-momentum-boundary-regression.txt
+\end{verbatim}
+These reports record 57 BKM bridge declarations and 60 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact arbitrary-pressure finite-energy clause/momentum-equation boundary
+was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T003021-finite-mode-antiprofile-arbitrary-pressure-momentum-exact-boundary.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T003025-finite-mode-antiprofile-arbitrary-pressure-momentum-exact-boundary-regression.txt
+\end{verbatim}
+These reports record 58 BKM bridge declarations and 61 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact arbitrary-pressure finite-energy clause/BKM-data/momentum-equation
+boundary was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T003632-finite-mode-antiprofile-arbitrary-pressure-clause-data-momentum-exact.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T003636-finite-mode-antiprofile-arbitrary-pressure-clause-data-momentum-exact-regression.txt
+\end{verbatim}
+These reports record 59 BKM bridge declarations and 62 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The arbitrary-pressure finite-time witness boundary was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T004723-finite-mode-antiprofile-arbitrary-pressure-witness-exact.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T004723-finite-mode-antiprofile-arbitrary-pressure-witness-exact-regression.txt
+\end{verbatim}
+These reports record 61 BKM bridge declarations and 64 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The internal-pressure finite-time witness obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T005328-finite-mode-antiprofile-internal-witness-pressure-zero.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T005328-finite-mode-antiprofile-internal-witness-pressure-zero-regression.txt
+\end{verbatim}
+These reports record 62 BKM bridge declarations and 65 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The same-witness zero BKM-envelope theorem was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T010739-finite-mode-antiprofile-same-witness-zero-bkm-envelope.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T010738-finite-mode-antiprofile-same-witness-zero-bkm-envelope-regression.txt
+\end{verbatim}
+These reports record 64 BKM bridge declarations and 67 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The zero-budget BKM-data normal form was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T011620-finite-mode-antiprofile-bkm-zero-budget-normal-form.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T011620-finite-mode-antiprofile-bkm-zero-budget-normal-form-regression.txt
+\end{verbatim}
+These reports record 65 BKM bridge declarations and 68 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The non-cancelling constant-one inviscid zero-pressure BKM premise was checked
+with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T012731-finite-mode-one-one-inviscid-nonzero-bkm-premise.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T012731-finite-mode-one-one-inviscid-nonzero-bkm-premise-regression.txt
+\end{verbatim}
+These reports record 66 BKM bridge declarations and 69 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The positive-viscosity zero-pressure obstruction for the non-cancelling
+constant-one two-mode branch was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T013850-finite-mode-one-one-positive-viscosity-zero-pressure-obstruction-20260504T233845Z.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T013854-finite-mode-one-one-positive-viscosity-zero-pressure-obstruction-regression-20260504T233845Z.txt
+\end{verbatim}
+These reports record 64 bounded-energy declarations and 52 bounded-energy
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The exact pressure-gradient balance and positive-viscosity pressure-repaired
+BKM package for that same non-cancelling branch were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T014937-finite-mode-one-one-pressure-gradient-lapsum-balance-20260504T234926Z.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T014937-finite-mode-one-one-pressure-gradient-lapsum-balance-regression-20260504T234926Z.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T014937-finite-mode-one-one-positive-viscosity-pressure-repaired-bkm-20260504T234926Z.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T014937-finite-mode-one-one-positive-viscosity-pressure-repaired-bkm-regression-20260504T234926Z.txt
+\end{verbatim}
+These reports record 66 bounded-energy declarations, 54 bounded-energy
+regression declarations, 67 BKM bridge declarations, and 70 BKM bridge
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The concrete affine-plus-localized pair-difference obstruction for that
+pressure-repaired non-cancelling branch was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T020140-finite-mode-affine-pressure-pair-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T020140-finite-mode-affine-pressure-pair-obstruction-regression.txt
+\end{verbatim}
+These reports record 69 BKM bridge declarations and 72 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The scalar-amplitude-free and repeated-gradient affine-pressure obstructions
+for the same non-cancelling branch were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T021801-finite-mode-affine-pressure-no-scalar-pair-fit.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T021801-finite-mode-affine-pressure-no-scalar-pair-fit-regression.txt
+\end{verbatim}
+These reports record 71 BKM bridge declarations and 74 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The finite two-pair obstruction for the same scalar-amplitude repair route was
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T022633-finite-mode-affine-pressure-two-pair-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T022637-finite-mode-affine-pressure-two-pair-obstruction-regression.txt
+\end{verbatim}
+These reports record 72 BKM bridge declarations and 75 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The BKM-data lift and route-level multi-mode composition were checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T045056-multi-mode-overdetermination-composition.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T045057-multi-mode-overdetermination-composition-regression.txt
+\end{verbatim}
+These reports record 74 BKM bridge declarations and 76 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The pressure-family-independent finite-time residual-curl witness obstruction
+was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T050309-witness-residual-curl-uniform.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T050404-witness-residual-curl-uniform-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T050356-witness-residual-curl-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T050408-witness-residual-curl-bkm-regression.txt
+\end{verbatim}
+These reports record 532 uniform-continuation declarations, 66 uniform
+regression declarations, 253 BKM-continuation declarations, and 5 BKM
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The positive residual-curl necessary-condition factorization was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052004-witness-residual-curl-zero-uniform.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052036-witness-residual-curl-zero-uniform-regression.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052039-witness-residual-curl-zero-bkm.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052043-witness-residual-curl-zero-bkm-regression.txt
+\end{verbatim}
+These reports record 535 uniform-continuation declarations, 68 uniform
+regression declarations, 255 BKM-continuation declarations, and 7 BKM
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The prescribed-velocity global-output residual-curl layer was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052826-global-output-residual-curl-velocity.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T052859-global-output-residual-curl-velocity-regression.txt
+\end{verbatim}
+These reports record 539 uniform-continuation declarations and 71 uniform
+regression declarations respectively, both with zero direct and zero recursive
+sorries.
+The transported-shear residual-curl target composition was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T053749-transported-shear-residual-curl-target-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T053749-transported-shear-residual-curl-target-obstruction-regression.txt
+\end{verbatim}
+These reports record 3 obstruction declarations and 3 regression declarations
+respectively, all with zero direct and zero recursive sorries.
+The internal-pressure no-go form was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T010113-finite-mode-antiprofile-internal-witness-pressure-no-go.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T010114-finite-mode-antiprofile-internal-witness-pressure-no-go-regression.txt
+\end{verbatim}
+These reports record 63 BKM bridge declarations and 66 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The concrete affine-plus-localized repaired-clause/BKM-data exact boundary was
+checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T000829-finite-mode-antiprofile-affine-localized-clause-data-exact.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T000835-finite-mode-antiprofile-affine-localized-clause-data-exact-regression.txt
+\end{verbatim}
+These reports record 55 BKM bridge declarations and 58 BKM bridge regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The exact BKM-clause zero-normalization for the equal-amplitude anti-profile
+initial datum was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T230610-finite-mode-antiprofile-bkm-clause-zero-normalization-v2.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260504T230614-finite-mode-antiprofile-bkm-clause-zero-normalization-regression-v2.txt
+\end{verbatim}
+These reports record 4 BKM clause declarations and 6 BKM clause regression
+declarations respectively, all with zero direct and zero recursive sorries.
+The concrete wrong-viscosity heat-shear residual obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T032418-wrong-viscosity-heat-shear-residual.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T032424-wrong-viscosity-heat-shear-residual-regression.txt
+\end{verbatim}
+These reports record 287 vector-calculus declarations and 18 vector-calculus
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The arbitrary time-amplitude heat-ODE pressure obstruction was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T034413-amplitude-shear-heat-ode-pressure-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T034419-amplitude-shear-heat-ode-pressure-obstruction-regression.txt
+\end{verbatim}
+These reports record 305 vector-calculus declarations and 19 vector-calculus
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The transported arbitrary-amplitude heat-ODE pressure obstruction was checked
+with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T040329-amplitude-transport-shear-heat-ode-pressure-obstruction.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T040335-amplitude-transport-shear-heat-ode-pressure-obstruction-regression.txt
+\end{verbatim}
+These reports record 317 vector-calculus declarations and 20 vector-calculus
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The finite-mode Galerkin ODE pivot was checked with:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/scripts/mettapedia-lean-task.sh build \
+  Mettapedia.FluidDynamics.NavierStokes.\
+NavierStokesFiniteModeGalerkinToyRegression
+\end{verbatim}
+with focused dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T041538-finite-mode-galerkin-pure-forcing-diagonal-linear.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T041541-finite-mode-galerkin-pure-forcing-diagonal-linear-regression.txt
+\end{verbatim}
+These reports record 28 finite-mode Galerkin toy declarations and 10
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The equilibrium-centered diagonal-affine extension was then checked with the
+same focused regression build and the additional dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T042629-finite-mode-galerkin-diagonal-affine-equilibrium.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T042632-finite-mode-galerkin-diagonal-affine-equilibrium-regression.txt
+\end{verbatim}
+These reports record 34 finite-mode Galerkin toy declarations and 13
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
+The finite-mode coefficient-energy identity and diagonal-linear dissipativity
+extension was then checked with the same focused regression build and the
+additional dependency reports:
+\begin{verbatim}
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T043703-finite-mode-galerkin-energy-identity.txt
+/home/zarclaw/automation/aihub/state/ns/deps/\
+DEPS-20260505T043706-finite-mode-galerkin-energy-identity-regression.txt
+\end{verbatim}
+These reports record 42 finite-mode Galerkin toy declarations and 16
+regression declarations respectively, all with zero direct and zero recursive
+sorries.
 The full active \texttt{NavierStokes} lane was then rechecked with the grouped
 build command
 \begin{verbatim}
