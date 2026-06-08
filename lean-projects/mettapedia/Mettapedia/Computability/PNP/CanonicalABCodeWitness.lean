@@ -68,6 +68,31 @@ theorem exactVisibleCompressionTarget_canonicalABCodeFamily
       (canonicalABDecisionListCandidateData_of_codes
         (Z := Z) (k := k) (Index := Index) codes)
 
+theorem canonicalABCodeFamily_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    (codes : Index → SharedAffineDecisionListCode (k + k))
+    (hsurj :
+      Function.Surjective
+        (canonicalABCodeFamily (Z := Z) (k := k) codes).predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 * k + 1 := by
+  exact
+    CanonicalABDecisionListCandidateData.surfaceCard_le_of_surjective_predict
+      (canonicalABDecisionListCandidateData_of_codes
+        (Z := Z) (k := k) (Index := Index) codes)
+      hsurj
+
+theorem canonicalABCodeFamily_not_surjective_of_lt_surfaceCard
+    [Fintype Z]
+    (codes : Index → SharedAffineDecisionListCode (k + k))
+    (hs : 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective
+        (canonicalABCodeFamily (Z := Z) (k := k) codes).predict := by
+  exact
+    CanonicalABDecisionListCandidateData.not_surjective_predict_of_lt_surfaceCard
+      (canonicalABDecisionListCandidateData_of_codes
+        (Z := Z) (k := k) (Index := Index) codes)
+      hs
+
 theorem candidateData_of_eq_canonicalABCodeFamily
     {G : ExactVisibleSwitchedFamily Z k Index}
     (codes : Index → SharedAffineDecisionListCode (k + k))

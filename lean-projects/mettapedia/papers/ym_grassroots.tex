@@ -1,0 +1,996 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Yang--Mills Grassroots Formalization Notes}
+\author{Mettapedia autoformalization notes}
+\date{\today}
+
+\newcommand{\lean}[1]{\texttt{#1}}
+\newcommand{\leansmall}[1]{{\small\texttt{#1}}}
+
+\begin{document}
+\maketitle
+
+\section{Scope}
+
+This note records first-party Lean work toward a Yang--Mills existence and mass
+gap formalization.  The current target is deliberately modest: establish a
+small spectral mass-gap audit layer that future classical-gauge and QFT
+constructions must satisfy.
+
+The Clay formulation says, in spectral terms, that the Hamiltonian has no
+spectrum in an interval \((0,\Delta)\) above the vacuum.  The present Lean work
+does not construct a Yang--Mills theory, a Hilbert space, a Hamiltonian, or the
+Wightman/Osterwalder--Schrader infrastructure.  It only fixes the bounded
+Hamiltonian gap predicates and proves basic consequences that should remain
+valid under later strengthening.
+
+\section{Lean Layer}
+
+The first module is
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/MassGap.lean}.
+\]
+It introduces:
+\begin{itemize}[leftmargin=1.5em]
+  \item \lean{Spacetime} as \(\mathbb{R}^4\) and \lean{Space} as
+    \(\mathbb{R}^3\), matching the coordinate types used by the existing
+    reference statement;
+  \item \lean{LinearOperator}, the bounded real-linear operator surface used by
+    Mathlib's current spectrum API;
+  \item \lean{SpectrumAvoidsOpenInterval}, a direct predicate for absence of
+    spectrum in an interval;
+  \item \lean{HasSpectralMassGap}, the positive spectral window
+    \(0<\Delta\) plus absence of spectrum in \((0,\Delta)\);
+  \item \lean{HasPositiveEnergySpectrum} and \lean{HasVacuumEnergyZero} as
+    separate spectral audit assumptions;
+  \item \lean{HasFirstPositiveSpectralValue}, the bounded-operator audit
+    predicate for a first positive spectral excitation \(m\);
+  \item \lean{PositiveSpectrumSet} and \lean{PositiveSpectralInf} as
+    positive-spectrum order audit surfaces;
+  \item \lean{SpectralGapSet}, \lean{SpectralGapSup}, and
+    \lean{HasFiniteSpectralMass} as finite-gap audit surfaces;
+  \item \lean{HasQuadraticMassGap}, the Hilbert-space quadratic-form version
+    often used as a proof obligation before invoking spectral machinery.
+\end{itemize}
+
+\section{Proved Consequences}
+
+The module proves that spectral gaps are downward closed:
+\[
+  \lean{HasSpectralMassGap.mono}.
+\]
+Thus any proposed proof that produces a gap \(\Delta\) also produces every
+smaller positive gap.  This is a useful sanity check for future gap claims and
+for any definition of the mass as a supremum of admissible gaps.
+
+It also proves a pointwise obstruction:
+\[
+  \lean{not\_hasSpectralMassGap\_of\_spectrum\_in\_gap}.
+\]
+A single spectral value \(E\) with \(0<E<\Delta\) rules out \(\Delta\) as a
+valid spectral mass gap.  This is the Yang--Mills analogue of a concrete audit
+target: any future construction must explain why the Hamiltonian has no such
+low positive spectral values.
+
+The same exclusion is now available in threshold and set-subset forms:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasSpectralMassGap.gap\_le\_of\_pos\_spectrum}\\
+\leansmall{HasSpectralMassGap.spectrum\_subset\_nonpos\_or\_gap}
+\end{tabular}
+\end{center}
+Thus a positive spectral value of a Hamiltonian with gap \(\Delta\) must lie at
+least at \(\Delta\), and the whole spectrum is confined to
+\((-\infty,0]\cup[\Delta,\infty)\).  The companion lemma
+\[
+  \lean{HasSpectralMassGap.not\_spectrum\_of\_pos\_lt}
+\]
+gives the direct operational exclusion of any \(E\in(0,\Delta)\).
+Lean now also proves the exact converse characterization
+\[
+  \lean{hasSpectralMassGap\_iff\_positive\_and\_spectrum\_subset\_nonpos\_or\_gap}.
+\]
+So, on this bounded-operator audit surface, a positive \(\Delta\) is a spectral
+mass gap exactly when the spectrum lies in \((-\infty,0]\cup[\Delta,\infty)\).
+
+When combined with positive energy, the gap splits the spectrum:
+\[
+  \lean{HasSpectralMassGap.eq\_zero\_or\_gap\_le\_of\_positive\_energy}.
+\]
+Every spectral value is either \(0\) or at least \(\Delta\).  This cleanly
+separates the vacuum-energy condition from the low-excitation exclusion.
+There are also theorem-level forms for non-vacuum spectral values and for the
+whole positive-energy spectrum:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasSpectralMassGap.gap\_le\_of\_positive\_energy\_of\_ne\_zero}\\
+\leansmall{HasSpectralMassGap.spectrum\_subset\_vacuum\_or\_gap\_of\_positive\_energy}
+\end{tabular}
+\end{center}
+The same positive-energy split is now available as an exact iff:
+\[
+  \lean{hasSpectralMassGap\_iff\_positive\_and\_spectrum\_subset\_vacuum\_or\_gap\_of\_positive\_energy}.
+\]
+Thus, once positive energy is fixed, the mass-gap predicate is interchangeable
+with the statement that every spectral value is either the vacuum value \(0\)
+or lies at least at \(\Delta\).
+
+The first-positive-spectral-value interface packages the expected “first
+excitation” target without building the underlying Yang--Mills Hamiltonian.
+If \(m\) is the first positive spectral value, then lower positive spectral
+values are excluded and the whole spectrum lies in
+\((-\infty,0]\cup[m,\infty)\):
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasFirstPositiveSpectralValue.unique}\\
+\leansmall{HasFirstPositiveSpectralValue.not\_spectrum\_of\_pos\_lt}\\
+\leansmall{HasFirstPositiveSpectralValue.spectrum\_subset\_nonpos\_or\_first}\\
+\leansmall{HasFirstPositiveSpectralValue.spectrum\_subset\_vacuum\_or\_first\_of\_positiveEnergy}
+\end{tabular}
+\end{center}
+The uniqueness lemma records that two supplied first positive spectral values
+for the same Hamiltonian must be equal.  With positive energy, the nonpositive
+side of the split tightens to the vacuum alternative \(E=0\).
+The same predicate is also equivalent to the order-theoretic statement that
+\(m\) is the least element of the positive spectrum:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasFirstPositiveSpectralValue.isLeast\_positiveSpectrumSet}\\
+\leansmall{hasFirstPositiveSpectralValue\_iff\_isLeast\_positiveSpectrumSet}\\
+\leansmall{HasFirstPositiveSpectralValue.positiveSpectralInf\_eq}
+\end{tabular}
+\end{center}
+This gives the parallel audit value
+\(\lean{PositiveSpectralInf}\,A=m\) whenever the first positive spectral value
+exists.
+
+The bridge back to the gap predicate is exact:
+\[
+  \lean{hasFirstPositiveSpectralValue\_iff\_spectrum\_mem\_and\_hasSpectralMassGap}.
+\]
+Equivalently, a candidate \(m\) is the first positive spectral value precisely
+when \(m\) is actually in the spectrum and \(m\) itself is an admitted spectral
+mass gap.  The forward direction is also available as
+\[
+  \lean{HasSpectralMassGap.hasFirstPositiveSpectralValue\_of\_spectrum\_mem}.
+\]
+The same assumption exactly identifies the admitted spectral gaps:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasFirstPositiveSpectralValue.hasSpectralMassGap\_of\_le}\\
+\leansmall{HasFirstPositiveSpectralValue.hasSpectralMassGap\_iff}\\
+\leansmall{HasFirstPositiveSpectralValue.spectralGapSet\_eq\_Ioc}
+\end{tabular}
+\end{center}
+Thus the bounded audit layer proves
+\(\lean{SpectralGapSet}\,A=(0,m]\).  It also supplies finite spectral mass and
+collapses the supremum audit to the first excitation:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasFirstPositiveSpectralValue.hasFiniteSpectralMass}\\
+\leansmall{HasFirstPositiveSpectralValue.spectralGapSup\_eq}\\
+\leansmall{HasFirstPositiveSpectralValue.spectralGapSup\_eq\_positiveSpectralInf}
+\end{tabular}
+\end{center}
+These are not Yang--Mills construction theorems; they are downstream checks
+that any proposed construction of a Hamiltonian with a first positive spectral
+value must satisfy.
+
+The finite-mass audit predicate is linked to actual positive spectrum by
+\[
+  \lean{hasFiniteSpectralMass\_of\_pos\_spectrum}.
+\]
+A single positive spectral value gives an upper bound for every admissible gap.
+The boundedness surface is now exposed directly as
+\[
+  \lean{hasFiniteSpectralMass\_iff\_bddAbove\_spectralGapSet}.
+\]
+Thus the finite-mass predicate is exactly the assertion that the admitted gap
+set is bounded above, with the definition's positive bound recovered by taking
+the maximum of any upper bound and \(1\).  The new supremum audit value
+\[
+  \lean{SpectralGapSup}
+\]
+is deliberately paired with the hypotheses that make it meaningful.  If the
+gap set is bounded above and nonempty, then
+\[
+  \lean{spectralGapSup\_isLUB\_of\_hasFiniteSpectralMass\_of\_gap}
+\]
+proves that \lean{SpectralGapSup} is the least upper bound of all admitted
+gaps.  The pointwise lower and positivity forms are
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasSpectralMassGap.le\_spectralGapSup\_of\_hasFiniteSpectralMass}\\
+\leansmall{spectralGapSup\_pos\_of\_hasFiniteSpectralMass\_of\_gap}
+\end{tabular}
+\end{center}
+and a positive spectral value bounds the supremum by
+\[
+  \lean{spectralGapSup\_le\_of\_pos\_spectrum\_of\_gap}.
+\]
+This is the supremum-level audit version of the elementary fact that every
+admitted gap must lie below any positive spectral value.  Conversely,
+\[
+  \lean{not\_hasFiniteSpectralMass\_of\_arbitrarily\_large\_gaps}
+\]
+shows that admitted gaps above every proposed bound rule out finite spectral
+mass.  The earlier special case
+\[
+  \lean{not\_hasFiniteSpectralMass\_of\_all\_positive\_gaps}
+\]
+records that if every positive window is accepted as a gap, then no finite
+upper bound on gaps can exist.  This distinguishes a genuine finite first
+excitation from the degenerate situation where the bounded audit surface sees
+no positive spectrum at all.
+
+Finally, the quadratic-form gap has the same downward closure:
+\[
+  \lean{HasQuadraticMassGap.mono}.
+\]
+This proof uses only nonnegativity of \(\langle \psi,\psi\rangle\), so it is a
+stable preliminary lemma before any later unbounded-operator or spectral theorem
+bridge is added.
+
+\section{Exponential Clustering Audit}
+
+The next module is
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/Clustering.lean}.
+\]
+It isolates the Clay clustering consequence without pretending to prove the
+analytic mass-gap-to-clustering theorem.  A two-point spatial correlation is
+represented abstractly as
+\[
+  \lean{SpatialCorrelation}=\lean{Space}\to\lean{Space}\to\mathbb{R}.
+\]
+For such a correlation kernel, the module defines:
+\begin{itemize}[leftmargin=1.5em]
+  \item \lean{HasExponentialClusteringAtRate}, the fixed-rate estimate
+    \(|C(x,y)|\le \exp(-c\,d(x,y))\) beyond some radius;
+  \item \lean{HasExponentialClusteringUpTo}, the Clay-style all-rates-below-gap
+    statement, requiring the fixed-rate estimate for every \(0<c<\Delta\);
+  \item \lean{HasArbitrarilyLargeClusteringViolation}, a concrete obstruction
+    saying that every proposed cutoff radius has a farther counterexample to
+    the fixed-rate exponential bound;
+  \item \lean{SpectralGapClusteringBridge}, an abstract bridge asserting that
+    every spectral gap for a Hamiltonian implies clustering of the supplied
+    correlation kernel up to that gap.
+\end{itemize}
+
+The basic monotonicity and projection lemmas are now formalized:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{HasExponentialClusteringUpTo.at\_rate}\\
+\leansmall{HasExponentialClusteringUpTo.mono}\\
+\leansmall{SpectralGapClusteringBridge.clusteringUpTo\_of\_gap}\\
+\leansmall{SpectralGapClusteringBridge.clusteringAtRate\_of\_gap}
+\end{tabular}
+\end{center}
+Thus, once a proof supplies a spectral-gap-to-clustering bridge, every proposed
+gap \(\Delta\) produces each concrete clustering estimate with \(0<c<\Delta\).
+This deliberately separates the analytic theorem from the bookkeeping that
+future route audits will need.
+
+The first crux-style consequence is also formalized:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{not\_hasExponentialClusteringAtRate\_of\_arbitrarilyLarge\_violation}\\
+\leansmall{not\_hasExponentialClusteringUpTo\_of\_rate\_failure}\\
+\leansmall{not\_hasSpectralMassGap\_of\_clustering\_rate\_failure}\\
+\leansmall{not\_hasSpectralMassGap\_of\_arbitrarilyLarge\_clustering\_violation}\\
+\leansmall{spectralGap\_le\_of\_clustering\_rate\_failure}\\
+\leansmall{spectralGap\_le\_of\_arbitrarilyLarge\_clustering\_violation}\\
+\leansmall{spectralGapSup\_le\_of\_clustering\_rate\_failure\_of\_gap}\\
+\leansmall{not\_exists\_hasSpectralMassGap\_of\_all\_positive\_clustering\_rate\_failure}\\
+\leansmall{not\_exists\_hasSpectralMassGap\_of\_all\_positive\_arbitrarilyLarge\_clustering\_violation}\\
+\leansmall{HasPositiveLongRangeLowerBound.arbitrarilyLargeClusteringViolation}\\
+\leansmall{not\_exists\_hasSpectralMassGap\_of\_positiveLongRangeLowerBound}
+\end{tabular}
+\end{center}
+Under a supplied \lean{SpectralGapClusteringBridge}, failure of the exponential
+clustering estimate at any rate \(0<c<\Delta\) rules out \(\Delta\) as a
+spectral mass gap for that Hamiltonian.  This is not a global Yang--Mills
+blocker; it is a reusable audit surface for the manuscript's route from
+polymer/tree decay to exponential clustering and then to the OS Hamiltonian
+gap.  Any later proof path that claims such a bridge must now provide the
+fixed-rate clustering estimates explicitly, or it exposes a concrete rate-level
+counterexample target.
+
+The same obstruction is now available in quantitative threshold form.  A
+single failed positive clustering rate \(c\) upper-bounds every bridged
+spectral gap:
+\[
+  \lean{HasSpectralMassGap}\;A\;\Delta
+  \quad\Longrightarrow\quad \Delta\le c.
+\]
+If at least one gap is admitted, the audited supremum \(\lean{SpectralGapSup}\)
+is also bounded by \(c\).  Finally, if the supplied correlation fails the
+fixed-rate exponential estimate at every positive rate, Lean proves that there
+is no positive spectral gap at all for that bridged route.  This converts a
+family of long-range correlation counterexamples into a direct no-gap
+criterion on the abstract Hamiltonian surface.
+
+The newest concrete route-facing form is
+\[
+  \lean{HasPositiveLongRangeLowerBound}\;\mathrm{corr}\;\varepsilon.
+\]
+It says that for some \(\varepsilon>0\), beyond every radius there are two
+points whose absolute correlation is still at least \(\varepsilon\).  Lean
+proves that this lower bound beats every positive exponential decay rate:
+\[
+  \lean{HasPositiveLongRangeLowerBound.arbitrarilyLargeClusteringViolation}.
+\]
+Combining this with the spectral-gap-to-clustering bridge gives
+\[
+  \lean{not\_exists\_hasSpectralMassGap\_of\_positiveLongRangeLowerBound}.
+\]
+Thus a persistent nonzero long-range tail in the proposed two-point function is
+not merely a missing estimate; on this bridge surface it directly rules out
+all positive spectral gaps.  This provides a concrete target for Yang--Mills
+route audits: either prove genuine exponential decay of the centered
+correlation functions, or avoid any lower-bound tail that persists uniformly at
+arbitrarily large separations.
+
+\section{RG Bootstrap Audit}
+
+The next route-facing module is
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/RGBootstrap.lean}.
+\]
+This file targets the manuscript's multiscale RG contraction claim in a narrow,
+checkable way.  It does not prove the polymer RG step.  Instead, it isolates the
+finite arithmetic and recurrence facts that any later formalized RG proof must
+instantiate.
+
+The module defines
+\[
+  \lean{irrelevantScale}\;b\;d_{\max}=b^{3-d_{\max}}
+\]
+using an integer exponent, together with the predicates
+\lean{HasRGContraction} and \lean{HasExtendedExtractionContraction}.  It also
+defines \lean{AffineRGStepBound}, the recurrence surface
+\[
+  a_{n+1}\le \kappa a_n+\varepsilon.
+\]
+The basic finite bootstrap lemma is
+\[
+  \lean{AffineRGStepBound.bound\_by\_invariant\_interval}.
+\]
+If \(a_0\le B\), \(\kappa\ge 0\), and
+\(\varepsilon\le(1-\kappa)B\), then every finite iterate satisfies
+\(a_n\le B\).  This is the algebraic core of a smallness bootstrap once the
+analytic RG estimates have supplied a one-step recurrence.
+
+The same module now also exposes the exact finite-iterate envelope
+\[
+  \lean{affineRGEnvelope}\;\kappa\;\varepsilon\;a_0,
+\]
+with theorem
+\[
+  \lean{AffineRGStepBound.le\_affineRGEnvelope}.
+\]
+Thus any sequence satisfying the one-step affine bound is dominated at every
+finite scale by the recurrence \(x_{n+1}=\kappa x_n+\varepsilon\) started at
+\(a_0\).  In the homogeneous case, Lean proves
+\[
+  \lean{affineRGEnvelope\_zero\_error}
+\]
+and the resulting wrapper
+\[
+  \lean{AffineRGStepBound.bound\_by\_geometric\_of\_zero\_error},
+\]
+so the envelope reduces exactly to \(x_n=\kappa^n a_0\).  This keeps the
+finite-scale bookkeeping proved independently of the still-open analytic RG
+step estimate.
+
+The numerical extended-extraction audit is exact:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{irrelevantScale\_two\_sixteen}\\
+\leansmall{irrelevantScale\_two\_four}\\
+\leansmall{irrelevantScale\_two\_fourteen}\\
+\leansmall{irrelevantScale\_two\_fifteen}\\
+\leansmall{irrelevantScale\_eq\_inv\_pow\_of\_three\_le}\\
+\leansmall{rgContraction\_iff\_constant\_lt\_pow\_of\_pos\_of\_three\_le}\\
+\leansmall{rgContraction\_forces\_constant\_lt\_pow\_of\_pos\_of\_three\_le}\\
+\leansmall{not\_rgContraction\_2224\_of\_pow\_le\_of\_pos\_of\_three\_le}\\
+\leansmall{irrelevantScale\_two\_eq\_inv\_pow\_of\_three\_le}\\
+\leansmall{rgContraction\_two\_iff\_constant\_lt\_pow\_of\_three\_le}\\
+\leansmall{rgContraction\_two\_forces\_constant\_lt\_pow\_of\_three\_le}\\
+\leansmall{rgContraction\_2224\_two\_sixteen}\\
+\leansmall{rgContraction\_2224\_two\_fifteen}\\
+\leansmall{rgGain\_2224\_two\_sixteen\_eq}\\
+\leansmall{rgGain\_2224\_two\_sixteen\_lt\_one\_third}\\
+\leansmall{not\_rgContraction\_2224\_two\_four}\\
+\leansmall{rgGain\_2224\_two\_four\_eq}\\
+\leansmall{rgGain\_2224\_two\_fourteen\_eq}\\
+\leansmall{rgGain\_2224\_two\_fifteen\_eq}\\
+\leansmall{rgContraction\_two\_fourteen\_forces\_constant\_lt\_2048}\\
+\leansmall{not\_rgContraction\_two\_fourteen\_of\_ge\_2048}\\
+\leansmall{not\_rgContraction\_two\_of\_ge\_2048\_of\_dmax\_le\_fourteen}\\
+\leansmall{not\_rgContraction\_2224\_two\_fourteen}\\
+\leansmall{not\_rgContraction\_2224\_two\_of\_dmax\_le\_fourteen}\\
+\leansmall{rgContraction\_of\_nonneg\_le\_2224\_two\_sixteen}
+\end{tabular}
+\end{center}
+Lean proves
+\[
+  \lean{irrelevantScale}\;2\;16=2^{-13}=1/8192
+\]
+and the exact gain
+\[
+  2224\cdot 2^{-13}=139/512<1/3.
+\]
+It now also proves the general scale formula for every \(d_{\max}\ge 3\):
+\[
+  \lean{irrelevantScale}\;b\;d_{\max}=b^{-(d_{\max}-3)}
+    =\bigl(b^{d_{\max}-3}\bigr)^{-1}.
+\]
+For every positive natural block factor \(b\), Lean proves the exact threshold
+iff
+\[
+  \lean{HasExtendedExtractionContraction}\;C\;b\;d_{\max}
+  \quad\Longleftrightarrow\quad
+  0\le C\ \wedge\ C<b^{d_{\max}-3}.
+\]
+Consequently, changing the block factor does not evade the audit; it merely
+changes the required explicit power threshold.  In particular,
+\[
+  b^{d_{\max}-3}\le 2224
+  \quad\Longrightarrow\quad
+  \neg\lean{HasExtendedExtractionContraction}\;2224\;b\;d_{\max}
+\]
+for \(b>0\) and \(d_{\max}\ge3\).  The block-factor-\(2\) specialization is:
+\[
+  \lean{irrelevantScale}\;2\;d_{\max}=2^{-(d_{\max}-3)}
+    =\bigl(2^{d_{\max}-3}\bigr)^{-1},
+\]
+and the exact iff
+\[
+  \lean{HasExtendedExtractionContraction}\;C\;2\;d_{\max}
+  \quad\Longleftrightarrow\quad
+  0\le C\ \wedge\ C<2^{d_{\max}-3}.
+\]
+Thus any block-factor-\(2\) contraction certificate at depth
+\(d_{\max}\ge 3\) must place its recombination constant below the explicit
+power threshold \(2^{d_{\max}-3}\).  The earlier \(d_{\max}=14\) statement
+\(C<2048\) is now just the nearest-even-depth specialization of this exact
+threshold, not an isolated arithmetic calculation.
+It also proves that the same constant fails to contract at the naive
+\(d_{\max}=4\) scale, where the factor is \(1/2\) and the exact gain is
+\(1112\).  The nearest even lower extraction depth also fails at the advertised
+constant:
+\[
+  \lean{irrelevantScale}\;2\;14=2^{-11}=1/2048,\qquad
+  2224\cdot 2^{-11}=139/128>1.
+\]
+Moreover, any contraction certificate at \(d_{\max}=14\) forces the linear
+constant to be strictly below \(2048\), so every proposed \(d_{\max}=14\)
+certificate with \(C\ge 2048\) already fails.  Lean then packages the same
+threshold uniformly for every lower extraction depth \(d_{\max}\le 14\) with
+block factor \(2\):
+\[
+  2048 \le C
+  \quad\Longrightarrow\quad
+  \neg \lean{HasExtendedExtractionContraction}\;C\;2\;d_{\max}.
+\]
+So the lower-depth repair burden is no longer merely ``beat \(2224\)''; any
+block-factor-\(2\) repair below depth \(15\) must actually sharpen the
+recombination constant below the exact threshold \(2048\).  To avoid
+overclaiming, the audit also records that the raw natural-number cutoff
+\(d_{\max}=15\) has
+\[
+  \lean{irrelevantScale}\;2\;15=2^{-12}=1/4096,\qquad
+  2224\cdot 2^{-12}=139/256<1,
+\]
+so the same advertised constant contracts there.  The route-level crux is
+therefore an even canonical-dimension obstruction, not a claim that every
+natural cutoff below \(16\) fails.  This is not a global Yang--Mills blocker,
+but it is a precise
+same-constant obstruction: any repair that keeps the manuscript's advertised
+combinatorial bound while dropping the even extended extraction depth below
+\(16\) must replace this contraction argument with something genuinely
+different or justify a nonstandard odd cutoff.
+That residual odd-cutoff loophole is now audited separately in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionOddCutoff.lean}.
+\]
+It defines \lean{VanishesOnOddDimensions} and proves
+\[
+  \lean{extendedExtraction\_fifteen\_eq\_fourteen\_of\_vanishOnOddDimensions}
+\]
+and
+\[
+  \lean{higherExtractionBlock\_fifteen\_eq\_fourteen\_of\_vanishOnOddDimensions}.
+\]
+So on the manuscript's current even-dimensional extracted-operator surface, the
+putative odd repair \(d_{\max}=15\) is algebraically identical to
+\(d_{\max}=14\): it adds no new extracted couplings and no new higher block.
+Therefore the raw natural-number contraction at \(15\) is not by itself a live
+repair on that surface; using it would first require genuinely new odd
+canonical-dimension operators absent from the present extraction model.
+The RG-facing remainder object is now formalized separately in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionRemainder.lean}.
+\]
+This file defines
+\[
+  \lean{extractionRemainder}\;d\;\mathrm{coeff}
+    = \mathrm{coeff} - \lean{extendedExtraction}\;d\;\mathrm{coeff},
+\]
+proves the pointwise split of coefficients into extracted part plus remainder,
+and shows that the remainder vanishes exactly when the coefficients are
+supported up to the cutoff.  Most importantly for the odd-cutoff loophole, it
+proves
+\[
+  \lean{extractionRemainder\_fifteen\_eq\_fourteen\_of\_vanishOnOddDimensions}.
+\]
+So on the manuscript's even-dimensional surface, not only the extracted
+couplings but the actual post-extraction remainder fed into the RG bootstrap is
+unchanged when one replaces cutoff \(14\) by \(15\).  The raw \(2^{-12}\)
+arithmetic therefore does not correspond to a genuinely different remainder
+being bootstrapped on this surface.
+That collapse is now pushed to the actual route-witness level in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionStateRouteCollapse.lean}.
+\]
+This file defines the downstream RG state
+\[
+  \lean{ExtractionState}\;\alpha
+    := (\lean{extendedExtraction}\;d\;\mathrm{coeff},
+        \lean{extractionRemainder}\;d\;\mathrm{coeff}),
+\]
+proves
+\[
+  \lean{extractionState\_fifteen\_eq\_fourteen\_of\_vanishOnOddDimensions},
+\]
+and then packages the route-facing abstraction
+\[
+  \lean{DeterminedByExtractionState}.
+\]
+Its manuscript-facing corollaries are
+\[
+  \lean{extractionStateRouteWitness\_fifteen\_iff\_fourteen\_of\_vanishOnOddDimensions}
+\]
+and
+\[
+  \lean{not\_extractionStateRouteWitness\_fifteen\_of\_not\_fourteen\_on\_oddVanishingSurface}.
+\]
+So once a proposed odd-cutoff repair witness depends only on the extracted
+local terms together with the post-extraction remainder, Lean reduces the
+\(d_{\max}=15\) presentation exactly to the already-blocked \(d_{\max}=14\)
+surface.  The remaining burden is no longer “show that \(15\) contracts
+arithmetically”; it is to exhibit some genuinely new downstream datum that is
+not already contained in this extraction-state pair.
+That bridge is now pushed all the way back to the existing RG route crux in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionStateRGCrux.lean}.
+\]
+This file defines
+\[
+  \lean{ForcesSameConstantFourteenContraction}
+\]
+for extraction-state predicates \(P\): every cutoff-\(14\) witness of \(P\)
+already yields the manuscript's advertised same-constant contraction
+\(\lean{HasExtendedExtractionContraction}\;2224\;2\;14\).
+With that compatibility premise in hand, Lean proves
+\[
+  \lean{sameConstantFourteenGapRoute\_of\_oddVanishingExtractionStateGapRoute},
+\]
+which collapses any odd-vanishing cutoff-\(15\) extraction-state route to the
+pointed blocked \(d_{\max}=14\) gap surface, and then proves
+\[
+  \lean{sameConstantLowerExtractionGapRouteCertificate\_of\_oddVanishingExtractionStateGapRoute}
+\]
+followed by the crux-out theorem
+\[
+  \lean{not\_oddVanishingExtractionStateGapRoute\_of\_forcesSameConstantFourteenContraction}.
+\]
+So the exact missing compatibility lemma is now isolated in Lean: if an
+alleged odd-cutoff repair extracts only the same local terms and remainder, and
+those data already force the manuscript's same-constant \(d_{\max}=14\)
+contraction, then the whole \(d_{\max}=15\) route is formally impossible.
+
+The manuscript also makes a separate algebraic coherence claim about the two
+extraction schemes:
+\[
+  P_{\le 4}=P_{\le 4}\circ P_{\le d_{\max}}.
+\]
+This is now formalized in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionProjection.lean}.
+\]
+The file models a local expansion only at the canonical-dimension coefficient
+level, via \lean{extractLE}.  It does not yet define the actual jet-based local
+functional projector from the manuscript.  On this honest algebraic surface,
+Lean proves:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{extractLE\_idem}\\
+\leansmall{extractLE\_compose}\\
+\leansmall{extractLE\_compose\_of\_le}\\
+\leansmall{extractLE\_eq\_self\_iff\_supportedUpTo}\\
+\leansmall{standardExtraction\_compose\_extendedExtraction\_of\_four\_le}
+\end{tabular}
+\end{center}
+Thus the manuscript's compatibility identity is now formally available once the
+actual Yang--Mills extraction operator is shown to act by truncation on the
+relevant canonical-dimension coefficients.
+The same file now also isolates the extra extracted couplings above the standard
+cutoff as \lean{higherExtractionBlock}.  On the same coefficient-truncation
+surface, Lean proves
+\[
+  \lean{standardExtraction\_higherExtractionBlock\_eq\_zero}
+\]
+and
+\[
+  \lean{extendedExtraction\_eq\_standard\_plus\_higherExtractionBlock\_of\_four\_le}.
+\]
+So for \(d_{\max}\ge 4\), the extended extraction splits exactly into the
+standard \(P_{\le 4}\) part plus the higher \(5,\ldots,d_{\max}\) block, and
+that higher block is invisible to the standard extraction.  This is still not a
+construction of the manuscript's jet-based projector, but it sharpens the exact
+algebra any such projector must satisfy.
+The same surface is now also explicitly additive:
+\[
+  \lean{extractLE\_zero},
+  \qquad
+  \lean{extractLE\_add}.
+\]
+Consequently Lean proves
+\[
+  \lean{standardExtraction\_add\_higherExtractionBlock\_eq}.
+\]
+So adding a pure higher extracted block to any coefficient family cannot change
+its \(P_{\le 4}\) projection.  At the manuscript level, this means any claimed
+effect of the extra \(5,\ldots,d_{\max}\) couplings on the standard
+extraction/beta-drift channel must come from additional structure beyond this
+bare truncation algebra.  The same coefficient surface now also identifies that
+higher block exactly as the residual
+\[
+  \lean{higherExtractionBlock\_eq\_extendedExtraction\_sub\_standard\_of\_four\_le},
+\]
+and Lean proves the equivalent vanishing statement
+\[
+  \lean{standardExtraction\_extendedExtraction\_sub\_standard\_eq\_zero\_of\_four\_le}.
+\]
+So after subtracting the standard extraction from the extended one, the
+remaining \(5,\ldots,d_{\max}\) residue still has zero \(P_{\le 4}\)
+projection.
+The downstream consequence is now packaged separately in
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionObservable.lean}.
+\]
+It defines observables \(\Phi\) that are determined by the standard
+extraction, in the sense that equal \(P_{\le 4}\) projections force equal
+\(\Phi\)-values.  On that surface Lean proves
+\[
+  \lean{DeterminedByStandardExtraction.extendedExtraction\_eq},
+  \qquad
+  \lean{DeterminedByStandardExtraction.add\_higherExtractionBlock\_eq},
+\]
+and
+\[
+  \lean{DeterminedByStandardExtraction.extendedExtraction\_sub\_standard\_eq\_zero}.
+\]
+So any beta-drift observable or renormalized coupling functional that genuinely
+depends only on \(P_{\le 4}\) is exactly unchanged by replacing a coefficient
+family with its extended extraction, by adding the pure higher
+\(5,\ldots,d_{\max}\) block, or by passing to the residual
+\(P_{\le d_{\max}} - P_{\le 4}\).  This makes the route burden explicit: if the
+manuscript wants the extra extracted couplings to affect the beta channel, that
+effect has to enter through structure beyond bare dependence on \(P_{\le 4}\).
+The same file now also isolates the next route-relevant step: if a candidate
+beta observable \(G\) decomposes as a standard-extraction contribution plus an
+error term \(E\), then all higher-coupling sensitivity is forced into \(E\).
+Lean proves
+\[
+  \lean{difference\_eq\_errorDifference\_of\_add\_higherExtractionBlock},
+  \qquad
+  \lean{difference\_eq\_errorDifference\_of\_extendedExtraction},
+\]
+and
+\[
+  \lean{difference\_from\_zero\_eq\_errorDifference\_of\_extendedExtraction\_sub\_standard}.
+\]
+So under the manuscript's own compatibility premise, any claimed effect of the
+extra extracted couplings on beta drift must be carried entirely by whatever
+additional higher-order mixing/error term is supplied; it cannot come from the
+bare \(P_{\le 4}\) contribution itself.
+This now reaches the manuscript's Remark G.2 language about ``the same error
+bounds.''  The same file proves
+\[
+  \lean{norm\_difference\_le\_of\_add\_higherExtractionBlock\_errorBound},
+  \qquad
+  \lean{norm\_difference\_le\_of\_extendedExtraction\_errorBound},
+\]
+and
+\[
+  \lean{norm\_difference\_le\_of\_extendedExtraction\_sub\_standard\_errorBound}.
+\]
+So if the higher-coupling contribution is bounded inside an error term \(E\)
+with some norm estimate, then the full beta-like observable \(G\) inherits
+exactly the same bound.  In particular, any advertised \(O(\beta_j^{-2})\)
+control has to be proved at the error-term layer; the \(P_{\le 4}\) part adds
+no extra dependence on the higher extracted couplings.
+The same file now also packages the genuinely stepwise drift statement:
+\[
+  \lean{stepDifference\_eq\_errorStepDifference\_of\_extendedExtraction}
+\]
+and its norm corollary
+\[
+  \lean{norm\_stepDifference\_le\_of\_extendedExtraction\_errorBounds}.
+\]
+So when one compares the beta-drift increment between two RG steps before and
+after passing to extended extraction, the entire perturbation is exactly the
+corresponding perturbation of the error term, and any bound on those two
+error-term responses transfers directly to the drift increment.
+The same surface now turns that observation into explicit threshold blockers:
+\begin{center}
+\begin{tabular}{l}
+\leansmall{abs\_difference\_le\_of\_extendedExtraction\_errorBound}\\
+\leansmall{extendedExtraction\_le\_target\_of\_le\_target\_sub\_of\_errorBound}\\
+\leansmall{extendedExtraction\_lt\_target\_of\_lt\_target\_sub\_of\_errorBound}\\
+\leansmall{stepDifference\_le\_target\_of\_le\_target\_sub\_of\_errorBounds}\\
+\leansmall{stepDifference\_lt\_target\_of\_lt\_target\_sub\_of\_errorBounds}
+\end{tabular}
+\end{center}
+These theorems formalize the route consequence of the manuscript's ``same error
+bounds'' language.  If a \(P_{\le 4}\)-determined real-valued observable is
+already at least \(B\) below a target \(T\), and the extended-extraction error
+response is bounded by \(B\), then the extended-extracted observable still lies
+at or below \(T\).  Likewise, if a stepwise beta-drift inequality already
+fails by a margin at least \(B_{\mathrm{next}} + B_{\mathrm{cur}}\), then
+extended extraction cannot repair that failure unless the combined error-term
+response exceeds that same margin.  So a repair route cannot simply reuse the
+old \(O(\beta_j^{-2})\) error budget and claim a threshold or sign correction
+for free; it must exhibit genuinely larger error response exactly where the
+standard \(P_{\le 4}\) observable misses the required target.
+
+\section{Same-Constant Lower-Extraction Crux}
+
+The first dedicated crux-out module is
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/RGCrux.lean}.
+\]
+It packages the lower-extraction repair attempt as
+\[
+  \lean{SameConstantLowerExtractionRGCertificate}\;d_{\max}.
+\]
+This certificate means \(d_{\max}\le 14\) together with the same manuscript
+linear contraction certificate
+\[
+  \lean{HasExtendedExtractionContraction}\;2224\;2\;d_{\max}.
+\]
+Lean proves
+\[
+  \lean{not\_sameConstantLowerExtractionRGCertificate}
+\]
+and the quantified version
+\[
+  \lean{not\_exists\_sameConstantLowerExtractionRGCertificate}.
+\]
+Thus there is no same-bound RG certificate at any extraction depth
+\(d_{\max}\le 14\).
+
+The module also packages the manuscript-shaped version
+\[
+  \lean{SameConstantEvenBelowSixteenRGCertificate}\;d_{\max},
+\]
+which requires \(d_{\max}<16\), \(d_{\max}\) even, and the same contraction
+certificate.  The arithmetic lemma
+\[
+  \lean{even\_lt\_sixteen\_le\_fourteen}
+\]
+proves that such a cutoff is at most \(14\), and hence Lean proves
+\[
+  \lean{not\_sameConstantEvenBelowSixteenRGCertificate}
+\]
+and
+\[
+  \lean{not\_exists\_sameConstantEvenBelowSixteenRGCertificate}.
+\]
+This is the preferred statement for comparison with the manuscript's canonical
+dimensions \(4,6,\ldots,d_{\max}\).
+
+The same file now packages the threshold-level variant
+\[
+  \lean{AtLeast2048EvenBelowSixteenRGCertificate}\;C\;d_{\max},
+\]
+which requires \(d_{\max}<16\), \(d_{\max}\) even, \(2048\le C\), and the
+same block-factor-\(2\) contraction certificate.  Lean proves
+\[
+  \lean{not\_atLeast2048EvenBelowSixteenRGCertificate}
+\]
+and
+\[
+  \lean{not\_exists\_atLeast2048EvenBelowSixteenRGCertificate}.
+\]
+So the obstruction is no longer tied only to the manuscript's literal
+\(2224\): any lower-even extraction repair that keeps the recombination
+constant at or above \(2048\) already fails before any clustering or
+Osterwalder--Schrader argument is reached.
+
+The same obstruction is lifted to the surrounding mass-gap route certificate:
+\[
+  \lean{SameConstantLowerExtractionGapRouteCertificate}.
+\]
+This predicate includes a candidate spectral gap, a spectral-gap-to-clustering
+bridge, and a lower-extraction same-constant RG certificate.  Lean proves
+\[
+  \lean{not\_sameConstantLowerExtractionGapRouteCertificate}
+\]
+and, for the even manuscript-shaped route certificate,
+\[
+  \lean{not\_sameConstantEvenBelowSixteenGapRouteCertificate}.
+\]
+The strengthened threshold version is also lifted as
+\[
+  \lean{AtLeast2048EvenBelowSixteenGapRouteCertificate}
+\]
+with theorem
+\[
+  \lean{not\_atLeast2048EvenBelowSixteenGapRouteCertificate}.
+\]
+and the pointed \(d_{\max}=14\) form
+\[
+  \lean{not\_sameConstantFourteenExtractionGapRouteCertificate}.
+\]
+This theorem deliberately does not refute a Yang--Mills mass gap.  It refutes
+one repair corridor for the manuscript route: keeping the advertised constant
+\(2224\), using block factor \(2\), and lowering the extended extraction depth
+below \(16\).  A viable repair must either sharpen the \(d_{\max}=14\)
+constant below \(2048\), keep \(d_{\max}=16\), or replace the linear
+contraction certificate with a genuinely different argument.
+
+\section{Regression}
+
+The companion module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/MassGapRegression.lean}
+\]
+contains theorem-level wrappers for the positive-gap projection, pointwise
+spectral obstruction, downward closure, positive-energy spectral splitting, and
+quadratic-form monotonicity.  It also checks the threshold/subset forms of the
+spectral exclusion, including the positive-energy non-vacuum threshold and the
+finite-mass consequences, including the bounded-above characterization, the
+least-upper-bound API for \lean{SpectralGapSup}, its positivity consequence,
+the positive-spectrum upper bound, the first-positive-spectral-value exact
+endpoint equivalence, uniqueness, gap-set/supremum identifications, and the
+positive-spectrum infimum comparison, and the unbounded-gap obstruction.
+
+The companion clustering regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ClusteringRegression.lean}
+\]
+pins the fixed-rate projection, monotonicity in the endpoint \(\Delta\), the
+rate-level violation blocker, the bridge projections from spectral gap to
+clustering, the final contrapositive obstruction from a clustering-rate
+failure back to failure of the proposed spectral mass gap, the quantitative
+gap upper-bound form, the supremum upper-bound form, and the all-positive-rates
+no-gap criterion.  It also pins the positive-long-range-lower-bound route
+blocker and its conversion into persistent fixed-rate clustering violations.
+
+The RG bootstrap regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/RGBootstrapRegression.lean}
+\]
+pins the exact irrelevant-scale values for \(d_{\max}=4,14,15,16\), the
+general reciprocal-power threshold for every \(b\) and \(d_{\max}\ge3\), the
+exact positive-block-factor contraction iff \(0\le C\) and
+\(C<b^{d_{\max}-3}\), the advertised-constant blocker when
+\(b^{d_{\max}-3}\le2224\), the block-factor-\(2\) specialization, the
+advertised extended-extraction contraction, the raw
+\(d_{\max}=15\) contraction, the exact gain values \(139/512<1/3\),
+\(139/256\), \(139/128\), and \(1112\), the naive \(d_{\max}=4\)
+noncontraction, the
+nearest-lower-even-depth \(d_{\max}=14\) noncontraction and threshold
+\(C<2048\), the stronger blocker for every \(C\ge 2048\) at
+\(d_{\max}=14\) and, more generally, at every \(d_{\max}\le 14\), the monotone
+variant for any nonnegative constant bounded by \(2224\), the
+invariant-interval bootstrap lemma, and the finite-envelope/geometric-zero-error
+wrappers.
+
+The extraction observable regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionObservableRegression.lean}
+\]
+pins the factorization criterion through \(P_{\le 4}\), the invariance under
+added higher extracted blocks and extended extraction, the vanishing of the
+extended-minus-standard residue, the pure-error identities for higher-block,
+extended-extraction, and residual responses, the inherited norm bounds from the
+error term, and the step-difference/error-difference identity together with its
+norm bound.  It now also pins the real-valued threshold forms: absolute
+observable perturbation is bounded by the same error budget, any observable
+already below a target by more than that budget stays below the target after
+extended extraction, and the same quantitative obstruction holds for
+step-drift inequalities using the combined two-step error response.
+
+The odd-cutoff regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionOddCutoffRegression.lean}
+\]
+pins the successor-cutoff collapse when the new coefficient vanishes, the
+odd-successor collapse on odd-vanishing coefficient families, and the
+manuscript-facing specializations
+\(\lean{extendedExtraction}\;15=\lean{extendedExtraction}\;14\) and
+\(\lean{higherExtractionBlock}\;15=\lean{higherExtractionBlock}\;14\) on that
+even-dimensional surface.
+
+The extraction remainder regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionRemainderRegression.lean}
+\]
+pins the coefficient decomposition into extracted part plus remainder, the
+pointwise vanishing/agreement behavior below and above the cutoff, the exact
+characterization of zero remainder by supportedness up to the cutoff, and the
+manuscript-facing equality of the actual remainders at cutoffs \(15\) and
+\(14\) on odd-vanishing coefficient families.
+
+The extraction-state route-collapse regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionStateRouteCollapseRegression.lean}
+\]
+then pins the full extraction-state equality at cutoffs \(15\) and \(14\), the
+generic route-witness collapse for predicates factored through that state, a
+positive odd-vanishing example where the witness does collapse, and a negative
+odd-sensitive example showing that the odd-vanishing hypothesis is genuinely
+used.
+
+The extraction-state RG-crux regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/ExtractionStateRGCruxRegression.lean}
+\]
+then pins the route-level collapse into the pointed \(d_{\max}=14\) gap
+surface, the induced lower-extraction gap certificate, the generic no-go
+theorem, and a concrete negative example showing that not every arbitrary
+extraction-state predicate can force the blocked cutoff-\(14\) contraction.
+
+The RG crux regression module
+\[
+  \lean{Mettapedia/QuantumTheory/YangMills/RGCruxRegression.lean}
+\]
+pins the nonexistence of same-constant lower-extraction RG certificates, the
+nonexistence of such certificates at any \(d_{\max}\le 14\), the even-cutoff
+lemma reducing \(d_{\max}<16\) and even to \(d_{\max}\le14\), and the lifted
+route-certificate blockers for the surrounding mass-gap/clustering bridge
+surface.  It now also pins the threshold-level nonexistence of every
+even-cutoff lower-extraction certificate with recombination constant at least
+\(2048\), together with the corresponding lifted route blocker.
+
+\section{What Remains}
+
+This layer does not solve the Clay problem.  The hard work still includes:
+\begin{itemize}[leftmargin=1.5em]
+  \item constructing a nontrivial four-dimensional quantum Yang--Mills theory;
+  \item choosing a mathematically adequate gauge group and field-strength
+    formalization;
+  \item connecting bounded-operator placeholders to the physically relevant
+    unbounded Hamiltonian theory;
+  \item proving a genuine spectral gap for that Hamiltonian;
+  \item relating the spectral gap to clustering and local operator estimates.
+  \item instantiating \lean{SpatialCorrelation} with centered Yang--Mills
+    local-operator vacuum correlations and proving the polymer/tree-decay
+    estimates needed by the manuscript's OS reconstruction route.
+  \item instantiating \lean{AffineRGStepBound} with the actual polymer norm
+    recurrence, including the one-step RG estimates and all constants feeding
+    the advertised \(2224\cdot2^{-13}<1\) contraction.
+  \item for any lower-even-extraction repair with \(d_{\max}<16\), either
+    sharpening the \(d_{\max}=14\) recombination constant below \(2048\),
+    justifying a nonstandard odd cutoff such as \(d_{\max}=15\), or abandoning
+    the same linear contraction certificate.
+\end{itemize}
+
+The value of the current step is that future claims now have a precise Lean
+interface for the mass-gap and clustering audit obligations.
+
+\end{document}

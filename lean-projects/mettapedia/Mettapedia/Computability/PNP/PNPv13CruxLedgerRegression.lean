@@ -40,6 +40,47 @@ theorem search_outputs_correct_iff_fixed_message_regression
       FixedMessageReadout sat readout msg := by
   exact correctForAllSatSearchOutputs_iff_fixedMessageReadout
 
+theorem selected_search_output_correct_iff_exists_satisfying_readout_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message} :
+    CorrectForSomeSatSearchOutput sat readout msg ↔
+      ∃ w : Witness, sat w ∧ readout w = msg := by
+  exact correctForSomeSatSearchOutput_iff_exists_satisfying_readout
+
+theorem satisfying_witness_gives_selected_search_output_correct_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w : Witness} (hw : sat w) :
+    CorrectForSomeSatSearchOutput sat readout (readout w) := by
+  exact correctForSomeSatSearchOutput_of_satisfying_witness hw
+
+theorem distinct_satisfying_readouts_give_two_selected_messages_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ∃ msg₁ msg₂ : Message,
+      msg₁ ≠ msg₂ ∧
+        CorrectForSomeSatSearchOutput sat readout msg₁ ∧
+        CorrectForSomeSatSearchOutput sat readout msg₂ := by
+  exact
+    exists_two_messages_correctForSomeSatSearchOutput_of_distinct_satisfying_readouts
+      hw₁ hw₂ hdiff
+
+theorem selected_search_output_correct_does_not_give_arbitrary_output_correct_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    (∃ msg : Message, CorrectForSomeSatSearchOutput sat readout msg) ∧
+      ¬ ∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg := by
+  exact
+    exists_correctForSomeSatSearchOutput_and_not_exists_correctForAll_of_distinct_satisfying_readouts
+      hw₁ hw₂ hdiff
+
 theorem search_outputs_correct_implies_single_message_regression
     {Witness : Type u} {Message : Type v}
     {sat : Witness → Prop} {readout : Witness → Message}
@@ -56,6 +97,58 @@ theorem search_outputs_correct_iff_single_message_with_witness_regression
     CorrectForAllSatSearchOutputs sat readout (readout w₀) ↔
       SingleMessageReadout sat readout := by
   exact correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness hw₀
+
+theorem exists_search_output_message_iff_single_message_with_witness_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₀ : Witness}
+    (hw₀ : sat w₀) :
+    (∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg) ↔
+      SingleMessageReadout sat readout := by
+  exact exists_correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness
+    hw₀
+
+theorem distinct_satisfying_readouts_not_single_message_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ SingleMessageReadout sat readout := by
+  exact not_singleMessageReadout_of_distinct_satisfying_readouts
+    hw₁ hw₂ hdiff
+
+theorem distinct_satisfying_readouts_give_distinct_search_outputs_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ∃ out₁ out₂ : SatSearchOutput sat,
+      readout out₁.witness ≠ readout out₂.witness := by
+  exact
+    exists_two_satSearchOutputs_with_distinct_readouts_of_distinct_satisfying_readouts
+      hw₁ hw₂ hdiff
+
+theorem distinct_satisfying_readouts_no_fixed_message_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ ∃ msg : Message, FixedMessageReadout sat readout msg := by
+  exact not_exists_fixedMessageReadout_of_distinct_satisfying_readouts
+    hw₁ hw₂ hdiff
+
+theorem distinct_satisfying_readouts_no_search_output_message_regression
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ ∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg := by
+  exact not_exists_correctForAllSatSearchOutputs_of_distinct_satisfying_readouts
+    hw₁ hw₂ hdiff
 
 theorem bool_true_id_not_single_message_regression :
     ¬ SingleMessageReadout (fun _ : Bool => True) (fun w : Bool => w) := by
@@ -83,6 +176,22 @@ theorem bool_true_id_no_search_output_message_regression :
       CorrectForAllSatSearchOutputs
         (fun _ : Bool => True) (fun w : Bool => w) msg := by
   exact not_exists_correctForAllSatSearchOutputs_bool_true_id
+
+theorem bool_true_id_selected_output_correct_for_both_messages_regression :
+    CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) false ∧
+      CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) true := by
+  exact bool_true_id_correctForSomeSatSearchOutput_false_and_true
+
+theorem bool_true_id_selected_output_correct_not_arbitrary_output_correct_regression :
+    (∃ msg : Bool,
+      CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) msg) ∧
+      ¬ ∃ msg : Bool,
+        CorrectForAllSatSearchOutputs
+          (fun _ : Bool => True) (fun w : Bool => w) msg := by
+  exact bool_true_id_correctForSomeSatSearchOutput_not_correctForAll
 
 theorem bool_success_event_count_regression :
     boolEventCount boolSuccessEvent = 1 := by

@@ -95,16 +95,69 @@ def sigma03_complement_pi03 {P : ℕ → Prop} (h : Sigma03Predicate P) :
     Pi03Predicate (fun n => ¬P n) := {
   approx := fun n m k j => !h.approx n m k j
   approx_computable := by
-    sorry  -- Follows from h.approx_computable and bool negation
-  converges := by sorry
+    exact Computable.comp bool_not_computable h.approx_computable
+  converges := by
+    intro n
+    constructor
+    · intro hn m
+      by_contra h_contra
+      push_neg at h_contra
+      have h_sigma : ∃ m, ∀ k, ∃ j, h.approx n m k j = true := by
+        refine ⟨m, ?_⟩
+        intro k
+        obtain ⟨j, hj⟩ := h_contra k
+        refine ⟨j, ?_⟩
+        cases h_val : h.approx n m k j
+        · simp [h_val] at hj
+        · rfl
+      exact hn ((h.converges n).mpr h_sigma)
+    · intro h_pi hp
+      obtain ⟨m, hm⟩ := (h.converges n).mp hp
+      obtain ⟨k, hk⟩ := h_pi m
+      obtain ⟨j, hj⟩ := hm k
+      have h_false : h.approx n m k j = false := by
+        have hk_true := hk j
+        cases h_approx : h.approx n m k j
+        · rfl
+        · simp [h_approx] at hk_true
+      rw [h_false] at hj
+      simp at hj
 }
 
 /-- Complement of Π⁰₃ is Σ⁰₃ -/
 def pi03_complement_sigma03 {P : ℕ → Prop} (h : Pi03Predicate P) :
     Sigma03Predicate (fun n => ¬P n) := {
   approx := fun n m k j => !h.approx n m k j
-  approx_computable := by sorry
-  converges := by sorry
+  approx_computable := by
+    exact Computable.comp bool_not_computable h.approx_computable
+  converges := by
+    intro n
+    constructor
+    · intro hn
+      by_contra h_contra
+      push_neg at h_contra
+      have h_pi : ∀ m, ∃ k, ∀ j, h.approx n m k j = true := by
+        intro m
+        obtain ⟨k, hk⟩ := h_contra m
+        refine ⟨k, ?_⟩
+        intro j
+        have hj := hk j
+        cases h_val : h.approx n m k j
+        · simp [h_val] at hj
+        · rfl
+      exact hn ((h.converges n).mpr h_pi)
+    · intro h_sigma hp
+      obtain h_pi := (h.converges n).mp hp
+      obtain ⟨m, hm⟩ := h_sigma
+      obtain ⟨k, hk⟩ := h_pi m
+      obtain ⟨j, hj⟩ := hm k
+      have hk_true : h.approx n m k j = true := hk j
+      have h_false : h.approx n m k j = false := by
+        cases h_approx : h.approx n m k j
+        · rfl
+        · simp [h_approx] at hj
+      rw [h_false] at hk_true
+      simp at hk_true
 }
 
 end Mettapedia.Computability.ArithmeticalHierarchy

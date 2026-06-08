@@ -32,6 +32,7 @@ import Mathlib.Combinatorics.SimpleGraph.Bipartite
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Data.Finset.Card
+import Mettapedia.GraphTheory.PlanarEmbedding
 set_option checkBinderAnnotations false
 
 open Classical
@@ -236,12 +237,6 @@ omit [DecidableEq V] in
 /-- Perfect matching (placeholder) -/
 def PerfectMatching (_G : SimpleGraph V) : Prop := by
   -- TODO: perfect matching = matching that covers every vertex.
-  sorry
-
-omit [DecidableEq V] in
-/-- Planarity predicate (placeholder) -/
-def IsPlanar (_G : SimpleGraph V) : Prop := by
-  -- TODO: connect to Mathlib's planar graph notions (or add a definition).
   sorry
 
 omit [DecidableEq V] in

@@ -163,6 +163,22 @@ theorem not_nonempty_boundaryFreeIncidentFaceSelector_iff_nonempty_forcingInteri
         hselector) hforcing
 
 /-- Any explicit same-embedding witness carrying a property `P` together with a forcing
+interior-edge witness refutes a universal theorem saying that `P` always yields a boundary-free
+incident-face selector on that same embedding. -/
+theorem
+    not_forall_nonempty_boundaryFreeIncidentFaceSelector_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} (P : PlaneEmbeddingWithBoundary G → Prop)
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      P emb ∧ Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        P emb → Nonempty (BoundaryFreeIncidentFaceSelector emb) := by
+  intro h
+  rcases hWitness with ⟨emb, hP, hforce⟩
+  exact
+    (not_nonempty_boundaryFreeIncidentFaceSelector_iff_nonempty_forcingInteriorEdgeWitness).2
+      hforce (h (emb := emb) hP)
+
+/-- Any explicit same-embedding witness carrying a property `P` together with a forcing
 interior-edge witness refutes a universal theorem saying that `P` excludes forcing interior
 edges on that same embedding. This isolates the missing geometric burden directly, before any
 annulus-root or construction-side lowering. -/
@@ -1105,6 +1121,86 @@ theorem nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_an
     nonempty_boundaryFreeIncidentFaceSelector_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
       source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
 
+/-- The live theorem-4.9 boundary-order raw canonical-parent shared-edge-cover shell is
+incompatible with a forcing interior edge on the same embedding. The raw-cover hypotheses already
+force a boundary-free selector, while a forcing edge rules out every such selector. -/
+theorem
+    false_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (hw : ForcingInteriorEdgeWitness emb) :
+    False := by
+  have hSelector : Nonempty (BoundaryFreeIncidentFaceSelector emb) :=
+    nonempty_boundaryFreeIncidentFaceSelector_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover
+  have hnot : ¬ Nonempty (BoundaryFreeIncidentFaceSelector emb) :=
+    (not_nonempty_boundaryFreeIncidentFaceSelector_iff_nonempty_forcingInteriorEdgeWitness).2
+      ⟨hw⟩
+  exact hnot hSelector
+
+/-- Graph-level impossibility form of the same forcing-edge obstruction. If the live
+successor-cycle shell on some embedding still carries a forcing interior edge, then the raw
+canonical-parent shared-edge-cover package cannot exist on that shell. -/
+theorem
+    not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} :
+    ¬ (∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        Nonempty (ForcingInteriorEdgeWitness emb)) := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+    hpeelInterior, hcover, ⟨hw⟩⟩
+  exact
+    false_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_forcingInteriorEdgeWitness
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hw
+
 /-- Graph-level degeneracy lowering for the actual theorem-4.9 boundary-order raw canonical-parent
 shared-edge-cover shell: every such witness already has empty interior-edge support. -/
 theorem exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_and_interiorEdgeSupport_eq_empty_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
@@ -1443,6 +1539,94 @@ theorem not_endpointSupport_disjoint_and_nonempty_interiorEdgeEndpointSupport_of
       (hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
         hEndpointDisjoint hRawCarrier)
 
+/-- The stricter source-fixed canonical-parent shared-edge face-membership shell is equally
+incompatible with the named local unblocked endpoint witness, since it already contains the raw
+canonical-parent shared-edge-cover hypotheses that force the no-interior-edge branch. -/
+theorem not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (_hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            source.boundaryFaceRoots hcoverRoots hsepRoots)
+          source.fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          parentTowardsRoot (interiorDualSpanningForest emb.faceBoundary emb.faces)
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots) g = some f ∧
+          e ∈ emb.faceBoundary g.1) :
+    ¬ HasUnblockedInteriorEndpoint emb := by
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
+
+/-- The theorem-4.9 boundary-order face-membership shell inherits the same endpoint impossibility:
+after lowering to the induced honest closed-walk source, the stricter child-membership package
+still cannot coexist with `HasUnblockedInteriorEndpoint` on the same embedding. -/
+theorem
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (_hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+            hcoverRoots hsepRoots)
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          parentTowardsRoot (interiorDualSpanningForest emb.faceBoundary emb.faces)
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots) g = some f ∧
+          e ∈ emb.faceBoundary g.1) :
+    ¬ HasUnblockedInteriorEndpoint emb := by
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover
+
 /-- Graph-level impossibility form for the honest closed-walk raw canonical-parent cover plus the
 named local endpoint witness.  The downstream parent, selector, and residual theorem-4.9 routes
 from this source-fixed package are therefore vacuous under the current endpoint semantics. -/
@@ -1470,6 +1654,46 @@ theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCan
   exact
     not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
       source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hEndpoint
+
+/-- Graph-level impossibility form for the honest closed-walk stricter canonical-parent
+face-membership shell together with the named local endpoint witness.  The corresponding
+selector-based and direct projected routes from that stronger shell are therefore vacuous under
+the current endpoint semantics. -/
+theorem not_exists_embedding_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        (∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+            (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots)
+              source.fallbackEdge f),
+          e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+            ∃ g ∈ peelFaces,
+              parentTowardsRoot (interiorDualSpanningForest emb.faceBoundary emb.faces)
+                  (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                    source.boundaryFaceRoots hcoverRoots hsepRoots) g = some f ∧
+              e ∈ emb.faceBoundary g.1) ∧
+        HasUnblockedInteriorEndpoint emb := by
+  rintro ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots,
+    hpeelInterior, hcover, hchildren, hEndpoint⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren hEndpoint
 
 /-- Graph-level impossibility form for the honest closed-walk raw canonical-parent cover plus a
 nonempty purified selected-boundary carrier. -/
@@ -1534,6 +1758,184 @@ theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbe
     not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover
       boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
       hpeelInterior hcover hEndpoint
+
+/-- Graph-level impossibility form for the actual theorem-4.9 boundary-order stricter
+canonical-parent face-membership shell together with the named local endpoint witness. -/
+theorem not_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        (∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+            (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots)
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).fallbackEdge f),
+          e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+            ∃ g ∈ peelFaces,
+              parentTowardsRoot (interiorDualSpanningForest emb.faceBoundary emb.faces)
+                  (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                    (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                      boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                    hcoverRoots hsepRoots) g = some f ∧
+              e ∈ emb.faceBoundary g.1) ∧
+        HasUnblockedInteriorEndpoint emb := by
+  rintro ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots,
+    hsepRoots, hpeelInterior, hcover, hchildren, hEndpoint⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hchildren hEndpoint
+
+/-- Any explicit same-embedding witness of an honest closed-walk source together with the named
+local endpoint witness already refutes a universal derivation of the stronger source-fixed
+canonical-parent face-membership shell.  This isolates the real burden sharply: the shell is not
+blocked only by exact-v23 or coloring data, but already by the endpoint semantics themselves. -/
+theorem
+    not_forall_some_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_of_exists_embedding_closedWalkAnnulusBoundarySource_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary G,
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          HasUnblockedInteriorEndpoint emb →
+            ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+              ∃ peelFaces : Finset (AmbientFace emb.faces),
+              ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+              ∃ hcoverRoots : RootSetCovers
+                (interiorDualGraph emb.faceBoundary emb.faces)
+                source.boundaryFaceRoots,
+              ∃ hsepRoots : RootSetSeparated
+                (interiorDualGraph emb.faceBoundary emb.faces)
+                source.boundaryFaceRoots,
+                (∀ f ∈ peelFaces,
+                  Disjoint (emb.faceBoundary f.1)
+                    (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+                interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+                  (rootedSharedInteriorEdgeOfPairwiseUnique
+                    emb.faceBoundary emb.faces hunique
+                    (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                      source.boundaryFaceRoots hcoverRoots hsepRoots)
+                    source.fallbackEdge) ∧
+                (∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+                    (rootedSharedInteriorEdgeOfPairwiseUnique
+                      emb.faceBoundary emb.faces hunique
+                      (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                        source.boundaryFaceRoots hcoverRoots hsepRoots)
+                      source.fallbackEdge f),
+                  e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+                    ∃ g ∈ peelFaces,
+                      parentTowardsRoot
+                          (interiorDualSpanningForest emb.faceBoundary emb.faces)
+                          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                            source.boundaryFaceRoots hcoverRoots hsepRoots) g = some f ∧
+                      e ∈ emb.faceBoundary g.1) := by
+  intro h
+  rcases hWitness with ⟨emb, hSource, hEndpoint⟩
+  rcases h emb hSource hEndpoint with
+    ⟨source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover, hchildren⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren hEndpoint
+
+/-- The same converse failure holds directly on the live successor-cycle shell: any same-embedding
+endpoint witness already refutes a universal theorem deriving the stronger canonical-parent
+face-membership shell from boundary reachability plus successor-cycle data alone. -/
+theorem
+    not_forall_some_successorCycleBoundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).toPlanarBoundaryAnnulusBoundaryData =
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData ∧
+        HasUnblockedInteriorEndpoint emb) :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary G,
+        ∀ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        ∀ hboundaryArc : ∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+          HasUnblockedInteriorEndpoint emb →
+            ∃ peelFaces : Finset (AmbientFace emb.faces),
+              ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+              ∃ hcoverRoots : RootSetCovers
+                (interiorDualGraph emb.faceBoundary emb.faces)
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+              ∃ hsepRoots : RootSetSeparated
+                (interiorDualGraph emb.faceBoundary emb.faces)
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+                (∀ f ∈ peelFaces,
+                  Disjoint (emb.faceBoundary f.1)
+                    (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+                interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+                  (rootedSharedInteriorEdgeOfPairwiseUnique
+                    emb.faceBoundary emb.faces hunique
+                    (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                        boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                      hcoverRoots hsepRoots)
+                    (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                      boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+                (∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+                    (rootedSharedInteriorEdgeOfPairwiseUnique
+                      emb.faceBoundary emb.faces hunique
+                      (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                          boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                        hcoverRoots hsepRoots)
+                      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                        boundaryData dartCycles hboundaryArc).fallbackEdge f),
+                  e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+                    ∃ g ∈ peelFaces,
+                      parentTowardsRoot
+                          (interiorDualSpanningForest emb.faceBoundary emb.faces)
+                          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                              boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                            hcoverRoots hsepRoots) g = some f ∧
+                      e ∈ emb.faceBoundary g.1) := by
+  intro h
+  rcases hWitness with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, _hboundaryEq, hEndpoint⟩
+  rcases h emb boundaryData dartCycles hboundaryArc hEndpoint with
+    ⟨peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover, hchildren⟩
+  exact
+    not_hasUnblockedInteriorEndpoint_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeFaceMembershipCover
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hchildren hEndpoint
 
 /-- Graph-level impossibility form for the actual theorem-4.9 boundary-order raw canonical-parent
 cover shell plus a nonempty purified selected-boundary carrier. -/
@@ -1694,6 +2096,21 @@ theorem everyInteriorEdgeHasBoundaryFreeIncidentFace_of_interiorDualBoundaryRoot
       data.fallbackEdge hfp
   exact ⟨f, by simpa [hWitness] using hfWitness, data.hpeelInterior f hfPeel⟩
 
+/-- Package the same adjacency-distance no-forcing criterion as explicit selector data. -/
+noncomputable def boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootAdjDistancePeelData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : InteriorDualBoundaryRootAdjDistancePeelData emb.faces emb.faceBoundary) :
+    BoundaryFreeIncidentFaceSelector emb :=
+  boundaryFreeIncidentFaceSelector_of_everyInteriorEdgeHasBoundaryFreeIncidentFace
+    (everyInteriorEdgeHasBoundaryFreeIncidentFace_of_interiorDualBoundaryRootAdjDistancePeelData
+      data)
+
+theorem nonempty_boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootAdjDistancePeelData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : InteriorDualBoundaryRootAdjDistancePeelData emb.faces emb.faceBoundary) :
+    Nonempty (BoundaryFreeIncidentFaceSelector emb) :=
+  ⟨boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootAdjDistancePeelData data⟩
+
 /-- Contrapositive-free form of the same criterion: once the interior-dual boundary-root
 adjacency-distance package is present, no forcing interior-edge witness can exist. -/
 theorem not_nonempty_forcingInteriorEdgeWitness_of_interiorDualBoundaryRootAdjDistancePeelData
@@ -1721,6 +2138,26 @@ theorem not_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData
     ¬ Nonempty (PlanarBoundaryAnnulusRootAdjDistancePeelData emb) := by
   rintro ⟨data⟩
   exact false_of_planarBoundaryAnnulusRootAdjDistancePeelData data hw
+
+theorem everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusRootAdjDistancePeelData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootAdjDistancePeelData emb) :
+    EveryInteriorEdgeHasBoundaryFreeIncidentFace emb :=
+  everyInteriorEdgeHasBoundaryFreeIncidentFace_of_interiorDualBoundaryRootAdjDistancePeelData
+    data.interiorData
+
+noncomputable def boundaryFreeIncidentFaceSelector_of_planarBoundaryAnnulusRootAdjDistancePeelData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootAdjDistancePeelData emb) :
+    BoundaryFreeIncidentFaceSelector emb :=
+  boundaryFreeIncidentFaceSelector_of_interiorDualBoundaryRootAdjDistancePeelData
+    data.interiorData
+
+theorem nonempty_boundaryFreeIncidentFaceSelector_of_planarBoundaryAnnulusRootAdjDistancePeelData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusRootAdjDistancePeelData emb) :
+    Nonempty (BoundaryFreeIncidentFaceSelector emb) :=
+  ⟨boundaryFreeIncidentFaceSelector_of_planarBoundaryAnnulusRootAdjDistancePeelData data⟩
 
 /-- Since the two-sided annulus-root parent package contains the generic parent payload, a
 forcing edge rules out that source-facing sufficiency target as well. -/
@@ -1764,6 +2201,33 @@ theorem
   rcases hWitness with ⟨emb, hP, ⟨hw⟩⟩
   exact not_nonempty_planarBoundaryAnnulusRootParentPeelData (emb := emb) hw
     (h (emb := emb) hP)
+
+/-- The same forcing-edge witness also blocks any universal converse from the final theorem-4.9
+boundary-root synthesis endpoint back to the stronger same-embedding parent-peel package. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusRootParentPeelData emb) := by
+  intro h
+  refine
+    not_forall_nonempty_planarBoundaryAnnulusRootParentPeelData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+      (P := fun emb =>
+        ∃ C : G.EdgeColoring Color,
+          IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C)
+      hWitness ?_
+  intro emb hP
+  rcases hP with ⟨C, hC, hSynthesis⟩
+  exact h C hC hSynthesis
 
 /-- Route-facing special case of the generic failed converse: an honest closed-walk annulus
 source can coexist with a forcing interior edge on some embedding, so there is no universal
@@ -1842,6 +2306,34 @@ theorem
   rcases hWitness with ⟨emb, hP, ⟨hw⟩⟩
   exact not_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData (emb := emb) hw
     (h (emb := emb) hP)
+
+/-- The same forcing-edge witness also blocks any universal converse from the final theorem-4.9
+boundary-root synthesis endpoint back to the weaker same-embedding annulus-root
+adjacency-distance package. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusRootAdjDistancePeelData emb) := by
+  intro h
+  refine
+    not_forall_nonempty_planarBoundaryAnnulusRootAdjDistancePeelData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+      (P := fun emb =>
+        ∃ C : G.EdgeColoring Color,
+          IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C)
+      hWitness ?_
+  intro emb hP
+  rcases hP with ⟨C, hC, hSynthesis⟩
+  exact h C hC hSynthesis
 
 /-- Route-facing special case of the generic failed converse: an honest closed-walk annulus
 source can coexist with a forcing interior edge on some embedding, so there is no universal
@@ -1964,6 +2456,39 @@ theorem not_nonempty_forcingInteriorEdgeWitness_of_planarBoundaryAnnulusConstruc
       (everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusConstructionBoundarySupportFaceData
         data)
 
+theorem
+    everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb) :
+    EveryInteriorEdgeHasBoundaryFreeIncidentFace emb := by
+  intro e heInterior
+  rcases data.construction
+      |>.exists_peelFace_witnessEdge_eq_and_faceBoundary_disjoint_selectedBoundarySupport_of_mem_interiorEdgeSupport
+        data.hpeelInterior heInterior with
+    ⟨f, _hfPeel, _hfe, heFace, hdisjoint⟩
+  exact ⟨f, heFace, hdisjoint⟩
+
+/-- The downstream face-layer construction shell already carries the local no-forcing witness
+needed by every selector/construction continuation: for each interior edge it chooses an incident
+peeled face whose whole boundary avoids selected-boundary support. -/
+noncomputable def
+    boundaryFreeIncidentFaceSelector_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb) :
+    BoundaryFreeIncidentFaceSelector emb :=
+  boundaryFreeIncidentFaceSelector_of_everyInteriorEdgeHasBoundaryFreeIncidentFace
+    (everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusConstructionFaceLayerData
+      data)
+
+theorem not_nonempty_forcingInteriorEdgeWitness_of_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusConstructionFaceLayerData emb) :
+    ¬ Nonempty (ForcingInteriorEdgeWitness emb) := by
+  exact
+    not_nonempty_forcingInteriorEdgeWitness_of_everyInteriorEdgeHasBoundaryFreeIncidentFace
+      (everyInteriorEdgeHasBoundaryFreeIncidentFace_of_planarBoundaryAnnulusConstructionFaceLayerData
+        data)
+
 theorem not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData
     {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
     (hw : ForcingInteriorEdgeWitness emb) :
@@ -2016,6 +2541,109 @@ theorem not_forall_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFace
     not_forall_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
       (P := fun emb => Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb))
       hWitness
+
+/-- The same forcing-edge witness blocks any universal same-embedding derivation from `P` to
+the intermediate face-partition construction shell. -/
+theorem not_forall_nonempty_planarBoundaryAnnulusConstructionFacePartitionData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} (P : PlaneEmbeddingWithBoundary G → Prop)
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      P emb ∧ Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        P emb → Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  intro h
+  rcases hWitness with ⟨emb, hP, ⟨hw⟩⟩
+  exact not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData (emb := emb) hw
+    (h (emb := emb) hP)
+
+/-- The same forcing-edge witness blocks any universal same-embedding derivation from `P` to
+the intermediate positive-frontier construction shell. -/
+theorem not_forall_nonempty_planarBoundaryAnnulusConstructionPositiveFrontierData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} (P : PlaneEmbeddingWithBoundary G → Prop)
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      P emb ∧ Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        P emb → Nonempty (PlanarBoundaryAnnulusConstructionPositiveFrontierData emb) := by
+  intro h
+  rcases hWitness with ⟨emb, hP, ⟨hw⟩⟩
+  exact not_nonempty_planarBoundaryAnnulusConstructionPositiveFrontierData (emb := emb) hw
+    (h (emb := emb) hP)
+
+/-- The same forcing-edge witness blocks any universal same-embedding derivation from `P` to
+the downstream construction face-layer package used to lower into annulus decomposition. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V} (P : PlaneEmbeddingWithBoundary G → Prop)
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      P emb ∧ Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        P emb → Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb) := by
+  intro h
+  rcases hWitness with ⟨emb, hP, ⟨hw⟩⟩
+  exact not_nonempty_planarBoundaryAnnulusConstructionFaceLayerData (emb := emb) hw
+    (h (emb := emb) hP)
+
+/-- Route-facing face-layer special case: an honest closed-walk annulus source can coexist with a
+forcing interior edge on some embedding, so that source shell alone cannot universally yield the
+construction face-layer data used later in the annulus-decomposition route. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) ∧
+        Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb) := by
+  exact
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+      (P := fun emb => Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb))
+      hWitness
+
+/-- The same forcing-edge witness also refutes a universal face-layer theorem on the stronger
+reachability-plus-cyclic-ordered-face-arc source shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_annulusBoundaryReachabilityData_and_cyclicOrderedFaceArcEmbeddingData_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+        Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb)) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) →
+          Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb) →
+            Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb) := by
+  intro h
+  refine
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+      (P := fun emb =>
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+          Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb))
+      hWitness ?_
+  intro emb hP
+  exact h hP.1 hP.2
+
+/-- The same forcing-edge witness likewise refutes a universal face-layer theorem on the weaker
+reachability-plus-selected-boundary-arc source shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_annulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry_and_forcingInteriorEdgeWitness
+    {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+        Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb)) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G},
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) →
+          Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb) →
+            Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb) := by
+  intro h
+  refine
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_with_property_and_forcingInteriorEdgeWitness
+      (P := fun emb =>
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+          Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb))
+      hWitness ?_
+  intro emb hP
+  exact h hP.1 hP.2
 
 /-- Route-facing summary: an honest closed-walk annulus boundary source plus a forcing interior
 edge still does not yield the peeled interior-dual package. -/
@@ -2126,6 +2754,17 @@ theorem
       ¬ Nonempty (PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb) :=
   ⟨hsource, not_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData hw⟩
 
+/-- The same forcing-edge witness also blocks the intermediate face-partition construction shell.
+-/
+theorem
+    closedWalkAnnulusBoundarySource_does_not_imply_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (hsource : Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb))
+    (hw : ForcingInteriorEdgeWitness emb) :
+    Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) ∧
+      ¬ Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) :=
+  ⟨hsource, not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData hw⟩
+
 /-- The same forcing-edge witness also blocks the reduced positive-frontier construction shell. -/
 theorem
     closedWalkAnnulusBoundarySource_does_not_imply_planarBoundaryAnnulusConstructionPositiveFrontierData
@@ -2200,6 +2839,21 @@ theorem
   exact
     ⟨hreach, hcyclic,
       not_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData hw⟩
+
+/-- The same source-side strengthening still does not reach the intermediate face-partition shell
+when a forcing interior edge is present. -/
+theorem
+    annulusBoundaryReachability_and_cyclicOrderedFaceArcEmbeddingData_does_not_imply_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (hreach : Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb))
+    (hcyclic : Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb))
+    (hw : ForcingInteriorEdgeWitness emb) :
+    Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+      Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb) ∧
+      ¬ Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  exact
+    ⟨hreach, hcyclic,
+      not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData hw⟩
 
 /-- The same source-side strengthening still does not reach the reduced positive-frontier shell
 when a forcing interior edge is present. -/
@@ -2284,6 +2938,21 @@ theorem
   exact
     ⟨hreach, harc,
       not_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData hw⟩
+
+/-- The same weakening to bundled selected-boundary arc geometry still does not reach the
+intermediate face-partition shell when a forcing interior edge is present. -/
+theorem
+    annulusBoundaryReachability_and_selectedBoundaryArcGeometry_does_not_imply_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (hreach : Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb))
+    (harc : Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb))
+    (hw : ForcingInteriorEdgeWitness emb) :
+    Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+      Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb) ∧
+      ¬ Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  exact
+    ⟨hreach, harc,
+      not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData hw⟩
 
 /-- The same weakening to bundled selected-boundary arc geometry still does not reach the
 reduced positive-frontier shell when a forcing interior edge is present. -/
@@ -2411,6 +3080,21 @@ theorem
 
 /-- Graph-level existential form at the stronger cyclic ordered face-arc source surface:
 no single embedding can carry annulus reachability, cyclic ordered face arcs, a forcing
+interior edge witness, and the intermediate face-partition shell. -/
+theorem
+    not_exists_embedding_annulusBoundaryReachabilityData_and_cyclicOrderedFaceArcEmbeddingData_and_forcingInteriorEdgeWitness_and_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+          Nonempty (PlanarBoundaryCyclicOrderedFaceArcEmbeddingData emb) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb) ∧
+          Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  rintro ⟨emb, _hreach, _hcyclic, ⟨hw⟩, hpart⟩
+  exact
+    not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData (emb := emb) hw hpart
+
+/-- Graph-level existential form at the stronger cyclic ordered face-arc source surface:
+no single embedding can carry annulus reachability, cyclic ordered face arcs, a forcing
 interior edge witness, and the reduced positive-frontier shell. -/
 theorem
     not_exists_embedding_annulusBoundaryReachabilityData_and_cyclicOrderedFaceArcEmbeddingData_and_forcingInteriorEdgeWitness_and_planarBoundaryAnnulusConstructionPositiveFrontierData
@@ -2451,6 +3135,21 @@ theorem
   rintro ⟨emb, _hreach, _hcyclic, ⟨hw⟩, hdata⟩
   exact
     not_nonempty_planarBoundaryAnnulusRootParentPeelData (emb := emb) hw hdata
+
+/-- Graph-level existential form at the weaker selected-boundary-arc source surface:
+no single embedding can carry annulus reachability, bundled selected-boundary arc geometry,
+a forcing interior edge witness, and the intermediate face-partition shell. -/
+theorem
+    not_exists_embedding_annulusBoundaryReachabilityData_and_selectedBoundaryArcGeometry_and_forcingInteriorEdgeWitness_and_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V} :
+    ¬ ∃ emb : PlaneEmbeddingWithBoundary G,
+        Nonempty (PlanarBoundaryAnnulusBoundaryReachabilityData emb) ∧
+          Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb) ∧
+          Nonempty (ForcingInteriorEdgeWitness emb) ∧
+          Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  rintro ⟨emb, _hreach, _harc, ⟨hw⟩, hpart⟩
+  exact
+    not_nonempty_planarBoundaryAnnulusConstructionFacePartitionData (emb := emb) hw hpart
 
 /-- Graph-level existential form at the weaker selected-boundary-arc source surface:
 no single embedding can carry annulus reachability, bundled selected-boundary arc geometry,

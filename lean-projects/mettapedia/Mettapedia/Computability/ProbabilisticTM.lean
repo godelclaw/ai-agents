@@ -219,9 +219,27 @@ theorem outputProb_nonneg (M : PTMIndex) (x : ℕ) : 0 ≤ outputProb M x := by
 For practical proofs, we work with bounded approximations of output probability.
 -/
 
+/-- A PTM is well-behaved if giving it more random bits never invalidates a
+halting computation with the same fuel and output. This is the explicit form of
+the modeling assumption used below. -/
+def isWellBehavedPTM (M : PTMIndex) : Prop :=
+  ∀ (x : ℕ) (r : CantorSpace) (fuel numBits₁ numBits₂ : ℕ) (k : ℕ),
+    numBits₁ ≤ numBits₂ →
+    runPTMBounded M x r fuel numBits₁ = some k →
+    runPTMBounded M x r fuel numBits₂ = some k
+
 /-- Probability of outputting 1 within fuel steps using numBits random bits. -/
 noncomputable def boundedOutputProb (M : PTMIndex) (x : ℕ) (fuel numBits : ℕ) : ℝ≥0∞ :=
   coinMeasure {r : CantorSpace | runPTMBounded M x r fuel numBits = some 1}
+
+/-- More fuel preserves a successful bounded run. -/
+theorem runPTMBounded_mono_fuel (M : PTMIndex) (x : ℕ) (r : CantorSpace) (numBits : ℕ)
+    {fuel₁ fuel₂ : ℕ} (h : fuel₁ ≤ fuel₂) {k : ℕ}
+    (hr : runPTMBounded M x r fuel₁ numBits = some k) :
+    runPTMBounded M x r fuel₂ numBits = some k := by
+  unfold runPTMBounded at hr ⊢
+  have h_mem : k ∈ Nat.Partrec.Code.evaln fuel₁ M (Nat.pair x (encodeRandomBits r numBits)) := hr
+  exact Nat.Partrec.Code.evaln_mono h h_mem
 
 /-- Bounded approximations are monotone in fuel. -/
 theorem boundedOutputProb_mono_fuel (M : PTMIndex) (x : ℕ) (numBits : ℕ)
@@ -237,29 +255,69 @@ theorem boundedOutputProb_mono_fuel (M : PTMIndex) (x : ℕ) (numBits : ℕ)
   have h_mem : (1 : ℕ) ∈ Nat.Partrec.Code.evaln fuel₁ M (Nat.pair x (encodeRandomBits r numBits)) := hr
   exact Nat.Partrec.Code.evaln_mono h h_mem
 
+/-- For well-behaved PTMs, more random bits preserve a successful bounded run. -/
+theorem runPTMBounded_mono_bits (M : PTMIndex) (hM : isWellBehavedPTM M)
+    (x : ℕ) (r : CantorSpace) (fuel : ℕ)
+    {numBits₁ numBits₂ : ℕ} (h : numBits₁ ≤ numBits₂) {k : ℕ}
+    (hr : runPTMBounded M x r fuel numBits₁ = some k) :
+    runPTMBounded M x r fuel numBits₂ = some k :=
+  hM x r fuel numBits₁ numBits₂ k h hr
+
+/-- Combined monotonicity for well-behaved PTMs. -/
+theorem runPTMBounded_mono (M : PTMIndex) (hM : isWellBehavedPTM M)
+    (x : ℕ) (r : CantorSpace)
+    {fuel₁ fuel₂ numBits₁ numBits₂ : ℕ} (hf : fuel₁ ≤ fuel₂) (hn : numBits₁ ≤ numBits₂) {k : ℕ}
+    (hr : runPTMBounded M x r fuel₁ numBits₁ = some k) :
+    runPTMBounded M x r fuel₂ numBits₂ = some k := by
+  have h_bits := runPTMBounded_mono_bits M hM x r fuel₁ hn hr
+  exact runPTMBounded_mono_fuel M x r numBits₂ hf h_bits
+
+/-- Diagonal bounded output sets are monotone for well-behaved PTMs. -/
+theorem boundedOutputProb_mono_diag (M : PTMIndex) (hM : isWellBehavedPTM M) (x : ℕ)
+    {n₁ n₂ : ℕ} (h : n₁ ≤ n₂) :
+    boundedOutputProb M x n₁ n₁ ≤ boundedOutputProb M x n₂ n₂ := by
+  unfold boundedOutputProb
+  apply measure_mono
+  intro r hr
+  simp only [Set.mem_setOf_eq] at hr ⊢
+  exact runPTMBounded_mono M hM x r h h hr
+
+/-- The diagonal bounded sets cover the full output set for well-behaved PTMs. -/
+theorem outputOneSet_eq_iUnion (M : PTMIndex) (hM : isWellBehavedPTM M) (x : ℕ) :
+    outputOneSet M x = ⋃ n : ℕ, {r : CantorSpace | runPTMBounded M x r n n = some 1} := by
+  ext r
+  simp only [outputOneSet, PTMHaltsWithOutput, Set.mem_setOf_eq, Set.mem_iUnion]
+  constructor
+  · intro hr
+    rcases hr with ⟨fuel, numBits, hrun⟩
+    refine ⟨max fuel numBits, ?_⟩
+    exact runPTMBounded_mono M hM x r (le_max_left _ _) (le_max_right _ _) hrun
+  · intro hr
+    rcases hr with ⟨n, hrun⟩
+    exact ⟨n, n, hrun⟩
+
+/-- Every bounded approximation is below the full output probability. -/
+theorem boundedOutputProb_le_outputProb (M : PTMIndex) (x : ℕ) (fuel numBits : ℕ) :
+    boundedOutputProb M x fuel numBits ≤ outputProb M x := by
+  unfold boundedOutputProb outputProb
+  apply measure_mono
+  intro r hr
+  exact ⟨fuel, numBits, hr⟩
+
 /-- Bounded approximations converge to the true probability.
 
-NOTE: This theorem requires a modeling assumption about "well-behaved" PTMs that
-only read the random bits they actually need. In the current encoding where
-`encodeRandomBits r numBits` packs the first numBits into a single ℕ, changing
-numBits changes the encoded value entirely. A "proper" PTM that reads bits
-sequentially and halts once it has enough information would satisfy:
-- If halts with (fuel, numBits), then halts with same output for (fuel', numBits') when
-  fuel' ≥ fuel and numBits' ≥ numBits
-
-For now, we accept this as a fundamental property of our PTM model.
+NOTE: The current encoding needs the explicit `isWellBehavedPTM` hypothesis.
 -/
-theorem boundedOutputProb_tendsto (M : PTMIndex) (x : ℕ) :
+theorem boundedOutputProb_tendsto (M : PTMIndex) (x : ℕ) (hM : isWellBehavedPTM M) :
     Filter.Tendsto (fun n => boundedOutputProb M x n n) Filter.atTop
       (nhds (outputProb M x)) := by
-  -- The proof requires showing that for each r ∈ outputOneSet, r eventually
-  -- belongs to the n-th bounded set. This follows from the definition of
-  -- PTMHaltsWithOutput plus a modeling assumption about sequential bit reading.
-  -- Key steps:
-  -- 1. outputOneSet M x = ⋃ (fuel numBits : ℕ), {r | runPTMBounded M x r fuel numBits = some 1}
-  -- 2. The diagonal sets {r | runPTMBounded M x r n n = some 1} eventually cover outputOneSet
-  -- 3. Use MeasureTheory.tendsto_measure_iUnion for continuity from below
-  sorry
+  unfold outputProb boundedOutputProb
+  rw [outputOneSet_eq_iUnion M hM x]
+  have h_mono : Monotone (fun n : ℕ => {r : CantorSpace | runPTMBounded M x r n n = some 1}) := by
+    intro n₁ n₂ h r hr
+    simp only [Set.mem_setOf_eq] at hr ⊢
+    exact runPTMBounded_mono M hM x r h h hr
+  exact tendsto_measure_iUnion_atTop h_mono
 
 /-! ## Connection to Reflective Oracles
 
@@ -267,27 +325,23 @@ The key property for reflective oracles is that we can compute/approximate
 the output probability from below and above.
 -/
 
-/-- The output probability can be approximated from below computably.
+/-- The output probability can be approximated from below by a monotone
+sequence of bounded probabilities.
 
-This is the "limit computability" property: there's a computable sequence
-converging to the true probability from below.
-
-The approximating function f(n) counts, for each n, the fraction of n-bit
-random strings for which the machine halts with output 1 within n steps:
-  f(n) = |{bits ∈ {0,1}^n | runPTMBounded M x r_bits n n = some 1}| / 2^n
-
-This is computable (enumerate all 2^n bit strings, run the machine) and
-monotone (under the "well-behaved PTM" assumption from boundedOutputProb_tendsto).
+NOTE: With the current encoding this lives naturally in `ℝ≥0∞`; the bounded
+probabilities are genuine measures and converge from below under
+`isWellBehavedPTM`.
 -/
-theorem outputProb_limit_computable_below (M : PTMIndex) (x : ℕ) :
-    ∃ f : ℕ → ℝ≥0, (∀ n, (f n : ℝ≥0∞) ≤ outputProb M x) ∧
+theorem outputProb_limit_computable_below (M : PTMIndex) (x : ℕ) (hM : isWellBehavedPTM M) :
+    ∃ f : ℕ → ℝ≥0∞, (∀ n, f n ≤ outputProb M x) ∧
                     Monotone f ∧
-                    Filter.Tendsto (fun n => (f n : ℝ≥0∞)) Filter.atTop
+                    Filter.Tendsto f Filter.atTop
                       (nhds (outputProb M x)) := by
-  -- The construction:
-  -- f(n) = boundedOutputProb M x n n (converted to ℝ≥0 via .toReal/.toNNReal)
-  -- This is bounded by outputProb (since the bounded set ⊆ outputOneSet)
-  -- Monotonicity and convergence follow from boundedOutputProb_tendsto
-  sorry
+  refine ⟨fun n => boundedOutputProb M x n n, ?_, ?_, ?_⟩
+  · intro n
+    exact boundedOutputProb_le_outputProb M x n n
+  · intro n₁ n₂ h
+    exact boundedOutputProb_mono_diag M hM x h
+  · exact boundedOutputProb_tendsto M x hM
 
 end Mettapedia.Computability

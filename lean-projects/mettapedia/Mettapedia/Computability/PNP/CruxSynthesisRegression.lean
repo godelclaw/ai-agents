@@ -1291,6 +1291,18 @@ theorem current_pnp_kpoly_bounded_sample_plugin_majority_actual_local_no_extract
   exact currentPNPKpolyCoveredSubrepairs_exact
     PNPKpolySubrepairClass.boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdWidthObstruction
 
+theorem current_pnp_kpoly_actual_local_recovery_pairwise_agreement_regression :
+    PNPKpolySubrepairClass.actualLocalRecoveryPairwiseAgreementBoundary ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalRecoveryPairwiseAgreementBoundary
+
+theorem current_pnp_kpoly_actual_local_no_extractor_recovery_pairwise_agreement_regression :
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryPairwiseAgreementObstruction ∈
+      currentPNPKpolyCoveredSubrepairs := by
+  exact currentPNPKpolyCoveredSubrepairs_exact
+    PNPKpolySubrepairClass.actualLocalNoExtractorRecoveryPairwiseAgreementObstruction
+
 theorem current_pnp_kpoly_full_rule_actual_local_recovery_threshold_visible_budget_regression :
     PNPKpolySubrepairClass.fullRuleActualLocalRecoveryThresholdVisibleBudgetBoundary ∈
       currentPNPKpolyCoveredSubrepairs := by
@@ -1418,6 +1430,26 @@ theorem fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_i
     Function.Injective
       fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict := by
   exact fin5ProbeFamilyActualSparseRecoveryPayloadBridge_injective
+
+theorem fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_predict_zero_ne_predict_two :
+    fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 0 ≠
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 2 := by
+  intro h
+  have hinj :=
+    fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_injective_predict
+  have h02 : (0 : Fin 5) ≠ 2 := by decide
+  exact h02 (hinj h)
+
+theorem fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_agreementMass_predict_zero_predict_two_eq_one :
+    agreementMass
+        fin3PureMeasureActualSparseRecoveryPayloadBridge
+        (fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 0)
+        (fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 2)
+      = 1 := by
+  apply agreementMass_pure_eq_one_of_agrees
+  simp [fin3ZeroVisiblePointActualSparseRecoveryPayloadBridge,
+    fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge,
+    fin5ProbeFamilyActualSparseRecoveryPayloadBridge]
 
 def exactVisiblePostSwitchSurfaceFin30EquivActualSparseRecoveryHeavyRegionTraceBridge :
     ExactVisiblePostSwitchSurface (Fin 3) 0 ≃ Fin 3 where
@@ -1978,6 +2010,68 @@ theorem kpoly_anchor_bounded_sample_plugin_majority_actual_local_no_extractor_re
       (by norm_num)
       (half_lt_one_sub_pow_inv_of_two_lt_pow_cruxSynthesisRegression
         (by norm_num : (2 : ℝ≥0∞) < 2 ^ 3))
+
+theorem kpoly_anchor_actual_local_recovery_pairwise_agreement_boundary_regression
+    {q : ℝ≥0∞}
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          fin3PureMeasureActualSparseRecoveryPayloadBridge
+          fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge
+          fin3ToBitVec0ActualSparseRecoveryPayloadBridge
+          q)) :
+    agreementMass
+        fin3PureMeasureActualSparseRecoveryPayloadBridge
+        (fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 0)
+        (fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge.predictorFamily.predict 2)
+      ≤ q := by
+  exact
+    kpolyCoverage_anchor_actualLocal_agreementMass_le_of_nonempty_recovery_of_predict_ne
+      (k := 0)
+      (r := 0)
+      (T := fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge)
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (q := q)
+      fin3ToBitVec0ActualSparseRecoveryPayloadBridge
+      h
+      0
+      2
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_predict_zero_ne_predict_two.symm
+
+private noncomputable def fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge : ℝ≥0∞ :=
+  (3 : ℝ≥0∞) / 4
+
+private theorem fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge_lt_one :
+    fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge < 1 := by
+  have h₁ : fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge = (3 : ℝ≥0∞) / 4 := by
+    rfl
+  have h₂ : (1 : ℝ≥0∞) = (4 : ℝ≥0∞) / 4 := by
+    rw [ENNReal.div_self (by norm_num : (4 : ℝ≥0∞) ≠ 0) (by simp)]
+  rw [h₁, h₂]
+  exact ENNReal.div_lt_div_right (by norm_num) (by simp) (by norm_num)
+
+theorem kpoly_anchor_actual_local_no_extractor_recovery_pairwise_agreement_regression :
+    ¬ ∃ zfeat : Fin 3 → BitVec 0,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            fin3PureMeasureActualSparseRecoveryPayloadBridge
+            fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge
+            zfeat
+            fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge) := by
+  exact
+    kpolyCoverage_anchor_actualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_agreementMass_of_predict_ne
+      (Z := Fin 3)
+      (k := 0)
+      (r := 0)
+      (μ := fin3PureMeasureActualSparseRecoveryPayloadBridge)
+      (T := fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge)
+      (q := fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge)
+      0
+      2
+      fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_predict_zero_ne_predict_two.symm
+      (by
+        rw [fin5ProbeActualSwitchedLocalInterfaceActualSparseRecoveryPayloadBridge_agreementMass_predict_zero_predict_two_eq_one]
+        exact fin5ProbeActualSparseRecoveryPayloadThreeQuartersBridge_lt_one)
 
 theorem kpoly_anchor_full_rule_actual_local_recovery_threshold_visible_budget_boundary_regression
     (h :

@@ -70,6 +70,63 @@ theorem canonicalZABDecisionListERMCompressionTarget
     (canonicalZABDecisionListERMCandidateData
       (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).compressionTarget
 
+theorem canonicalZABDecisionListERMFinitePredictorCover
+    (zfeat : Z → BitVec r)
+    (samples : Index → Sample (ExactVisiblePostSwitchSurface Z k) Bool) :
+    (exactZABDecisionListERMFamily
+      (Z := Z) (r := r) (k := k) zfeat samples).FinitePredictorCover
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (canonicalZABDecisionListERMCandidateData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).finitePredictorCover
+
+theorem canonicalZABDecisionListERMFiniteIndexRepresentativeCover
+    (zfeat : Z → BitVec r)
+    (samples : Index → Sample (ExactVisiblePostSwitchSurface Z k) Bool) :
+    (exactZABDecisionListERMFamily
+      (Z := Z) (r := r) (k := k) zfeat samples).FiniteIndexRepresentativeCover
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (canonicalZABDecisionListERMCandidateData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).finiteIndexRepresentativeCover
+
+theorem canonicalZABDecisionListERMFinitePredictorQuotient
+    (zfeat : Z → BitVec r)
+    (samples : Index → Sample (ExactVisiblePostSwitchSurface Z k) Bool) :
+    (exactZABDecisionListERMFamily
+      (Z := Z) (r := r) (k := k) zfeat samples).FinitePredictorQuotient
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (canonicalZABDecisionListERMCandidateData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).finitePredictorQuotient
+
+theorem canonicalZABDecisionListERMFamily_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    (zfeat : Z → BitVec r)
+    (samples : Index → Sample (ExactVisiblePostSwitchSurface Z k) Bool)
+    (hsurj :
+      Function.Surjective
+        (exactZABDecisionListERMFamily
+          (Z := Z) (r := r) (k := k) zfeat samples).predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ r + 2 * k + 1 := by
+  exact
+    (canonicalZABDecisionListERMCandidateData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).surfaceCard_le_of_surjective_predict
+      hsurj
+
+theorem canonicalZABDecisionListERMFamily_not_surjective_of_lt_surfaceCard
+    [Fintype Z]
+    (zfeat : Z → BitVec r)
+    (samples : Index → Sample (ExactVisiblePostSwitchSurface Z k) Bool)
+    (hs : r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective
+        (exactZABDecisionListERMFamily
+          (Z := Z) (r := r) (k := k) zfeat samples).predict := by
+  exact
+    (canonicalZABDecisionListERMCandidateData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat samples).not_surjective_predict_of_lt_surfaceCard
+      hs
+
 section
 
 variable [Fintype Z]

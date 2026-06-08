@@ -47,6 +47,24 @@ theorem CanonicalABDecisionListCandidateData.compressionTarget
   exact exactVisibleCompressionTarget_of_invariant_and_canonicalABDecisionList_twoMul
     (Z := Z) (k := k) h.invariant h.realized
 
+theorem CanonicalABDecisionListCandidateData.surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : CanonicalABDecisionListCandidateData (Z := Z) (k := k) (Index := Index) G)
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 * k + 1 := by
+  exact canonicalABDecisionList_surfaceCard_le_of_surjective_predict
+    (Z := Z) (k := k) (Index := Index) h.invariant h.realized hsurj
+
+theorem CanonicalABDecisionListCandidateData.not_surjective_predict_of_lt_surfaceCard
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : CanonicalABDecisionListCandidateData (Z := Z) (k := k) (Index := Index) G)
+    (hs : 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  exact canonicalABDecisionList_not_surjective_of_lt_surfaceCard
+    (Z := Z) (k := k) (Index := Index) h.invariant h.realized hs
+
 theorem CanonicalABDecisionListCandidateData.target_eq_abDecisionList
     {G : ExactVisibleSwitchedFamily Z k Index}
     (h : CanonicalABDecisionListCandidateData (Z := Z) (k := k) (Index := Index) G)

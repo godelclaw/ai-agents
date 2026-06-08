@@ -58,6 +58,69 @@ theorem exactVisibleCompressionTarget_canonicalZABCodeFamily
       (canonicalZABDecisionListCandidateData_of_codes
         (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
 
+/-- Explicit canonical code assignments give a finite predictor-image cover of
+the induced exact-visible family. -/
+theorem finitePredictorCover_canonicalZABCodeFamily
+    (zfeat : Z → BitVec r)
+    (codes : Index → SharedAffineDecisionListCode (r + (k + k))) :
+    (canonicalZABCodeFamily (Z := Z) (r := r) (k := k) zfeat codes).FinitePredictorCover
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    CanonicalZABDecisionListCandidateData.finitePredictorCover
+      (canonicalZABDecisionListCandidateData_of_codes
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
+
+/-- Explicit canonical code assignments give finite representative indices for
+the induced exact-visible family. -/
+theorem finiteIndexRepresentativeCover_canonicalZABCodeFamily
+    (zfeat : Z → BitVec r)
+    (codes : Index → SharedAffineDecisionListCode (r + (k + k))) :
+    (canonicalZABCodeFamily (Z := Z) (r := r) (k := k) zfeat codes).FiniteIndexRepresentativeCover
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    CanonicalZABDecisionListCandidateData.finiteIndexRepresentativeCover
+      (canonicalZABDecisionListCandidateData_of_codes
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
+
+/-- Explicit canonical code assignments give a finite quotient-code
+presentation of the induced exact-visible family. -/
+theorem finitePredictorQuotient_canonicalZABCodeFamily
+    (zfeat : Z → BitVec r)
+    (codes : Index → SharedAffineDecisionListCode (r + (k + k))) :
+    (canonicalZABCodeFamily (Z := Z) (r := r) (k := k) zfeat codes).FinitePredictorQuotient
+      (2 ^ (r + 2 * k + 1)) := by
+  exact
+    CanonicalZABDecisionListCandidateData.finitePredictorQuotient
+      (canonicalZABDecisionListCandidateData_of_codes
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
+
+theorem canonicalZABCodeFamily_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    (zfeat : Z → BitVec r)
+    (codes : Index → SharedAffineDecisionListCode (r + (k + k)))
+    (hsurj :
+      Function.Surjective
+        (canonicalZABCodeFamily (Z := Z) (r := r) (k := k) zfeat codes).predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ r + 2 * k + 1 := by
+  exact
+    CanonicalZABDecisionListCandidateData.surfaceCard_le_of_surjective_predict
+      (canonicalZABDecisionListCandidateData_of_codes
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
+      hsurj
+
+theorem canonicalZABCodeFamily_not_surjective_of_lt_surfaceCard
+    [Fintype Z]
+    (zfeat : Z → BitVec r)
+    (codes : Index → SharedAffineDecisionListCode (r + (k + k)))
+    (hs : r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective
+        (canonicalZABCodeFamily (Z := Z) (r := r) (k := k) zfeat codes).predict := by
+  exact
+    CanonicalZABDecisionListCandidateData.not_surjective_predict_of_lt_surfaceCard
+      (canonicalZABDecisionListCandidateData_of_codes
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat codes)
+      hs
+
 theorem candidateData_of_eq_canonicalZABCodeFamily
     {zfeat : Z → BitVec r}
     {G : ExactVisibleSwitchedFamily Z k Index}

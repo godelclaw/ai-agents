@@ -468,6 +468,108 @@ theorem
         source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
         hCarrier C0 hC0⟩
 
+/-- Fixed-embedding source-to-Theorem-4.9 composition for the smaller raw-cover parent branch.
+The local child-membership condition is derived internally from the canonical parent cover and
+the embedding's two-incidence bound, so callers need only supply the source-fixed root
+cover/separation data, boundary-free peeled faces, and rooted shared-edge cover. -/
+theorem
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_planarBoundaryInteriorDualBoundaryRootParentPeelData
+      (G := G)
+      (interiorDualBoundaryRootParentPeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover)
+      C0 hC0 hCarrier
+
+/-- Fixed-embedding source-to-Theorem-4.9 raw quotient/error composition for the smaller raw-cover
+parent branch. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_direct
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
+      hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- Graph-level source-to-Theorem-4.9 composition for the smaller raw-cover parent branch.
+This exposes the reduced source-fixed hypothesis surface directly at the projected theorem-4.9
+endpoint. -/
+theorem
+    exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge) ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases hG with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior,
+      hcover, hCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_direct
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover
+        hCarrier C0 hC0⟩
+
 /-- Canonical source witness choice gives the positive same-embedding endpoint.  The canonical
 choice first builds the one-collar annulus geometry, whose repaired previous-boundary witness
 surface yields the finite collar-layer witness-cover package used by the projection layer. -/
@@ -513,6 +615,364 @@ theorem
   exact
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
       source hchoice hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- Canonical source witness choice already gives the corrected projected Definition 4.8 subspace
+statement on the same embedding, without assuming a nonempty purified carrier. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0
+
+/-- Canonical source witness choice also gives the family-level projected spanning statement on
+the same embedding. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0
+
+/-- Canonical source witness choice gives the projected-source separation theorem on the same
+embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices
+
+/-- Canonical source witness choice gives the projected-generator detector on the same embedding.
+-/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices hz
+
+/-- Canonical source witness choice gives the pointwise orthogonality characterization against
+the projected Definition 4.8 generator span on the same embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices
+
+/-- Canonical source witness choice gives the finite raw-generator boundary-projection form of the
+corrected Theorem 4.9 source statement on the same embedding. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          source.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  rcases hchoice with ⟨choice⟩
+  let collar : PlanarBoundaryAnnulusCollarGeometry emb :=
+    choice.toPlanarBoundaryAnnulusCollarGeometry
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    collar.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
+      choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices hz
+
+/-- The local cardinal at-most-one honest-source criterion already gives the corrected projected
+Definition 4.8 subspace statement on the same embedding. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0
+
+/-- The same local cardinal at-most-one honest-source criterion also gives the family-level
+projected spanning statement on the same embedding. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0
+
+/-- The same local cardinal at-most-one honest-source criterion already gives the projected-source
+separation theorem on the same embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0 vertices
+
+/-- The same local cardinal at-most-one honest-source criterion gives the projected-generator
+detector on the same embedding. -/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0 vertices hz
+
+/-- The same local cardinal at-most-one honest-source criterion gives the pointwise orthogonality
+characterization against the projected Definition 4.8 generator span on the same embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0 vertices
+
+/-- The same local cardinal at-most-one honest-source criterion gives the finite raw-generator
+boundary-projection form of the corrected Theorem 4.9 source statement on the same embedding. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          source.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            source.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (exists_planarBoundaryCanonicalWitnessChoice_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace
+        source fallbackEdge hfallback hatMost hboundaryRest)
+      C0 hC0 vertices hz
 
 /-- Graph-level positive endpoint from an honest closed-walk source with canonical witness choice
 and a nonempty selected-boundary-purified carrier. -/
@@ -580,6 +1040,158 @@ theorem
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
       source data hnum hboundary hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
+/-- Same-boundary one-collar source geometry already gives the corrected projected Definition 4.8
+subspace statement on the same embedding, without passing through an existential witness shell. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0
+
+/-- Same-boundary one-collar source geometry also gives the family-level projected spanning
+statement on the same embedding. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0
+
+/-- Same-boundary one-collar source geometry gives the projected-source separation theorem on the
+same embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices
+
+/-- Same-boundary one-collar source geometry gives the projected-generator detector on the same
+embedding. -/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices hz
+
+/-- Same-boundary one-collar source geometry gives the pointwise orthogonality characterization
+against the projected Definition 4.8 generator span on the same embedding. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices
+
+/-- Same-boundary one-collar source geometry gives the finite raw-generator boundary-projection
+form of the corrected Theorem 4.9 source statement on the same embedding. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        source.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  let _ := hboundary
+  let previous : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb :=
+    data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_planarBoundaryCollarLayerFacePeelWitnessData
+      emb previous.toPlanarBoundaryCollarLayerFacePeelWitnessData C0 hC0 vertices hz
+
 /-- Graph-level positive endpoint from an honest closed-walk source with same-boundary one-collar
 geometry and a nonempty selected-boundary-purified carrier. -/
 theorem
@@ -601,6 +1213,270 @@ theorem
     ⟨emb,
       theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
         source data hnum hboundary hCarrier C0 hC0⟩
+
+/-- Route-facing successor-cycle positive endpoint from canonical witness choice and a nonempty
+selected-boundary-purified carrier.  The successor-cycle boundary shell is lowered to the honest
+closed-walk source before applying the same-embedding projected synthesis package. -/
+theorem
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      hCarrier C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the raw quotient/error endpoint on the canonical
+witness-choice shell. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+      boundaryData dartCycles hboundaryArc hchoice hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- Fixed-embedding successor-cycle lowering for the corrected projected Definition 4.8 subspace
+statement on the canonical witness-choice shell. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the family-level projected spanning statement on
+the canonical witness-choice shell. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the projected-source separation theorem on the
+canonical witness-choice shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the projected-generator detector on the canonical
+witness-choice shell. -/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0 vertices hz
+
+/-- Fixed-embedding successor-cycle lowering for the pointwise orthogonality characterization
+against the projected Definition 4.8 generator span on the canonical witness-choice shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the finite raw-generator boundary-projection form
+of the corrected Theorem 4.9 source statement on the canonical witness-choice shell. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_canonicalWitnessChoice_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hchoice :
+      Nonempty
+        (PlanarBoundaryCanonicalWitnessChoice
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData))
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_canonicalWitnessChoice_direct
+      source
+      (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hchoice)
+      C0 hC0 vertices hz
 
 /-- Route-facing successor-cycle positive endpoint from canonical witness choice and a nonempty
 selected-boundary-purified carrier.  The successor-cycle boundary shell is lowered to the honest
@@ -634,6 +1510,266 @@ theorem
           PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
           hchoice, hCarrier⟩ C0 hC0
 
+/-- Fixed-embedding successor-cycle lowering for the corrected projected Definition 4.8 subspace
+statement on the local at-most-one shell. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the family-level projected spanning statement on
+the local at-most-one shell. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the projected-source separation theorem on the
+local at-most-one shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the projected-generator detector on the local
+at-most-one shell. -/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0 vertices hz
+
+/-- Fixed-embedding successor-cycle lowering for the pointwise orthogonality characterization
+against the projected Definition 4.8 generator span on the local at-most-one shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the finite raw-generator boundary-projection form
+of the corrected Theorem 4.9 source statement on the local at-most-one shell. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_atMostOneInteriorEdgePerFace_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (fallbackEdge : AmbientFace emb.faces → G.edgeSet)
+    (hfallback : ∀ f : AmbientFace emb.faces, fallbackEdge f ∈ emb.faceBoundary f.1)
+    (hatMost : ∀ f : AmbientFace emb.faces,
+      ((emb.faceBoundary f.1).filter
+          (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+        (1 : ℕ))
+    (hboundaryRest : ∀ (f : AmbientFace emb.faces) {e : G.edgeSet},
+      e ∈ emb.faceBoundary f.1 →
+        e ∉ interiorEdgeSupport emb.faceBoundary emb.faces →
+        e ∈
+          boundaryData.toPlanarBoundaryAnnulusBoundaryData.outerAmbientBoundary ∪
+            boundaryData.toPlanarBoundaryAnnulusBoundaryData.innerAmbientBoundary)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_atMostOneInteriorEdgePerFace_direct
+      source fallbackEdge hfallback hatMost
+      (by
+        intro f e he hi
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundaryRest f he hi)
+      C0 hC0 vertices hz
+
 /-- Route-facing successor-cycle positive endpoint from same-boundary one-collar geometry and a
 nonempty selected-boundary-purified carrier. -/
 theorem
@@ -666,6 +1802,333 @@ theorem
           PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
           PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
           hboundary, hCarrier⟩ C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the corrected projected Definition 4.8 subspace
+statement on the same one-collar geometry shell. -/
+theorem
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    projectedKempeClosureGeneratorSubspace emb C0 = planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    projectedKempeClosureGeneratorSubspace_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the family-level projected spanning statement on
+the same one-collar geometry shell. -/
+theorem
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Submodule.span F2 (projectedKempeClosureGeneratorFamily emb C0) =
+      planarBoundaryZeroSubmodule emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    span_projectedKempeClosureGeneratorFamily_eq_planarBoundaryZeroSubmodule_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the projected-source separation theorem on the
+same one-collar geometry shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) :
+    theorem49BoundaryZeroKirchhoffSubspace emb vertices ⊓
+        (chainDotBilinForm G.edgeSet).orthogonal
+          (projectedKempeClosureGeneratorSubspace emb C0) =
+      ⊥ := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_inf_chainDot_orthogonal_projectedKempeClosureGeneratorSubspace_eq_bot_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the projected-generator detector on the same
+one-collar geometry shell. -/
+theorem
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices}
+    (hz : z ≠ 0) :
+    ∃ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) ≠ 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_projectedKempeClosureGeneratorSubspace_chainDot_ne_zero_of_ne_zero_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0 vertices hz
+
+/-- Fixed-embedding successor-cycle lowering for the pointwise orthogonality characterization
+against the projected Definition 4.8 generator span on the same one-collar geometry shell. -/
+theorem
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V)
+    {z : theorem49BoundaryZeroKirchhoffSubspace emb vertices} :
+    (∀ p ∈ projectedKempeClosureGeneratorSubspace emb C0,
+      chainDotBilinForm G.edgeSet p (z : G.edgeSet → Color) = 0) ↔
+      z = 0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryZeroKirchhoffSubspace_chainDot_projectedKempeClosureGeneratorSubspace_eq_zero_iff_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0 vertices
+
+/-- Fixed-embedding successor-cycle lowering for the finite raw-generator boundary-projection form
+of the corrected Theorem 4.9 source statement on the same one-collar geometry shell. -/
+theorem
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1)
+    (hboundary :
+      data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+        boundaryData.toPlanarBoundaryAnnulusBoundaryData)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    (vertices : Finset V) {z : G.edgeSet → Color}
+    (hz : z ∈ theorem49BoundaryZeroKirchhoffSubspace emb vertices) :
+    ∃ (coeff : (G.edgeSet → Color) → F2) (terms : Finset (G.edgeSet → Color)),
+      (terms : Set (G.edgeSet → Color)) ⊆ kempeClosureGeneratorFamily emb.faceBoundary C0 ∧
+        coeff.support ⊆ terms ∧
+          boundaryZeroProjection
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)
+              (∑ y ∈ terms, coeff y • y) = z := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_kempeClosureGeneratorFamily_finset_sum_boundaryZeroProjection_of_mem_theorem49BoundaryZeroKirchhoffSubspace_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData_direct
+      source data hnum (by
+        simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+          PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+          hboundary) C0 hC0 vertices hz
+
+/-- Fixed-embedding successor-cycle lowering for the reduced raw canonical-parent cover branch.
+The successor-cycle source is lowered to the induced honest closed-walk annulus source before
+applying the projected theorem-4.9 endpoint on the same embedding. -/
+theorem
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalParentSharedEdgeCover_direct
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hCarrier C0 hC0
+
+/-- Fixed-embedding successor-cycle lowering for the raw quotient/error endpoint on the reduced
+raw canonical-parent cover branch. -/
+theorem
+    theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hCarrier C0 hC0).rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- Graph-level successor-cycle lowering for the reduced raw canonical-parent cover branch with a
+nonempty purified selected-boundary carrier. -/
+theorem
+    exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+        (∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
+        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases hG with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover, hCarrier⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalParentSharedEdgeCover_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct
+        boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+        hpeelInterior hcover hCarrier C0 hC0⟩
 
 /-- Canonical source witness choice reaches the corrected projected Definition 4.8 spanning
 statement through the height-ordered witness surface.  The raw Kempe-generator span is not used

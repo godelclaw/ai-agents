@@ -70,6 +70,83 @@ theorem not_factorsThroughNonDistinctionWeakness_of_separates
   intro h
   exact hsep (factorsThroughNonDistinctionWeakness_constant ev h u v)
 
+/-- An indexed predictor family factors through the global distinction-weakness
+summary when every selected predictor does. -/
+def FamilyFactorsThroughDistinctionWeakness
+    (ev : GSLTEvidence U Q) {Index : Type*} (predict : Index → U → Bool) : Prop :=
+  ∀ i : Index, FactorsThroughDistinctionWeakness ev (predict i)
+
+/-- Likewise for the global non-distinction weakness. -/
+def FamilyFactorsThroughNonDistinctionWeakness
+    (ev : GSLTEvidence U Q) {Index : Type*} (predict : Index → U → Bool) : Prop :=
+  ∀ i : Index, FactorsThroughNonDistinctionWeakness ev (predict i)
+
+/-- A family whose every member factors through one global distinction-weakness
+scalar cannot select any target that separates two states. -/
+theorem not_exists_eq_of_familyFactorsThroughDistinctionWeakness_of_separates
+    (ev : GSLTEvidence U Q) {Index : Type*} {predict : Index → U → Bool}
+    (hfamily : FamilyFactorsThroughDistinctionWeakness ev predict)
+    {target : U → Bool} {u v : U}
+    (hsep : target u ≠ target v) :
+    ¬ ∃ i : Index, predict i = target := by
+  rintro ⟨i, hi⟩
+  have hconst :
+      predict i u = predict i v :=
+    factorsThroughDistinctionWeakness_constant ev (hfamily i) u v
+  exact hsep (by simpa [hi] using hconst)
+
+/-- A family whose every member factors through one global non-distinction
+weakness scalar cannot select any target that separates two states. -/
+theorem not_exists_eq_of_familyFactorsThroughNonDistinctionWeakness_of_separates
+    (ev : GSLTEvidence U Q) {Index : Type*} {predict : Index → U → Bool}
+    (hfamily : FamilyFactorsThroughNonDistinctionWeakness ev predict)
+    {target : U → Bool} {u v : U}
+    (hsep : target u ≠ target v) :
+    ¬ ∃ i : Index, predict i = target := by
+  rintro ⟨i, hi⟩
+  have hconst :
+      predict i u = predict i v :=
+    factorsThroughNonDistinctionWeakness_constant ev (hfamily i) u v
+  exact hsep (by simpa [hi] using hconst)
+
+/-- On a nontrivial state space, an indexed family whose members all factor
+through the one global distinction-weakness scalar is not surjective onto all
+Boolean classifiers. -/
+theorem not_surjective_familyFactorsThroughDistinctionWeakness_of_nontrivial
+    [Nontrivial U]
+    (ev : GSLTEvidence U Q) {Index : Type*} {predict : Index → U → Bool}
+    (hfamily : FamilyFactorsThroughDistinctionWeakness ev predict) :
+    ¬ Function.Surjective predict := by
+  classical
+  obtain ⟨u, v, huv⟩ := exists_pair_ne U
+  let target : U → Bool := fun x => decide (x = u)
+  have hsep : target u ≠ target v := by
+    simp [target, huv.symm]
+  intro hsurj
+  rcases hsurj target with ⟨i, hi⟩
+  exact
+    not_exists_eq_of_familyFactorsThroughDistinctionWeakness_of_separates
+      ev hfamily hsep ⟨i, hi⟩
+
+/-- On a nontrivial state space, an indexed family whose members all factor
+through the one global non-distinction weakness scalar is not surjective onto
+all Boolean classifiers. -/
+theorem not_surjective_familyFactorsThroughNonDistinctionWeakness_of_nontrivial
+    [Nontrivial U]
+    (ev : GSLTEvidence U Q) {Index : Type*} {predict : Index → U → Bool}
+    (hfamily : FamilyFactorsThroughNonDistinctionWeakness ev predict) :
+    ¬ Function.Surjective predict := by
+  classical
+  obtain ⟨u, v, huv⟩ := exists_pair_ne U
+  let target : U → Bool := fun x => decide (x = u)
+  have hsep : target u ≠ target v := by
+    simp [target, huv.symm]
+  intro hsurj
+  rcases hsurj target with ⟨i, hi⟩
+  exact
+    not_exists_eq_of_familyFactorsThroughNonDistinctionWeakness_of_separates
+      ev hfamily hsep ⟨i, hi⟩
+
 end
 
 end Mettapedia.Computability.PNP

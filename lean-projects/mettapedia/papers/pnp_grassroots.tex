@@ -79,8 +79,11 @@ clean machine-checked framework rather than in ad hoc prose.
 The current grassroots state now includes explicit encoded hypothesis classes,
 finite empirical-risk minimization, finite deceptive-sample bounds, threshold
 recovery lemmas, a rational uniform-rate layer, and explicit uniform success
-bounds for exact ERM recovery under finite sampling.  It now also includes the
-first weighted finite-sampling steps beyond uniform draws: an exact
+bounds for exact ERM recovery under finite sampling.  The success layer now
+also exposes non-deceptive sample-rate lower bounds directly, so downstream
+arguments can use either the realized-target recovery theorem or the
+target-independent complement of the deceptive region.  It now also includes
+the first weighted finite-sampling steps beyond uniform draws: an exact
 one-predictor agreement law and a family-level weighted union bound over finite
 encoded classes, together with weighted exact-recovery lower bounds for ERM.
 It also now packages the exact \emph{same-route interface}: a repair that still
@@ -95,6 +98,21 @@ It now also ties the four current exact-surface affine candidate classes
 directly to the weighted recovery backbone: once the target lies in one of
 those classes, the finite-sampling lower bound is available immediately with the
 matching explicit bit budget.
+It now also includes a probability-free finite-count conditional-independence
+API: exact independence, approximate tolerance, output-fiber certificates, and
+finite-output max defects are all connected by small reusable Lean theorems.
+It now also turns the balanced-fiber fork into grassroots source-erasure
+infrastructure: balanced finite-coin output fibers are exactly neutrality for
+all decidable output predicates, and such erasure forces every Boolean output
+decoder to have exactly half aggregate accuracy.
+This is now connected back to the finite-count independence API: on the sample
+space \(\mathrm{Bool}\times\mathrm{Coin}\), predicate neutrality is equivalent
+to exact finite-count independence from the source bit, and balanced fibers are
+equivalent to zero output defect.
+The quantitative form is also explicit: each output fiber's symmetric defect is
+exactly \(|\mathrm{Coin}|\) times its true/false coin-fiber imbalance, so an
+approximate-independence tolerance is precisely a uniform bound on those scaled
+imbalances.
 It now also isolates a sharper shared-basis regime: if one fixed affine feature
 extractor is reused across the switched family and only the downstream combiner
 varies, then the code budget collapses to the combiner alone.
@@ -163,14 +181,57 @@ ground-up PNP effort.
 \texttt{PNP/HypothesisClass.lean} & encoded classifier families and code-budget bounds \\
 \texttt{PNP/FiniteERM.lean} & empirical-risk minimization kernel for finite encoded families \\
 \texttt{PNP/FiniteConsistencyBound.lean} & finite uniform consistency bound for deceptive samples \\
-\texttt{PNP/FiniteUniformRecovery.lean} & threshold corollary guaranteeing exact recovery on some sample \\
+\texttt{PNP/FiniteUniformRecovery.lean} & threshold corollaries guaranteeing good samples from cardinality gaps \\
+\texttt{PNP/BitFamilyUniformRecovery.lean} & bit-budget exact-recovery wrapper for finite ERM \\
+\texttt{PNP/FiniteUniformRecoveryRegression.lean} & regression wrappers for the bit-budget recovery threshold \\
+\texttt{PNP/BitFamilyUniformRecoveryBinary.lean} & two-point-domain specialization reducing the threshold to \(s<m\) \\
+\texttt{PNP/BitFamilyUniformRecoveryBinaryRegression.lean} & regression wrappers for the binary recovery specialization \\
 \texttt{PNP/FiniteUniformRate.lean} & rational uniform-rate bounds for deception and exact recovery \\
-\texttt{PNP/FiniteUniformSuccess.lean} & miss-ratio decay and explicit uniform success bounds \\
+\texttt{PNP/FiniteUniformSuccess.lean} & miss-ratio decay, non-deceptive-rate lower bounds, and explicit uniform/bit-budget success bounds \\
+\texttt{PNP/FiniteUniformSuccessRegression.lean} & regression wrappers for the bit-budget non-deceptive and recovery bridges \\
+\texttt{PNP/BitFamilyUniformSuccessBinary.lean} & Boolean \(1/2\)-miss quantitative non-deceptive/recovery bounds, positive-margin strictness, and binary positivity \\
+\texttt{PNP/BitFamilyUniformSuccessBinaryRegression.lean} & regression wrappers for Boolean quantitative non-deceptive and recovery bounds \\
+\texttt{PNP/ClockedKpolyBridge.lean} & construction, family realization interface, and finite success-rate/good-sample bridge for clocked \(s\)-bit families \\
+\texttt{PNP/ClockedKpolyBridgeRegression.lean} & regression wrappers for the clocked construction, realization, success-rate, and good-sample bridge \\
+\texttt{PNP/ClockedKpolyTargetInterface.lean} & repackages exact bit-budget witnesses as clocked families with recovery rates, non-deceptive rates, and good samples \\
+\texttt{PNP/ClockedKpolyTargetInterfaceRegression.lean} & regression wrappers for clocked target-interface constructors, rates, and good samples \\
+\texttt{PNP/ClockedKpolyBridgeEquivalence.lean} & clocked realization equivalence with exact bit budgets and exact visible compression targets \\
+\texttt{PNP/ClockedKpolyBridgeEquivalenceRegression.lean} & regression wrappers for clocked bridge equivalences \\
+\texttt{PNP/ClockedKpolyGapAssessment.lean} & bundles the clocked finite-learning payload and proves it is exactly the finite predictor-image obligation \\
+\texttt{PNP/ClockedKpolyGapAssessmentRegression.lean} & regression wrappers for the gap-assessment equivalences and obstructions \\
+\texttt{PNP/ClockedKpolyActualGapClosure.lean} & closes the clocked payload for the concrete exact ZAB ERM family and records the bare-interface full-family obstruction \\
+\texttt{PNP/ClockedKpolyActualGapClosureRegression.lean} & regression wrappers for the actual-family closure and current-interface obstruction \\
+\texttt{PNP/ActualSwitchedLocalFamily.lean} & manuscript-shaped local normal form \(output_i(\phi)=h_i(z(\phi),a_i(\phi),b(\phi))\), with ZAB ERM closure and locality-only no-go \\
+\texttt{PNP/ActualSwitchedLocalFamilyRegression.lean} & regression wrappers for the actual local-family closure and obstruction \\
+\texttt{PNP/ActualSwitchedLocalStructure.lean} & bounded-code and shared \((zfeat(z),a,b)\) decision-list strengthenings of the actual local interface, with finite-image closure and full-rule exclusions \\
+\texttt{PNP/ActualSwitchedLocalStructureRegression.lean} & regression wrappers for the strengthened actual local-interface closure and exclusions \\
+\texttt{PNP/ActualSwitchedLocalERMConstruction.lean} & concrete actual switched-local ERM wrapper from \(zOf,aOf,bOf,zfeat\), proving ZAB data, bit-code data, finite cover, and clocked payload \\
+\texttt{PNP/ActualSwitchedLocalERMConstructionRegression.lean} & regression wrappers for the constructed actual switched-local ERM closure \\
+\texttt{PNP/ActualSwitchedLocalCodeConstruction.lean} & concrete actual switched-local wrapper from explicit per-index ZAB decision-list codes, proving the same finite-cover and clocked-payload closure \\
+\texttt{PNP/ActualSwitchedLocalCodeConstructionRegression.lean} & regression wrappers for the explicit-code actual switched-local closure \\
+\texttt{PNP/ActualSwitchedLocalPluginLookupObstruction.lean} & manuscript plug-in lookup endpoint and full-rule obstruction to treating finite-alphabet lookup as ZAB/code closure \\
+\texttt{PNP/ActualSwitchedLocalPluginLookupObstructionRegression.lean} & regression wrappers for the plug-in lookup obstruction \\
+\texttt{PNP/ActualSwitchedLocalPluginMajorityObstruction.lean} & counted plug-in majority endpoint and full-rule obstruction via one vote per visible input \\
+\texttt{PNP/ActualSwitchedLocalPluginMajorityObstructionRegression.lean} & regression wrappers for the plug-in majority obstruction \\
+\texttt{PNP/ActualSwitchedLocalPluginSampleMajorityObstruction.lean} & finite-sample plug-in majority endpoint and full-rule obstruction via the graph sample of each visible rule \\
+\texttt{PNP/ActualSwitchedLocalPluginSampleMajorityObstructionRegression.lean} & regression wrappers for the sample-level plug-in majority obstruction \\
+\texttt{PNP/ActualSwitchedLocalBoundedSampleMajorityObstruction.lean} & bounded finite-sample plug-in majority endpoint with exact surjectivity threshold at the visible alphabet size \\
+\texttt{PNP/ActualSwitchedLocalBoundedSampleMajorityObstructionRegression.lean} & regression wrappers for the bounded-sample majority obstruction \\
+\texttt{PNP/ClockedKpolyCompressionObstruction.lean} & surjectivity lower bound for low-bit clocked realization attempts \\
+\texttt{PNP/ClockedKpolyCompressionObstructionRegression.lean} & regression wrappers for clocked compression obstructions \\
 \texttt{PNP/FiniteIIDAgreement.lean} & exact weighted one-predictor agreement mass under a finite PMF \\
 \texttt{PNP/FiniteIIDFamilyBound.lean} & weighted deceptive-mass union bound for finite encoded families \\
 \texttt{PNP/FiniteIIDRecovery.lean} & weighted exact ERM recovery lower bounds under finite PMFs \\
 \texttt{PNP/SameRouteInterface.lean} & exact certificate for when a repair still counts as the same switching/ERM route \\
+\texttt{PNP/BitFamilyWeightedRecovery.lean} & epsilon-form weighted recovery certificate for bit-encoded same-route families \\
+\texttt{PNP/BitFamilyWeightedRecoveryRegression.lean} & regression wrapper for the weighted epsilon recovery certificate \\
+\texttt{PNP/BadCodeAgreementObstruction.lean} & atomic-measure obstruction to strict bad-code agreement bounds in the exact ZAB recovery route \\
+\texttt{PNP/BadCodeAgreementObstructionRegression.lean} & regression checks for the pure-atom bad-code obstruction \\
 \texttt{PNP/ExactSwitchedFamily.lean} & exact post-switch surface plus finite-summary compression kernel \\
+\texttt{PNP/ExactVisibleImageBudget.lean} & exact and clocked bit budgets as finite predictor-image covers of size at most \(2^s\) \\
+\texttt{PNP/ExactVisibleImageBudgetRegression.lean} & regression checks for finite predictor-image budget equivalences \\
+\texttt{PNP/ProductSuccessKpolyBridgeObstruction.lean} & product/fielded success facts alone do not imply exact-visible finite-image compression, positive uses reduce to finite-image cover obligations, and already-surjective exact families refute the bridge below threshold \\
+\texttt{PNP/ProductSuccessKpolyBridgeObstructionRegression.lean} & regression checks for the product/fielded bridge counterexamples, semantic-boundary equivalences, and surjective-family refuters \\
 \texttt{PNP/ABVisibleSurface.lean} & reduced raw visible surface $(a,b)$ and its explicit cardinality \\
 \texttt{PNP/AffineColumnFamily.lean} & concrete affine GF(2)-style column family with $k+1$ bit budget \\
 \texttt{PNP/AffineFeatureFamily.lean} & bounded affine-feature family with budget $r(k+1)+2^r$ \\
@@ -180,9 +241,13 @@ ground-up PNP effort.
 \texttt{PNP/SharedAffineFeatureFamilies.lean} & shared-basis exact-surface families with combiner-only budgets and recovery bounds \\
 \texttt{PNP/ExactABDecisionListFamily.lean} & concrete raw exact-surface decision-list family on $(a,b)$ with budget $2k+1$ \\
 \texttt{PNP/ABDecisionListRoute.lean} & pullback certificate from reduced $(a,b)$ decision lists to exact-surface compression/recovery \\
+\texttt{PNP/ABDecisionListObstruction.lean} & strict-subclass theorem for raw $(a,b)$ fixed-order decision lists versus all raw Boolean rules \\
+\texttt{PNP/ABDecisionListObstructionRegression.lean} & regression checks for full raw-rule and exact-surface pullback refuters \\
 \texttt{PNP/ExactABAffineFamilies.lean} & affine-feature, sparse-threshold, and decision-list ladders on the raw $(a,b)$ surface \\
 \texttt{PNP/SharedExactABFeatureFamilies.lean} & shared-basis affine ladders on the raw $(a,b)$ surface with combiner-only budgets \\
 \texttt{PNP/SharedABFeatureRoutes.lean} & quotient-route transfer from reduced $(a,b)$ families to shared-basis exact-surface budgets \\
+\texttt{PNP/SharedABFeatureObstruction.lean} & strict-subclass and exact-pullback refuters for shared raw $(a,b)$ feature classes below the reduced truth-table threshold \\
+\texttt{PNP/SharedABFeatureObstructionRegression.lean} & regression checks for shared raw $(a,b)$ feature obstruction anchors \\
 \texttt{PNP/SharedABTargetInterface.lean} & unified target data packages for the shared raw $(a,b)$ route \\
 \texttt{PNP/CanonicalABTargetRoute.lean} & canonical-coordinate specialization reducing the target interface back to raw $(a,b)$ decision lists \\
 \texttt{PNP/CanonicalABCandidateInterface.lean} & single candidate-data package for the canonical raw $(a,b)$ decision-list route, with recovery consequence \\
@@ -190,15 +255,15 @@ ground-up PNP effort.
 \texttt{PNP/CanonicalABRecoveryInterface.lean} & final generic interface: explicit code assignment plus agreement bound imply compression and recovery \\
 \texttt{PNP/BitFamilyERM.lean} & ERM transport layer: one fixed local class yields one selected code per sample/index \\
 \texttt{PNP/ExactZABDecisionListFamily.lean} & exact-surface decision-list family on $(zfeat(z),a,b)$ with budget $r+2k+1$ \\
-\texttt{PNP/ExactZABTargetInterface.lean} & target and recovery interfaces for the shared $(zfeat(z),a,b)$ decision-list route \\
+\texttt{PNP/ExactZABTargetInterface.lean} & target and recovery interfaces for the shared $(zfeat(z),a,b)$ decision-list route, including finite-image presentations \\
 \texttt{PNP/ExactZABERMRoute.lean} & ERM specialization: the selected code itself witnesses the shared $(zfeat(z),a,b)$ route \\
 \texttt{PNP/SharedExactZABFeatureFamilies.lean} & shared-basis affine ladders on $(zfeat(z),a,b)$ with combiner-only budgets \\
 \texttt{PNP/SharedExactZABTargetInterface.lean} & unified target and recovery interfaces for the shared-basis $(zfeat(z),a,b)$ route \\
 \texttt{PNP/SharedExactZABERMRoute.lean} & ERM specialization of the shared-basis $(zfeat(z),a,b)$ route with combiner-only budget \\
 \texttt{PNP/CanonicalZABTargetRoute.lean} & canonical-coordinate specialization reducing the shared-basis exact route back to raw $(zfeat(z),a,b)$ decision lists \\
-\texttt{PNP/CanonicalZABCandidateInterface.lean} & concrete candidate package for the direct exact $(zfeat(z),a,b)$ route, with recovery consequence \\
-\texttt{PNP/CanonicalZABCodeWitness.lean} & explicit code-witness reduction: one exact $(zfeat(z),a,b)$ decision-list code assignment per index suffices \\
-\texttt{PNP/CanonicalZABRecoveryInterface.lean} & final direct exact-route interface: code assignment plus agreement bound imply compression and recovery \\
+\texttt{PNP/CanonicalZABCandidateInterface.lean} & concrete candidate package for the direct exact $(zfeat(z),a,b)$ route, including finite-image presentations and recovery consequence \\
+\texttt{PNP/CanonicalZABCodeWitness.lean} & explicit code-witness reduction: one exact $(zfeat(z),a,b)$ decision-list code assignment per index suffices and exposes the finite image \\
+\texttt{PNP/CanonicalZABRecoveryInterface.lean} & final direct exact-route interface: code assignment plus agreement bound imply finite-image compression and recovery \\
 \texttt{PNP/CanonicalZABERMRoute.lean} & ERM-to-canonical bridge: the exact ERM wrapper itself supplies the canonical code witness and recovery interface \\
 \texttt{PNP/CanonicalZABERMInterface.lean} & final manuscript-facing ERM interface: samples, equality to the ERM wrapper, and an agreement bound imply compression and recovery \\
 \texttt{PNP/BitVecZABVisibleSurface.lean} & when $z$ is already bit-valued, the full exact visible surface $(z,a,b)$ becomes one raw bitvector of length $r+2k$ \\
@@ -207,6 +272,20 @@ ground-up PNP effort.
 \texttt{PNP/GlobalWeaknessObstruction.lean} & current weakness summaries alone cannot yield a nonconstant predictor surface \\
 \texttt{PNP/InfinitaryHMLObstruction.lean} & infinite minimal contexts force an infinite depth-1 HML observable surface \\
 \texttt{PNP/PresentMomentShattering.lean} & exact rho present-moment probes already realize arbitrary finite membership slices \\
+\texttt{PNP/ConditioningObstruction.lean} & exact finite-count conditional independence and conditioning-collapse examples \\
+\texttt{PNP/ApproximateDecorrelationObstruction.lean} & oriented finite-count defects and recoding obstruction applications \\
+\texttt{PNP/FiniteCountIndependenceFoundation.lean} & grassroots API for exact, approximate, fiberwise, and finite-output defect certificates \\
+\texttt{PNP/FiniteCountIndependenceFoundationRegression.lean} & regression wrappers for the finite-count independence API \\
+\texttt{PNP/FiniteCoinSourceErasureFoundation.lean} & balanced finite-coin fibers as predicate erasure and decoder half-accuracy \\
+\texttt{PNP/FiniteCoinSourceErasureFoundationRegression.lean} & regression wrappers for finite-coin source-erasure infrastructure \\
+\texttt{PNP/FiniteCoinIndependenceBridge.lean} & predicate erasure as exact finite-count source/output independence \\
+\texttt{PNP/FiniteCoinIndependenceBridgeRegression.lean} & regression wrappers for the finite-coin independence bridge \\
+\texttt{PNP/FiniteCoinDefectFormula.lean} & exact scaled-imbalance formula for finite-coin output defects \\
+\texttt{PNP/FiniteCoinDefectFormulaRegression.lean} & regression wrappers for the finite-coin defect formula \\
+\texttt{PNP/FiniteCoinToleranceQuantization.lean} & tolerance-below-\(|\mathrm{Coin}|\) collapse to exact balanced fibers \\
+\texttt{PNP/FiniteCoinToleranceQuantizationRegression.lean} & regression wrappers for finite-coin tolerance quantization \\
+\texttt{PNP/FiniteCoinPostprocessingFoundation.lean} & exact and approximate finite-coin postprocessing laws \\
+\texttt{PNP/FiniteCoinPostprocessingFoundationRegression.lean} & regression wrappers for finite-coin postprocessing laws \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -214,6 +293,751 @@ ground-up PNP effort.
 The point of the table is simple: the grassroots route is not starting from zero.
 We already have a serious computability substrate, an observer-relative semantics
 layer, and a new optimistic interface for small hypothesis classes.
+
+\section{Finite-Count Conditional Independence}
+
+The grassroots route also needs a probability-free language for conditioning and
+decorrelation.  This matters because several manuscript-style repairs move
+between exact source events, randomized recodings, and output observations.
+Before any asymptotic claim is meaningful, the finite counting statement must be
+unambiguous.
+
+The base exact definition is \texttt{CountIndependentWithin} from
+\texttt{ConditioningObstruction.lean}.  It says that events \(E\) and \(F\) are
+conditionally independent inside a finite conditioning event \(C\) by the
+division-free equation
+\[
+  |C|\,|C\cap E\cap F| = |C\cap E|\,|C\cap F|.
+\]
+The approximate layer in \texttt{ApproximateDecorrelationObstruction.lean}
+orients the two possible failures of this equation as a forward and backward
+natural-number gap.  The new grassroots module
+\texttt{FiniteCountIndependenceFoundation.lean} packages those two gaps into a
+single symmetric defect:
+\[
+  \texttt{countIndependentWithinDefect}
+  = \max(\texttt{forwardGap},\texttt{backwardGap}).
+\]
+
+\begin{theorem}[Tolerance is max-defect boundedness]
+For finite events \(C,E,F\),
+\[
+  \texttt{CountIndependentWithinTolerance}\ C\ E\ F\ \tau
+  \quad\Longleftrightarrow\quad
+  \texttt{countIndependentWithinDefect}\ C\ E\ F \le \tau.
+\]
+\end{theorem}
+
+\noindent
+This is \texttt{countIndependentWithinTolerance\_iff\_defect\_le}.  The same
+module proves monotonicity in the tolerance and the exact bridge
+\[
+  \texttt{CountIndependentWithinTolerance}\ C\ E\ F\ 0
+  \quad\Longleftrightarrow\quad
+  \texttt{CountIndependentWithin}\ C\ E\ F,
+\]
+formalized as
+\texttt{countIndependentWithinTolerance\_zero\_iff\_countIndependentWithin}.
+Equivalently,
+\[
+  \texttt{countIndependentWithinDefect}\ C\ E\ F = 0
+\]
+is exactly the original cross-multiplied finite-count independence equation.
+
+The module also lifts this to output variables.  A certificate
+\texttt{CountIndependentWithinToleranceOutput} specializes to every output
+fiber, with direct projection lemmas for the forward and backward defects.  At
+zero tolerance it is exactly exact finite-count independence for every output
+fiber:
+\[
+  \texttt{countIndependentWithinToleranceOutput\_zero\_iff\_countIndependentWithin\_fibers}.
+\]
+For a finite output type, the file defines
+\texttt{countIndependentWithinOutputDefect}, the maximum fiber defect over all
+outputs, and proves
+\[
+  \texttt{CountIndependentWithinToleranceOutput}\ C\ E\ Y\ \tau
+  \quad\Longleftrightarrow\quad
+  \texttt{countIndependentWithinOutputDefect}\ C\ E\ Y \le \tau.
+\]
+
+This is intentionally small infrastructure, but it changes the shape of later
+work.  Future positive routes can target a clean finite-count certificate; crux
+results can be read as applications showing that certain recoding interfaces
+force that certificate to have a large defect.
+
+\section{Finite-Coin Source Erasure}
+
+The finite-count layer above deliberately treats decorrelation as a property of
+events and output fibers.  A separate grassroots question is what an output
+recoding can still preserve once every finite-coin output fiber is balanced
+between the true and false source sides.  The answer is now formalized in
+\texttt{FiniteCoinSourceErasureFoundation.lean}.
+
+For a recoding \(r : \mathrm{Bool} \to \mathrm{Coin} \to \alpha\), the file
+defines \texttt{finiteCoinOutputPredicateNeutral}: a decidable output predicate
+\(P : \alpha \to \mathrm{Prop}\) is neutral when it selects the same number of
+true-side and false-side coin samples.  It then defines
+\texttt{FiniteCoinOutputPredicateErasing}\(r\) to mean that every decidable
+output predicate is neutral.
+
+\begin{theorem}[Balanced fibers are predicate erasure]
+If \(\alpha\) has decidable equality, then
+\[
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r
+  \quad\Longleftrightarrow\quad
+  \texttt{FiniteCoinOutputPredicateErasing}\ r.
+\]
+\end{theorem}
+
+\noindent
+This is
+\texttt{finiteCoinRecodingFiberBalanced\_iff\_outputPredicateErasing}.  The
+forward direction says balanced fibers erase not only singleton outputs but every
+decidable observation of the output.  The reverse direction uses singleton
+predicates, so the equivalence is exact rather than an artifact of one chosen
+statistic.
+
+The same file records strict refuters.  Any output predicate with a strict
+true-side or false-side count advantage contradicts predicate erasure.  If the
+coin space is nonempty, a predicate that uniformly separates the two source
+sides also contradicts predicate erasure.  A structural specialization is now
+included as \texttt{FiniteCoinSourceRangesSeparated}: disjoint true-side and
+false-side output ranges refute predicate erasure, and with decidable output
+equality they also construct an explicit Boolean source decoder by testing
+membership in the true-side output range.
+
+Finally, the file packages the decoder consequence.  For a Boolean decoder
+\(\mathrm{decode} : \alpha \to \mathrm{Bool}\), it defines the aggregate correct
+count
+\[
+  \#\{c : \mathrm{Coin} \mid \mathrm{decode}(r(\mathrm{true},c))=\mathrm{true}\}
+  +
+  \#\{c : \mathrm{Coin} \mid \mathrm{decode}(r(\mathrm{false},c))=\mathrm{false}\}.
+\]
+Predicate erasure forces this count to be exactly \(|\mathrm{Coin}|\), i.e. half
+of the two-sided sample space in division-free form.  Therefore any decoder with
+strictly better-than-half aggregate recovery, or any decoder that uniformly
+recovers the source bit on a nonempty coin space, refutes erasure.
+
+Equivalently, the file defines \texttt{FiniteCoinOutputSourceRecovering} for the
+existence of such a decoder and proves that source-recovering outputs are
+incompatible with predicate erasure.  This keeps the future positive route
+honest: preserving the source bit at the output level is a named mathematical
+property, not a prose-side intuition.
+
+This is a grassroots strengthening of the balanced-fiber crux.  It does not
+merely say that the manuscript's current output statistic fails.  It proves that
+the whole finite-coin balanced-fiber regime is source-erasing at the level of
+all decidable output predicates and Boolean decoders.
+
+\subsection{Source Erasure as Independence}
+
+The source-erasure layer is now tied back to the finite-count independence API in
+\texttt{FiniteCoinIndependenceBridge.lean}.  The file works on the concrete
+two-sided sample space \(\mathrm{Bool}\times\mathrm{Coin}\).  It defines
+\texttt{finiteCoinSourceTrue} for the source-bit event and
+\texttt{finiteCoinOutput} for the output variable induced by a finite-coin
+recoding.
+
+The first part of the bridge is counting infrastructure:
+\[
+  |\{(b,c) : b=\mathrm{true}\}| = |\mathrm{Coin}|,
+\]
+and for every decidable output predicate \(P\),
+\[
+  |\{(b,c) : P(r(b,c))\}|
+  =
+  |\{c : P(r(\mathrm{true},c))\}|
+  +
+  |\{c : P(r(\mathrm{false},c))\}|.
+\]
+
+These identities support the exact theorem
+\[
+  \texttt{finiteCoinOutputPredicateNeutral}\ r\ P
+  \quad\Longleftrightarrow\quad
+  \texttt{CountIndependentWithin}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (P\circ \texttt{finiteCoinOutput}\ r).
+\]
+This is formalized as
+\texttt{finiteCoinOutputPredicateNeutral\_iff\_countIndependentWithin\_trueSource\_outputPredicate}.
+Consequently, predicate erasure is exactly independence from the source bit for
+every decidable output predicate.
+
+For output variables with decidable equality, the bridge specializes this to the
+fiberwise API:
+\[
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r
+  \quad\Longleftrightarrow\quad
+  \texttt{CountIndependentWithinToleranceOutput}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (\texttt{finiteCoinOutput}\ r)\ 0.
+\]
+For finite output types, it also proves the max-defect form:
+\[
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r
+  \quad\Longleftrightarrow\quad
+  \texttt{countIndependentWithinOutputDefect}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (\texttt{finiteCoinOutput}\ r) = 0.
+\]
+
+This matters for the ground-up route because the balanced-fiber branch is no
+longer merely a named escape hatch.  It is exactly the zero-defect source/output
+independence condition in the same finite-count language used by the crux
+obstructions.
+
+\subsection{Defect Equals Scaled Fiber Imbalance}
+
+The next quantitative step is in \texttt{FiniteCoinDefectFormula.lean}.  For an
+output fiber \(y\), define its finite-coin imbalance as
+\[
+  \max(T_y-F_y,\;F_y-T_y),
+\]
+where \(T_y\) and \(F_y\) are the true-side and false-side coin-fiber counts.
+The file proves that zero imbalance is exactly \(T_y=F_y\).
+
+More importantly, it computes the oriented finite-count defects on
+\(\mathrm{Bool}\times\mathrm{Coin}\):
+\[
+  \texttt{forwardGap}(y)=|\mathrm{Coin}|(T_y-F_y),
+  \qquad
+  \texttt{backwardGap}(y)=|\mathrm{Coin}|(F_y-T_y).
+\]
+Therefore the symmetric fiber defect is exactly
+\[
+  |\mathrm{Coin}| \cdot \max(T_y-F_y,\;F_y-T_y).
+\]
+
+The approximate output certificate has an exact reformulation:
+\[
+  \texttt{CountIndependentWithinToleranceOutput}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (\texttt{finiteCoinOutput}\ r)\ \tau
+  \quad\Longleftrightarrow\quad
+  \forall y,\;|\mathrm{Coin}|\cdot\texttt{fiberImbalance}(r,y)\le \tau.
+\]
+For finite output types, \texttt{countIndependentWithinOutputDefect} is the
+finite supremum of these scaled fiber imbalances.
+
+This turns the balanced-fiber story into a quantitative foundation: exact
+balance is zero scaled imbalance, and approximate decorrelation is no stronger
+or weaker than bounding every scaled fiber imbalance.
+
+\subsection{Tolerance Quantization}
+
+\texttt{FiniteCoinToleranceQuantization.lean} records the immediate but useful
+threshold consequence of the scaled-defect formula.  If a finite-coin fiber
+imbalance is nonzero, then its scaled contribution is at least one whole
+\(|\mathrm{Coin}|\) block:
+\[
+  \texttt{fiberImbalance}(r,y)\ne 0
+  \quad\Longrightarrow\quad
+  |\mathrm{Coin}|\le
+  |\mathrm{Coin}|\cdot\texttt{fiberImbalance}(r,y).
+\]
+This is
+\texttt{finiteCoin\_card\_le\_scaled\_fiberImbalance\_of\_ne\_zero}.
+
+Consequently, any scaled fiber-imbalance bound below \(|\mathrm{Coin}|\) forces
+that fiber to be exactly balanced.  At the output-variable level, the file proves
+\[
+  \tau < |\mathrm{Coin}|
+  \quad\Longrightarrow\quad
+  \left(
+  \texttt{CountIndependentWithinToleranceOutput}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (\texttt{finiteCoinOutput}\ r)\ \tau
+  \Longleftrightarrow
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r
+  \right).
+\]
+This is
+\texttt{countIndependentWithinToleranceOutput\_finiteCoinOutput\_lt\_card\_iff\_fiberBalanced}.
+
+For finite output types, the max-defect form is also pinned down.  If the
+maximum output defect is below \(|\mathrm{Coin}|\), the recoding has balanced
+fibers; conversely, every unbalanced finite-output recoding has output defect at
+least \(|\mathrm{Coin}|\).  When the coin space is nonempty, defect below one
+coin block is equivalent to balanced fibers:
+\[
+  \texttt{countIndependentWithinOutputDefect}\ \top\
+    \texttt{finiteCoinSourceTrue}\ (\texttt{finiteCoinOutput}\ r)
+  < |\mathrm{Coin}|
+  \quad\Longleftrightarrow\quad
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r.
+\]
+
+This gives the finite-coin grassroots layer a discrete threshold theorem:
+``tiny'' approximate source/output independence, below one coin block of
+finite-count defect, is not a genuine relaxation of balanced-fiber erasure.
+
+\subsection{Deterministic Postprocessing}
+
+\texttt{FiniteCoinPostprocessingFoundation.lean} adds the postprocessing laws
+needed to keep the finite-coin layer stable under ordinary recodings of the
+output.  If \(g : \alpha \to \beta\) is a deterministic map, exact predicate
+erasure is preserved:
+\[
+  \texttt{FiniteCoinOutputPredicateErasing}\ r
+  \quad\Longrightarrow\quad
+  \texttt{FiniteCoinOutputPredicateErasing}\ (g\circ r).
+\]
+With decidable equality on the source and postprocessed output types, this gives
+the balanced-fiber form:
+\[
+  \texttt{FiniteCoinRecodingFiberBalanced}\ r
+  \quad\Longrightarrow\quad
+  \texttt{FiniteCoinRecodingFiberBalanced}\ (g\circ r).
+\]
+
+The approximate statement is deliberately quantitative.  For finite original
+output type \(\alpha\), the file defines
+\texttt{finiteOutputPreimageFiber}\((g,z)\) and
+\texttt{finiteOutputMapFiberCardBound}\((g,m)\), meaning every postprocessed
+fiber merges at most \(m\) original output values.  It proves the count
+identities
+\[
+  T'_z=\sum_{y:g(y)=z} T_y,\qquad
+  F'_z=\sum_{y:g(y)=z} F_y,
+\]
+and the imbalance inequality
+\[
+  \texttt{fiberImbalance}(g\circ r,z)
+  \le
+  \sum_{y:g(y)=z}\texttt{fiberImbalance}(r,y).
+\]
+
+Consequently, if \(r\) has finite-coin output tolerance \(\tau\), then
+\[
+  \texttt{CountIndependentWithinToleranceOutput}(r,\tau)
+  \quad\Longrightarrow\quad
+  \texttt{CountIndependentWithinToleranceOutput}(g\circ r,m\tau).
+\]
+This is
+\texttt{countIndependentWithinToleranceOutput\_finiteCoinOutput\_postcompose}.
+For finite postprocessed output types, the max-defect form is:
+\[
+  \texttt{outputDefect}(g\circ r)
+  \le
+  m\,\texttt{outputDefect}(r).
+\]
+The file also records the trivial bound \(m=|\alpha|\), so every finite
+postprocessing has an explicit worst-case blowup.
+
+This blocks another common ambiguity in repair attempts.  Deterministic
+postprocessing cannot restore source information after exact erasure; for
+approximate certificates it can only aggregate already present fiber defects,
+with the aggregation controlled by finite preimage size.
+
+\subsection{Route-Level Scoping}
+
+The finite-coin stack is useful, but it is not a stop-grade route closure by
+itself.  The crux synthesis ledger now makes this explicit in
+\texttt{CruxSynthesis.lean}.  The covered finite-coin subrepair classes are:
+same-source finite-coin marginal recoding, predicate erasure, decoder
+half-accuracy, exact scaled fiber imbalance, sub-cardinality tolerance
+quantization, deterministic exact postprocessing, and finite-preimage
+approximate postprocessing with \(\tau\mapsto m\tau\) blowup.
+The same synthesis ledger now also tracks a narrow finite-coin
+randomized-residual subledger: supportwise unresolved product-space residuals
+have no positive advantage, and any positive finite-coin randomized-residual
+advantage must produce a positive-weight resolving source/coin pair.  On the
+exact post-switch surface this becomes a positive-weight input/coin pair that
+distinguishes the local-input switch.
+
+The same ledger explicitly records what this does \emph{not} cover.  The broad
+\texttt{randomizedResidual}, \texttt{residualSideInformation},
+\texttt{approximateDecorrelation}, and \texttt{kpolyCompressionBridge} repair
+classes remain outside the current packet.  Thus the finite-coin work should be
+read as a precise foundation for a same-source finite-count subroute and as
+route-level guidance for future attacks, not as a proof that all randomized or
+approximate repairs are blocked.
+
+Because the finite-coin subledger is now explicit, the synthesis ledger selects
+\texttt{kpolyCompressionBridge} as the next highest-marginal target.  This is
+the remaining manuscript-facing bridge after the abstract clocked
+finite-uniform counting kernel has been separated and covered.
+\texttt{ClockedKpolyBridgeEquivalence.lean} now tightens that target further:
+existence of a clocked \(s\)-bit realization family is equivalent to the
+existing exact visible compression target, and changing the external clock
+bound does not change realizability.  So the next target is a real
+small-class theorem for the switched family, not a clock-bookkeeping repair.
+The constructive direction is now explicit rather than hidden inside the
+existential proof.  \texttt{ClockedKpolyBridge.lean} defines
+\texttt{ClockedBitCodeFamily.ofBitEncodedClassifierFamily}, which equips an
+ordinary \(s\)-bit classifier family with an external clock without changing
+its decoder, realization predicate, exact-recovery rate, or non-deceptive
+sample rate.  The target
+interface uses this constructor in
+\texttt{IndexedPredictorFamily.clockedBitCodeFamilyOfHasBitBudget}; Lean now
+also proves that the underlying bit family of this constructed clocked family
+realizes the original indexed family and re-witnesses the same bit budget.
+Finally,
+\texttt{IndexedPredictorFamily.realizedByClockedBitFamily\_clockedBitCodeFamilyOfHasBitBudget}
+and
+\texttt{realizedByClockedExactVisibleFamily\_of\_exactVisibleCompressionTarget}
+state the construction as an actual family-level clocked realization theorem.
+Thus the bridge no longer depends on a nameless clocked witness: given a
+bit-budget theorem, the clocked family is canonically constructed.  The
+family-level predicate
+\texttt{IndexedPredictorFamily.RealizedByClockedBitFamily} and its forgetful
+theorem
+\texttt{IndexedPredictorFamily.hasBitBudget\_of\_realizedByClockedBitFamily}
+now live in \texttt{ClockedKpolyBridge.lean} itself.  Consequently
+\texttt{ClockedKpolyBridgeEquivalence.lean} no longer imports the obstruction
+module; the obstruction file consumes the core realization interface rather
+than defining it.
+
+The bridge now carries the full finite-success rate pair rather than only the
+realized-target half.  \texttt{ClockedKpolyBridge.lean} defines
+\texttt{ClockedBitCodeFamily.nondeceptiveRate} and proves the same
+\(1-2^s\rho^m\) lower bound and strict positivity statements that the
+underlying bit-family layer already had.  The target interface then lifts these
+to any exact \(s\)-bit budget and to any exact visible compression target via
+\texttt{IndexedPredictorFamily.nondeceptiveRate\_ge\_one\_sub\_uniformMissRatio\_pow\_of\_hasBitBudget}
+and
+\texttt{nondeceptiveRate\_ge\_one\_sub\_uniformMissRatio\_pow\_of\_exactVisibleCompressionTarget}.
+This matters because the manuscript-facing bridge now exposes both
+target-independent non-deceptive samples and exact recovery for realized
+targets from the same finite-count hypothesis.
+
+The bridge also lifts the pure finite-count existence layer.  Below the
+bit-budget threshold,
+\texttt{ClockedBitCodeFamily.exists\_nondeceptiveSample\_of\_bitBudget\_bound\_lt}
+produces an explicit non-deceptive point sample for the underlying clocked
+family, and
+\texttt{ClockedBitCodeFamily.exists\_sample\_empiricalRiskPredictor\_eq\_target\_of\_bitBudget\_bound\_lt}
+produces a point sample on which ERM exactly recovers any realized target.  The
+target interface lifts both statements to exact \texttt{HasBitBudget} witnesses
+and to exact visible compression targets.  Thus the clocked bridge now exposes
+both quantitative rates and concrete sample witnesses, while still leaving the
+small-image theorem for the manuscript's switched family as the real burden.
+
+\texttt{ClockedKpolyGapAssessment.lean} makes this assessment explicit.  It
+defines \texttt{ClockedKpolyFiniteLearningPayload}, bundling a clocked exact
+visible realization family with the threshold good-sample and exact ERM
+recovery witnesses for every selected predictor.  Lean proves
+\[
+  \texttt{ClockedKpolyFiniteLearningPayload}\ G\ s\ \texttt{clock}
+  \quad\Longleftrightarrow\quad
+  \texttt{ExactVisibleCompressionTarget}\ G\ s
+  \quad\Longleftrightarrow\quad
+  \texttt{FinitePredictorCover}\ G\ (2^s).
+\]
+It also lifts the existing surjectivity and injective finite-probe lower bounds
+to this full payload.  So the accumulated clocked bridge is locally complete:
+all finite-learning consequences now follow from the exact visible compression
+target.  But the route is not closed, because the target itself is still the
+unproved small finite-image theorem for the actual switched family.
+
+\texttt{ClockedKpolyActualGapClosure.lean} resolves the next fork for the
+formalized exact ZAB ERM route.  For the concrete ERM-selected family
+\texttt{exactZABDecisionListERMFamily}, Lean proves the clocked finite-learning
+payload at budget \(r+2k+1\):
+\texttt{exactZABDecisionListERMClockedKpolyFiniteLearningPayload}.  The
+bit-valued manuscript-facing specialization is
+\texttt{bitVecZABDecisionListERMClockedKpolyFiniteLearningPayload}.  For an
+arbitrary family variable \(G\), the minimal transfer assumption is the exact
+identification
+\[
+  G =
+  \texttt{bitVecZABDecisionListERMFamily}\ \texttt{samples},
+\]
+captured by
+\texttt{clockedKpolyFiniteLearningPayload\_of\_eq\_bitVecZABDecisionListERMFamily};
+the packaged recovery-data interface also closes the same payload via
+\texttt{BitVecZABERMRecoveryData.clockedKpolyFiniteLearningPayload}.  Without
+such an exact-family identification, the present interface remains
+insufficient: the full exact-visible Boolean family is still a legal
+\texttt{ExactVisibleSwitchedFamily}, and
+\texttt{currentExactVisibleInterface\_not\_forall\_clockedKpolyFiniteLearningPayload\_of\_lt\_surfaceCard}
+refutes any theorem deriving the clocked payload for every exact-visible
+family below the full visible truth-table budget.  The synthesis ledger now
+absorbs this exact fork in
+\texttt{currentPNPStrongestHonestStatus}: the exact ZAB closure is recorded as
+narrow \(Kpoly\) subrepair progress, while the broad manuscript-specific
+\texttt{kpolyCompressionBridge} remains explicitly uncovered.
+
+\texttt{ActualSwitchedLocalFamily.lean} moves the same fork one step closer to
+the manuscript's actual local normal form.  It defines
+\texttt{ActualSwitchedLocalInterface} with fields
+\[
+  z : \Phi \to Z,\qquad
+  a : I \to \Phi \to \{0,1\}^k,\qquad
+  b : \Phi \to \{0,1\}^k,
+\]
+a local rule \(h_i : (z,a,b)\to\mathrm{Bool}\), and the equation
+\[
+  output_i(\phi)=h_i(z(\phi),a_i(\phi),b(\phi)).
+\]
+For this actual-local interface, Lean proves the same conditional closure:
+if the induced exact-visible predictor family is exactly
+\texttt{bitVecZABDecisionListERMFamily}\(\;\texttt{samples}\), then
+\texttt{ClockedKpolyFiniteLearningPayload} holds at budget \(r+2k+1\).
+But Lean also proves the locality-only obstruction.  Taking blocks themselves
+to be exact visible inputs and indices to be all Boolean rules gives a legal
+actual-local interface whose predictor family is the full exact-visible
+Boolean family.  Hence, below the full visible truth-table budget,
+\texttt{actualSwitchedLocalInterface\_not\_forall\_clockedKpolyFiniteLearningPayload\_of\_lt\_surfaceCard}
+refutes any derivation of the clocked payload from the current actual-local
+normal-form assumptions alone.
+
+\texttt{ActualSwitchedLocalStructure.lean} records the next narrowed proof
+obligation.  The extra assumption is not more locality; it is that the local
+rules selected by the actual switched family come from a bounded code class.
+The structure \texttt{ActualSwitchedLocalInterface.BitCodeData} supplies one
+\(s\)-bit encoded family and proves
+\[
+  \texttt{ExactVisibleCompressionTarget}\ T.\texttt{predictorFamily}\ s,
+  \qquad
+  T.\texttt{predictorFamily.FinitePredictorCover}(2^s),
+\]
+and therefore \texttt{ClockedKpolyFiniteLearningPayload} at the same budget.
+This is the weakest formal closure currently isolated: with a finite local
+code/quotient map, the small-image gap closes.  The same file proves that this
+condition is substantive by refuting it for
+\texttt{fullRuleActualSwitchedLocalInterface} whenever
+\(s\) is below the exact visible truth-table budget.
+
+The file also gives a concrete manuscript-shaped sufficient instance:
+\texttt{ActualSwitchedLocalInterface.ZABDecisionListData}.  It requires the
+actual local rules to be realized by the existing shared
+\((zfeat(z),a,b)\) decision-list family, without requiring equality to a
+particular ERM selector.  Lean then proves a finite predictor cover, finite
+representative-index cover, finite predictor quotient, and the clocked payload
+at budget \(r+2k+1\).  Under
+\[
+  r+2k+1 < |\texttt{ExactVisiblePostSwitchSurface}\ Z\ k|,
+\]
+Lean also proves that no such ZAB-structured family can have a surjective
+full Boolean predictor image, so the prior full-rule local counterexample is
+excluded.  Thus the current exact status is a minimal missing-assumption
+result: locality-only is insufficient; bounded local code data closes the
+finite-image target; and shared ZAB decision-list realization is one concrete
+candidate for the manuscript-derived non-arbitrary structure that would supply
+that code data.
+The exact ERM equality hypothesis now factors through this narrowed interface:
+\texttt{zabDecisionListData\_of\_eq\_exactZABDecisionListERMFamily} constructs
+\texttt{ZABDecisionListData} from equality to the concrete shared ERM family,
+and
+\texttt{bitCodeData\_of\_eq\_exactZABDecisionListERMFamily} constructs the
+bounded-code assumption itself.  The bit-valued identity-extractor version has
+matching constructors for
+\texttt{bitVecZABDecisionListERMFamily}.  Thus exact ERM equality is now a
+sufficient way to discharge the minimal finite-image assumption, not a separate
+parallel shortcut.
+
+\texttt{ActualSwitchedLocalERMConstruction.lean} removes one layer of that
+conditionality for the ERM-shaped construction itself.  Given concrete
+manuscript-visible maps
+\[
+  zOf : \Phi\to Z,\qquad
+  aOf : I\to\Phi\to\{0,1\}^k,\qquad
+  bOf : \Phi\to\{0,1\}^k,
+\]
+an extractor \(zfeat : Z\to\{0,1\}^r\), and indexed samples, Lean constructs
+\[
+  \texttt{exactZABDecisionListERMConstruction}\ zOf\ aOf\ bOf\ zfeat\
+  samples : \texttt{ActualSwitchedLocalInterface}.
+\]
+Its predictor family is definitionally
+\texttt{exactZABDecisionListERMFamily}\((zfeat,samples)\).  Consequently Lean
+proves, with no additional assumption, that this constructed actual-local
+family satisfies
+\texttt{ActualSwitchedLocalInterface.ZABDecisionListData} and
+\texttt{ActualSwitchedLocalInterface.BitCodeData} at budget \(r+2k+1\), and
+then proves
+\[
+  \texttt{FinitePredictorCover}\ (2^{r+2k+1})
+  \quad\text{and}\quad
+  \texttt{ClockedKpolyFiniteLearningPayload}\ (r+2k+1)\ clock .
+\]
+The bit-valued identity-extractor specialization is formalized as
+\texttt{bitVecZABDecisionListERMConstruction}.  This is now a concrete
+construction theorem, not merely a strengthened-interface hypothesis.  The
+remaining manuscript-specific obligation is exact and narrower: prove that the
+paper's switched family is this ERM construction, or else supply the same
+per-index ZAB decision-list codes through
+\texttt{zabDecisionListDataOfCodes}.  Without that identification, the earlier
+locality-only full-rule counterexample still shows that actual-local shape
+alone cannot imply a small predictor image.
+
+\texttt{ActualSwitchedLocalCodeConstruction.lean} formalizes that second route
+directly.  Given the same visible maps \(zOf,aOf,bOf\), extractor \(zfeat\),
+and a function
+\[
+  codes : I\to
+    \texttt{SharedAffineDecisionListCode}\,(r+(k+k)),
+\]
+Lean constructs
+\texttt{exactZABCodeConstruction}.  Its exact-visible predictor family is
+definitionally the canonical ZAB code family induced by those codes, and the
+actual output is the corresponding decision-list prediction evaluated at
+\((zOf(\phi),aOf_i(\phi),bOf(\phi))\).  From this concrete construction Lean
+proves
+\texttt{exactZABCodeConstruction\_zabDecisionListData},
+\texttt{exactZABCodeConstruction\_bitCodeData},
+\texttt{exactZABCodeConstruction\_finitePredictorCover}, and
+\texttt{exactZABCodeConstruction\_clockedKpolyFiniteLearningPayload}.  Thus an
+explicit per-index ZAB code assignment is now enough to close the exact
+small-image target for an actual switched-local wrapper, independently of the
+ERM selector.  The manuscript burden is correspondingly reduced to either an
+ERM equality proof or a code extraction proof for its local rules.
+
+\texttt{ActualSwitchedLocalPluginLookupObstruction.lean} checks the literal
+finite-alphabet plug-in endpoint described in the v11/arXiv manuscript
+paragraph: the local rule is implemented by a hash-table lookup on the exact
+post-switch alphabet \(u=(z,a_i,b)\), with no hypothesis enumeration.  Lean
+formalizes that unrestricted endpoint as
+\texttt{pluginLookupActualSwitchedLocalInterface}.  Its predictor family is the
+full exact-visible Boolean rule family, and
+\texttt{pluginLookupActualSwitchedLocalInterface\_surjective} proves that every
+Boolean lookup table on the post-switch alphabet is realized.  Consequently,
+below the exact visible truth-table budget, Lean proves
+\[
+  \texttt{pluginLookupActualSwitchedLocalInterface\_not\_finitePredictorCover\_of\_lt\_surfaceCard},
+\]
+the corresponding clocked-payload obstruction, and the two constructor
+obstructions
+\texttt{pluginLookupActualSwitchedLocalInterface\_not\_bitCodeData\_of\_lt\_surfaceCard}
+and
+\texttt{pluginLookupActualSwitchedLocalInterface\_not\_zabDecisionListData\_of\_lt\_surfaceCard}.
+Thus a finite-alphabet lookup implementation is not itself the missing
+small-image theorem.  It closes only after an additional manuscript theorem
+identifies those lookup tables with the ZAB ERM family or with explicit
+per-index ZAB codes.
+
+\texttt{ActualSwitchedLocalPluginMajorityObstruction.lean} removes a possible
+escape hatch in that diagnosis.  The manuscript states the local rule as a
+plug-in majority over training labels grouped by the visible input \(u\).  Lean
+formalizes the aggregated version as \texttt{PluginMajorityCounts}: for each
+visible input, record the number of true and false votes and return the
+majority label.  The theorem
+\texttt{pluginMajorityActualSwitchedLocalInterface\_realizes\_every\_lookupTable}
+proves that every Boolean lookup table is still realized, by placing one vote
+on the desired side for each visible input.  Therefore
+\texttt{pluginMajorityActualSwitchedLocalInterface\_surjective} and the
+matching no-cover/no-payload/no-\texttt{BitCodeData}/no-\texttt{ZABDecisionListData}
+theorems show that the counted majority endpoint is also full-rule expressive
+below the exact visible truth-table budget.  The obstruction is therefore not
+caused by replacing majority with a lookup table; it is caused by the absence
+of a proved restriction from the plug-in majority counts to the small ZAB/code
+class.
+
+\texttt{ActualSwitchedLocalPluginSampleMajorityObstruction.lean} removes the
+last aggregation-only caveat from the plug-in majority blocker.  Instead of
+postulating the true/false vote counts directly, Lean defines
+\texttt{PluginSampleMajority.trueVotes} and
+\texttt{PluginSampleMajority.falseVotes} by counting labels in an actual finite
+sample.  For every exact-visible Boolean rule \(rule\), the graph sample
+\[
+  \{(u,rule(u)) : u\in \texttt{ExactVisiblePostSwitchSurface}\,Z\,k\}
+\]
+has one labeled example at each visible input.  Lean proves
+\texttt{PluginSampleMajority.predict\_graphSample}, and then
+\texttt{pluginSampleMajorityActualSwitchedLocalInterface\_surjective}: the
+sample-level plug-in majority interface is still surjective onto all Boolean
+rules on \(u=(z,a,b)\).  The companion no-cover/no-payload/no-\texttt{BitCodeData}/
+no-\texttt{ZABDecisionListData} theorems therefore show that finite samples and
+empirical majority alone do not imply the manuscript's needed small predictor
+image.  A successful route must still prove that the actual samples/rules are
+restricted to the existing exact ZAB ERM family or to explicit bounded ZAB
+codes.
+
+\texttt{ActualSwitchedLocalBoundedSampleMajorityObstruction.lean} checks the
+next natural repair: bounding the finite sample length.  Lean proves
+\texttt{PluginSampleMajority.length\_graphSample}, namely that the graph sample
+of a rule has length exactly the cardinality of the visible alphabet.  It then
+defines a bounded-sample plug-in majority interface whose indices are samples
+of length at most \(B\).  If
+\[
+  |\texttt{ExactVisiblePostSwitchSurface}\,Z\,k|\le B,
+\]
+Lean proves
+\texttt{boundedSamplePluginMajorityActualSwitchedLocalInterface\_surjective}.
+The strict opposite case is now also machine checked.  Lean proves
+\texttt{boundedSamplePluginMajorityActualSwitchedLocalInterface\_not\_surjective\_of\_sampleBound\_lt\_surfaceCard}:
+if \(B<|\texttt{ExactVisiblePostSwitchSurface}\,Z\,k|\), every bounded sample
+omits some visible input, where the current tie-breaking plug-in majority
+predicts \texttt{true}; hence the all-false rule is not realizable.  Combining
+the two directions gives
+\texttt{boundedSamplePluginMajorityActualSwitchedLocalInterface\_surjective\_iff}.
+Consequently, sample length alone has an exact full-rule expressivity threshold
+at the visible alphabet size.  Above that threshold the endpoint still has no
+finite predictor cover, clocked payload, \texttt{BitCodeData}, or
+\texttt{ZABDecisionListData} below the exact visible truth-table budget.  Below
+that threshold Lean proves only non-surjectivity; a separate image-size,
+quotient, ZAB ERM, or code theorem is still needed to close the manuscript's
+small-image obligation.
+
+\texttt{ExactVisibleImageBudget.lean} refines the same target in grassroots
+terms.  Lean proves that an exact \(s\)-bit budget is equivalent to a finite
+cover of the predictor image by at most \(2^s\) Boolean functions, and proves
+the same equivalence for the clocked exact-visible interface.  So the remaining
+\texttt{kpolyCompressionBridge} burden can now be phrased without implementation
+noise: prove that the actual switched family has a finite predictor image of
+the required size.  The theorem does not assert that this image is small; it
+identifies the exact finite-image obligation any successful repair must meet.
+The same module also proves that a finite predictor cover is equivalent to a
+finite representative-index cover: finitely many actual selected indices whose
+predictors represent every predictor in the family.  This avoids treating the
+cover as an arbitrary external set of Boolean functions.
+It also proves the equivalent finite quotient-code presentation: every index is
+encoded into one of finitely many code values, and the decoded Boolean predictor
+is exactly the selected predictor for that index.  The clocked exact-visible
+interface now has matching negative forms too: nonexistence of a clocked
+realization is equivalent to nonexistence of each of these finite-image
+presentations at the same \(2^s\) budget.
+It now includes the transport layer needed for later route-building:
+predictor-image covers, representative-index covers, and quotient-code
+presentations are monotone in the allowed budget, pull back along an explicit
+factorization through a visible summary, and push back to that summary when the
+view has a section.  This makes the finite-image obligation stable under the
+same kind of exact pullback arguments used elsewhere in the PNP development,
+without claiming that the actual switched family has a small image.
+The reduced-view lower bound is now also machine checked.  If an exact family
+factors through a finite visible summary with a section, and the reduced family
+is surjective onto all Boolean classifiers on that summary, then every finite
+predictor-image cover, finite representative-index cover, and finite
+quotient-code presentation of the exact family must have size at least
+\(2^{|\mathrm{summary}|}\).  The raw \((a,b)\)-surface specialization gives
+the concrete threshold \(2^{2^{2k}}\) for \(\texttt{ABVisibleSurface}\ k\).
+Thus finite-image compression after quotienting to \((a,b)\) still requires an
+actual strict-subclass theorem for the reduced switched predictors.
+The same file now proves the matching finite-image counting obstruction: if an
+indexed family on a finite surface is still surjective onto all Boolean
+classifiers, then every finite predictor cover, finite representative-index
+cover, and finite quotient-code presentation has size at least the full
+classifier-space cardinality \(2^{|\mathrm{surface}|}\).  In the exact visible
+clocked interface, this gives a direct no-go theorem below that predictor-card
+threshold.
+\texttt{ProductSuccessKpolyBridgeObstruction.lean} adds the corresponding
+route-level sanity check.  A finite tower product bound, or even a valid
+fixed-field v13 switching certificate, is not a finite-image theorem for the
+exact visible switched family.  Lean refutes product-only and fielded-only
+compression bridges using the full exact-visible Boolean family, including a
+nonempty one-step Boolean-square certificate with the one-cell field.  So the
+grassroots \(Kpoly\) target remains a semantic predictor-image theorem, not a
+consequence of product success alone.
+The same module now pins the positive boundary too.  Once the product premise
+or the fielded switching certificate is actually true, an implication from
+that premise to exact-visible compression is equivalent to a finite
+predictor-image cover of size at most \(2^s\).  The global product-only and
+fielded-only bridge schemas are therefore exactly schemas demanding such covers
+for every exact-visible family; when instantiated at one family, they also
+yield finite representative-index covers and quotient-code presentations.
+This keeps the next grassroots obligation concrete: build the finite image of
+the actual switched predictors, or exhibit a fully expressive subcase that
+blocks it.
+\texttt{CruxSynthesis.lean} now records this status in the narrow \(Kpoly\)
+subrepair ledger: product-bound and fielded-switching bridge schemas are covered
+only as finite-image-boundary reductions and full-visible refuters.  The broad
+manuscript-facing \(Kpoly\) bridge remains a live gap until the actual switched
+predictor class is proved genuinely small.
+The route check is no longer tied to the canonical full-rule family: any
+exact-visible family with a surjective prediction map now blocks the
+product-only or fielded-only bridge below the same surface threshold, and blocks
+the semantic finite-image bridge below the corresponding predictor-cardinality
+threshold.  So changing the index presentation of a fully expressive family is
+not a repair.
 
 \section{Encoded Hypothesis Families}
 
@@ -378,10 +1202,49 @@ the target predictor exactly.
 This is formalized as
 \texttt{EncodedFamily.exists\_sample\_empiricalRiskPredictor\_eq\_target\_of\_bound\_lt}.
 
-This is still finite and non-asymptotic, but it clarifies the next job.  To move
-from existence to a real learning theorem, we now need a probability interface
-that turns the combinatorial ratio behind the threshold into an explicit success
-bound under sampling assumptions.
+The same counting threshold now has an explicit bit-budget form.  For an
+\(s\)-bit Boolean family \(F\), the generic code-cardinality factor becomes
+\(2^s\).  Thus
+\[
+  2^s (|X|-1)^m < |X|^m
+\]
+implies the existence of a non-deceptive sample for \(F\).  If the target is
+realized by \(F\), the bit-family ERM wrapper exactly recovers the target on
+some labeled point sample.  These statements are formalized as
+\texttt{BitEncodedClassifierFamily.exists\_nondeceptiveSample\_of\_bitBudget\_bound\_lt}
+and
+\texttt{BitEncodedClassifierFamily.exists\_sample\_empiricalRiskPredictor\_eq\_target\_of\_bitBudget\_bound\_lt},
+with regression wrappers in
+\texttt{FiniteUniformRecoveryRegression.lean}.
+
+There is also a two-point-domain specialization.  If \(|X|=2\), the same
+threshold simplifies to
+\[
+  s < m.
+\]
+Indeed \(2^s(|X|-1)^m < |X|^m\) becomes \(2^s < 2^m\).  The module
+\texttt{BitFamilyUniformRecoveryBinary.lean} formalizes this as
+\texttt{BitEncodedClassifierFamily.bitBudget\_bound\_lt\_of\_card\_eq\_two\_of\_lt\_sampleSize},
+then derives non-deceptive-sample and exact ERM recovery corollaries for any
+finite two-point input domain, with Boolean-domain wrappers as the canonical
+binary case.
+
+The clocked \(Kpoly\) bridge now carries the same existential layer.  Theorems
+\texttt{ClockedBitCodeFamily.exists\_nondeceptiveSample\_of\_bitBudget\_bound\_lt}
+and
+\texttt{ClockedBitCodeFamily.exists\_sample\_empiricalRiskPredictor\_eq\_target\_of\_bitBudget\_bound\_lt}
+lift the generic bit-budget threshold to clocked families.  On the Boolean
+domain, \texttt{ClockedBitCodeFamily.exists\_bool\_nondeceptiveSample\_of\_lt\_sampleSize}
+and
+\texttt{ClockedBitCodeFamily.exists\_bool\_sample\_empiricalRiskPredictor\_eq\_target\_of\_lt\_sampleSize}
+give the concrete \(s<m\) versions.  These are constructive consequences of a
+small clocked bit family; they do not assert that the exact switched family has
+one.
+
+This is still finite and non-asymptotic, but it clarifies the next job.  The
+rate layer below turns the combinatorial ratio behind the threshold into an
+explicit uniform success bound; the later weighted layer relaxes the uniform
+sampling assumption.
 
 \section{Finite Uniform Rate Layer}
 
@@ -446,7 +1309,24 @@ single-step miss ratio
   \rho_X := \frac{|X|-1}{|X|}.
 \]
 For any nonempty finite input domain, \(\rho_X < 1\), so the finite deceptive
-rate decays exponentially in the sample length \(m\).
+rate decays exponentially in the sample length \(m\).  The Lean layer now also
+records the elementary order facts behind this slogan:
+\[
+  0 \le \rho_X \le 1,\qquad
+  m \le n \Rightarrow \rho_X^n \le \rho_X^m.
+\]
+These are formalized as
+\texttt{uniformMissRatio\_nonneg}, \texttt{uniformMissRatio\_le\_one}, and
+\texttt{uniformMissRatio\_pow\_le\_pow\_of\_le}.  The resulting finite-code
+failure term is antitone in the sample length:
+\[
+  m \le n \Rightarrow
+  |\mathrm{Code}(H)|\rho_X^n \le |\mathrm{Code}(H)|\rho_X^m.
+\]
+This is formalized as
+\texttt{EncodedFamily.codeMul\_uniformMissRatio\_pow\_le\_of\_le}, with the
+bit-budget specialization
+\texttt{BitEncodedClassifierFamily.bitBudget\_uniformMissRatio\_pow\_le\_of\_le}.
 
 The module \texttt{FiniteUniformSuccess.lean} packages the previous rate theorem
 into this cleaner interface.
@@ -464,6 +1344,25 @@ Let \(H\) be an encoded family over a nonempty finite input domain \(X\).  Then
 This is formalized as
 \texttt{EncodedFamily.deceptiveRate\_le\_codeMul\_uniformMissRatio\_pow}.
 
+\begin{theorem}[Uniform non-deceptive-rate lower bound]
+For the same encoded family,
+\[
+  \mathrm{rate}_{\mathrm{nondeceptive}}
+  \ge
+  1 - |\mathrm{Code}(H)| \cdot \rho_X^m.
+\]
+\end{theorem}
+
+\noindent
+This is formalized as
+\texttt{EncodedFamily.nondeceptiveRate\_ge\_one\_sub\_codeMul\_uniformMissRatio\_pow},
+with epsilon and strict-positivity corollaries.  Unlike exact recovery, this
+statement does not require the target to be realized by the family; it is the
+pure finite complement of the deceptive-sample upper bound.  The monotone form
+\texttt{EncodedFamily.nondeceptiveRate\_ge\_one\_sub\_codeMul\_uniformMissRatio\_pow\_of\_le}
+also says that if \(m \le n\), then the weaker \(m\)-sample lower bound remains
+valid for the \(n\)-sample non-deceptive rate.
+
 \begin{theorem}[Uniform exact recovery lower bound]
 If the target predictor is realized by the encoded family, then
 \[
@@ -476,6 +1375,10 @@ If the target predictor is realized by the encoded family, then
 \noindent
 This is formalized as
 \texttt{EncodedFamily.exactRecoveryRate\_ge\_one\_sub\_codeMul\_uniformMissRatio\_pow}.
+Its monotone companion
+\texttt{EncodedFamily.exactRecoveryRate\_ge\_one\_sub\_codeMul\_uniformMissRatio\_pow\_of\_le}
+gives the same sample-extension principle for exact recovery whenever the
+target is realized by the encoded family.
 
 \begin{theorem}[\(\varepsilon\)-style corollary]
 If
@@ -488,6 +1391,128 @@ then the exact recovery rate is at least \(1 - \varepsilon\).
 \noindent
 This is formalized as
 \texttt{EncodedFamily.exactRecoveryRate\_ge\_one\_sub\_of\_codeMul\_uniformMissRatio\_pow\_le}.
+
+The same module now specializes these bounds to explicitly bit-encoded Boolean
+families.  If \(F\) is encoded by \(s\) bits, then \(|\mathrm{Code}(F)| = 2^s\),
+so the uniform deceptive rate is bounded by \(2^s\rho_X^m\), the non-deceptive
+rate is at least \(1-2^s\rho_X^m\), and if the target is realized by \(F\), the
+exact ERM recovery rate is at least
+\[
+  1 - 2^s \rho_X^m.
+\]
+This is formalized as
+\texttt{BitEncodedClassifierFamily.deceptiveRate\_le\_bitBudget\_uniformMissRatio\_pow}
+and
+\texttt{BitEncodedClassifierFamily.nondeceptiveRate\_ge\_one\_sub\_bitBudget\_uniformMissRatio\_pow}
+and
+\texttt{BitEncodedClassifierFamily.exactRecoveryRate\_ge\_one\_sub\_bitBudget\_uniformMissRatio\_pow},
+with epsilon and positivity corollaries plus regression wrappers.  The point is
+not a P versus NP lower bound by itself; it is the exact finite bridge any
+grassroots compression route must instantiate once it claims an explicit
+\(s\)-bit predictor family.
+
+The module also includes
+\texttt{BitEncodedClassifierFamily.exactRecoveryRate\_pos\_of\_bitBudget\_bound\_lt},
+which keeps the strict-positivity conclusion directly tied to the natural
+cardinality threshold \(2^s(|X|-1)^m<|X|^m\).  Specializing this to the
+two-point threshold produces \texttt{BitFamilyUniformSuccessBinary.lean}: on any
+finite two-point input domain, and in particular on \texttt{Bool}, the simple
+condition \(s<m\) implies a strictly positive uniform exact-recovery rate for
+every target realized by the \(s\)-bit family.
+
+The Boolean specialization is now quantitative as well.  Since
+\[
+  \rho_{\texttt{Bool}} = \frac{1}{2},
+\]
+the same module proves
+\[
+  \mathrm{rate}_{\mathrm{deceptive}}
+  \le 2^s\left(\frac12\right)^m
+\]
+and
+\[
+  \mathrm{rate}_{\mathrm{nondeceptive}}
+  \ge 1 - 2^s\left(\frac12\right)^m
+\]
+and, for every target realized by the \(s\)-bit family,
+\[
+  \mathrm{rate}_{\mathrm{exact\ recovery}}
+  \ge 1 - 2^s\left(\frac12\right)^m.
+\]
+It also records the corresponding epsilon and positivity corollaries.  Thus the
+binary layer now has both the simple threshold \(s<m\) and the explicit uniform
+failure term \(2^s(1/2)^m\).
+
+The same result is now also packaged in sample-margin form.  If the sample
+length satisfies
+\[
+  s + k \le m,
+\]
+then
+\[
+  2^s\left(\frac12\right)^m \le \left(\frac12\right)^k,
+\]
+and therefore
+\[
+  \mathrm{rate}_{\mathrm{nondeceptive}}
+  \ge 1 - \left(\frac12\right)^k.
+\]
+For every realized target, the exact ERM recovery rate also satisfies
+\[
+  \mathrm{rate}_{\mathrm{exact\ recovery}}
+  \ge 1 - \left(\frac12\right)^k.
+\]
+This is formalized as
+\texttt{BitEncodedClassifierFamily.bool\_bitBudget\_pow\_le\_margin\_pow} and
+\texttt{BitEncodedClassifierFamily.nondeceptiveRate\_ge\_one\_sub\_bool\_margin\_pow}
+and
+\texttt{BitEncodedClassifierFamily.exactRecoveryRate\_ge\_one\_sub\_bool\_margin\_pow}.
+The theorem is often the most convenient downstream form: every extra Boolean
+sample beyond the bit budget halves the remaining uniform failure allowance.
+There is also an epsilon form: if \((1/2)^k \le \varepsilon\), then under the
+same margin hypothesis
+\[
+  \mathrm{rate}_{\mathrm{nondeceptive}} \ge 1 - \varepsilon
+  \quad\text{and, for realized targets,}\quad
+  \mathrm{rate}_{\mathrm{exact\ recovery}} \ge 1 - \varepsilon.
+\]
+This is formalized as
+\texttt{BitEncodedClassifierFamily.bool\_bitBudget\_pow\_le\_of\_margin\_pow\_le}
+and
+\texttt{BitEncodedClassifierFamily.nondeceptiveRate\_ge\_one\_sub\_of\_bool\_margin\_pow\_le}
+and
+\texttt{BitEncodedClassifierFamily.exactRecoveryRate\_ge\_one\_sub\_of\_bool\_margin\_pow\_le}.
+The strict positive-margin form is now proved too.  If \(0<k\) and
+\(s+k\le m\), then
+\[
+  2^s\left(\frac12\right)^m < 1.
+\]
+Consequently the non-deceptive uniform rate is strictly positive, and for any
+realized target the exact ERM recovery rate is strictly positive.  In Lean
+these are
+\texttt{BitEncodedClassifierFamily.bool\_bitBudget\_pow\_lt\_one\_of\_positive\_margin},
+\texttt{BitEncodedClassifierFamily.nondeceptiveRate\_pos\_bool\_of\_positive\_margin},
+and
+\texttt{BitEncodedClassifierFamily.exactRecoveryRate\_pos\_bool\_of\_positive\_margin}.
+The concrete \(s<m\) case is also recorded as
+\texttt{BitEncodedClassifierFamily.bool\_bitBudget\_pow\_lt\_one\_of\_lt\_sampleSize}
+and
+\texttt{BitEncodedClassifierFamily.nondeceptiveRate\_pos\_bool\_of\_lt\_sampleSize}.
+
+The clocked \(Kpoly\) counting bridge has the corresponding strict
+positive-margin success statements.  A clocked \(s\)-bit Boolean family with
+\(0<k\) and \(s+k\le m\) has strictly positive non-deceptive rate for every
+target; if the target is realized by the family, it also has strictly positive
+exact ERM recovery rate.  These are formalized as
+\texttt{ClockedBitCodeFamily.nondeceptiveRate\_pos\_bool\_of\_positive\_margin}
+and
+\texttt{ClockedBitCodeFamily.exactRecoveryRate\_pos\_bool\_of\_positive\_margin}.
+The concrete \(s<m\) existence theorems are
+\texttt{ClockedBitCodeFamily.exists\_bool\_nondeceptiveSample\_of\_lt\_sampleSize}
+and
+\texttt{ClockedBitCodeFamily.exists\_bool\_sample\_empiricalRiskPredictor\_eq\_target\_of\_lt\_sampleSize}.
+The recovery theorem still consumes a realized clocked bit-family; it does not
+assert that the manuscript's switched decoder has such a small realization.
 
 This is still uniform finite-sample learning rather than full distributional
 generalization.  But it is the first version of the grassroots story with an
@@ -640,6 +1665,14 @@ agreement mass at most \(q\), then the exact ERM recovery mass is at least
 This is formalized as
 \texttt{BitEncodedClassifierFamily.exactRecoverySampleMass\_ge\_one\_sub\_bitBudget\_mul\_pow\_of\_agreementMass\_le}.
 
+The companion module \texttt{BitFamilyWeightedRecovery.lean} packages the same
+fact in the form needed by downstream route interfaces: if the explicit failure
+term \(2^s q^m\) is at most a chosen tolerance \(\varepsilon\), then exact ERM
+recovery has sample mass at least \(1-\varepsilon\).  In Lean this is
+\texttt{BitEncodedClassifierFamily.exactRecoverySampleMass\_ge\_one\_sub\_of\_bitBudget\_mul\_pow\_le},
+with a regression wrapper in
+\texttt{BitFamilyWeightedRecoveryRegression.lean}.
+
 The point is not that this theorem proves the current switching step.  The
 point is that it now marks the boundary of the current route.  A weakness/GSLT
 idea that still intends to be a \emph{repair} of the present program must hand
@@ -647,6 +1680,37 @@ over this sort of certificate: an explicit visible input surface, an explicit
 small code space, and explicit agreement-mass control for the bad codes.  If it
 does not, then it is no longer filling a gap in the current route.  It is
 starting a different route.
+
+The agreement-mass hypothesis is not a bookkeeping side condition.  The new
+module \texttt{BadCodeAgreementObstruction.lean} proves the support-level test:
+if a bad code agrees with the target on every positive-mass input, its
+agreement mass is exactly \(1\).  Therefore no strict \(q<1\) recovery package
+can exist unless each bad code disagrees with the target somewhere on positive
+sampling mass.  In Lean this is recorded generically as
+\[
+  \texttt{BitEncodedClassifierFamily.not\_badCodeAgreementBound\_of\_agrees\_on\_support}
+\]
+and, contrapositively, as
+\[
+  \texttt{BitEncodedClassifierFamily.exists\_pos\_mass\_disagreement\_of\_badCode\_agreementBound\_lt\_one}.
+\]
+The atomic special case is also pinned: for \(\mu=\delta_x\), any bad code that
+agrees with the target at \(x\) has agreement mass exactly \(1\).  This is
+recorded as
+\[
+  \texttt{BitEncodedClassifierFamily.not\_badCodeAgreementBound\_pure\_of\_agrees}
+\]
+and at the exact ZAB interfaces as
+\[
+  \texttt{not\_ExactZABERMRecoveryData\_of\_pure\_badCode\_agrees},
+  \quad
+  \texttt{not\_CanonicalZABERMRecoveryData\_of\_pure\_badCode\_agrees}.
+\]
+Equivalently, under a pure-atom bound with \(q<1\), any code that matches the
+target at that atom must be the target function globally.  Thus finite-image
+data for the ERM wrapper is still insufficient: the manuscript must also prove
+a real support/disagreement theorem for the actual switched bad codes and the
+measure being used.
 
 \section{Exact Post-Switch Summary Compression}
 
@@ -1020,9 +2084,10 @@ In other words, the current Lean state already handles:
   \item exact ERM recovery of the target off that deceptive set,
   \item a strict-cardinality threshold guaranteeing the existence of a good sample,
   \item a rational upper bound on the deceptive sample rate,
+  \item a rational lower bound on the non-deceptive sample rate,
   \item a rational lower bound on the exact recovery rate,
   \item strict positivity of that exact recovery rate under the threshold,
-  \item an explicit miss-ratio success bound of the form \(1 - |H|\rho_X^m\),
+  \item explicit miss-ratio lower bounds of the form \(1 - |H|\rho_X^m\),
   \item an exact weighted one-predictor law of the form \(\mathrm{mass} = \alpha^m\),
   \item a weighted family union bound of the form
   \(\mathrm{deceptiveMass} \le \sum_{h \in H_{\mathrm{bad}}}\alpha_h^m\),
@@ -1163,6 +2228,22 @@ slightly stronger lift: if an exact-surface family is invariant under the
 \((a,b)\) quotient, then a canonical reduced family can be reconstructed and
 the same \(2k+1\)-bit decision-list target follows from that invariance alone.
 
+The matching strict-subclass fact is now machine-checked as well.
+\texttt{ABDecisionListObstruction.lean} defines the fixed-order decision-list
+bit family directly on the reduced raw surface and proves that realization by
+that family gives a \(2k+1\)-bit budget on \(\texttt{ABVisibleSurface}\ k\).
+For \(k>0\), Lean proves
+\[
+  2k+1 < 2^{2k} = |\texttt{ABVisibleSurface}\ k|.
+\]
+Hence the raw decision-list route cannot realize the full Boolean rule family
+on \((a,b)\).  The same obstruction lifts through the exact-surface pullback:
+if the exact switched family factors through \((a,b)\) but the reduced family is
+still fully expressive, then the raw exact-surface decision-list class cannot
+realize it.  This is grassroots progress rather than a final blocker: it says
+exactly which finite candidate class has been bounded, and leaves broader
+randomized, approximate, and \(Kpoly\) bridges outside the claim.
+
 The raw \((a,b)\) route is now richer than a single fixed-order decision list.
 The new module \texttt{ExactABAffineFamilies.lean} reuses the existing affine
 machinery on the same raw extractor and proves exact-surface compression and
@@ -1199,6 +2280,26 @@ version: if the exact-surface family is already invariant under the raw
 \((a,b)\) quotient, then the canonical reduced family inherits those same
 shared-basis combiner-only budgets without any separately supplied
 factorization witness.
+
+The route-coverage map now records the matching strict-subclass obstruction as
+well.  The module \texttt{SharedABFeatureObstruction.lean} proves that if the
+reduced raw family on \((a,b)\) is still surjective onto all Boolean rules,
+then no fixed shared raw affine basis can realize it below the reduced
+truth-table threshold.  Lean proves this for the three combiner budgets
+\[
+  2^r, \qquad 2r, \qquad r+1
+\]
+corresponding to arbitrary affine-feature truth tables, sparse-threshold
+combiners, and fixed-order decision lists.  The same result is lifted back to
+the exact surface: if the exact switched family factors through \((a,b)\) and
+the reduced family is fully expressive, then the corresponding shared exact
+class cannot realize it below those budgets.  This adds honest narrow entries
+to the \texttt{PNPKpolySubrepairClass} ledger alongside the finite-image
+budget, representative-index, quotient-code, transport, and reduced-AB
+finite-image/quotient pullback entries, while leaving the broad
+\texttt{kpolyCompressionBridge} open; it
+rules out full reduced-rule expressivity for named shared classes, not every
+possible manuscript-faithful small-class theorem.
 
 The target statement itself is now packaged in that style too.  The new module
 \texttt{SharedABTargetInterface.lean} bundles the current route bottleneck into
@@ -1271,7 +2372,12 @@ That new route is then packaged in \texttt{ExactZABTargetInterface.lean}.  The
 burden is exactly what one would want it to be: prove that the switched family
 is realized by fixed-order decision lists on \((\mathsf{zfeat}(z),a,b)\), then
 prove one bad-code agreement-mass estimate.  No extra generic machinery is
-needed beyond that package.
+needed beyond that package.  The same package now also exposes the finite-image
+content of the route explicitly: from the target data it derives a finite
+predictor cover, finite representative-index cover, and finite quotient-code
+presentation of size at most \(2^{r+2k+1}\).  Thus the concrete exact-ZAB route
+does not hide the current \(Kpoly\) repair target inside the compression-target
+abbreviation.
 
 Finally, the manuscript's constructive wrapper now plugs into the route
 directly.  The new module \texttt{BitFamilyERM.lean} turns any fixed bit-encoded
@@ -1279,7 +2385,9 @@ local class into an indexed ERM-selected family together with its selected code
 at each sample.  Then \texttt{ExactZABERMRoute.lean} specializes that statement
 to the shared \((\mathsf{zfeat}(z),a,b)\) decision-list class: if the wrapper is
 honestly specified as ERM over that class, then the selected code itself is the
-route witness, and the compression target follows immediately.  At that point,
+route witness, and the compression target follows immediately.  The same ERM
+route now exposes the finite predictor cover, representative-index cover, and
+quotient-code presentation for the ERM-selected family itself.  At that point,
 the remaining burden is even sharper: identify the right shared extractor
 \(\mathsf{zfeat}\), show the wrapper is using that class, and control the
 agreement mass of the bad codes.
@@ -1294,7 +2402,17 @@ decision lists.  Then \texttt{SharedExactZABTargetInterface.lean} packages the
 corresponding target and recovery interfaces, and
 \texttt{SharedExactZABERMRoute.lean} shows that if the wrapper is honestly ERM
 over that shared-basis decision-list class, then the selected code itself again
-is the route witness, now with the sharper \(p+1\) budget.
+is the route witness, now with the sharper \(p+1\) budget.  The shared-basis
+exact route now also exposes the same finite-image data as the direct exact
+route.  \texttt{SharedExactZABTargetInterface.lean} derives finite predictor
+covers, representative-index covers, and quotient-code presentations for the
+affine-feature, sparse-threshold, and shared decision-list variants.  Then
+\texttt{SharedExactZABFeatureERMInterface.lean} packages the final ERM-facing
+affine-feature and sparse-threshold forms, and
+\texttt{SharedExactZABERMInterface.lean} packages the final ERM-facing shared
+decision-list form.  So at the shared-basis endpoint, one sample assignment,
+one ERM-equality witness, and one bad-code agreement bound already yield both
+the weighted recovery inequality and the explicit finite-image payload.
 
 So the remaining burden is now split cleanly into two candidate routes on the
 real local surface \(u=(z,a,b)\):
@@ -1320,7 +2438,13 @@ ERM over the raw exact \((\mathsf{zfeat}(z),a,b)\) decision-list class, the
 canonical code witness is exactly the ERM-selected code.  The new module
 \texttt{CanonicalZABERMInterface.lean} packages the same conclusion in the most
 manuscript-facing form: one sample assignment, one proof that the switched
-family is exactly that ERM wrapper, and one bad-code agreement bound.
+family is exactly that ERM wrapper, and one bad-code agreement bound.  The
+canonical candidate, explicit-code, recovery, and final ERM layers now carry
+the same finite predictor cover, representative-index cover, and quotient-code
+objects directly.  This discharges the finite-image bookkeeping for the actual
+canonical exact decision-list family conditional on an explicit code assignment
+or equality to the ERM wrapper; it does not prove that the manuscript's broader
+switched predictor family has such a realization.
 
 There is now also one fully concrete specialization of that exact route.
 \texttt{BitVecZABVisibleSurface.lean} fixes the case where the local datum is
@@ -1333,6 +2457,9 @@ case the remaining burden is no longer “choose \(\mathsf{zfeat}\)”; it is on
 codes.”  The new module \texttt{ProjectedZABERMInterface.lean} narrows the same
 burden in a different concrete way: when \(z\) is bit-valued, it is enough to
 choose finitely many coordinates of \(z\) as the local summary extractor.
+Both concrete ERM specializations now also expose the three finite-image
+objects directly, so the remaining manuscript obligation is not hidden behind
+the identity or projection wrappers.
 
 \subsection{Bridging to the Full PNP Route}
 
@@ -1360,13 +2487,30 @@ encoded hypothesis families & proved & \texttt{HypothesisClass.lean} \\
 finite-class ERM kernel & proved & \texttt{FiniteERM.lean} \\
 finite uniform consistency bound & proved & \texttt{FiniteConsistencyBound.lean} \\
 finite uniform recovery threshold & proved & \texttt{FiniteUniformRecovery.lean} \\
+bit-family uniform recovery threshold & proved & \texttt{BitFamilyUniformRecovery.lean} \\
+binary bit-family recovery threshold & proved & \texttt{BitFamilyUniformRecoveryBinary.lean} \\
 finite uniform rate layer & proved & \texttt{FiniteUniformRate.lean} \\
-finite uniform success bounds & proved & \texttt{FiniteUniformSuccess.lean} \\
+finite uniform non-deceptive and recovery success bounds & proved & \texttt{FiniteUniformSuccess.lean} \\
+Boolean quantitative bit-family non-deceptive, positive-margin, and recovery bounds & proved & \texttt{BitFamilyUniformSuccessBinary.lean} \\
+clocked \(Kpoly\) construction, realization interface, and finite success-rate/good-sample bridge & proved & \texttt{ClockedKpolyBridge.lean} \\
+clocked \(Kpoly\) gap assessment: payload equals finite predictor-image obligation & proved & \texttt{ClockedKpolyGapAssessment.lean} \\
+clocked \(Kpoly\) exact ZAB ERM closure and bare-interface obstruction & proved conditional closure plus no-go & \texttt{ClockedKpolyActualGapClosure.lean} \\
+actual switched local normal form: ZAB ERM closure and locality-only obstruction & proved minimal-assumption closure plus no-go & \texttt{ActualSwitchedLocalFamily.lean} \\
+actual switched local strengthened structure: bounded-code and ZAB decision-list finite-image closure plus full-rule exclusions & proved minimal missing assumption & \texttt{ActualSwitchedLocalStructure.lean} \\
+actual switched local ERM construction: concrete \(zOf,aOf,bOf,zfeat,samples\) wrapper & proved construction satisfies ZAB data, bit-code data, finite cover, and clocked payload & \texttt{ActualSwitchedLocalERMConstruction.lean} \\
+actual switched local code construction: concrete \(zOf,aOf,bOf,zfeat,codes\) wrapper & proved construction satisfies ZAB data, bit-code data, finite cover, and clocked payload & \texttt{ActualSwitchedLocalCodeConstruction.lean} \\
+actual switched local plug-in lookup endpoint & proved full-rule obstruction below truth-table budget & \texttt{ActualSwitchedLocalPluginLookupObstruction.lean} \\
+actual switched local plug-in majority endpoint & proved full-rule obstruction below truth-table budget & \texttt{ActualSwitchedLocalPluginMajorityObstruction.lean} \\
+actual switched local finite-sample plug-in majority endpoint & proved full-rule obstruction below truth-table budget & \texttt{ActualSwitchedLocalPluginSampleMajorityObstruction.lean} \\
+actual switched local bounded-sample plug-in majority endpoint & proved exact surjectivity threshold at visible alphabet size & \texttt{ActualSwitchedLocalBoundedSampleMajorityObstruction.lean} \\
 finite weighted one-predictor agreement law & proved & \texttt{FiniteIIDAgreement.lean} \\
 finite weighted family union bound & proved & \texttt{FiniteIIDFamilyBound.lean} \\
 finite weighted recovery bounds & proved & \texttt{FiniteIIDRecovery.lean} \\
 same-route switching/ERM certificate & proved & \texttt{SameRouteInterface.lean} \\
+same-route epsilon recovery certificate & proved & \texttt{BitFamilyWeightedRecovery.lean} \\
+atomic bad-code agreement obstruction & proved & \texttt{BadCodeAgreementObstruction.lean} \\
 exact post-switch finite-summary kernel & proved & \texttt{ExactSwitchedFamily.lean} \\
+exact visible predictor-image budget equivalence & proved & \texttt{ExactVisibleImageBudget.lean} \\
 reduced raw visible surface $(a,b)$ & proved & \texttt{ABVisibleSurface.lean} \\
 affine GF(2)-style column candidate class & proved & \texttt{AffineColumnFamily.lean} \\
 bounded affine-feature candidate class & proved & \texttt{AffineFeatureFamily.lean} \\
@@ -1376,9 +2520,11 @@ exact-surface affine recovery ladder & proved & \texttt{ExactAffineRecovery.lean
 shared-basis affine family ladder & proved & \texttt{SharedAffineFeatureFamilies.lean} \\
 raw exact-surface decision-list family on $(a,b)$ & proved & \texttt{ExactABDecisionListFamily.lean} \\
 pullback route from reduced $(a,b)$ families & proved & \texttt{ABDecisionListRoute.lean} \\
+raw $(a,b)$ decision-list strict-subclass obstruction & proved & \texttt{ABDecisionListObstruction.lean} \\
 affine candidate ladder on raw $(a,b)$ bits & proved & \texttt{ExactABAffineFamilies.lean} \\
 shared-basis affine ladder on raw $(a,b)$ bits & proved & \texttt{SharedExactABFeatureFamilies.lean} \\
 quotient-route transfer to shared raw $(a,b)$ ladders & proved & \texttt{SharedABFeatureRoutes.lean} \\
+shared raw $(a,b)$ strict-subclass and exact-pullback obstruction & proved & \texttt{SharedABFeatureObstruction.lean} \\
 unified shared raw $(a,b)$ target interface & proved & \texttt{SharedABTargetInterface.lean} \\
 canonical raw $(a,b)$ specialization of the target interface & proved & \texttt{CanonicalABTargetRoute.lean} \\
 canonical raw $(a,b)$ candidate-data interface with recovery consequence & proved & \texttt{CanonicalABCandidateInterface.lean} \\
@@ -1386,20 +2532,22 @@ explicit canonical raw $(a,b)$ code-witness reduction & proved & \texttt{Canonic
 final canonical raw $(a,b)$ recovery interface & proved & \texttt{CanonicalABRecoveryInterface.lean} \\
 ERM transport layer for fixed bit-encoded local classes & proved & \texttt{BitFamilyERM.lean} \\
 exact decision-list family on $(zfeat(z),a,b)$ & proved & \texttt{ExactZABDecisionListFamily.lean} \\
-shared $(zfeat(z),a,b)$ target and recovery interfaces & proved & \texttt{ExactZABTargetInterface.lean} \\
-ERM specialization of the shared $(zfeat(z),a,b)$ route & proved & \texttt{ExactZABERMRoute.lean} \\
+shared $(zfeat(z),a,b)$ target and recovery interfaces with finite-image presentations & proved & \texttt{ExactZABTargetInterface.lean} \\
+ERM specialization of the shared $(zfeat(z),a,b)$ route with finite-image objects & proved & \texttt{ExactZABERMRoute.lean} \\
 shared-basis affine ladder on $(zfeat(z),a,b)$ & proved & \texttt{SharedExactZABFeatureFamilies.lean} \\
-shared-basis $(zfeat(z),a,b)$ target and recovery interfaces & proved & \texttt{SharedExactZABTargetInterface.lean} \\
+shared-basis $(zfeat(z),a,b)$ target and recovery interfaces with finite-image presentations & proved & \texttt{SharedExactZABTargetInterface.lean} \\
+final ERM interfaces for shared-basis affine-feature and sparse-threshold exact routes with finite-image objects & proved & \texttt{SharedExactZABFeatureERMInterface.lean} \\
 ERM specialization of the shared-basis $(zfeat(z),a,b)$ route & proved & \texttt{SharedExactZABERMRoute.lean} \\
+final ERM interface for the shared-basis exact $(zfeat(z),a,b)$ decision-list route with finite-image objects & proved & \texttt{SharedExactZABERMInterface.lean} \\
 canonical specialization of the shared-basis exact route & proved & \texttt{CanonicalZABTargetRoute.lean} \\
-canonical direct exact-route candidate interface & proved & \texttt{CanonicalZABCandidateInterface.lean} \\
-explicit direct exact-route code-witness reduction & proved & \texttt{CanonicalZABCodeWitness.lean} \\
-final direct exact-route recovery interface & proved & \texttt{CanonicalZABRecoveryInterface.lean} \\
-ERM-to-canonical bridge for the exact $(zfeat(z),a,b)$ route & proved & \texttt{CanonicalZABERMRoute.lean} \\
-final ERM interface for the canonical exact $(zfeat(z),a,b)$ route & proved & \texttt{CanonicalZABERMInterface.lean} \\
+canonical direct exact-route candidate interface with finite-image objects & proved & \texttt{CanonicalZABCandidateInterface.lean} \\
+explicit direct exact-route code-witness reduction with finite-image objects & proved & \texttt{CanonicalZABCodeWitness.lean} \\
+final direct exact-route recovery interface with finite-image objects & proved & \texttt{CanonicalZABRecoveryInterface.lean} \\
+ERM-to-canonical bridge for the exact $(zfeat(z),a,b)$ route with finite-image objects & proved & \texttt{CanonicalZABERMRoute.lean} \\
+final ERM interface for the canonical exact $(zfeat(z),a,b)$ route with finite-image objects & proved & \texttt{CanonicalZABERMInterface.lean} \\
 raw full visible bit surface when $z : \mathrm{BitVec}\, r$ & proved & \texttt{BitVecZABVisibleSurface.lean} \\
-identity-extractor ERM interface on the raw full visible bit surface & proved & \texttt{BitVecZABERMInterface.lean} \\
-coordinate-projection ERM interface on bit-valued local data & proved & \texttt{ProjectedZABERMInterface.lean} \\
+identity-extractor ERM interface on the raw full visible bit surface with finite-image objects & proved & \texttt{BitVecZABERMInterface.lean} \\
+coordinate-projection ERM interface on bit-valued local data with finite-image objects & proved & \texttt{ProjectedZABERMInterface.lean} \\
 weakness-globality obstruction & proved & \texttt{GlobalWeaknessObstruction.lean} \\
 infinitary HML obstruction & proved & \texttt{InfinitaryHMLObstruction.lean} \\
 present-moment shattering slice & proved & \texttt{PresentMomentShattering.lean} \\
@@ -1426,8 +2574,9 @@ On that constructive side, the current Lean result is that small encoded
 hypothesis families, finite empirical-risk minimizers, finite deceptive-sample
 bounds, finite uniform recovery thresholds, rational exact-recovery rates,
 explicit miss-ratio success bounds, weighted one-predictor agreement laws,
-weighted family deceptive-mass bounds, weighted exact recovery bounds, exact
-post-switch finite-summary compression kernels, one concrete affine GF(2)-style
+weighted family deceptive-mass bounds, weighted exact recovery bounds,
+same-route epsilon recovery certificates, exact post-switch finite-summary
+compression kernels, one concrete affine GF(2)-style
 candidate family, one bounded affine-feature candidate family, and
 observer-relative input surfaces can already be handled cleanly inside one
 coherent Mettapedia/mathlib formal background layer.  Optimistically, the same is

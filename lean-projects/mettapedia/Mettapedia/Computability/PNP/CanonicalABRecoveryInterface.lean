@@ -55,6 +55,24 @@ theorem CanonicalABDecisionListRecoveryData.compressionTarget
     ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G (2 * k + 1) := by
   exact (h.candidateData).compressionTarget
 
+theorem CanonicalABDecisionListRecoveryData.surfaceCard_le_of_surjective_predict
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h : CanonicalABDecisionListRecoveryData (Z := Z) (k := k) (Index := Index) μ G q)
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 * k + 1 := by
+  exact (h.candidateData).surfaceCard_le_of_surjective_predict hsurj
+
+theorem CanonicalABDecisionListRecoveryData.not_surjective_predict_of_lt_surfaceCard
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h : CanonicalABDecisionListRecoveryData (Z := Z) (k := k) (Index := Index) μ G q)
+    (hs : 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  exact (h.candidateData).not_surjective_predict_of_lt_surfaceCard hs
+
 theorem CanonicalABDecisionListRecoveryData.recoveryLowerBound
     {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
     {G : ExactVisibleSwitchedFamily Z k Index}

@@ -239,6 +239,48 @@ theorem exists_positive_coin_resolvedMass_of_total_lt_two_mul_weightedCorrectMas
     hw
     hadv
 
+/-- On the exact post-switch surface, strict half-accuracy finite-coin
+randomized-residual advantage is already witnessed by a deterministic
+positive-weight coin slice carrying the ordinary invariant-projection residual
+obstruction package. -/
+theorem exists_positive_coin_obstruction_package_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual_invariantProjection
+    (v : PostSwitchInput Z k → Coin → V)
+    (y : PostSwitchInput Z k → Bool)
+    (w : PostSwitchInput Z k → ℕ) (coinWeight : Coin → ℕ)
+    (h : (Z × BitVec k) × V → Bool)
+    (hy : ∀ u, y (tiInputMap u) = !(y u))
+    (hw : ∀ u, w (tiInputMap u) = w u)
+    (hadv :
+      weightedTotalMass (productWeight w coinWeight) <
+        2 * weightedCorrectMass
+          (fun xr : PostSwitchInput Z k × Coin =>
+            (invariantProjection xr.1, v xr.1 xr.2))
+          (fun xr : PostSwitchInput Z k × Coin => y xr.1)
+          (productWeight w coinWeight) h) :
+    ∃ c, 0 < coinWeight c ∧
+      (¬ SideInfoDeterminedBy invariantProjection (fun u => v u c) ∧
+        PositiveWeightSideInfoCollisionOverBase invariantProjection
+          (fun u => v u c) w ∧
+        (∃ u, 0 < w u ∧
+          invariantProjection (tiInputMap u) = invariantProjection u ∧
+          v (tiInputMap u) c ≠ v u c) ∧
+        (∃ u, 0 < w u ∧
+          ¬ SourceOnlyPredicateCapturesSideEq invariantProjection
+            (fun u => v u c) (v u c))) :=
+  exists_positive_coin_obstruction_package_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual
+    (τ := tiInputMap)
+    (u := invariantProjection)
+    (v := v)
+    (y := y)
+    (w := w)
+    (coinWeight := coinWeight)
+    (h := h)
+    tiInputMap_involutive
+    invariantProjection_tiInputMap
+    hy
+    hw
+    hadv
+
 /-- Strict half-accuracy finite-coin randomized-residual advantage on the
 exact post-switch surface refutes exact local-input-invariant support. -/
 theorem not_exactInputInvariantWeightedSupport_of_total_lt_two_mul_weightedCorrectMass_randomizedResidual_invariantProjection

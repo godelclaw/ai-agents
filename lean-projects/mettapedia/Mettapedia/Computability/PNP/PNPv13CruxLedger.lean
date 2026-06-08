@@ -118,6 +118,13 @@ def CorrectForAllSatSearchOutputs {Witness : Type u} {Message : Type v}
     (sat : Witness → Prop) (readout : Witness → Message) (msg : Message) : Prop :=
   ∀ out : SatSearchOutput sat, readout out.witness = msg
 
+/-- A deliberately weak selected-output contract: there exists some valid
+SAT-search output whose readout is the claimed message.  This models a repair
+that silently relies on choosing a favorable satisfying witness. -/
+def CorrectForSomeSatSearchOutput {Witness : Type u} {Message : Type v}
+    (sat : Witness → Prop) (readout : Witness → Message) (msg : Message) : Prop :=
+  ∃ out : SatSearchOutput sat, readout out.witness = msg
+
 /-- Correctness for one fixed message and arbitrary satisfying SAT-search output
 implies readout constancy across all satisfying witnesses. -/
 theorem singleMessageReadout_of_fixedMessageReadout
@@ -156,6 +163,69 @@ theorem correctForAllSatSearchOutputs_iff_fixedMessageReadout
   · intro h out
     exact h out.witness out.isSat
 
+/-- Selected-output correctness is only existence of one satisfying witness with
+the desired readout.  It is therefore not the theorem needed for arbitrary SAT
+search. -/
+theorem correctForSomeSatSearchOutput_iff_exists_satisfying_readout
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {msg : Message} :
+    CorrectForSomeSatSearchOutput sat readout msg ↔
+      ∃ w : Witness, sat w ∧ readout w = msg := by
+  constructor
+  · intro h
+    rcases h with ⟨out, hout⟩
+    exact ⟨out.witness, out.isSat, hout⟩
+  · intro h
+    rcases h with ⟨w, hw, hread⟩
+    exact ⟨⟨w, hw⟩, hread⟩
+
+/-- Every satisfying witness is enough to prove selected-output correctness for
+its own readout. -/
+theorem correctForSomeSatSearchOutput_of_satisfying_witness
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w : Witness} (hw : sat w) :
+    CorrectForSomeSatSearchOutput sat readout (readout w) := by
+  exact ⟨⟨w, hw⟩, rfl⟩
+
+/-- If two satisfying witnesses have different readouts, selected-output
+correctness certifies two incompatible messages. -/
+theorem exists_two_messages_correctForSomeSatSearchOutput_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ∃ msg₁ msg₂ : Message,
+      msg₁ ≠ msg₂ ∧
+        CorrectForSomeSatSearchOutput sat readout msg₁ ∧
+        CorrectForSomeSatSearchOutput sat readout msg₂ := by
+  exact
+    ⟨readout w₁, readout w₂, hdiff,
+      correctForSomeSatSearchOutput_of_satisfying_witness hw₁,
+      correctForSomeSatSearchOutput_of_satisfying_witness hw₂⟩
+
+/-- Distinct satisfying readouts separate the weak selected-output contract from
+the strong arbitrary-output contract. -/
+theorem exists_correctForSomeSatSearchOutput_and_not_exists_correctForAll_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    (∃ msg : Message, CorrectForSomeSatSearchOutput sat readout msg) ∧
+      ¬ ∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg := by
+  exact
+    ⟨⟨readout w₁, correctForSomeSatSearchOutput_of_satisfying_witness hw₁⟩,
+      by
+        intro h
+        rcases h with ⟨msg, hmsg⟩
+        have hfixed :
+            FixedMessageReadout sat readout msg :=
+          correctForAllSatSearchOutputs_iff_fixedMessageReadout.mp hmsg
+        exact hdiff ((hfixed w₁ hw₁).trans (hfixed w₂ hw₂).symm)⟩
+
 /-- Any claimed correctness theorem for all SAT-search outputs immediately
 forces readout constancy across satisfying witnesses. -/
 theorem singleMessageReadout_of_correctForAllSatSearchOutputs
@@ -181,6 +251,78 @@ theorem correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness
   · intro h
     exact correctForAllSatSearchOutputs_iff_fixedMessageReadout.mpr
       (fixedMessageReadout_of_singleMessageReadout hw₀ h)
+
+/-- In the satisfiable case, the existence of any message correct for every
+valid SAT-search output is equivalent to single-message readout constancy. -/
+theorem exists_correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₀ : Witness} (hw₀ : sat w₀) :
+    (∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg) ↔
+      SingleMessageReadout sat readout := by
+  constructor
+  · intro h
+    rcases h with ⟨msg, hmsg⟩
+    exact singleMessageReadout_of_correctForAllSatSearchOutputs hmsg
+  · intro h
+    exact
+      ⟨readout w₀,
+        (correctForAllSatSearchOutputs_iff_singleMessageReadout_of_witness
+          hw₀).mpr h⟩
+
+/-- Two satisfying witnesses with different readouts are a generic obstruction
+to the single-message property. -/
+theorem not_singleMessageReadout_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ SingleMessageReadout sat readout := by
+  intro h
+  exact hdiff (h w₁ w₂ hw₁ hw₂)
+
+/-- The same ambiguity packaged at the operational SAT-search-output layer. -/
+theorem exists_two_satSearchOutputs_with_distinct_readouts_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ∃ out₁ out₂ : SatSearchOutput sat,
+      readout out₁.witness ≠ readout out₂.witness := by
+  exact ⟨⟨w₁, hw₁⟩, ⟨w₂, hw₂⟩, hdiff⟩
+
+/-- If a satisfiable realization has two satisfying witnesses with different
+readouts, no fixed message can be correct for all satisfying witnesses. -/
+theorem not_exists_fixedMessageReadout_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ ∃ msg : Message, FixedMessageReadout sat readout msg := by
+  intro h
+  rcases h with ⟨msg, hmsg⟩
+  exact
+    not_singleMessageReadout_of_distinct_satisfying_readouts hw₁ hw₂ hdiff
+      (singleMessageReadout_of_fixedMessageReadout hmsg)
+
+/-- Therefore any ambiguous satisfiable realization blocks every decoder whose
+correctness must hold for all valid SAT-search outputs. -/
+theorem not_exists_correctForAllSatSearchOutputs_of_distinct_satisfying_readouts
+    {Witness : Type u} {Message : Type v}
+    {sat : Witness → Prop} {readout : Witness → Message}
+    {w₁ w₂ : Witness}
+    (hw₁ : sat w₁) (hw₂ : sat w₂)
+    (hdiff : readout w₁ ≠ readout w₂) :
+    ¬ ∃ msg : Message, CorrectForAllSatSearchOutputs sat readout msg := by
+  intro h
+  rcases h with ⟨msg, hmsg⟩
+  exact
+    not_exists_fixedMessageReadout_of_distinct_satisfying_readouts
+      hw₁ hw₂ hdiff
+      ⟨msg, correctForAllSatSearchOutputs_iff_fixedMessageReadout.mp hmsg⟩
 
 /-- The smallest finite obstruction: a satisfiable relation with two satisfying
 witnesses and identity readout does not have the single-message property. -/
@@ -235,6 +377,31 @@ theorem not_exists_correctForAllSatSearchOutputs_bool_true_id :
   rcases h with ⟨msg, hmsg⟩
   exact not_exists_fixedMessageReadout_bool_true_id
     ⟨msg, correctForAllSatSearchOutputs_iff_fixedMessageReadout.mp hmsg⟩
+
+/-- In the Boolean countermodel, selected-output correctness holds for both
+messages.  This is why a favorable-witness repair is too weak. -/
+theorem bool_true_id_correctForSomeSatSearchOutput_false_and_true :
+    CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) false ∧
+      CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) true := by
+  exact ⟨⟨⟨false, trivial⟩, rfl⟩, ⟨⟨true, trivial⟩, rfl⟩⟩
+
+/-- The Boolean countermodel has selected-output correctness but no
+arbitrary-output correctness. -/
+theorem bool_true_id_correctForSomeSatSearchOutput_not_correctForAll :
+    (∃ msg : Bool,
+      CorrectForSomeSatSearchOutput
+        (fun _ : Bool => True) (fun w : Bool => w) msg) ∧
+      ¬ ∃ msg : Bool,
+        CorrectForAllSatSearchOutputs
+          (fun _ : Bool => True) (fun w : Bool => w) msg := by
+  exact
+    exists_correctForSomeSatSearchOutput_and_not_exists_correctForAll_of_distinct_satisfying_readouts
+      (sat := fun _ : Bool => True) (readout := fun w : Bool => w)
+      (w₁ := false) (w₂ := true) trivial trivial (by
+        intro h
+        cases h)
 
 /-- Count the number of points of `Bool` satisfying an event.  This is a
 two-point finite probability numerator, avoiding any probability-library

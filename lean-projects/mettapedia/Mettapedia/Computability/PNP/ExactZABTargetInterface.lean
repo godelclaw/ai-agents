@@ -1,4 +1,6 @@
 import Mettapedia.Computability.PNP.ExactZABDecisionListFamily
+import Mettapedia.Computability.PNP.ExactVisibleCompressionObstruction
+import Mettapedia.Computability.PNP.ExactVisibleImageBudget
 
 /-!
 # P vs NP grassroots: target interfaces for the shared `z+a+b` decision-list route
@@ -44,6 +46,64 @@ theorem ExactZABDecisionListTargetData.compressionTarget_twoMul
     ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G (r + 2 * k + 1) := by
   exact exactVisibleCompressionTarget_of_realizedByRawExactZABDecisionListFamily_twoMul
     (Z := Z) (r := r) (k := k) (Index := Index) zfeat h.realized
+
+/-- The direct exact `(zfeat(z), a, b)` decision-list route supplies the
+finite predictor-image object required by the exact-visible `Kpoly` boundary. -/
+theorem ExactZABDecisionListTargetData.finitePredictorCover_twoMul
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : ExactZABDecisionListTargetData (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FinitePredictorCover (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (exactVisibleCompressionTarget_iff_finitePredictorCover
+      (Z := Z) (k := k) (s := r + 2 * k + 1) (Index := Index) (G := G)).mp
+      h.compressionTarget_twoMul
+
+/-- The same direct route supplies actual representative indices for the
+finite predictor image. -/
+theorem ExactZABDecisionListTargetData.finiteIndexRepresentativeCover_twoMul
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : ExactZABDecisionListTargetData (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FiniteIndexRepresentativeCover (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (exactVisibleCompressionTarget_iff_finiteIndexRepresentativeCover
+      (Z := Z) (k := k) (s := r + 2 * k + 1) (Index := Index) (G := G)).mp
+      h.compressionTarget_twoMul
+
+/-- The same direct route supplies a quotient-code presentation of the finite
+predictor image. -/
+theorem ExactZABDecisionListTargetData.finitePredictorQuotient_twoMul
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : ExactZABDecisionListTargetData (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FinitePredictorQuotient (2 ^ (r + 2 * k + 1)) := by
+  exact
+    (exactVisibleCompressionTarget_iff_finitePredictorQuotient
+      (Z := Z) (k := k) (s := r + 2 * k + 1) (Index := Index) (G := G)).mp
+      h.compressionTarget_twoMul
+
+theorem ExactZABDecisionListTargetData.surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : ExactZABDecisionListTargetData (Z := Z) (r := r) (k := k) (Index := Index) zfeat G)
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ r + 2 * k + 1 := by
+  exact
+    exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+      (Z := Z) (k := k) (s := r + 2 * k + 1) (Index := Index) hsurj
+      h.compressionTarget_twoMul
+
+theorem ExactZABDecisionListTargetData.not_surjective_predict_of_lt_surfaceCard
+    [Fintype Z]
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h : ExactZABDecisionListTargetData (Z := Z) (r := r) (k := k) (Index := Index) zfeat G)
+    (hs : r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  intro hsurj
+  exact Nat.not_le_of_lt hs (h.surfaceCard_le_of_surjective_predict hsurj)
 
 end
 
@@ -98,6 +158,63 @@ theorem ExactZABDecisionListRecoveryData.compressionTarget_twoMul
         (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
     ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G (r + 2 * k + 1) := by
   exact (h.targetData).compressionTarget_twoMul
+
+theorem ExactZABDecisionListRecoveryData.finitePredictorCover_twoMul
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h :
+      ExactZABDecisionListRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
+    G.FinitePredictorCover (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finitePredictorCover_twoMul
+
+theorem ExactZABDecisionListRecoveryData.finiteIndexRepresentativeCover_twoMul
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h :
+      ExactZABDecisionListRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
+    G.FiniteIndexRepresentativeCover (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finiteIndexRepresentativeCover_twoMul
+
+theorem ExactZABDecisionListRecoveryData.finitePredictorQuotient_twoMul
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h :
+      ExactZABDecisionListRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q) :
+    G.FinitePredictorQuotient (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finitePredictorQuotient_twoMul
+
+theorem ExactZABDecisionListRecoveryData.surfaceCard_le_of_surjective_predict
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h :
+      ExactZABDecisionListRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q)
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ r + 2 * k + 1 := by
+  exact (h.targetData).surfaceCard_le_of_surjective_predict hsurj
+
+theorem ExactZABDecisionListRecoveryData.not_surjective_predict_of_lt_surfaceCard
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)}
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    {q : ℝ≥0∞}
+    (h :
+      ExactZABDecisionListRecoveryData
+        (Z := Z) (r := r) (k := k) (Index := Index) μ zfeat G q)
+    (hs : r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  exact (h.targetData).not_surjective_predict_of_lt_surfaceCard hs
 
 theorem ExactZABDecisionListRecoveryData.recoveryLowerBound
     {μ : PMF (ExactVisiblePostSwitchSurface Z k)}

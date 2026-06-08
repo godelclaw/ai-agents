@@ -77,25 +77,10 @@ cannot injectively represent all exact visible rules. -/
 theorem no_injective_bitCode_to_fullExactVisibleRule_of_lt
     [Fintype Z] (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
     ¬ ∃ f : ExactVisibleRule Z k → BitCode s, Function.Injective f := by
-  let e := exactVisibleRuleEquivBitCode (Z := Z) (k := k)
-  letI : Fintype (ExactVisibleRule Z k) := Fintype.ofEquiv _ e.symm
-  rintro ⟨f, hf⟩
-  have hcard :
-      Fintype.card (ExactVisibleRule Z k) ≤ Fintype.card (BitCode s) :=
-    Fintype.card_le_of_injective f hf
-  have hrule :
-      Fintype.card (ExactVisibleRule Z k) =
-        2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) := by
-    calc
-      Fintype.card (ExactVisibleRule Z k)
-          = Fintype.card (BitCode (Fintype.card (ExactVisiblePostSwitchSurface Z k))) := by
-              exact Fintype.card_congr e
-      _ = 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) := card_bitCode _
-  rw [hrule, card_bitCode] at hcard
-  have hlt :
-      2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
-    Nat.pow_lt_pow_right Nat.one_lt_two hs
-  exact Nat.not_le_of_lt hlt hcard
+  classical
+  simpa [ExactVisibleRule] using
+    (no_injective_bitCode_of_lt_card
+      (Input := ExactVisiblePostSwitchSurface Z k) (s := s) hs)
 
 /-- Equivalently, no `s`-bit decoder can surject onto the full exact visible
 rule class below the exact-surface cardinality threshold. -/
@@ -103,31 +88,56 @@ theorem not_surjective_decode_to_fullExactVisibleRule_of_lt
     [Fintype Z] (decode : BitCode s → ExactVisibleRule Z k)
     (hs : s < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
     ¬ Function.Surjective decode := by
-  let e := exactVisibleRuleEquivBitCode (Z := Z) (k := k)
-  letI : Fintype (ExactVisibleRule Z k) := Fintype.ofEquiv _ e.symm
-  intro hsurj
-  have hcard :
-      Fintype.card (ExactVisibleRule Z k) ≤ Fintype.card (BitCode s) :=
-    Fintype.card_le_of_surjective decode hsurj
-  have hrule :
-      Fintype.card (ExactVisibleRule Z k) =
-        2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) := by
-    calc
-      Fintype.card (ExactVisibleRule Z k)
-          = Fintype.card (BitCode (Fintype.card (ExactVisiblePostSwitchSurface Z k))) := by
-              exact Fintype.card_congr e
-      _ = 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) := card_bitCode _
-  rw [hrule, card_bitCode] at hcard
-  have hlt :
-      2 ^ s < 2 ^ Fintype.card (ExactVisiblePostSwitchSurface Z k) :=
-    Nat.pow_lt_pow_right Nat.one_lt_two hs
-  exact Nat.not_le_of_lt hlt hcard
+  classical
+  simpa [ExactVisibleRule] using
+    (not_surjective_decode_to_fullClassifier_of_lt
+      (Input := ExactVisiblePostSwitchSurface Z k) (decode := decode) hs)
 
 end
 
 section ExactFamily
 
 variable {Z : Type*} {k s : ℕ} {Index : Type*}
+
+/-- Every exact switched family admits the explicit truth-table bit budget given
+by the full exact visible surface cardinality. -/
+theorem exactVisibleCompressionTarget_card_of_fintype
+    [Fintype Z]
+    (G : ExactVisibleSwitchedFamily Z k Index) :
+    ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G
+      (Fintype.card (ExactVisiblePostSwitchSurface Z k)) := by
+  exact IndexedPredictorFamily.hasBitBudget_card_of_fintype G
+
+/-- Quantitative form: if an exact switched family on the full visible
+post-switch surface already realizes every Boolean rule there, then any exact
+bit budget must be at least the full surface cardinality. -/
+theorem exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict)
+    (hsmall : ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ s := by
+  classical
+  exact
+    IndexedPredictorFamily.bitBudget_lowerBound_of_surjective_predict_fintype
+      (G := G) (s := s) (Input := ExactVisiblePostSwitchSurface Z k) hsurj hsmall
+
+/-- Sharpness form: under surjectivity onto the full exact visible rule class,
+the truth-table budget is achievable and no smaller exact budget exists. -/
+theorem exactVisibleCompressionTarget_card_isSharp_of_surjective_predict
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict) :
+    ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G
+        (Fintype.card (ExactVisiblePostSwitchSurface Z k)) ∧
+      ∀ {t : ℕ},
+        ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G t →
+          Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ t := by
+  refine ⟨exactVisibleCompressionTarget_card_of_fintype (Z := Z) (k := k) G, ?_⟩
+  intro t hsmall
+  exact
+    exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+      (Z := Z) (k := k) (s := t) (Index := Index) hsurj hsmall
 
 /-- If an exact switched family already realizes every Boolean rule on the full
 visible post-switch surface, then any `s`-bit compression theorem below the
@@ -139,15 +149,9 @@ theorem not_exactVisibleCompressionTarget_of_surjective_predict
     (hsurj : Function.Surjective G.predict) :
     ¬ ExactVisibleCompressionTarget (Z := Z) (k := k) (Index := Index) G s := by
   intro hsmall
-  rcases hsmall with ⟨F, hF⟩
-  have hdecodeSurj : Function.Surjective F.decode := by
-    intro rule
-    rcases hsurj rule with ⟨i, hi⟩
-    rcases hF i with ⟨c, hc⟩
-    exact ⟨c, hc.trans hi⟩
-  exact
-    not_surjective_decode_to_fullExactVisibleRule_of_lt
-      (Z := Z) (k := k) (s := s) F.decode hs hdecodeSurj
+  exact Nat.not_le_of_lt hs <|
+    exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+      (Z := Z) (k := k) (s := s) (Index := Index) hsurj hsmall
 
 /-- The same obstruction applies to the charitable invariant-view repair, since
 that repair still has to realize the full exact family after pullback. -/
@@ -163,6 +167,19 @@ theorem not_invariantCompressionTarget_of_surjective_predict
       (Z := Z) (k := k) (s := s) (Index := Index) hs hsurj
       (exactVisibleCompressionTarget_of_invariantCompressionTarget h)
 
+/-- The invariant-view repair inherits the same surface-cardinality lower bound,
+because any such repair induces an exact compression target. -/
+theorem invariantCompressionTarget_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict)
+    (hsmall : InvariantCompressionTarget (Z := Z) (k := k) (Index := Index) G s) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ s := by
+  exact
+    exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+      (Z := Z) (k := k) (s := s) (Index := Index) hsurj
+      (exactVisibleCompressionTarget_of_invariantCompressionTarget hsmall)
+
 /-- Likewise for the charitable fork-view repair. -/
 theorem not_forkCompressionTarget_of_surjective_predict
     [Fintype Z]
@@ -175,6 +192,18 @@ theorem not_forkCompressionTarget_of_surjective_predict
     not_exactVisibleCompressionTarget_of_surjective_predict
       (Z := Z) (k := k) (s := s) (Index := Index) hs hsurj
       (exactVisibleCompressionTarget_of_forkCompressionTarget h)
+
+/-- The fork-view repair likewise inherits the same exact-surface lower bound. -/
+theorem forkCompressionTarget_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hsurj : Function.Surjective G.predict)
+    (hsmall : ForkCompressionTarget (Z := Z) (k := k) (Index := Index) G s) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ s := by
+  exact
+    exactVisibleCompressionTarget_surfaceCard_le_of_surjective_predict
+      (Z := Z) (k := k) (s := s) (Index := Index) hsurj
+      (exactVisibleCompressionTarget_of_forkCompressionTarget hsmall)
 
 end ExactFamily
 

@@ -2801,11 +2801,11 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedW
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
               hcoverRoots hsepRoots)
-            source.fallbackEdge) ∧
+            source.fallbackEdge)) ∧
         HasUnblockedInteriorEndpoint emb)
     (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
     ∃ emb : PlaneEmbeddingWithBoundary G,
@@ -2920,14 +2920,14 @@ theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundar
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
               (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
                 boundaryData dartCycles hboundaryArc).boundaryFaceRoots
               hcoverRoots hsepRoots)
             (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
-              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+              boundaryData dartCycles hboundaryArc).fallbackEdge)) ∧
         HasUnblockedInteriorEndpoint emb)
     (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
     ∃ emb : PlaneEmbeddingWithBoundary G,
@@ -3710,11 +3710,11 @@ theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_o
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
               hcoverRoots hsepRoots)
-            source.fallbackEdge) ∧
+            source.fallbackEdge)) ∧
         (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
     Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) := by
   rcases h with
@@ -3742,11 +3742,11 @@ theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_o
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
               hcoverRoots hsepRoots)
-            source.fallbackEdge) ∧
+            source.fallbackEdge)) ∧
         HasUnblockedInteriorEndpoint emb) :
     Nonempty (Theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry G) := by
   rcases h with
@@ -3773,11 +3773,11 @@ theorem nonempty_theorem49ClosedWalkAnnulusRootParentPositiveProjectedGeometry_o
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
               hcoverRoots hsepRoots)
-            source.fallbackEdge) ∧
+            source.fallbackEdge)) ∧
         Disjoint (interiorEdgeEndpointSupport emb)
           (edgeEndpointSupport
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
@@ -4178,14 +4178,14 @@ theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeomet
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
               (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
                 boundaryData dartCycles hboundaryArc).boundaryFaceRoots
               hcoverRoots hsepRoots)
             (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
-              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+              boundaryData dartCycles hboundaryArc).fallbackEdge)) ∧
         (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
     Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) := by
   rcases h with
@@ -4224,14 +4224,14 @@ theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeomet
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
               (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
                 boundaryData dartCycles hboundaryArc).boundaryFaceRoots
               hcoverRoots hsepRoots)
             (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
-              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+              boundaryData dartCycles hboundaryArc).fallbackEdge)) ∧
         HasUnblockedInteriorEndpoint emb) :
     Nonempty (Theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeometry G) := by
   rcases h with
@@ -4266,14 +4266,14 @@ theorem nonempty_theorem49SuccessorCycleAnnulusRootParentPositiveProjectedGeomet
         (∀ f ∈ peelFaces,
           Disjoint (emb.faceBoundary f.1)
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
-        interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+        (interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
           (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
             (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
               (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
                 boundaryData dartCycles hboundaryArc).boundaryFaceRoots
               hcoverRoots hsepRoots)
             (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
-              boundaryData dartCycles hboundaryArc).fallbackEdge) ∧
+              boundaryData dartCycles hboundaryArc).fallbackEdge)) ∧
         Disjoint (interiorEdgeEndpointSupport emb)
           (edgeEndpointSupport
             (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces)) ∧
@@ -4876,6 +4876,98 @@ def Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn {G : Si
     ∃ _interiorData : InteriorDualBoundaryRootAdjDistancePeelData emb.faces emb.faceBoundary,
       (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
 
+/-- The sharper source-fixed rooted shared-edge face-membership cover package already lands on
+the route-facing closed-walk annulus root-distance positive geometry surface once a purified
+selected-boundary carrier is available. -/
+theorem
+    theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            source.boundaryFaceRoots hcoverRoots hsepRoots)
+          source.fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+          e ∈ emb.faceBoundary g.1 ∧
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              f
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots f) <
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              g
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots g))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn emb := by
+  exact
+    ⟨source,
+      interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren,
+      hCarrier⟩
+
+/-- The same sharper rooted shared-edge face-membership cover package reaches the route-facing
+closed-walk annulus root-distance positive geometry surface from the weaker local endpoint
+condition. -/
+theorem
+    theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      source.boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        source.fallbackEdge))
+    (hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            source.boundaryFaceRoots hcoverRoots hsepRoots)
+          source.fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+          e ∈ emb.faceBoundary g.1 ∧
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              f
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots f) <
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              g
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                source.boundaryFaceRoots hcoverRoots hsepRoots g))
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn emb := by
+  exact
+    theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+      source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+      ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).1 hEndpoint)
+
 /-- The route-facing closed-walk annulus root-distance package gives the fixed-embedding
 height-ordered replacement source. -/
 theorem theorem49HeightOrderedPositiveProjectedGeometryOn_of_closedWalkAnnulusRootAdjDistancePositiveProjectedGeometryOn
@@ -5098,6 +5190,106 @@ theorem nonempty_theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeome
         hasUnblockedInteriorEndpoint_of_endpointSupport_disjoint_and_nonempty
           hEndpointDisjoint hRawCarrier⟩
 
+/-- Source-fixed rooted shared-edge face-membership cover data plus a surviving purified carrier
+packages into the graph-level closed-walk annulus root-distance replacement source. -/
+theorem
+    nonempty_theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hpeelInterior : ∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces),
+      ∃ _hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge),
+      ∃ _hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              source.boundaryFaceRoots hcoverRoots hsepRoots)
+            source.fallbackEdge f),
+        e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+          ∃ g ∈ peelFaces,
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+            e ∈ emb.faceBoundary g.1 ∧
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                f
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  source.boundaryFaceRoots hcoverRoots hsepRoots f) <
+              (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                g
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  source.boundaryFaceRoots hcoverRoots hsepRoots g),
+        (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover, hchildren,
+      hCarrier⟩
+  exact
+    ⟨{ emb := emb
+        , source := source
+        , interiorData :=
+          interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover
+            source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+        , carrier_nonempty := hCarrier }⟩
+
+/-- Source-fixed rooted shared-edge face-membership cover data plus a local unblocked endpoint
+packages into the graph-level closed-walk annulus root-distance replacement source. -/
+theorem
+    nonempty_theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        source.boundaryFaceRoots,
+      ∃ _hpeelInterior : ∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces),
+      ∃ _hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces source.boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            source.fallbackEdge),
+      ∃ _hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              source.boundaryFaceRoots hcoverRoots hsepRoots)
+            source.fallbackEdge f),
+        e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+          ∃ g ∈ peelFaces,
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+            e ∈ emb.faceBoundary g.1 ∧
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                f
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  source.boundaryFaceRoots hcoverRoots hsepRoots f) <
+              (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                g
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  source.boundaryFaceRoots hcoverRoots hsepRoots g),
+      HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover, hchildren,
+      hEndpoint⟩
+  exact
+    nonempty_theorem49ClosedWalkAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+      ⟨emb, source, peelFaces, hunique, hcoverRoots, hsepRoots, hpeelInterior, hcover, hchildren,
+        (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+          emb).1 hEndpoint⟩
+
 /-- Fixed-embedding route-facing replacement package: successor-cycle boundary-order source data,
 boundary-root interior-dual adjacency-distance data, selected-boundary arcs, and a nonempty
 purified selected-boundary carrier. -/
@@ -5110,6 +5302,134 @@ def Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn
           (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
             |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
           (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty
+
+/-- The sharper successor-cycle rooted shared-edge face-membership cover package also lands on
+the route-facing successor-cycle annulus root-distance positive geometry surface once a purified
+selected-boundary carrier is available. -/
+theorem
+    theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+            hcoverRoots hsepRoots)
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+          e ∈ emb.faceBoundary g.1 ∧
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              f
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots f) <
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              g
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots g))
+    (hCarrier : (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn emb := by
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    ⟨boundaryData, dartCycles,
+      interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover
+        source peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren,
+      hboundaryArc, hCarrier⟩
+
+/-- The same sharper successor-cycle rooted shared-edge face-membership cover package reaches
+the route-facing successor-cycle annulus root-distance positive geometry surface from the weaker
+local endpoint condition. -/
+theorem
+    theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (peelFaces : Finset (AmbientFace emb.faces))
+    (hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces)
+    (hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+      (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        boundaryData dartCycles hboundaryArc).boundaryFaceRoots)
+    (hpeelInterior : ∀ f ∈ peelFaces,
+      Disjoint (emb.faceBoundary f.1)
+        (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces))
+    (hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+      (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+        (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+          hcoverRoots hsepRoots)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).fallbackEdge))
+    (hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+        (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+          (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+            hcoverRoots hsepRoots)
+          (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+            boundaryData dartCycles hboundaryArc).fallbackEdge f),
+      e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+        ∃ g ∈ peelFaces,
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+          e ∈ emb.faceBoundary g.1 ∧
+          (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              f
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots f) <
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+              g
+              (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                  boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                hcoverRoots hsepRoots g))
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn emb := by
+  exact
+    theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+      boundaryData dartCycles hboundaryArc peelFaces hunique hcoverRoots hsepRoots
+      hpeelInterior hcover hchildren
+      ((hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).1 hEndpoint)
 
 /-- The route-facing successor-cycle annulus root-distance package lowers to the closed-walk
 annulus root-distance package on the same embedding. -/
@@ -5346,6 +5666,143 @@ theorem nonempty_theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedG
         carrier_nonempty :=
           (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
             emb).1 hEndpoint }⟩
+
+/-- Successor-cycle rooted shared-edge face-membership cover data plus a surviving purified
+carrier package into the graph-level successor-cycle annulus root-distance replacement source. -/
+theorem
+    nonempty_theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ _hpeelInterior : ∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces),
+      ∃ _hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge),
+      ∃ _hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge f),
+        e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+          ∃ g ∈ peelFaces,
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+            e ∈ emb.faceBoundary g.1 ∧
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                f
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                    boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                  hcoverRoots hsepRoots f) <
+              (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                g
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                    boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                  hcoverRoots hsepRoots g),
+      (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty) :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover, hchildren, hCarrier⟩
+  exact
+    ⟨{ emb := emb
+        , boundaryData := boundaryData
+        , dartCycles := dartCycles
+        , interiorData :=
+          interiorDualBoundaryRootAdjDistancePeelDataOfClosedWalkAnnulusBoundarySourceBoundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc)
+            peelFaces hunique hcoverRoots hsepRoots hpeelInterior hcover hchildren
+        , selectedBoundaryArc := hboundaryArc
+        , carrier_nonempty := hCarrier }⟩
+
+/-- Successor-cycle rooted shared-edge face-membership cover data plus a local unblocked endpoint
+packages into the graph-level successor-cycle annulus root-distance replacement source. -/
+theorem
+    nonempty_theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ hboundaryArc : ∀ f : AmbientFace emb.faces,
+        (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+          |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f,
+      ∃ peelFaces : Finset (AmbientFace emb.faces),
+      ∃ hunique : PairwiseUniqueSharedInteriorEdges emb.faceBoundary emb.faces,
+      ∃ hcoverRoots : RootSetCovers (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ hsepRoots : RootSetSeparated (interiorDualGraph emb.faceBoundary emb.faces)
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+          boundaryData dartCycles hboundaryArc).boundaryFaceRoots,
+      ∃ _hpeelInterior : ∀ f ∈ peelFaces,
+          Disjoint (emb.faceBoundary f.1)
+            (selectedBoundarySupport emb.faceBoundary emb.faces emb.faces),
+      ∃ _hcover : interiorEdgeSupport emb.faceBoundary emb.faces ⊆ peelFaces.image
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge),
+      ∃ _hchildren : ∀ f ∈ peelFaces, ∀ e ∈ (emb.faceBoundary f.1).erase
+          (rootedSharedInteriorEdgeOfPairwiseUnique emb.faceBoundary emb.faces hunique
+            (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+              (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+              hcoverRoots hsepRoots)
+            (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+              boundaryData dartCycles hboundaryArc).fallbackEdge f),
+        e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces ∨
+          ∃ g ∈ peelFaces,
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).Adj f g ∧
+            e ∈ emb.faceBoundary g.1 ∧
+            (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                f
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                    boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                  hcoverRoots hsepRoots f) <
+              (interiorDualSpanningForest emb.faceBoundary emb.faces).dist
+                g
+                (interiorDualSpanningForestRoot emb.faceBoundary emb.faces
+                  (PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+                    boundaryData dartCycles hboundaryArc).boundaryFaceRoots
+                  hcoverRoots hsepRoots g),
+      HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometry G) := by
+  rcases h with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+      hpeelInterior, hcover, hchildren, hEndpoint⟩
+  exact
+    nonempty_theorem49SuccessorCycleAnnulusRootAdjDistancePositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_boundaryFaceRootsCanonicalRootedSharedEdgeFaceMembershipCover_and_nonempty_selectedBoundaryInteriorEdgeEndpointVertices
+      ⟨emb, boundaryData, dartCycles, hboundaryArc, peelFaces, hunique, hcoverRoots, hsepRoots,
+        hpeelInterior, hcover, hchildren,
+        (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+          emb).1 hEndpoint⟩
 
 /-- Existential successor-cycle annulus root-distance data, endpoint-support separation, and a
 nonempty raw interior-edge endpoint carrier package into the graph-level successor-cycle annulus

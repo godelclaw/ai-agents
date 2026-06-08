@@ -41,6 +41,7 @@ import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThres
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryInjectiveConcentrationObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryThresholdWidthObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryThresholdVisibleBudgetObstruction
+import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryPairwiseAgreementObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoverySurjectiveRegionObstruction
 import Mettapedia.Computability.PNP.ActualSwitchedLocalSharedExactZABSparseThresholdERMRecoveryHeavyRegionCardinalityObstruction
 
@@ -1505,6 +1506,14 @@ inductive PNPKpolySubrepairClass where
   the bounded-sample plug-in-majority recovery packet when the threshold is
   already that small. -/
   | boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction
+  /-- On any actual-local endpoint, every two distinct realized predictors in
+  a manuscript-facing sparse-threshold recovery packet already have mutual
+  agreement mass at most `q`. -/
+  | actualLocalRecoveryPairwiseAgreementBoundary
+  /-- Therefore if one distinct realized predictor pair already has agreement
+  mass above `q`, no extractor at all can support the manuscript-facing
+  sparse-threshold recovery packet on that endpoint. -/
+  | actualLocalNoExtractorRecoveryPairwiseAgreementObstruction
   /-- On any surjective actual-local endpoint, every proper finite visible
   region already has total mass at most `q` under any manuscript-facing
   sparse-threshold recovery packet. This strengthens the earlier lightest-point
@@ -1997,6 +2006,8 @@ def currentPNPKpolyCoveredSubrepairs : List PNPKpolySubrepairClass :=
     .fullRuleActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction,
     .boundedSamplePluginMajorityActualLocalRecoveryThresholdVisibleBudgetBoundary,
     .boundedSamplePluginMajorityActualLocalNoExtractorRecoveryThresholdVisibleBudgetObstruction,
+    .actualLocalRecoveryPairwiseAgreementBoundary,
+    .actualLocalNoExtractorRecoveryPairwiseAgreementObstruction,
     .surjectiveActualLocalRecoveryProperRegionMassBoundary,
     .surjectiveActualLocalNoExtractorProperRegionMassBoundary,
     .actualLocalRecoveryHeavyRegionTraceCardBoundary,
@@ -7706,6 +7717,54 @@ theorem kpolyCoverage_anchor_boundedSamplePluginMajorityActualLocal_not_exists_s
       hsample
       hgap
       hq_lt
+      hdata
+
+/-- Route-coverage anchor: on any actual-local endpoint, any two distinct
+realized predictors in a manuscript-facing sparse-threshold recovery packet
+already have agreement mass at most `q`. -/
+theorem kpolyCoverage_anchor_actualLocal_agreementMass_le_of_nonempty_recovery_of_predict_ne
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    {μ : PMF (ExactVisiblePostSwitchSurface Z k)} {q : ℝ≥0∞}
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (zfeat : Z → BitVec r)
+    (h :
+      Nonempty
+        (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+          μ T zfeat q))
+    (i j : Index)
+    (hij : T.predictorFamily.predict j ≠ T.predictorFamily.predict i) :
+    agreementMass μ (T.predictorFamily.predict i) (T.predictorFamily.predict j) ≤ q := by
+  rcases h with ⟨h⟩
+  exact h.agreementMass_le_of_predict_ne i j hij
+
+/-- Route-coverage anchor: therefore if one distinct realized predictor pair
+already has agreement mass above `q`, no extractor at all can support the
+manuscript-facing sparse-threshold recovery packet on that actual-local
+endpoint. -/
+theorem kpolyCoverage_anchor_actualLocal_not_exists_sharedExactZABSparseThresholdERMRecoveryData_of_lt_agreementMass_of_predict_ne
+    {Z : Type v} [Fintype Z] {k r : ℕ} {Index : Type u} {Block : Type w}
+    (μ : PMF (ExactVisiblePostSwitchSurface Z k))
+    (T : ActualSwitchedLocalInterface Z k Index Block)
+    (q : ℝ≥0∞)
+    (i j : Index)
+    (hij : T.predictorFamily.predict j ≠ T.predictorFamily.predict i)
+    (hgap : q < agreementMass μ (T.predictorFamily.predict i) (T.predictorFamily.predict j)) :
+    ¬ ∃ zfeat : Z → BitVec r,
+        Nonempty
+          (ActualSwitchedLocalInterface.SharedExactZABSparseThresholdERMRecoveryData
+            μ T zfeat q) := by
+  rintro ⟨zfeat, hdata⟩
+  exact
+    ActualSwitchedLocalInterface.not_nonempty_sharedExactZABSparseThresholdERMRecoveryData_of_lt_agreementMass_of_predict_ne
+      (μ := μ)
+      (T := T)
+      (r := r)
+      (zfeat := zfeat)
+      (q := q)
+      i
+      j
+      hij
+      hgap
       hdata
 
 /-- Route-coverage anchor: on any finite surjective actual-local endpoint, the

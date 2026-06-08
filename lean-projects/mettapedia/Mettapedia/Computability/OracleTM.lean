@@ -191,53 +191,61 @@ def PartialOracle.extends {k₁ k₂ : ℕ} (Õ₂ : PartialOracle k₂) (Õ₁ 
 
 /-! ## Monotonicity
 
-Key property: extending a partial oracle can only increase output probabilities.
-This is because more oracle answers means more possible computation paths.
+In the current simplified encoding, `runOTMBounded` only threads the value of
+`O 0` into the machine input. So the honest invariant is weaker than a general
+oracle-extension monotonicity statement: if two oracles agree at query `0`,
+then the bounded runs, output sets, and output probabilities coincide.
 -/
+
+/-- In the current simplified oracle model, bounded execution only depends on `O 0`. -/
+theorem runOTMBounded_congr_of_oracle_zero_eq
+    (M : OTMIndex) (x : ℕ) (r : CantorSpace) (O₁ O₂ : Oracle)
+    (fuel numBits : ℕ) (h0 : O₁ 0 = O₂ 0) :
+    runOTMBounded M x r O₁ fuel numBits = runOTMBounded M x r O₂ fuel numBits := by
+  unfold runOTMBounded
+  simp [h0]
+
+/-- In the current simplified oracle model, the output-1 set only depends on `O 0`. -/
+theorem oracleOutputOneSet_congr_of_oracle_zero_eq
+    (M : OTMIndex) (x : ℕ) (O₁ O₂ : Oracle)
+    (h0 : O₁ 0 = O₂ 0) :
+    oracleOutputOneSet M x O₁ = oracleOutputOneSet M x O₂ := by
+  ext r
+  constructor <;> intro hr
+  · rcases hr with ⟨fuel, numBits, hrun⟩
+    exact ⟨fuel, numBits, by
+      rw [← runOTMBounded_congr_of_oracle_zero_eq M x r O₁ O₂ fuel numBits h0]
+      exact hrun⟩
+  · rcases hr with ⟨fuel, numBits, hrun⟩
+    exact ⟨fuel, numBits, by
+      rw [runOTMBounded_congr_of_oracle_zero_eq M x r O₁ O₂ fuel numBits h0]
+      exact hrun⟩
+
+/-- In the current simplified oracle model, output probability only depends on `O 0`. -/
+theorem oracleOutputProb_congr_of_oracle_zero_eq
+    (M : OTMIndex) (x : ℕ) (O₁ O₂ : Oracle)
+    (h0 : O₁ 0 = O₂ 0) :
+    oracleOutputProb M x O₁ = oracleOutputProb M x O₂ := by
+  unfold oracleOutputProb
+  rw [oracleOutputOneSet_congr_of_oracle_zero_eq M x O₁ O₂ h0]
 
 /-- When extending a partial oracle, output probabilities don't decrease.
 
-NOTE: This is NOT generally true for arbitrary extensions! The theorem requires
-additional assumptions about how the extension is constructed. Specifically,
-in the reflective oracle construction (König's lemma approach), extensions are
-built to satisfy soundness: the new oracle answers are chosen to be consistent
-with the reflectivity condition.
-
-The subtle point is:
-- For queries n < k₁: both oracles give the same answer (by h_ext)
-- For queries k₁ ≤ n < k₂: Õ₁.toFullOracle returns false (default)
-                           Õ₂.toFullOracle returns Õ₂.value ... = 1
-- For queries n ≥ k₂: both return false
-
-So if Õ₂ sets new values to 1 (oracle says "yes"), it can enable more
-computations. If Õ₂ sets new values to 0 or 1/2, it might not help.
-
-For the reflective oracle construction, this monotonicity holds because:
-- Extensions are built iteratively to maintain partial reflectivity
-- New values are chosen to match the probability threshold direction
+Under the current simplified encoding, a positive base domain forces equality
+at query `0`, so the output probabilities are actually equal.
 -/
 theorem oracleOutputProb_mono_extension {k₁ k₂ : ℕ} (h : k₁ ≤ k₂)
+    (hk₁ : 0 < k₁)
     (Õ₁ : PartialOracle k₁) (Õ₂ : PartialOracle k₂)
     (h_ext : Õ₂.extends Õ₁ h) (M : OTMIndex) (x : ℕ) :
     oracleOutputProb M x Õ₁.toFullOracle ≤ oracleOutputProb M x Õ₂.toFullOracle := by
-  -- The proof requires showing that computations that halted under Õ₁
-  -- also halt under Õ₂ (since they see the same answers on shared domain)
-  -- and potentially more computations can now halt with the extended answers.
-  -- Key: use measure_mono with the subset inclusion argument
-  unfold oracleOutputProb
-  apply measure_mono
-  -- Need: oracleOutputOneSet M x Õ₁.toFullOracle ⊆ oracleOutputOneSet M x Õ₂.toFullOracle
-  intro r hr
-  simp only [oracleOutputOneSet, Set.mem_setOf_eq, OTMHaltsWithOutput] at hr ⊢
-  obtain ⟨fuel, numBits, hr⟩ := hr
-  -- If computation halted with Õ₁, show it halts with Õ₂
-  -- The oracle answers on queries < k₁ are identical (by h_ext)
-  -- The runOTMBounded only accesses O at specific queries encoded in the computation
-  -- If those queries were all < k₁, the result is the same
-  -- If some query was ≥ k₁, Õ₁ returned false, and Õ₂ might return something else
-  -- This is where the argument gets subtle...
-  -- For now, we accept this as requiring the proper extension construction
-  use fuel, numBits
-  sorry
+  have hk₂ : 0 < k₂ := lt_of_lt_of_le hk₁ h
+  have hval :
+      Õ₂.value ⟨0, hk₂⟩ = Õ₁.value ⟨0, hk₁⟩ :=
+    h_ext ⟨0, hk₁⟩
+  have hzero : Õ₁.toFullOracle 0 = Õ₂.toFullOracle 0 := by
+    unfold PartialOracle.toFullOracle
+    simp [hk₁, hk₂, hval]
+  rw [oracleOutputProb_congr_of_oracle_zero_eq M x Õ₁.toFullOracle Õ₂.toFullOracle hzero]
 
 end Mettapedia.Computability

@@ -154,6 +154,38 @@ theorem exactVisibleCompressionTarget_of_invariant_and_canonicalABDecisionList_t
     exactVisibleCompressionTarget_of_invariant_and_canonicalABDecisionList
       (Z := Z) (k := k) hinv hreal
 
+theorem canonicalABDecisionList_surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hinv : ABVisibleInvariant (Z := Z) (k := k) G)
+    (hreal :
+      RealizedByABDecisionListFamily (k := k)
+        (liftToABVisibleFamily (Z := Z) (k := k) G))
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ 2 * k + 1 := by
+  simpa [two_mul, Nat.mul_comm, Nat.add_assoc] using
+    (canonicalABDecisionListTargetData
+      (Z := Z) (k := k) (Index := Index) G hinv hreal).surfaceCard_le_of_surjective_predict
+      hsurj
+
+theorem canonicalABDecisionList_not_surjective_of_lt_surfaceCard
+    [Fintype Z]
+    {Index : Type*}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (hinv : ABVisibleInvariant (Z := Z) (k := k) G)
+    (hreal :
+      RealizedByABDecisionListFamily (k := k)
+        (liftToABVisibleFamily (Z := Z) (k := k) G))
+    (hs : 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  have hs' : k + k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k) := by
+    simpa [two_mul, Nat.mul_comm, Nat.add_assoc] using hs
+  exact
+    (canonicalABDecisionListTargetData
+      (Z := Z) (k := k) (Index := Index) G hinv hreal).not_surjective_predict_of_lt_surfaceCard
+      hs'
+
 end
 
 end

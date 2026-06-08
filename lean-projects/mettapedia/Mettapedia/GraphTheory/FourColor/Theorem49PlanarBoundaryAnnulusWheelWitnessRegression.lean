@@ -1,6 +1,7 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49InteriorVertices
 import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusGeometry
 import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacement
+import Mettapedia.GraphTheory.FourColor.Theorem49ResidualBoundaryPeeling
 import Mathlib.Tactic
 
 namespace Mettapedia.GraphTheory.FourColor
@@ -1642,6 +1643,39 @@ theorem
       not_theorem49CollarLayerPositiveProjectedGeometryOn_wheelWithInnerTriangle,
       not_nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_wheelWithInnerTriangle⟩
 
+/-- Residual-boundary calibration: the wheel benchmark carries an honest closed-walk annulus
+source, a Tait coloring, and a nonempty purified carrier, but the same three-spoke cycle still
+blocks the residual/current-boundary positive shell.  Since that shell is equivalent to the
+collar-layer positive package, it gives no same-embedding escape hatch on this obstruction. -/
+theorem not_theorem49ResidualBoundaryPositiveProjectedGeometryOn_wheelWithInnerTriangle :
+    ¬ Theorem49ResidualBoundaryPositiveProjectedGeometryOn
+        wheelWithInnerTriangleEmbedding := by
+  intro hResidual
+  exact
+    not_theorem49CollarLayerPositiveProjectedGeometryOn_wheelWithInnerTriangle
+      ((theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn).1
+        hResidual)
+
+/-- Honest-source residual-boundary calibration: the same wheel embedding carries the source,
+coloring, and purified carrier hypotheses while refuting the residual/current-boundary positive
+shell itself. -/
+theorem
+    wheelWithInnerTriangle_closedWalkSource_tait_and_nonempty_carrier_without_residualBoundaryPositiveProjectedGeometry :
+    Nonempty
+        (PlanarBoundaryClosedWalkAnnulusBoundarySource
+          wheelWithInnerTriangleEmbedding) ∧
+      IsTaitEdgeColoring wheelWithInnerTriangleGraph
+        wheelWithInnerTriangleTaitEdgeColoring ∧
+      (selectedBoundaryInteriorEdgeEndpointVertices
+        wheelWithInnerTriangleEmbedding).Nonempty ∧
+      ¬ Theorem49ResidualBoundaryPositiveProjectedGeometryOn
+        wheelWithInnerTriangleEmbedding := by
+  exact
+    ⟨nonempty_wheelWithInnerTriangleClosedWalkAnnulusBoundarySource,
+      wheelWithInnerTriangleTaitEdgeColoring_isTait,
+      selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle,
+      not_theorem49ResidualBoundaryPositiveProjectedGeometryOn_wheelWithInnerTriangle⟩
+
 /-- Tait colorability plus a nonempty purified selected-boundary interior carrier does not
 universally construct any of the current same-embedding witness-cover or weak annulus-collar
 geometric endpoints.  The fixed wheel embedding supplies the counterexample. -/
@@ -1700,6 +1734,25 @@ theorem
   · exact
       not_nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_wheelWithInnerTriangle
         hPrevious
+
+/-- The residual/current-boundary positive shell is not a live escape from the wheel obstruction:
+even honest closed-walk source data, a real Tait coloring, and a nonempty purified carrier do
+not universally construct `Theorem49ResidualBoundaryPositiveProjectedGeometryOn`. -/
+theorem
+    not_forall_theorem49ResidualBoundaryPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_taitEdgeColoring_and_nonempty_selectedBoundaryInteriorCarrier_wheelWithInnerTriangle :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+        Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) →
+          (∃ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+            IsTaitEdgeColoring wheelWithInnerTriangleGraph C) →
+            (selectedBoundaryInteriorEdgeEndpointVertices emb).Nonempty →
+              Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb := by
+  intro h
+  exact
+    not_theorem49ResidualBoundaryPositiveProjectedGeometryOn_wheelWithInnerTriangle
+      (h wheelWithInnerTriangleEmbedding
+        nonempty_wheelWithInnerTriangleClosedWalkAnnulusBoundarySource
+        exists_taitEdgeColoring_wheelWithInnerTriangleGraph
+        selectedBoundaryInteriorEdgeEndpointVertices_nonempty_wheelWithInnerTriangle)
 
 /-- Even an honest closed-walk annulus source, Tait colorability, and a nonempty purified carrier
 do not universally construct any current acyclic witness-cover or weak annulus-collar endpoint.

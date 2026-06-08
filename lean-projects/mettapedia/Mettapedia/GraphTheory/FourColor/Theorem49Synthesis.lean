@@ -2926,4 +2926,136 @@ theorem
     theorem49BoundaryRootNonemptySynthesis_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootParentPeelData
       (G := G) source interiorData C₀ hC₀ hCarrier⟩
 
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of a target construction-side package refutes a
+universal derivation from that endpoint back to that package. -/
+theorem
+    not_forall_nonempty_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    {P : PlaneEmbeddingWithBoundary G → Type*}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        ¬ Nonempty (P emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (P emb) := by
+  intro h
+  rcases hWitness with ⟨emb, hSynth, hNoPackage⟩
+  rcases hSynth with ⟨C, hC, hBoundary⟩
+  exact hNoPackage (h (emb := emb) C hC hBoundary)
+
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of boundary-support face data refutes a universal
+derivation from that endpoint back to that construction shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionBoundarySupportFaceData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusConstructionBoundarySupportFaceData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        ¬ Nonempty (PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb) := by
+  exact
+    not_forall_nonempty_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without
+      (P := fun emb => PlanarBoundaryAnnulusConstructionBoundarySupportFaceData emb) hWitness
+
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of face-partition data refutes a universal
+derivation from that endpoint back to that construction shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFacePartitionData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusConstructionFacePartitionData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        ¬ Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusConstructionFacePartitionData emb) := by
+  exact
+    not_forall_nonempty_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without
+      (P := fun emb => PlanarBoundaryAnnulusConstructionFacePartitionData emb) hWitness
+
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of face-layer data refutes a universal derivation
+from that endpoint back to that construction shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionFaceLayerData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusConstructionFaceLayerData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        ¬ Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusConstructionFaceLayerData emb) := by
+  exact
+    not_forall_nonempty_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without
+      (P := fun emb => PlanarBoundaryAnnulusConstructionFaceLayerData emb) hWitness
+
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of positive-frontier construction data refutes a
+universal derivation from that endpoint back to the positive-frontier shell. -/
+theorem
+    not_forall_nonempty_planarBoundaryAnnulusConstructionPositiveFrontierData_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without_planarBoundaryAnnulusConstructionPositiveFrontierData
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        ¬ Nonempty (PlanarBoundaryAnnulusConstructionPositiveFrontierData emb)) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            Nonempty (PlanarBoundaryAnnulusConstructionPositiveFrontierData emb) := by
+  exact
+    not_forall_nonempty_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_without
+      (P := fun emb => PlanarBoundaryAnnulusConstructionPositiveFrontierData emb) hWitness
+
+/-- Any explicit same-embedding witness carrying a real Tait coloring, the final theorem-4.9
+boundary-root synthesis endpoint, and failure of every currently formalized positive-stage
+construction shell refutes a universal derivation from that endpoint to the disjunctive
+positive-stage construction surface. -/
+theorem
+    not_forall_somePositiveStageConstructionShell_of_exists_embedding_taitEdgeColoring_and_theorem49BoundaryRootSynthesis_and_noPositiveStageConstructionShells
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      (∃ C : G.EdgeColoring Color,
+        IsTaitEdgeColoring G C ∧ Theorem49BoundaryRootSynthesis emb C) ∧
+        NoPositiveStageConstructionShells emb) :
+    ¬ ∀ {emb : PlaneEmbeddingWithBoundary G}
+        (C : G.EdgeColoring Color),
+        IsTaitEdgeColoring G C →
+          Theorem49BoundaryRootSynthesis emb C →
+            SomePositiveStageConstructionShell emb := by
+  intro h
+  rcases hWitness with ⟨emb, hSynth, hNo⟩
+  rcases hSynth with ⟨C, hC, hBoundary⟩
+  exact
+    not_somePositiveStageConstructionShell_of_noPositiveStageConstructionShells hNo
+      (h (emb := emb) C hC hBoundary)
+
 end Mettapedia.GraphTheory.FourColor

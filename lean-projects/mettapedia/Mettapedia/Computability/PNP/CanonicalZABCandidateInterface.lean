@@ -1,3 +1,4 @@
+import Mettapedia.Computability.PNP.ExactZABTargetInterface
 import Mettapedia.Computability.PNP.CanonicalZABTargetRoute
 
 /-!
@@ -47,6 +48,71 @@ theorem CanonicalZABDecisionListCandidateData.compressionTarget
       (Z := Z) (k := k) (Index := Index) G (r + 2 * k + 1) := by
   exact exactVisibleCompressionTarget_of_canonicalZABDecisionList_twoMul
     (Z := Z) (r := r) (k := k) (Index := Index) zfeat h.realized
+
+theorem CanonicalZABDecisionListCandidateData.targetData
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    ExactZABDecisionListTargetData
+      (Z := Z) (r := r) (k := k) (Index := Index) zfeat G := by
+  exact ⟨h.realized⟩
+
+/-- The canonical exact `(zfeat(z), a, b)` candidate data provide the finite
+predictor-image object that the remaining `Kpoly` boundary asks for. -/
+theorem CanonicalZABDecisionListCandidateData.finitePredictorCover
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FinitePredictorCover (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finitePredictorCover_twoMul
+
+/-- The canonical exact candidate data also provide finite representative
+indices for that image. -/
+theorem CanonicalZABDecisionListCandidateData.finiteIndexRepresentativeCover
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FiniteIndexRepresentativeCover (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finiteIndexRepresentativeCover_twoMul
+
+/-- The canonical exact candidate data also provide a finite quotient-code
+presentation of the predictor image. -/
+theorem CanonicalZABDecisionListCandidateData.finitePredictorQuotient
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G) :
+    G.FinitePredictorQuotient (2 ^ (r + 2 * k + 1)) := by
+  exact (h.targetData).finitePredictorQuotient_twoMul
+
+theorem CanonicalZABDecisionListCandidateData.surfaceCard_le_of_surjective_predict
+    [Fintype Z]
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G)
+    (hsurj : Function.Surjective G.predict) :
+    Fintype.card (ExactVisiblePostSwitchSurface Z k) ≤ r + 2 * k + 1 := by
+  exact (h.targetData).surfaceCard_le_of_surjective_predict hsurj
+
+theorem CanonicalZABDecisionListCandidateData.not_surjective_predict_of_lt_surfaceCard
+    [Fintype Z]
+    {zfeat : Z → BitVec r}
+    {G : ExactVisibleSwitchedFamily Z k Index}
+    (h :
+      CanonicalZABDecisionListCandidateData
+        (Z := Z) (r := r) (k := k) (Index := Index) zfeat G)
+    (hs : r + 2 * k + 1 < Fintype.card (ExactVisiblePostSwitchSurface Z k)) :
+    ¬ Function.Surjective G.predict := by
+  exact (h.targetData).not_surjective_predict_of_lt_surfaceCard hs
 
 theorem CanonicalZABDecisionListCandidateData.target_eq_rawExactZABDecisionList
     {zfeat : Z → BitVec r}
