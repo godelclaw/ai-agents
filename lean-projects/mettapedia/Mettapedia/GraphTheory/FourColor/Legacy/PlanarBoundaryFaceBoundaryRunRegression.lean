@@ -345,6 +345,16 @@ theorem exists_embedding_withPlanarBoundarySelectedBoundaryArcGeometry_withoutCy
   exact ⟨pathEmbedding, nonempty_planarBoundarySelectedBoundaryArcGeometry_pathEmbedding,
     not_nonempty_planarBoundaryCyclicOrderedFaceArcEmbeddingData_pathEmbedding⟩
 
+theorem admitsPlanarBoundarySelectedBoundaryArcGeometry_pathGraph :
+    AdmitsPlanarBoundarySelectedBoundaryArcGeometry pathGraph := by
+  exact ⟨pathEmbedding, nonempty_planarBoundarySelectedBoundaryArcGeometry_pathEmbedding⟩
+
+theorem admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_pathGraph :
+    AdmitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace pathGraph := by
+  exact
+    (admitsPlanarBoundarySelectedBoundaryArcGeometry_iff_admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace).1
+      admitsPlanarBoundarySelectedBoundaryArcGeometry_pathGraph
+
 theorem exists_embedding_withPlanarBoundaryFaceBoundaryRunGeometry_withoutCyclicFaceBoundaryRunGeometry :
     ∃ emb : PlaneEmbeddingWithBoundary pathGraph,
       Nonempty (PlanarBoundaryFaceBoundaryRunGeometry emb) ∧
@@ -378,6 +388,20 @@ theorem admitsPlanarBoundaryOrderedFaceArcEmbeddingData_withoutClosedWalk_pathGr
       ¬ AdmitsPlanarBoundaryClosedWalkEmbeddingData pathGraph := by
   exact ⟨admitsPlanarBoundaryOrderedFaceArcEmbeddingData_pathGraph,
     not_admitsPlanarBoundaryClosedWalkEmbeddingData_pathGraph⟩
+
+theorem
+    admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_withoutClosedWalk_pathGraph :
+    AdmitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace pathGraph ∧
+      ¬ AdmitsPlanarBoundaryClosedWalkEmbeddingData pathGraph := by
+  exact ⟨admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_pathGraph,
+    not_admitsPlanarBoundaryClosedWalkEmbeddingData_pathGraph⟩
+
+theorem
+    admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_withoutClosedWalkAnnulusBoundarySource_pathGraph :
+    AdmitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace pathGraph ∧
+      ¬ AdmitsPlanarBoundaryClosedWalkAnnulusBoundarySource pathGraph := by
+  exact ⟨admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_pathGraph,
+    not_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource_pathGraph⟩
 
 theorem admitsPlanarBoundaryOrderedFaceArcEmbeddingData_withoutClosedWalkAnnulusBoundarySource_pathGraph :
     AdmitsPlanarBoundaryOrderedFaceArcEmbeddingData pathGraph ∧

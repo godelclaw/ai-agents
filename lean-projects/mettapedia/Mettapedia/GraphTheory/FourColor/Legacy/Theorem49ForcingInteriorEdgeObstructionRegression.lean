@@ -5,7 +5,7 @@ import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryDegenerateCertifi
 import Mettapedia.GraphTheory.FourColor.Theorem49ResidualBoundaryRoute
 import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacementRoute
 import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusHonestGeometryRegression
-import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
 
 namespace Mettapedia.GraphTheory.FourColor
 
@@ -3210,8 +3210,8 @@ theorem
     have hsplitNil : cert.faceOrder = facePrefix := by
       have hsplit :
           facePrefix ++ List.dropWhile nonSpoke cert.faceOrder = cert.faceOrder := by
-        simpa [facePrefix] using
-          (List.takeWhile_append_dropWhile (p := nonSpoke) (l := cert.faceOrder))
+        dsimp [facePrefix]
+        exact List.takeWhile_append_dropWhile (p := nonSpoke) (l := cert.faceOrder)
       rw [hsuffix, List.append_nil] at hsplit
       exact hsplit.symm
     rcases (mem_facePeelWitnessSupport_iff cert.faceOrder cert.witnessEdge).1 hwit01Support with
@@ -3233,8 +3233,8 @@ theorem
       exact False.elim (hsuffix_ne_nil hdrop)
   | cons f tail =>
       have hsplit' : facePrefix ++ List.dropWhile nonSpoke cert.faceOrder = cert.faceOrder := by
-        simpa [facePrefix] using
-          (List.takeWhile_append_dropWhile (p := nonSpoke) (l := cert.faceOrder))
+        dsimp [facePrefix]
+        exact List.takeWhile_append_dropWhile (p := nonSpoke) (l := cert.faceOrder)
       have hsplit : cert.faceOrder = facePrefix ++ f :: tail := by
         simpa [hdrop] using hsplit'.symm
       have hfnot : ¬ nonSpoke f := by
@@ -10241,6 +10241,269 @@ theorem
     ⟨emb, boundaryData, dartCycles, hboundaryArc, hcurrent, C, hC, hEndpoint, a, b, faceBoundary,
       hv23, hNotAtMostOne⟩
   exact hNotAtMostOne (h emb boundaryData dartCycles hboundaryArc hcurrent C hC hEndpoint a b faceBoundary hv23)
+
+/-- Even after adjoining the named unblocked interior endpoint and the live exact one-collar/v23
+shell, the honest source-preserving wheel embedding still cannot supply generic IDBRAD.  So the
+missing cycle-breaking interior-dual construction burden persists on the exact shell itself. -/
+theorem
+    exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle
+    :
+    ∃ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+        (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+          data.numCollars = 1 ∧
+            data.toPlanarBoundaryAnnulusBoundaryData =
+              source.toPlanarBoundaryAnnulusBoundaryData) ∧
+        ∃ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+          IsTaitEdgeColoring wheelWithInnerTriangleGraph C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                    emb.faces emb.faceBoundary) := by
+  exact
+    ⟨wheelWithInnerTriangleEmbedding,
+      wheelWithInnerTriangleClosedWalkAnnulusBoundarySource,
+      exists_oneCollarAnnulusCurrentBoundaryData_of_closedWalkAnnulusBoundarySource
+        wheelWithInnerTriangleClosedWalkAnnulusBoundarySource,
+      wheelWithInnerTriangleTaitEdgeColoring,
+      wheelWithInnerTriangleTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_wheelWithInnerTriangle,
+      red, blue,
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1),
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary,
+      not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness⟩
+
+/-- The endpoint-bearing honest exact-v23 one-collar shell does not generically force generic
+IDBRAD.  The wheel benchmark already inhabits that exact shell while refuting the target. -/
+theorem
+    not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle
+    :
+    ¬ ∀ (emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph)
+        (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb),
+          (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+            data.numCollars = 1 ∧
+              data.toPlanarBoundaryAnnulusBoundaryData =
+                source.toPlanarBoundaryAnnulusBoundaryData) →
+          ∀ (C : wheelWithInnerTriangleGraph.EdgeColoring Color),
+            IsTaitEdgeColoring wheelWithInnerTriangleGraph C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                        emb.faces emb.faceBoundary) := by
+  intro h
+  exact
+    not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness
+      (h wheelWithInnerTriangleEmbedding
+        wheelWithInnerTriangleClosedWalkAnnulusBoundarySource
+        (exists_oneCollarAnnulusCurrentBoundaryData_of_closedWalkAnnulusBoundarySource
+          wheelWithInnerTriangleClosedWalkAnnulusBoundarySource)
+        wheelWithInnerTriangleTaitEdgeColoring
+        wheelWithInnerTriangleTaitEdgeColoring_isTait
+        hasUnblockedInteriorEndpoint_wheelWithInnerTriangle
+        red blue
+        (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)
+        nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary)
+
+/-- Any explicit same-embedding witness of the endpoint-bearing exact one-collar/v23 honest
+closed-walk shell together with failure of generic IDBRAD already refutes a universal derivation
+of that interior-dual distance-peel burden. -/
+theorem
+    not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState
+    {V : Type*} [DecidableEq V] {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+        (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+          data.numCollars = 1 ∧
+            data.toPlanarBoundaryAnnulusBoundaryData =
+              source.toPlanarBoundaryAnnulusBoundaryData) ∧
+        ∃ C : G.EdgeColoring Color,
+          IsTaitEdgeColoring G C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset G.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                    emb.faces emb.faceBoundary)) :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary G,
+        ∀ source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+          (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+            data.numCollars = 1 ∧
+              data.toPlanarBoundaryAnnulusBoundaryData =
+                source.toPlanarBoundaryAnnulusBoundaryData) →
+          ∀ C : G.EdgeColoring Color,
+            IsTaitEdgeColoring G C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset G.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                        emb.faces emb.faceBoundary) := by
+  intro h
+  rcases hWitness with
+    ⟨emb, source, hcurrent, C, hC, hEndpoint, a, b, faceBoundary, hv23, hNotIdbrad⟩
+  exact hNotIdbrad (h emb source hcurrent C hC hEndpoint a b faceBoundary hv23)
+
+/-- The same exact-shell IDBRAD obstruction also lives on the actual successor-cycle
+boundary-order presentation: route-facing one-collar/v23 data, a real Tait coloring, and a
+named unblocked endpoint still do not supply generic interior-dual root-distance peel data. -/
+theorem
+    exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle
+    :
+    ∃ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+          data.numCollars = 1 ∧
+            data.toPlanarBoundaryAnnulusBoundaryData =
+              boundaryData.toPlanarBoundaryAnnulusBoundaryData) ∧
+        ∃ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+          IsTaitEdgeColoring wheelWithInnerTriangleGraph C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                    emb.faces emb.faceBoundary) := by
+  have hcurrent :
+      ∃ data : PlanarBoundaryAnnulusCurrentBoundaryData wheelWithInnerTriangleEmbedding,
+        data.numCollars = 1 ∧
+          data.toPlanarBoundaryAnnulusBoundaryData =
+            wheelWithInnerTriangleAnnulusBoundaryReachabilityData.toPlanarBoundaryAnnulusBoundaryData := by
+    let source : PlanarBoundaryClosedWalkAnnulusBoundarySource wheelWithInnerTriangleEmbedding :=
+      PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        wheelWithInnerTriangleAnnulusBoundaryReachabilityData
+        wheelWithInnerTriangleDartSuccessorCycleGeometry
+        wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+    rcases exists_oneCollarAnnulusCurrentBoundaryData_of_closedWalkAnnulusBoundarySource source with
+      ⟨data, hnum, hboundary⟩
+    exact ⟨data, hnum, by
+      simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+        PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+        PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+        hboundary⟩
+  exact
+    ⟨wheelWithInnerTriangleEmbedding,
+      wheelWithInnerTriangleAnnulusBoundaryReachabilityData,
+      wheelWithInnerTriangleDartSuccessorCycleGeometry,
+      wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace,
+      hcurrent,
+      wheelWithInnerTriangleTaitEdgeColoring,
+      wheelWithInnerTriangleTaitEdgeColoring_isTait,
+      hasUnblockedInteriorEndpoint_wheelWithInnerTriangle,
+      red, blue,
+      (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1),
+      nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary,
+      not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness⟩
+
+/-- The endpoint-bearing route-facing exact-v23 one-collar shell likewise does not generically
+force generic IDBRAD. -/
+theorem
+    not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle
+    :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary wheelWithInnerTriangleGraph,
+        ∀ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) →
+          (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+            data.numCollars = 1 ∧
+              data.toPlanarBoundaryAnnulusBoundaryData =
+                boundaryData.toPlanarBoundaryAnnulusBoundaryData) →
+          ∀ C : wheelWithInnerTriangleGraph.EdgeColoring Color,
+            IsTaitEdgeColoring wheelWithInnerTriangleGraph C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset wheelWithInnerTriangleGraph.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                        emb.faces emb.faceBoundary) := by
+  intro h
+  have hcurrent :
+      ∃ data : PlanarBoundaryAnnulusCurrentBoundaryData wheelWithInnerTriangleEmbedding,
+        data.numCollars = 1 ∧
+          data.toPlanarBoundaryAnnulusBoundaryData =
+            wheelWithInnerTriangleAnnulusBoundaryReachabilityData.toPlanarBoundaryAnnulusBoundaryData := by
+    let source : PlanarBoundaryClosedWalkAnnulusBoundarySource wheelWithInnerTriangleEmbedding :=
+      PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+        wheelWithInnerTriangleAnnulusBoundaryReachabilityData
+        wheelWithInnerTriangleDartSuccessorCycleGeometry
+        wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+    rcases exists_oneCollarAnnulusCurrentBoundaryData_of_closedWalkAnnulusBoundarySource source with
+      ⟨data, hnum, hboundary⟩
+    exact ⟨data, hnum, by
+      simpa [source, PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields,
+        PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
+        PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
+        hboundary⟩
+  exact
+    not_nonempty_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle_via_forcingInteriorEdgeWitness
+      (h wheelWithInnerTriangleEmbedding
+        wheelWithInnerTriangleAnnulusBoundaryReachabilityData
+        wheelWithInnerTriangleDartSuccessorCycleGeometry
+        wheelWithInnerTriangleDartSuccessorCycleGeometry_selectedBoundaryArcOnFace
+        hcurrent
+        wheelWithInnerTriangleTaitEdgeColoring
+        wheelWithInnerTriangleTaitEdgeColoring_isTait
+        hasUnblockedInteriorEndpoint_wheelWithInnerTriangle
+        red blue
+        (wheelWithInnerTriangleEmbedding.faceBoundary wheelFace0.1)
+        nonempty_wheelWithInnerTriangle_v23ResidualBoundaryInitialState_wheelFace0Boundary)
+
+/-- Any explicit same-embedding witness of the endpoint-bearing exact one-collar/v23
+successor-cycle shell together with failure of generic IDBRAD already refutes a universal
+derivation of that interior-dual distance-peel burden. -/
+theorem
+    not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState
+    {V : Type*} [DecidableEq V] {G : SimpleGraph V}
+    (hWitness : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+          data.numCollars = 1 ∧
+            data.toPlanarBoundaryAnnulusBoundaryData =
+              boundaryData.toPlanarBoundaryAnnulusBoundaryData) ∧
+        ∃ C : G.EdgeColoring Color,
+          IsTaitEdgeColoring G C ∧
+            HasUnblockedInteriorEndpoint emb ∧
+            ∃ a b : Color,
+              ∃ faceBoundary : Finset G.edgeSet,
+                Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) ∧
+                  ¬ Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                    emb.faces emb.faceBoundary)) :
+    ¬ ∀ emb : PlaneEmbeddingWithBoundary G,
+        ∀ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∀ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) →
+          (∃ data : PlanarBoundaryAnnulusCurrentBoundaryData emb,
+            data.numCollars = 1 ∧
+              data.toPlanarBoundaryAnnulusBoundaryData =
+                boundaryData.toPlanarBoundaryAnnulusBoundaryData) →
+          ∀ C : G.EdgeColoring Color,
+            IsTaitEdgeColoring G C →
+              HasUnblockedInteriorEndpoint emb →
+                ∀ a b : Color,
+                  ∀ faceBoundary : Finset G.edgeSet,
+                    Nonempty (V23ResidualBoundaryInitialState C a b faceBoundary) →
+                      Nonempty (InteriorDualBoundaryRootAdjDistancePeelData
+                        emb.faces emb.faceBoundary) := by
+  intro h
+  rcases hWitness with
+    ⟨emb, boundaryData, dartCycles, hboundaryArc, hcurrent, C, hC, hEndpoint, a, b, faceBoundary,
+      hv23, hNotIdbrad⟩
+  exact hNotIdbrad (h emb boundaryData dartCycles hboundaryArc hcurrent C hC hEndpoint a b faceBoundary hv23)
 
 /-- Exact-shell local-cardinality strengthening of the wheel separation theorem: the graph still
 admits the theorem-4.9 endpoint for the explicit Tait coloring on some embedding, while the

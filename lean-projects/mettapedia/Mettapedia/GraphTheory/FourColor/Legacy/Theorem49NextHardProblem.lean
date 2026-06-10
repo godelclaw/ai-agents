@@ -1,5 +1,5 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49StrengthenedConditionAtMostOneDerivation
-import Mettapedia.GraphTheory.FourColor.Theorem49DerivationImpossibilitySummary
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49DerivationImpossibilitySummary
 
 /-!
 # Next hard problem for Theorem 4.9 route

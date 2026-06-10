@@ -119,6 +119,18 @@ theorem PlanarBoundaryFaceBoundaryRunGeometry.boundarySelectedBoundaryArcOnFace
   rcases harc f with ⟨selectedRun, hinfix, hselected⟩
   exact ⟨geom.faceBoundaryRun f, selectedRun, hinfix, hselected⟩
 
+theorem
+    nonempty_planarBoundarySelectedBoundaryArcGeometry_iff_exists_planarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G} :
+    Nonempty (PlanarBoundarySelectedBoundaryArcGeometry emb) ↔
+      ∃ geom : PlanarBoundaryFaceBoundaryRunGeometry emb,
+        ∀ f : AmbientFace emb.faces, geom.SelectedBoundaryArcOnFace f := by
+  constructor
+  · rintro ⟨geom⟩
+    exact ⟨geom.toFaceBoundaryRunGeometry, geom.selectedBoundaryArc⟩
+  · rintro ⟨geom, harc⟩
+    exact ⟨geom.toSelectedBoundaryArcGeometry harc⟩
+
 theorem admitsPlanarBoundaryFaceBoundaryRunGeometry_of_admitsPlanarBoundarySelectedBoundaryArcGeometry
     {G : SimpleGraph V}
     (hG : AdmitsPlanarBoundarySelectedBoundaryArcGeometry G) :
@@ -141,5 +153,16 @@ theorem
     AdmitsPlanarBoundarySelectedBoundaryArcGeometry G := by
   rcases hG with ⟨emb, geom, harc⟩
   exact ⟨emb, ⟨geom.toSelectedBoundaryArcGeometry harc⟩⟩
+
+theorem
+    admitsPlanarBoundarySelectedBoundaryArcGeometry_iff_admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace
+    {G : SimpleGraph V} :
+    AdmitsPlanarBoundarySelectedBoundaryArcGeometry G ↔
+      AdmitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace G := by
+  constructor
+  · exact
+      admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_of_admitsPlanarBoundarySelectedBoundaryArcGeometry
+  · exact
+      admitsPlanarBoundarySelectedBoundaryArcGeometry_of_admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace
 
 end Mettapedia.GraphTheory.FourColor

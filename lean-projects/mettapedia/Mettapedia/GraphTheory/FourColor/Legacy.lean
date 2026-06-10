@@ -1,0 +1,28 @@
+/-
+# FourColor Legacy ledger umbrella
+
+Historical obstruction/regression ledger for the Theorem 4.9 route audit.
+Everything here remains fully verified, but the *maximal* results are
+re-exported in compact bundled form by `Mettapedia.GraphTheory.FourColor.Frontier`;
+new work should build against `Frontier`/`Shells`, not against these files.
+See `Mettapedia/GraphTheory/FourColor/ROADMAP.md`.
+-/
+import Mettapedia.GraphTheory.FourColor.Legacy.FaceIncidenceRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.GoertzelLemma43Obstruction
+import Mettapedia.GraphTheory.FourColor.Legacy.OrthogonalityRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.PlanarBoundaryFaceBoundaryRunRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ClosedWalkOuterRootObstruction
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49DerivationImpossibilitySummary
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ForcingInteriorEdgeObstructionRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ForestRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49NextHardProblem
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49NextHardProblemSummary
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusConstructionOrientationObstruction
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusRootInteriorDualObstructionRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusRootInteriorDualPositiveRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PositiveGeometricSourceRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PositiveGeometricSourceReplacementJointObstruction
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PositiveGeometricSourceReplacementRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ResidualBoundaryObstruction
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ResidualBoundaryPositiveRegression

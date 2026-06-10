@@ -31,6 +31,21 @@ now also shows that repaired previous-boundary witness geometry does not imply
 the interior-dual root-distance package.
 \end{abstract}
 
+\paragraph{Repository reorganization (2026-06-10).}
+The Lean tree now has a compact live surface on top of this material:
+\path{Goal.lean} states the manuscript-shaped target
+(\path{Theorem49ShellClaim}), reduces it to four uniform geometric oracles
+(previous-boundary witness geometry, well-founded peel data, generic IDBRAD,
+and the v23.5 residual/current-boundary wrapper), and proves all four oracles
+false; \path{Shells.lean} bundles the recurring
+hypothesis telescopes (\path{ClosedWalkExactShell},
+\path{SuccessorCycleExactShell}); \path{Frontier.lean} restates the maximal
+positive and negative results over those bundles.  The historical obstruction
+ledger (19 leaf files, including the regressions cited throughout this note)
+moved to \path{Mettapedia/GraphTheory/FourColor/Legacy/} with declaration
+names unchanged.  See \path{Mettapedia/GraphTheory/FourColor/ROADMAP.md} for
+the current entry point and the live dichotomy.
+
 \section{Current source interfaces}
 
 The development now distinguishes ten source-facing or immediately derived
@@ -2215,6 +2230,19 @@ current-boundary witness placement, the well-founded peel witness surface.  So
 the remaining live route burden is cleanly geometric: derive same-embedding
 annulus collar geometry from honest source hypotheses, and add the repaired
 witness placement only if one wants the well-founded lane;
+\item the same route file now also treats the bundled repaired annulus shell as
+its own first-class boundary-order interface.  The closed-walk theorems
+\path{admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct},
+\path{zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct_of_annihilatesKempeClosureGeneratorFamily},
+and
+\path{exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct},
+together with their successor-cycle analogues, now export
+\path{PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry} directly to the
+well-founded peel witness surface, the Step~2 annihilator endpoint, and full
+Theorem~4.9 synthesis.  So once boundary-order work has already built the
+repaired previous-boundary witness geometry on one embedding, there is no
+further collar-geometry-plus-side-condition repackaging below these current
+downstream theorem surfaces;
 \item Lean now isolates one explicit sufficient criterion for that first
 geometric step on the canonical one-collar route.
 \path{Theorem49PlanarBoundaryAnnulusWitness.lean} defines
@@ -4048,8 +4076,26 @@ one-collar/v23
 successor-cycle example with a real Tait coloring and nonempty
 \path{V23ResidualBoundaryInitialState}, but without facewise at-most-one
 interior-edge cardinality, already refutes a universal derivation of that
-local-cardinality burden,
-embedding.  The same local-cardinality lane now also retains that explicit
+local-cardinality burden.  The same endpoint-bearing exact shell is still below
+the generic interior-dual root-distance layer itself:
+\path{exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle},
+\path{not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle},
+\path{exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState_without_interiorDualBoundaryRootAdjDistancePeelData_wheelWithInnerTriangle},
+and
+\path{not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_v23ResidualBoundaryInitialState_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_wheelWithInnerTriangle}.
+\path{not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_exists_embedding_closedWalkAnnulusBoundarySource_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState}
+and
+\path{not_forall_nonempty_interiorDualBoundaryRootAdjDistancePeelData_of_exists_embedding_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCurrentBoundaryData_and_taitEdgeColoring_and_hasUnblockedInteriorEndpoint_and_v23ResidualBoundaryInitialState}
+then lift the same exact-shell IDBRAD failure to reusable witness-based
+converses.  So even exact one-collar current-boundary data, a real Tait
+coloring, the local unblocked endpoint witness, and a nonempty exact v23
+residual seed still do not force generic
+\path{InteriorDualBoundaryRootAdjDistancePeelData} on either live source
+presentation.
+Any surviving repair on this branch must
+therefore add real same-embedding geometry stronger than the current exact
+shell before it can even enter the generic interior-dual distance-peel layer.
+The same local-cardinality lane now also retains that explicit
 local two-interior-edge burden at graph-vs-fixed-embedding level through
 \path{wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace},
 \path{wheelWithInnerTriangleGraph_explicitTait_graphLevelSynthesis_with_fixedEmbedding_and_closedWalkSource_and_twoDistinctInteriorEdgesOnFaceBoundary_without_atMostOneInteriorEdgePerFace},
@@ -4813,8 +4859,12 @@ uses the fact that a one-collar geometry has no positive collar index, and
 \path{admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct}
 applies that repair to the honest-source cardinal criterion without fallback or
 boundary-rest assumptions.  Thus the local at-most-one package reaches the
-corrected previous-boundary, height-ordered, and collar-layer witness surfaces
-without another geometric placement hypothesis.
+corrected previous-boundary, well-founded, height-ordered, and collar-layer
+witness surfaces without another geometric placement hypothesis.  The direct
+well-founded export is
+\path{admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct},
+so on the honest-source branch the acyclic peel-witness surface is now named
+explicitly before any later height or finite-collar repackaging.
 The same repaired landing is now available directly from the canonical witness
 choice surface:
 \path{PlanarBoundaryCanonicalWitnessChoice.toPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry}
@@ -4922,6 +4972,11 @@ The facewise at-most-one successor-cycle endpoints are
 \path{exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct}
 and
 \path{exists_theorem49BoundaryRootNonemptySynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_with_nonempty_selectedBoundaryInteriorEdgeEndpointVertices_direct}.
+The same live successor-cycle facewise-at-most-one shell now also has the
+intermediate repaired and acyclic route surfaces named directly:
+\path{admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct}
+and
+\path{admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct}.
 These theorems close the packaging gap between the boundary-order source data
 used upstream and the current theorem-4.9 synthesis API, while leaving the
 genuine geometric burden exactly at canonical choice, facewise at-most-one, or

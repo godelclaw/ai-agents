@@ -202,6 +202,19 @@ theorem
     admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_planarBoundaryAnnulusCollarGeometry_and_witnessOnCurrentBoundary
       ⟨emb, data, hdata⟩
 
+/-- The honest closed-walk source shell also reaches the repaired well-founded peel-witness
+surface directly once the same embedding already carries the bundled previous-boundary witness
+geometry. This packages the missing seam as data rather than as a separate side condition. -/
+theorem
+    admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) ∧
+        Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)) :
+    AdmitsPlanarBoundaryWellFoundedFacePeelWitnessData G := by
+  rcases hG with ⟨emb, _, ⟨data⟩⟩
+  exact ⟨emb, ⟨data.toPlanarBoundaryWellFoundedFacePeelWitnessData⟩⟩
+
 /-- Ground-up annulus annihilator route from the honest closed-walk source together with a
 same-embedding weak annulus collar geometry. This bypasses the interior-dual package entirely:
 once the explicit annulus geometry itself is available on the source embedding, the direct
@@ -220,6 +233,32 @@ theorem
   rcases hdata with ⟨emb, _source, data, hzeroBoundary, hgen⟩
   exact
     zero_on_allEdges_of_planarBoundaryAnnulusCollarGeometry
+      (emb := emb) (C := C) (htait := htait) (z := z) (data := data)
+      (hzeroBoundary := hzeroBoundary) (horth := by
+        intro i f hf γ hγ0 hγne
+        simpa using
+          localOrthogonality_of_annihilatesKempeClosureGeneratorFamily
+            (faceBoundary := emb.faceBoundary) (hC := hC) hgen
+            (f := f.1) (e := data.witnessEdge f) (htait (data.witnessEdge f))
+            γ hγ0 hγne)
+
+/-- Ground-up annulus annihilator route from the honest closed-walk source together with the
+repaired previous-boundary witness geometry. This is the exact repaired annulus shell: no
+separate witness-placement side condition or later witness-cover lowering remains. -/
+theorem
+    zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct_of_annihilatesKempeClosureGeneratorFamily
+    {G : SimpleGraph V}
+    (C₀ C : G.EdgeColoring Color) (htait : IsTaitEdgeColoring G C)
+    (hC : C ∈ G.EdgeKempeClosure C₀) (z : G.edgeSet → Color)
+    (hdata : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _ : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _ : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (∀ e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces, z e = 0) ∧
+        AnnihilatesKempeClosureGeneratorFamily emb.faceBoundary C₀ z) :
+    ∀ e, z e = 0 := by
+  rcases hdata with ⟨emb, _source, data, hzeroBoundary, hgen⟩
+  exact
+    zero_on_allEdges_of_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry
       (emb := emb) (C := C) (htait := htait) (z := z) (data := data)
       (hzeroBoundary := hzeroBoundary) (horth := by
         intro i f hf γ hγ0 hγne
@@ -299,6 +338,24 @@ theorem
   rcases hG with ⟨emb, ⟨_source⟩, ⟨data⟩⟩
   exact ⟨emb,
     theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusCollarGeometry
+      (G := G) data C₀ hC₀⟩
+
+/-- Direct theorem-4.9 synthesis endpoint from the honest closed-walk annulus-boundary source
+plus the repaired previous-boundary witness geometry on the same embedding. This is the exact
+repaired annulus shell before any later certificate or witness-cover lowering. -/
+theorem
+    exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      Nonempty (PlanarBoundaryClosedWalkAnnulusBoundarySource emb) ∧
+        Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb))
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C₀ := by
+  rcases hG with ⟨emb, ⟨_source⟩, ⟨data⟩⟩
+  exact ⟨emb,
+    theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry
       (G := G) data C₀ hC₀⟩
 
 /-- Direct theorem-4.9 synthesis endpoint from the honest closed-walk annulus-boundary source
@@ -765,6 +822,23 @@ theorem
       ⟨choice.toPlanarBoundaryAnnulusCollarGeometry
         |>.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one
           choice.toPlanarBoundaryAnnulusCollarGeometry_numCollars⟩⟩
+
+/-- The honest-source facewise cardinal at-most-one route now reaches the repaired acyclic
+well-founded peel-witness surface directly. The one-collar repaired annulus geometry built from
+the source closes the parent-peeling interface before any later height or collar repackaging. -/
+theorem
+    admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+        ∀ f : AmbientFace emb.faces,
+          ((emb.faceBoundary f.1).filter
+              (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+            (1 : ℕ)) :
+    AdmitsPlanarBoundaryWellFoundedFacePeelWitnessData G :=
+  admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry
+    (admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct
+      hG)
 
 /-- Height-ordered witness data follows from the at-most-one honest-source criterion through the
 repaired one-collar annulus surface. -/
@@ -2836,6 +2910,28 @@ theorem
     admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_and_witnessOnCurrentBoundary_direct
       ⟨emb, ⟨source⟩, data, hwitness⟩
 
+/-- The successor-cycle source shell also reaches the repaired well-founded peel-witness
+surface as soon as the same embedding already carries the bundled previous-boundary witness
+geometry. The successor data are used only to recover the honest closed-walk source shell. -/
+theorem
+    admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_direct
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _ : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _ : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        ∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) :
+    AdmitsPlanarBoundaryWellFoundedFacePeelWitnessData G := by
+  rcases hG with ⟨emb, boundaryData, dartCycles, data, hboundaryArc⟩
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct
+      ⟨emb, ⟨source⟩, ⟨data⟩⟩
+
 /-- Ground-up annulus annihilator route from the successor-cycle source shell. The successor data
 first yields the honest closed-walk annulus-boundary source on the same embedding, and the
 same-embedding weak annulus collar geometry then feeds the direct annulus-collar annihilator
@@ -2861,6 +2957,33 @@ theorem
       boundaryData dartCycles hboundaryArc
   exact
     zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_annulusCollarGeometry_direct_of_annihilatesKempeClosureGeneratorFamily
+      (C₀ := C₀) (C := C) (htait := htait) (hC := hC) (z := z)
+      ⟨emb, source, data, hzeroBoundary, hgen⟩
+
+/-- Ground-up annulus annihilator route from the successor-cycle source shell plus the repaired
+previous-boundary witness geometry. This exposes the exact repaired annulus shell directly on
+the boundary-order source presentation. -/
+theorem
+    zero_on_allEdges_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_direct_of_annihilatesKempeClosureGeneratorFamily
+    {G : SimpleGraph V}
+    (C₀ C : G.EdgeColoring Color) (htait : IsTaitEdgeColoring G C)
+    (hC : C ∈ G.EdgeKempeClosure C₀) (z : G.edgeSet → Color)
+    (hdata : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _ : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _ : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+        (∀ e ∈ selectedBoundarySupport emb.faceBoundary emb.faces emb.faces, z e = 0) ∧
+        AnnihilatesKempeClosureGeneratorFamily emb.faceBoundary C₀ z) :
+    ∀ e, z e = 0 := by
+  rcases hdata with ⟨emb, boundaryData, dartCycles, data, hboundaryArc, hzeroBoundary, hgen⟩
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    zero_on_allEdges_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct_of_annihilatesKempeClosureGeneratorFamily
       (C₀ := C₀) (C := C) (htait := htait) (hC := hC) (z := z)
       ⟨emb, source, data, hzeroBoundary, hgen⟩
 
@@ -2941,6 +3064,31 @@ theorem
   exact ⟨emb,
     theorem49BoundaryRootSynthesis_of_planarBoundaryAnnulusCollarGeometry
       (G := G) data C₀ hC₀⟩
+
+/-- Direct theorem-4.9 synthesis endpoint from the successor-cycle source shell plus the
+repaired previous-boundary witness geometry on the same embedding. This exposes the exact
+repaired annulus shell directly on the boundary-order source presentation. -/
+theorem
+    exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_direct
+    {G : SimpleGraph V}
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _ : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _ : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        ∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (C₀ : G.EdgeColoring Color) (hC₀ : IsTaitEdgeColoring G C₀) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C₀ := by
+  rcases hG with ⟨emb, boundaryData, dartCycles, data, hboundaryArc⟩
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_direct
+      (G := G) ⟨emb, ⟨source⟩, ⟨data⟩⟩ C₀ hC₀
 
 /-- Direct theorem-4.9 synthesis endpoint from the successor-cycle source shell plus same-
 embedding boundary-aware height-ordered witness-cover data. After lowering successor cycles to
@@ -3197,6 +3345,51 @@ theorem
   exact
     admitsPlanarBoundaryAnnulusWitnessAssignment_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct
       ⟨emb, source, hAtMost⟩
+
+/-- The live successor-cycle boundary-order shell now reaches the repaired previous-boundary
+witness surface directly from the facewise cardinal at-most-one criterion. The successor data are
+used only to recover the honest closed-walk source on the same embedding. -/
+theorem
+    admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          ∀ f : AmbientFace emb.faces,
+            ((emb.faceBoundary f.1).filter
+                (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+              (1 : ℕ)) :
+    AdmitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry G := by
+  rcases hG with ⟨emb, boundaryData, dartCycles, hboundaryArc, hAtMost⟩
+  let source :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge_direct
+      ⟨emb, source, hAtMost⟩
+
+/-- The live successor-cycle boundary-order shell also reaches the repaired acyclic
+well-founded peel-witness surface directly from the facewise cardinal at-most-one criterion. -/
+theorem
+    admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct
+    {G : SimpleGraph V}
+    (hG : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          ∀ f : AmbientFace emb.faces,
+            ((emb.faceBoundary f.1).filter
+                (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+              (1 : ℕ)) :
+    AdmitsPlanarBoundaryWellFoundedFacePeelWitnessData G :=
+  admitsPlanarBoundaryWellFoundedFacePeelWitnessData_of_admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry
+    (admitsPlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge_direct
+      hG)
 
 /-- Non-vacuous theorem-4.9 synthesis from the route-facing successor-cycle source shell with the
 local at-most-one criterion.  The extra hypothesis is exactly nonemptiness of the purified

@@ -375,6 +375,21 @@ theorem
           exact Exists.intro emb
             (Nonempty.intro source.toPlanarBoundaryCyclicOrderedFaceArcEmbeddingData)
 
+/-- Consequently, the explicit closed-walk annulus source also lowers to the split
+face-boundary-run plus selected-boundary-arc interface. -/
+theorem
+    admitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace_of_admitsPlanarBoundaryClosedWalkAnnulusBoundarySource
+    {G : SimpleGraph V}
+    (hG : AdmitsPlanarBoundaryClosedWalkAnnulusBoundarySource G) :
+    AdmitsPlanarBoundaryFaceBoundaryRunGeometryAndSelectedBoundaryArcOnFace G := by
+  cases hG with
+  | intro emb hsource =>
+      cases hsource with
+      | intro source =>
+          exact Exists.intro emb <|
+            Exists.intro source.closedWalks.toPlanarBoundaryFaceBoundaryRunGeometry
+              source.selectedBoundaryArc
+
 /-- Consequently, the explicit closed-walk annulus source also lowers to the still weaker
 selected-boundary arc shell. -/
 theorem

@@ -4876,6 +4876,58 @@ File & Role \\
 \bottomrule
 \end{tabular}
 
+\section{Update (2026-06-10): uniform-oracle refutations and the restructured frontier}
+
+The Lean tree was restructured to expose the audit's conclusion as a small
+formal surface.  Three new files sit on top of the development:
+\path{Goal.lean} (the target and the oracle reductions/refutations below),
+\path{Shells.lean} (bundled hypothesis shells \path{ClosedWalkExactShell} and
+\path{SuccessorCycleExactShell} replacing the historical 8--10-hypothesis
+telescopes), and \path{Frontier.lean} (the maximal positive and negative
+results restated over the bundles).  The historical obstruction ledger (19
+leaf files) moved to \path{Mettapedia/GraphTheory/FourColor/Legacy/} with
+declaration names unchanged; \path{ROADMAP.md} is the new entry point.
+
+The substantive sharpening over the April threshold assessment is this.
+\path{Goal.lean} defines the manuscript-shaped target
+\path{Theorem49ShellClaim} --- full \path{Theorem49BoundaryRootSynthesis} on
+every embedding carrying the endpoint-bearing exact one-collar/v23 shell ---
+and proves it would follow from any of four uniform geometric oracles:
+repaired previous-boundary witness geometry
+(\path{PreviousBoundaryGeometryOracle}), explicit well-founded peel-witness
+data (\path{WellFoundedPeelOracle}), generic interior-dual root-distance peel
+data (\path{InteriorDualPeelOracle}), or the v23.5 residual/current-boundary
+positive wrapper (\path{ResidualBoundaryGeometryOracle}).  All four uniform
+oracles are now \emph{proved false}
+(\path{not_previousBoundaryGeometryOracle},
+\path{not_wellFoundedPeelOracle}, \path{not_interiorDualPeelOracle},
+\path{not_residualBoundaryGeometryOracle}): the wheel-with-inner-triangle and
+shared-interior-pair benchmarks inhabit the full shells while refuting each
+geometric layer.
+
+The fourth refutation is the formal verdict on the v23.5 revision memo's
+repair recommendation.  The memo's residual/current-boundary lane, as
+currently specified, is conservative: Lean proves its positive wrapper
+fixed-embedding equivalent to the collar-layer surface
+(\path{theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn}),
+so it inherits the shared-interior-pair refutation verbatim.  The memo's
+``algebraic cancellation certificate'' obligation therefore cannot be
+discharged by any interface equivalent to the existing geometry ladders; a
+surviving v23.5 route must introduce a genuinely new interface, and that
+interface must provably fail on the benchmarks, since they inhabit the shells.
+
+What remains open is a clean dichotomy, recorded in \path{ROADMAP.md}: either
+construct one of the oracle inputs from natural hypotheses the benchmarks do
+not satisfy (candidates should be benchmark-checked before any route surface
+is built), or decide \path{Theorem49BoundaryRootSynthesis} directly on the
+shell-bearing \path{wheelWithInnerTriangleEmbedding}.  The latter appears
+undecided: the ledger proves the synthesis on a degenerate wheel embedding
+only, and every wheel refutation concerns intermediate geometry layers rather
+than the synthesis endpoint itself.  If the endpoint fails there,
+\path{Theorem49ShellClaim} --- and with it the manuscript's Theorem~4.9 as
+stated over its own hypothesis shells --- is refuted by an explicit
+counterexample.
+
 \section{Conclusion}
 
 The Lean development is currently more valuable as a route-auditing tool than as

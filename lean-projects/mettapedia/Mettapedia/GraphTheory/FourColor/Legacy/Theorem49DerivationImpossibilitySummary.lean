@@ -1,7 +1,7 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49CyclicSourceAtMostOneDerivation
 import Mettapedia.GraphTheory.FourColor.Theorem49AtMostOneNonemptyCarrierImpossibility
 import Mettapedia.GraphTheory.FourColor.Theorem49StrengthenedConditionAtMostOneDerivation
-import Mettapedia.GraphTheory.FourColor.Theorem49ForcingInteriorEdgeObstructionRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49ForcingInteriorEdgeObstructionRegression
 
 /-!
 # Theorem 4.9 derivation impossibility: summary

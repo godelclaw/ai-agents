@@ -1,5 +1,5 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49ResidualBoundaryRoute
-import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacementRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PositiveGeometricSourceReplacementRegression
 import Mettapedia.GraphTheory.FourColor.Theorem49ForcingInteriorEdgeObstruction
 
 namespace Mettapedia.GraphTheory.FourColor

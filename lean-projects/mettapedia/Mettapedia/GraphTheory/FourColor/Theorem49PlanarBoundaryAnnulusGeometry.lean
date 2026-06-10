@@ -651,6 +651,38 @@ theorem
     ⟨currentData, hcurrentNum, hcurrentBoundary⟩
   exact ⟨currentData, hcurrentNum, hcurrentBoundary.trans hboundary⟩
 
+/-- Any fixed one-collar annulus collar geometry already inhabits the repaired
+previous-boundary witness surface on the same embedding.  In the one-collar case the repaired
+positive-collar witness condition is vacuous. -/
+theorem
+    nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_oneCollarAnnulusCollarGeometry
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (data : PlanarBoundaryAnnulusCollarGeometry emb)
+    (hnum : data.numCollars = 1) :
+    Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb) := by
+  exact ⟨data.toPreviousBoundaryWitnessGeometry_of_numCollars_eq_one hnum⟩
+
+/-- Fixed-embedding honest-source cardinal route to the repaired previous-boundary witness
+surface.  Once the source and the facewise cardinal at-most-one criterion build same-embedding
+one-collar annulus collar geometry, the repaired witness placement obligation disappears. -/
+theorem
+    nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (h_at_most_one_interior :
+      ∀ f : AmbientFace emb.faces,
+        ((emb.faceBoundary f.1).filter
+            (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+          (1 : ℕ)) :
+    Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb) := by
+  rcases
+    exists_oneCollarAnnulusCollarGeometry_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge
+      source h_at_most_one_interior with
+    ⟨data, hnum, _hboundary⟩
+  exact
+    nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_oneCollarAnnulusCollarGeometry
+      data hnum
+
 /-- Graph-level honest-source cardinal version of the one-collar construction.  This is the
 source-facing geometric endpoint: an embedding carrying an honest closed-walk annulus-boundary
 source and the facewise cardinal at-most-one interior-edge bound carries a source-preserving
@@ -1528,6 +1560,91 @@ theorem
         PlanarBoundaryClosedWalkAnnulusBoundarySource.ofFields,
         PlanarBoundaryClosedWalkAnnulusBoundarySource.toPlanarBoundaryAnnulusBoundaryData] using
         hboundary⟩
+
+/-- Successor-cycle boundary-order source data with same-boundary one-collar annulus collar
+geometry already carries the repaired previous-boundary witness surface on that embedding.  The
+source-boundary equality is retained in the hypothesis for route traceability; the repaired
+geometry itself only uses the one-collar count. -/
+theorem
+    exists_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_oneCollarAnnulusCollarGeometry_with_sourceBoundaryData
+    {G : SimpleGraph V}
+    (hG :
+      ∃ emb : PlaneEmbeddingWithBoundary G,
+        ∃ boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+            ∃ data : PlanarBoundaryAnnulusCollarGeometry emb,
+              data.numCollars = 1 ∧
+                data.toPlanarBoundaryAnnulusDecomposition.toPlanarBoundaryAnnulusBoundaryData =
+                  boundaryData.toPlanarBoundaryAnnulusBoundaryData) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb) := by
+  rcases hG with ⟨emb, boundaryData, dartCycles, hboundaryArc, data, hnum, _hboundary⟩
+  exact
+    ⟨emb, boundaryData, dartCycles, hboundaryArc,
+      nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_oneCollarAnnulusCollarGeometry
+        data hnum⟩
+
+/-- Fixed-embedding successor-cycle boundary-order route to the repaired previous-boundary
+witness surface.  The live `v23/v23.5` facewise cardinal at-most-one criterion already builds a
+same-embedding one-collar geometry, so the repaired witness condition is automatic there. -/
+theorem
+    nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (hboundaryArc : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (h_at_most_one_interior :
+      ∀ f : AmbientFace emb.faces,
+        ((emb.faceBoundary f.1).filter
+            (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+          (1 : ℕ)) :
+    Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb) := by
+  let source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb :=
+    PlanarBoundaryClosedWalkAnnulusBoundarySource.ofDartSuccessorCycleFields
+      boundaryData dartCycles hboundaryArc
+  exact
+    nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_closedWalkAnnulusBoundarySource_and_facewiseAtMostOneInteriorEdge
+      source h_at_most_one_interior
+
+/-- Graph-level successor-cycle boundary-order cardinal route to the repaired previous-boundary
+witness surface.  This is the direct geometry endpoint for the live exact shell before any
+well-founded parent-peeling or algebraic synthesis step. -/
+theorem
+    exists_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdgeCardinality
+    {G : SimpleGraph V}
+    (hG :
+      ∃ emb : PlaneEmbeddingWithBoundary G,
+        ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+        ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+          (∀ f : AmbientFace emb.faces,
+            (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+              |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+            ∀ f : AmbientFace emb.faces,
+              ((emb.faceBoundary f.1).filter
+                  (· ∈ interiorEdgeSupport emb.faceBoundary emb.faces)).card ≤
+                (1 : ℕ)) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          Nonempty (PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb) := by
+  rcases hG with ⟨emb, boundaryData, dartCycles, hboundaryArc, h_at_most_one_interior⟩
+  exact
+    ⟨emb, boundaryData, dartCycles, hboundaryArc,
+      nonempty_planarBoundaryAnnulusPreviousBoundaryWitnessGeometry_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_facewiseAtMostOneInteriorEdge
+        boundaryData dartCycles hboundaryArc h_at_most_one_interior⟩
 
 /-- Any explicit same-embedding successor-dart source whose embedding carries no concrete annulus
 current-boundary data refutes a universal derivation theorem from those source fields to the

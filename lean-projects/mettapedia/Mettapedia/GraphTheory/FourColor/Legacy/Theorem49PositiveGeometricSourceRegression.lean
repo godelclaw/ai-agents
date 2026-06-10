@@ -1,5 +1,5 @@
 import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSource
-import Mettapedia.GraphTheory.FourColor.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
+import Mettapedia.GraphTheory.FourColor.Legacy.Theorem49PlanarBoundaryAnnulusWheelWitnessRegression
 
 /-!
 # Regression checks for positive geometric source packages

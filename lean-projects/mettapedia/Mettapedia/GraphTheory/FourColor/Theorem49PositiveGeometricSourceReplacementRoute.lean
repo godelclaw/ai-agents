@@ -211,6 +211,23 @@ theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoun
       C0 hC0
 
 /-- Honest closed-walk source data, repaired previous-boundary witness geometry, a local
+unblocked endpoint, and a Tait coloring already reach the full theorem-4.9 synthesis endpoint on
+the same embedding. -/
+theorem theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootSynthesis_of_closedWalkAnnulusCollarPositiveProjectedGeometryOn
+      (theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometryOn_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        source data hEndpoint)
+      C0 hC0
+
+/-- Honest closed-walk source data, repaired previous-boundary witness geometry, a local
 unblocked endpoint, and a Tait coloring also reach the route-facing raw Definition 4.8
 quotient/error package for every Kirchhoff chain on the same embedding. -/
 theorem theorem49BoundaryRawQuotientErrorPackage_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
@@ -6288,6 +6305,61 @@ theorem nonempty_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometry_of_ex
           (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
             emb).1 hEndpoint }⟩
 
+/-- Existential honest closed-walk source data plus same-embedding repaired previous-boundary
+witness geometry and a local unblocked endpoint package into the graph-level closed-walk
+replacement source. -/
+theorem nonempty_theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometry_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49ClosedWalkAnnulusCollarPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, source, data, hEndpoint⟩
+  exact
+    ⟨{ emb := emb,
+        source := source,
+        collar := data.toPlanarBoundaryAnnulusCollarGeometry,
+        carrier_nonempty :=
+          (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+            emb).1 hEndpoint }⟩
+
+/-- Existential honest closed-walk source data plus same-embedding repaired previous-boundary
+witness geometry and a local unblocked endpoint reach the current nonempty projected theorem-4.9
+synthesis endpoint. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, source, data, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        source data hEndpoint C0 hC0⟩
+
+/-- Existential honest closed-walk source data plus same-embedding repaired previous-boundary
+witness geometry and a local unblocked endpoint already reach the full theorem-4.9 synthesis
+endpoint. -/
+theorem exists_theorem49BoundaryRootSynthesis_of_exists_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _source : PlanarBoundaryClosedWalkAnnulusBoundarySource emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C0 := by
+  rcases h with ⟨emb, source, data, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootSynthesis_of_closedWalkAnnulusBoundarySource_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        source data hEndpoint C0 hC0⟩
+
 /-- Existential honest closed-walk source data plus same-embedding annulus collar geometry,
 endpoint-support separation, and a nonempty raw interior-edge endpoint carrier packages into the
 graph-level closed-walk replacement source. -/
@@ -6638,6 +6710,89 @@ theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and
     Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
   exact
     (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusCollarGeometry_and_hasUnblockedInteriorEndpoint
+      boundaryData dartCycles data hselected hEndpoint C0 hC0)
+      |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
+
+/-- Successor-cycle boundary-order source data, repaired previous-boundary witness geometry,
+selected-boundary arcs, and a local unblocked endpoint package the fixed-embedding route-facing
+replacement source. -/
+theorem theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb) :
+    Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn emb := by
+  exact
+    ⟨boundaryData, dartCycles, data.toPlanarBoundaryAnnulusCollarGeometry, hselected,
+      (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+        emb).1 hEndpoint⟩
+
+/-- Successor-cycle boundary-order source data, repaired previous-boundary witness geometry,
+selected-boundary arcs, a local unblocked endpoint, and a Tait coloring reach the nonempty
+projected theorem-4.9 synthesis endpoint directly. -/
+theorem theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootNonemptyProjectedSynthesis_of_successorCycleAnnulusCollarPositiveProjectedGeometryOn
+      (theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        boundaryData dartCycles data hselected hEndpoint)
+      C0 hC0
+
+/-- Successor-cycle boundary-order source data, repaired previous-boundary witness geometry,
+selected-boundary arcs, a local unblocked endpoint, and a Tait coloring already reach the full
+theorem-4.9 synthesis endpoint on the same embedding. -/
+theorem theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    Theorem49BoundaryRootSynthesis emb C0 := by
+  exact
+    theorem49BoundaryRootSynthesis_of_successorCycleAnnulusCollarPositiveProjectedGeometryOn
+      (theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometryOn_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        boundaryData dartCycles data hselected hEndpoint)
+      C0 hC0
+
+/-- Successor-cycle boundary-order source data, repaired previous-boundary witness geometry,
+selected-boundary arcs, a local unblocked endpoint, and a Tait coloring also reach the route-
+facing raw Definition 4.8 quotient/error package through the induced honest closed-walk source.
+-/
+theorem theorem49BoundaryRawQuotientErrorPackage_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb)
+    (dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb)
+    (data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb)
+    (hselected : ∀ f : AmbientFace emb.faces,
+      (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+        |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f)
+    (hEndpoint : HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0)
+    {x : G.edgeSet → Color}
+    (hx : x ∈ kirchhoffSubmodule G (selectedBoundaryInteriorEdgeEndpointVertices emb)) :
+    Theorem49BoundaryRawQuotientErrorPackage emb C0 x := by
+  exact
+    (theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
       boundaryData dartCycles data hselected hEndpoint C0 hC0)
       |>.rawKirchhoffRepresentative_and_boundaryKernelDecomposition hx
 
@@ -7207,6 +7362,75 @@ theorem nonempty_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometry_o
         carrier_nonempty :=
           (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
             emb).1 hEndpoint }⟩
+
+/-- Existential route-facing successor-cycle annulus data with same-embedding repaired
+previous-boundary witness geometry and a local unblocked endpoint package into the graph-level
+successor-cycle replacement source. -/
+theorem nonempty_theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometry_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+    {G : SimpleGraph V}
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb) :
+    Nonempty (Theorem49SuccessorCycleAnnulusCollarPositiveProjectedGeometry G) := by
+  rcases h with ⟨emb, boundaryData, dartCycles, data, hselected, hEndpoint⟩
+  exact
+    ⟨{ emb := emb,
+        boundaryData := boundaryData,
+        dartCycles := dartCycles,
+        collar := data.toPlanarBoundaryAnnulusCollarGeometry,
+        selectedBoundaryArc := hselected,
+        carrier_nonempty :=
+          (hasUnblockedInteriorEndpoint_iff_selectedBoundaryInteriorEdgeEndpointVertices_nonempty
+            emb).1 hEndpoint }⟩
+
+/-- Existential route-facing successor-cycle annulus data with same-embedding repaired
+previous-boundary witness geometry and a local unblocked endpoint reach the current nonempty
+projected theorem-4.9 synthesis endpoint. -/
+theorem exists_theorem49BoundaryRootNonemptyProjectedSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootNonemptyProjectedSynthesis emb C0 := by
+  rcases h with ⟨emb, boundaryData, dartCycles, data, hselected, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootNonemptyProjectedSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        boundaryData dartCycles data hselected hEndpoint C0 hC0⟩
+
+/-- Existential route-facing successor-cycle annulus data with same-embedding repaired
+previous-boundary witness geometry and a local unblocked endpoint already reach the full
+theorem-4.9 synthesis endpoint. -/
+theorem exists_theorem49BoundaryRootSynthesis_of_exists_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint_direct
+    {G : SimpleGraph V} [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    (h : ∃ emb : PlaneEmbeddingWithBoundary G,
+      ∃ _boundaryData : PlanarBoundaryAnnulusBoundaryReachabilityData emb,
+      ∃ dartCycles : PlanarBoundaryDartSuccessorCycleEmbeddingData emb,
+      ∃ _data : PlanarBoundaryAnnulusPreviousBoundaryWitnessGeometry emb,
+        (∀ f : AmbientFace emb.faces,
+          (dartCycles.toPlanarBoundaryClosedWalkEmbeddingData
+            |>.toPlanarBoundaryFaceBoundaryRunGeometry).SelectedBoundaryArcOnFace f) ∧
+          HasUnblockedInteriorEndpoint emb)
+    (C0 : G.EdgeColoring Color) (hC0 : IsTaitEdgeColoring G C0) :
+    ∃ emb : PlaneEmbeddingWithBoundary G,
+      Theorem49BoundaryRootSynthesis emb C0 := by
+  rcases h with ⟨emb, boundaryData, dartCycles, data, hselected, hEndpoint⟩
+  exact
+    ⟨emb,
+      theorem49BoundaryRootSynthesis_of_boundaryReachabilityData_and_dartSuccessorCycleEmbeddingData_and_selectedBoundaryArc_and_annulusPreviousBoundaryWitnessGeometry_and_hasUnblockedInteriorEndpoint
+        boundaryData dartCycles data hselected hEndpoint C0 hC0⟩
 
 /-- Existential route-facing successor-cycle annulus data with endpoint-support separation and a
 nonempty raw interior-edge endpoint carrier packages into the graph-level successor-cycle

@@ -215,4 +215,31 @@ Accordingly, this memo should be read as a repaired route document.  It states
 what survives, what fails, and what new Lean obligations would have to be
 discharged before any proof claim could responsibly be made.
 
+\section{Update (2026-06-10): the residual lane refuted as a uniform oracle}
+
+The conservativity observation above is now packaged as a formal refutation.
+\path{Mettapedia/GraphTheory/FourColor/Goal.lean} defines
+\path{ResidualBoundaryGeometryOracle} --- the statement that every embedding
+carrying the bundled endpoint-bearing exact one-collar/v23 shell
+(\path{ClosedWalkExactShell}, see \path{Shells.lean}) admits the residual
+positive wrapper --- and proves \path{not_residualBoundaryGeometryOracle}:
+the wrapper's fixed-embedding equivalence with the collar-layer surface
+transports the shared-interior-pair benchmark refutation directly.  The same
+file proves the analogous refutations for the previous-boundary witness
+geometry, well-founded peel-witness, and generic IDBRAD oracles, so all four
+uniform routes from the manuscript's hypothesis shells to its Theorem~4.9
+synthesis are now formally closed.
+
+Consequently the status of this memo's proposal is sharpened rather than
+changed: items (1), (2), (4), and (5) of the formal-obligations roadmap cannot
+succeed through any interface equivalent to the existing geometry ladders.
+The algebraic cancellation certificate (item 3) remains the sole live
+obligation, and it now carries a precise meta-constraint: whatever interface
+expresses it must fail on the wheel-with-inner-triangle and
+shared-interior-pair benchmarks, because those embeddings inhabit the full
+shells while the synthesis inputs are refuted there.  A complementary cheap
+experiment is recorded in \path{ROADMAP.md}: decide
+\path{Theorem49BoundaryRootSynthesis} directly on the shell-bearing wheel
+embedding, where it is currently neither proved nor refuted.
+
 \end{document}
