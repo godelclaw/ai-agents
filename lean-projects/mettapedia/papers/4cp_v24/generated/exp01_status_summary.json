@@ -1,0 +1,10 @@
+{
+  "diamond_explicit": true,
+  "shared_all_count": 72,
+  "shared_all_true_count": 72,
+  "shared_explicit": true,
+  "wheel_all_count": 36,
+  "wheel_all_true_count": 36,
+  "wheel_degenerate_explicit": true,
+  "wheel_explicit": true
+}

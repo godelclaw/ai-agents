@@ -43,4 +43,14 @@ theorem mem_edgeKempeClosure_of_mem_of_step {C₀ C : G.EdgeColoring α}
     C.swapOnKempeComponent a b K ∈ G.EdgeKempeClosure C₀ :=
   G.mem_edgeKempeClosure_of_step hC (G.edgeKempeStep_swapOnKempeComponent C a b K)
 
+theorem edgeKempeClosure_subset_of_mem {C₀ C₁ : G.EdgeColoring α}
+    (hC₁ : C₁ ∈ G.EdgeKempeClosure C₀) :
+    G.EdgeKempeClosure C₁ ⊆ G.EdgeKempeClosure C₀ :=
+  G.lineGraph.kempeClosure_subset_of_mem hC₁
+
+theorem edgeKempeClosure_eq_of_mem_of_mem {C₀ C₁ : G.EdgeColoring α}
+    (h₀₁ : C₁ ∈ G.EdgeKempeClosure C₀) (h₁₀ : C₀ ∈ G.EdgeKempeClosure C₁) :
+    G.EdgeKempeClosure C₀ = G.EdgeKempeClosure C₁ :=
+  G.lineGraph.kempeClosure_eq_of_mem_of_mem h₀₁ h₁₀
+
 end SimpleGraph

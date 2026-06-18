@@ -66,4 +66,20 @@ theorem mem_kempeClosure_of_mem_of_step {C₀ C : G.Coloring α}
     C.swapOnKempeComponent a b K ∈ G.KempeClosure C₀ :=
   mem_kempeClosure_of_step hC (G.kempeStep_swapOnKempeComponent C a b K)
 
+theorem kempeClosure_subset_of_mem {C₀ C₁ : G.Coloring α}
+    (hC₁ : C₁ ∈ G.KempeClosure C₀) :
+    G.KempeClosure C₁ ⊆ G.KempeClosure C₀ := by
+  intro C hC
+  exact Relation.ReflTransGen.trans hC₁ hC
+
+theorem kempeClosure_eq_of_mem_of_mem {C₀ C₁ : G.Coloring α}
+    (h₀₁ : C₁ ∈ G.KempeClosure C₀) (h₁₀ : C₀ ∈ G.KempeClosure C₁) :
+    G.KempeClosure C₀ = G.KempeClosure C₁ := by
+  ext C
+  constructor
+  · intro hC
+    exact G.kempeClosure_subset_of_mem h₁₀ hC
+  · intro hC
+    exact G.kempeClosure_subset_of_mem h₀₁ hC
+
 end SimpleGraph

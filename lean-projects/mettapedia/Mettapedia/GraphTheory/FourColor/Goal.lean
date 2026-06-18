@@ -24,18 +24,22 @@ Theorem 4.9 layer, where the audit located the load-bearing gap.
 embedding carrying the bundled exact shell.  It follows from any of four
 uniform geometric oracles (previous-boundary witness geometry, well-founded
 peel-witness data, interior-dual distance-peel data, or the v23.5
-residual/current-boundary positive wrapper) — and *all four uniform oracles
-are provably false*, by the benchmark embeddings that inhabit
-the shell while refuting the geometry.  The fourth refutation is the formal
-answer to the v23.5 revision memo: the residual lane's current positive
-wrapper is fixed-embedding equivalent to the collar-layer surface
+residual/current-boundary positive wrapper), or from non-geometric algebraic
+cancellation oracles stated either in the projected-generator detector form
+or in the more certificate-faithful direct kernel-check form exposed by the
+finite lab.  The four geometric oracles are all provably false, by the
+benchmark embeddings that inhabit the shell while refuting the geometry.  The
+fourth refutation is the formal answer to the v23.5 revision memo: the
+residual lane's current positive wrapper is fixed-embedding equivalent to the
+collar-layer surface
 (`theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn`),
 so it inherits the same benchmark refutation; the proposed repair is
-conservative, not a workaround.  So the manuscript route survives only
-if real same-embedding geometry, strictly stronger than everything the exact
-shell supplies, is constructed from hypotheses the benchmarks do not satisfy —
-or `Theorem49ShellClaim` itself is refuted on a shell-bearing embedding.
-That dichotomy is the open problem.  See `ROADMAP.md`.
+conservative, not a workaround.  So the manuscript route survives only if
+either real same-embedding geometry, strictly stronger than everything the
+exact shell supplies, is constructed from hypotheses the benchmarks do not
+satisfy; or a genuinely non-geometric shell-wise algebraic cancellation
+certificate is built uniformly from the exact shell; or `Theorem49ShellClaim`
+itself is refuted on a shell-bearing embedding.  See `ROADMAP.md`.
 -/
 
 namespace Mettapedia.GraphTheory.FourColor
@@ -91,6 +95,40 @@ def ResidualBoundaryGeometryOracle : Prop :=
     (emb : PlaneEmbeddingWithBoundary G), Nonempty (ClosedWalkExactShell emb) →
       Theorem49ResidualBoundaryPositiveProjectedGeometryOn emb
 
+/-- Uniform non-geometric candidate repair lane: every exact shell already
+supplies the projected-generator detector certificate suggested by the finite
+lab's explicit algebraic cancellation checks. -/
+def AlgebraicCancellationOracle : Prop :=
+  ∀ {W : Type} [DecidableEq W] {G : SimpleGraph W} [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (emb : PlaneEmbeddingWithBoundary G) (shell : ClosedWalkExactShell emb),
+      BoundaryZeroProjectedGeneratorDetector emb shell.tait.coloring
+
+/-- Weaker and more lab-faithful non-geometric candidate repair lane: every exact shell admits
+some explicit coloring family inside the shell Tait coloring's edge-Kempe closure that already
+detects every nonzero selected-boundary-zero chain. -/
+def AlgebraicNeighborhoodCancellationOracle : Prop :=
+  ∀ {W : Type} [DecidableEq W] {G : SimpleGraph W} [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (emb : PlaneEmbeddingWithBoundary G) (shell : ClosedWalkExactShell emb),
+      ∃ colorings : Set (G.EdgeColoring Color),
+        colorings ⊆ G.EdgeKempeClosure shell.tait.coloring ∧
+          BoundaryZeroProjectedColoringGeneratorDetector emb colorings
+
+/-- Direct kernel-check form of the same explicit-family repair lane: every exact shell admits an
+explicit Kempe-neighborhood family whose concrete family-evaluation pairing map has trivial
+kernel.  This matches the finite-lab certificate shape before upgrading it to the detector
+surface. -/
+def AlgebraicNeighborhoodPairingKernelOracle : Prop :=
+  ∀ {W : Type} [DecidableEq W] {G : SimpleGraph W} [Fintype G.edgeSet]
+    [FiniteDimensional F2 (G.edgeSet → Color)]
+    (emb : PlaneEmbeddingWithBoundary G) (shell : ClosedWalkExactShell emb),
+      ∃ colorings : Set (G.EdgeColoring Color),
+        colorings ⊆ G.EdgeKempeClosure shell.tait.coloring ∧
+          ∃ κ : Type,
+            ∃ family : κ → projectedColoringGeneratorSubspace emb colorings,
+              LinearMap.ker (planarBoundaryZeroFamilyPairingMap family) = ⊥
+
 /-! ## The claim follows from any uniform oracle -/
 
 theorem theorem49ShellClaim_of_previousBoundaryGeometryOracle
@@ -121,6 +159,37 @@ theorem theorem49ShellClaim_of_residualBoundaryGeometryOracle
       (theorem49ResidualBoundaryPositiveProjectedGeometryOn_iff_collarLayerPositiveProjectedGeometryOn.1
         (h emb ⟨shell⟩))
       shell.tait.coloring shell.tait.isTait
+
+theorem theorem49ShellClaim_of_algebraicCancellationOracle
+    (h : AlgebraicCancellationOracle) : Theorem49ShellClaim := by
+  intro W _ G _ _ emb shell
+  exact
+    boundaryRootSynthesis_of_closedWalkExactShell_and_boundaryZeroProjectedGeneratorDetector
+      shell (h emb shell)
+
+theorem algebraicCancellationOracle_of_algebraicNeighborhoodCancellationOracle
+    (h : AlgebraicNeighborhoodCancellationOracle) : AlgebraicCancellationOracle := by
+  intro W _ G _ _ emb shell
+  rcases h emb shell with ⟨colorings, hsubset, hdet⟩
+  exact BoundaryZeroProjectedGeneratorDetector.of_coloringFamily hsubset hdet
+
+theorem algebraicNeighborhoodCancellationOracle_of_algebraicNeighborhoodPairingKernelOracle
+    (h : AlgebraicNeighborhoodPairingKernelOracle) :
+    AlgebraicNeighborhoodCancellationOracle := by
+  intro W _ G _ _ emb shell
+  rcases h emb shell with ⟨colorings, hsubset, κ, family, hker⟩
+  exact ⟨colorings, hsubset,
+    detector_of_ker_planarBoundaryZeroFamilyPairingMap_eq_bot family hker⟩
+
+theorem theorem49ShellClaim_of_algebraicNeighborhoodCancellationOracle
+    (h : AlgebraicNeighborhoodCancellationOracle) : Theorem49ShellClaim :=
+  theorem49ShellClaim_of_algebraicCancellationOracle
+    (algebraicCancellationOracle_of_algebraicNeighborhoodCancellationOracle h)
+
+theorem theorem49ShellClaim_of_algebraicNeighborhoodPairingKernelOracle
+    (h : AlgebraicNeighborhoodPairingKernelOracle) : Theorem49ShellClaim :=
+  theorem49ShellClaim_of_algebraicNeighborhoodCancellationOracle
+    (algebraicNeighborhoodCancellationOracle_of_algebraicNeighborhoodPairingKernelOracle h)
 
 /-! ## All four uniform oracles are false
 
@@ -165,8 +234,10 @@ theorem not_previousBoundaryGeometryOracle : ¬ PreviousBoundaryGeometryOracle :
 oracle: its positive wrapper is fixed-embedding equivalent to the collar-layer
 surface, which the shared-interior-pair benchmark refutes while inhabiting the
 shell.  Any surviving v23.5 route must therefore introduce a genuinely new
-interface that bypasses this equivalence — the memo's "algebraic cancellation
-certificate" — and that interface must fail on the benchmarks. -/
+interface that bypasses this equivalence.  The new detector oracle above is
+one precise formal candidate: it matches the finite lab's explicit algebraic
+cancellation certificates, but it is not presently derived from the exact
+shell uniformly. -/
 theorem not_residualBoundaryGeometryOracle : ¬ ResidualBoundaryGeometryOracle := by
   intro h
   obtain ⟨emb, hshell, _, hNotCollar, _, _⟩ :=

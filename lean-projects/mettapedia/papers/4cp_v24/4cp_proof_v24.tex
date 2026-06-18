@@ -1,0 +1,200 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\geometry{margin=1in}
+
+\title{4CP v24: Endpoint Experiments on the Current Shell-Bearing Benchmarks}
+\author{Oruzi / Codex / Claude}
+\date{June 11, 2026}
+
+\begin{document}
+\maketitle
+\sloppy
+
+\begin{abstract}
+This document is an honest v24 status draft for the current Goertzel-style
+four-color route.  Lean already proves that the present exact one-collar/v23
+shells do not uniformly force any of the four currently formalized geometric
+oracle inputs.  The live route surface now also formalizes the remaining
+non-geometric candidate as an exact-shell algebraic cancellation oracle,
+expressed by a projected-generator detector certificate on the shell's Tait
+coloring, and now also in a weaker explicit-family form that only asks for
+some detecting coloring family inside the relevant edge-Kempe closure.  The
+natural cheap follow-up question is therefore whether the same
+explicit shell-bearing benchmarks already falsify the endpoint itself,
+\verb|Theorem49BoundaryRootSynthesis|.  The new finite lab in
+\verb|scripts/4cp_lab/| computes that endpoint exactly on the current small
+benchmarks.  On the shell-bearing wheel and shared-interior-pair embeddings,
+the endpoint is true for the explicit benchmark colorings, and in the same lab
+it is true for every Tait coloring enumerated there.  So the present benchmark
+pathologies refute the geometric ladders, but do not presently refute the
+endpoint.  Lean now proves the full endpoint on all 36 wheel Tait colorings
+and on all 72 shared-interior-pair Tait colorings, and a new Lean theorem
+proves that the full theorem-4.9 synthesis package depends only on the
+underlying edge-Kempe closure class.  A companion Lean theorem now proves the
+same closure invariance for the selected-boundary projected-generator detector
+property exposed by the finite lab, so the current benchmark burden is no
+longer inside these finite Tait sweeps even at the detector layer; it has
+moved to wider shell-bearing searches or to a scalable computable F$_2$ layer
+beyond them.  The exact shared radius-$1$ detector certificate from the finite
+lab is now kernel-checked directly as well, and Lean sharpens it: instead of
+needing the whole seven-color radius-$1$ neighborhood, the shared benchmark's
+detector already follows from the explicit coloring plus one inner red/blue
+Kempe neighbor.  The companion wheel radius-$0$ singleton certificate is now
+kernel-checked directly too, so the finite lab's two minimal explicit
+detector certificates both now live in Lean rather than only in Python output.
+\end{abstract}
+
+\section{Current formal status}
+
+The Lean tree now has a sharp separation:
+\begin{itemize}[leftmargin=2em]
+\item \verb|Goal.lean| packages the manuscript-shaped target
+  \verb|Theorem49ShellClaim|, proves all four currently formalized geometric
+  uniform oracle routes false, and states the remaining non-geometric
+  algebraic cancellation oracles in detector form, both closure-wide and
+  explicit-family.
+\item \verb|Shells.lean| and \verb|Frontier.lean| expose the live bundled
+  exact one-collar/v23 shells, the new cancellation-shell bundles, and the
+  maximal positive/negative wrappers over them.
+\item \verb|ROADMAP.md| now records the live dichotomy: either strengthen the
+  same-embedding geometry, uniformly derive the new detector/cancellation
+  certificate from the exact shell, or refute the endpoint itself on a
+  shell-bearing benchmark.
+\end{itemize}
+
+Before the new endpoint regressions, the cheapest direct refutation experiment
+was still open.  The tree proved the endpoint on a degenerate all-boundary
+wheel embedding, but not on the shell-bearing wheel/shared benchmarks
+themselves.  It now proves the endpoint on all 36 Tait colorings of the
+shell-bearing wheel benchmark and all 72 Tait colorings of the shell-bearing
+shared benchmark.  For the shared benchmark, the Lean route first proves two
+explicit Kempe-closure representatives, then proves abstract
+`Theorem49BoundaryRootSynthesis` invariance under equality of the underlying
+edge-Kempe closure, and finally classifies every Tait coloring into one of the
+two parametric closure families that reduce back to those representatives.
+The same pattern now closes one layer earlier as well: a dedicated Lean file
+shows that the selected-boundary projected-generator detector property is
+closure-class invariant, and the wheel/shared full-sweep regression files lift
+the explicit detector certificates to all 36 wheel and all 72 shared Tait
+colorings.  The live `Goal`/`Shells`/`Frontier` surface now exposes that same
+detector property as the remaining exact-shell non-geometric repair candidate,
+rather than leaving it only as experiment prose.  Another new Lean file,
+\verb|Theorem49ColoringGeneratorFamilyRoute.lean|, now proves that any
+explicit detecting coloring family inside the base edge-Kempe closure already
+upgrades to the full theorem-4.9 synthesis endpoint.  So the live
+non-geometric lane no longer has to be stated on the whole closure at all; it
+can match the finite lab's smaller witness neighborhoods directly.  A new Lean
+file,
+\verb|Legacy/Theorem49SharedInteriorPairRadiusOneDetectorRegression.lean|,
+now kernel-checks the exact shared radius-$1$ lab certificate itself, and
+improves it: the seven-color radius-$1$ neighborhood is sufficient, but the
+proof only needs a two-color witness subfamily consisting of the explicit
+coloring and one inner red/blue Kempe swap.  Another new Lean file,
+\verb|Legacy/Theorem49WheelRadiusZeroDetectorRegression.lean|, now
+kernel-checks the exact wheel radius-$0$ lab certificate itself: the explicit
+wheel benchmark coloring alone already detects every nonzero
+selected-boundary-zero chain.  Another new Lean file,
+\verb|Theorem49DetectorStrength.lean|, now proves that on every embedding with
+an unblocked interior endpoint the theorem-4.9 target subspace
+\verb|theorem49BoundaryZeroKirchhoffSubspace emb (selectedBoundaryInteriorEdgeEndpointVertices emb)|
+is a proper subspace of the full selected-boundary-zero chain space
+\verb|planarBoundaryZeroSubmodule emb|.  So the detector/cancellation oracle is
+strictly stronger than the manuscript target on every shell-bearing embedding;
+it is not simply theorem 4.9 rewritten in a more computational idiom.
+
+\section{Stage-0 lab}
+
+The new lab under \verb|scripts/4cp_lab/| mirrors the finite objects actually
+used by the endpoint:
+\begin{itemize}[leftmargin=2em]
+\item selected-boundary support and interior-edge support,
+\item selected-boundary interior-edge endpoint vertices,
+\item the endpoint target
+  \verb|theorem49BoundaryZeroKirchhoffSubspace|,
+\item the raw Definition 4.8 generator span over the finite edge-Kempe
+  closure of a base coloring,
+\item the selected-boundary projection of that span, and
+\item the thirteen endpoint fields collapsed to finite subspace equalities,
+  inclusions, and orthogonality checks.
+\end{itemize}
+
+The cross-check gate is deliberately modest but exact:
+\begin{itemize}[leftmargin=2em]
+\item the support-set facts for the wheel, shared-interior-pair, and
+  diamond-with-triangle embeddings agree with the Lean benchmark definitions;
+\item the lab returns \verb|true| on the degenerate wheel embedding, matching
+  the existing Lean-positive trivial case; and
+\item the lab returns \verb|true| on the nondegenerate positive
+  \verb|diamondWithTriangleEmbedding| case.
+\end{itemize}
+
+\section{Experiment 01}
+
+Table~\ref{tab:exp01} summarizes the current direct endpoint computations.
+
+\begin{table}[h]
+\centering
+\resizebox{\textwidth}{!}{\input{generated/exp01_status_table.tex}}
+\caption{Stage-0 endpoint verdicts on the current small benchmark family.}
+\label{tab:exp01}
+\end{table}
+
+The decisive point is the first two rows.  The shell-bearing wheel benchmark is
+not an endpoint counterexample.  The shell-bearing shared-interior-pair
+benchmark is not an endpoint counterexample either.  In fact, on both
+embeddings every Tait coloring enumerated by the lab still satisfies the full
+endpoint.
+
+So the current explicit pathologies support the following status line:
+\begin{quote}
+The present benchmarks refute the currently formalized uniform geometry-to-oracle
+ladders, but do not presently refute
+\verb|Theorem49BoundaryRootSynthesis| itself.
+\end{quote}
+
+\section{Consequence for v24}
+
+This rules out one tempting but too-fast narrative: it is not enough to say
+``the wheel and shared-interior-pair pathologies already kill Theorem 4.9''.
+At present they kill the known geometric globalization shells, not the
+endpoint.  That matters for the paper architecture.
+
+The live choices are therefore narrower:
+\begin{enumerate}[leftmargin=2em]
+\item search for a different shell-bearing embedding where the endpoint itself
+  fails;
+\item mine stronger same-embedding hypotheses that the current pathologies do
+  not satisfy but genuine induction configurations do; or
+\item build the planned Lean-computable F$_2$ elimination/search layer so the
+  present benchmark discharge can be widened safely beyond the wheel/shared
+  family.
+\end{enumerate}
+
+What this draft does \emph{not} claim is just as important.  It does not claim
+the full Stage 1 genuine-configuration sweep.  It does not claim a Lean proof
+of any wider shell-bearing sweep beyond the wheel/shared benchmarks.  And it
+does not claim a new proof of the Four Color Theorem.
+
+\section{Next steps}
+
+The next technically responsible steps are:
+\begin{itemize}[leftmargin=2em]
+\item extend the present benchmark discharge to new shell-bearing families via
+  a computable Lean F$_2$ layer or similarly scalable finite search interface;
+\item extend the computational sweep beyond the current pathologies before
+  writing any stronger negative or positive story; and
+\item exploit the new explicit-family detector route rather than demanding
+  whole-closure certificates up front, so finite Lean certificates can scale
+  by neighborhood enlargement rather than closure enumeration alone; and
+\item keep the paper honest by separating proved Lean facts, finite lab facts,
+  and still-unproved geometric bridge claims.
+\end{itemize}
+
+\end{document}

@@ -1,4 +1,5 @@
 import Mettapedia.GraphTheory.FourColor.Shells
+import Mettapedia.GraphTheory.FourColor.Theorem49DetectorStrength
 import Mettapedia.GraphTheory.FourColor.PlanarBoundaryClosedWalkSourceRoute
 import Mettapedia.GraphTheory.FourColor.Theorem49AtMostOneNonemptyCarrierImpossibility
 import Mettapedia.GraphTheory.FourColor.Theorem49PositiveGeometricSourceReplacementRoute
@@ -22,8 +23,9 @@ mathematics happens here.
 Positive (sufficiency, live route files):
 * a `ClosedWalkExactShell` together with repaired previous-boundary witness
   geometry, OR explicit well-founded peel-witness data, OR generic
-  interior-dual boundary-root distance-peel data, reaches full
-  `Theorem49BoundaryRootSynthesis`.
+  interior-dual boundary-root distance-peel data, OR the non-geometric
+  projected-generator detector certificate, OR a direct explicit-family
+  pairing-kernel certificate, reaches full `Theorem49BoundaryRootSynthesis`.
 
 Negative (maximal refuted shells, `Legacy` benchmarks):
 * the wheel-with-inner-triangle inhabits both exact shells while refuting
@@ -35,7 +37,11 @@ Negative (maximal refuted shells, `Legacy` benchmarks):
   at-most-one, canonical-choice, and source-preserving one-collar repairs.
 
 So the single open question is exactly the gap between the shells and the
-geometric inputs.  See `ROADMAP.md`.
+geometric inputs.  More precisely, `Theorem49DetectorStrength.lean` now proves
+that on every shell-bearing embedding the full selected-boundary-zero space is
+already strictly larger than the theorem-4.9 target `W₀(H)`, so the new
+detector/cancellation oracle really is stronger than the manuscript target,
+not a mere restatement.  See `ROADMAP.md`.
 -/
 
 namespace Mettapedia.GraphTheory.FourColor
@@ -79,6 +85,68 @@ theorem boundaryRootSynthesis_of_closedWalkExactShell_and_interiorDualPeelData
     (planarBoundaryWellFoundedFacePeelWitnessData_of_closedWalkAnnulusBoundarySource_and_interiorDualBoundaryRootAdjDistancePeelData
       shell.source peel)
 
+/-- The finite-lab algebraic cancellation certificate also closes the route:
+once the shell's Tait coloring satisfies the projected-generator detector
+property, no additional theorem-4.9 algebra remains. -/
+theorem boundaryRootSynthesis_of_closedWalkExactShell_and_boundaryZeroProjectedGeneratorDetector
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkExactShell emb)
+    (detector : BoundaryZeroProjectedGeneratorDetector emb shell.tait.coloring) :
+    Theorem49BoundaryRootSynthesis emb shell.tait.coloring :=
+  theorem49BoundaryRootSynthesis_of_boundaryZeroProjectedGeneratorDetector
+    emb shell.tait.coloring detector
+
+/-- Bundled closed-walk form of the algebraic cancellation route. -/
+theorem boundaryRootSynthesis_of_closedWalkCancellationShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkCancellationShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkExactShell_and_boundaryZeroProjectedGeneratorDetector
+    shell.exactShell shell.detector
+
+/-- Smaller explicit projected-generator certificates inside the shell Tait coloring's Kempe
+closure also close the route.  This is the live surface form that matches the finite-lab
+certificate shape directly. -/
+theorem boundaryRootSynthesis_of_closedWalkExactShell_and_boundaryZeroProjectedColoringGeneratorDetector
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkExactShell emb)
+    (colorings : Set (G.EdgeColoring Color))
+    (hsubset : colorings ⊆ G.EdgeKempeClosure shell.tait.coloring)
+    (detector : BoundaryZeroProjectedColoringGeneratorDetector emb colorings) :
+    Theorem49BoundaryRootSynthesis emb shell.tait.coloring :=
+  theorem49BoundaryRootSynthesis_of_boundaryZeroProjectedColoringGeneratorDetector
+    emb shell.tait.coloring colorings hsubset detector
+
+/-- Bundled closed-walk form of the smaller-family algebraic cancellation route. -/
+theorem boundaryRootSynthesis_of_closedWalkNeighborhoodCancellationShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkNeighborhoodCancellationShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkExactShell_and_boundaryZeroProjectedColoringGeneratorDetector
+    shell.exactShell shell.colorings shell.subset_closure shell.detector
+
+/-- Direct family-pairing kernel certificates on an explicit Kempe neighborhood also close the
+route.  This is the exact shell-facing form of the current finite `F₂` kernel-check target. -/
+theorem boundaryRootSynthesis_of_closedWalkExactShell_and_familyPairingKerEqBot
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkExactShell emb)
+    (colorings : Set (G.EdgeColoring Color))
+    (hsubset : colorings ⊆ G.EdgeKempeClosure shell.tait.coloring)
+    {κ : Type*}
+    (family : κ → projectedColoringGeneratorSubspace emb colorings)
+    (hker : LinearMap.ker (planarBoundaryZeroFamilyPairingMap family) = ⊥) :
+    Theorem49BoundaryRootSynthesis emb shell.tait.coloring :=
+  theorem49BoundaryRootSynthesis_of_familyPairingKerEqBot
+    emb shell.tait.coloring colorings hsubset family hker
+
+/-- Bundled closed-walk form of the explicit family-pairing kernel route. -/
+theorem boundaryRootSynthesis_of_closedWalkNeighborhoodPairingKernelShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkNeighborhoodPairingKernelShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkNeighborhoodCancellationShell
+    shell.toClosedWalkNeighborhoodCancellationShell
+
 /-- Successor-cycle form of the interior-dual sufficiency. -/
 theorem boundaryRootSynthesis_of_successorCycleExactShell_and_interiorDualPeelData
     [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
@@ -88,7 +156,45 @@ theorem boundaryRootSynthesis_of_successorCycleExactShell_and_interiorDualPeelDa
   boundaryRootSynthesis_of_closedWalkExactShell_and_interiorDualPeelData
     shell.toClosedWalkExactShell peel
 
+/-- Successor-cycle form of the algebraic cancellation sufficiency. -/
+theorem boundaryRootSynthesis_of_successorCycleCancellationShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : SuccessorCycleCancellationShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkCancellationShell
+    shell.toClosedWalkCancellationShell
+
+/-- Successor-cycle form of the smaller-family algebraic cancellation route. -/
+theorem boundaryRootSynthesis_of_successorCycleNeighborhoodCancellationShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G} (shell : SuccessorCycleNeighborhoodCancellationShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkNeighborhoodCancellationShell
+    shell.toClosedWalkNeighborhoodCancellationShell
+
+/-- Successor-cycle form of the direct family-pairing kernel route. -/
+theorem boundaryRootSynthesis_of_successorCycleNeighborhoodPairingKernelShell
+    [Fintype G.edgeSet] [FiniteDimensional F2 (G.edgeSet → Color)]
+    {emb : PlaneEmbeddingWithBoundary G}
+    (shell : SuccessorCycleNeighborhoodPairingKernelShell emb) :
+    Theorem49BoundaryRootSynthesis emb shell.exactShell.tait.coloring :=
+  boundaryRootSynthesis_of_closedWalkNeighborhoodPairingKernelShell
+    shell.toClosedWalkNeighborhoodPairingKernelShell
+
 /-! ## Structural necessity: why the cardinal repairs are dead -/
+
+/-- On every closed-walk exact shell, the theorem-4.9 target `W₀(H)` is a
+proper subspace of the full selected-boundary-zero chain space.  This is the
+route-facing form of the detector-strength gap: the new cancellation oracle is
+strictly stronger than the manuscript target on every shell-bearing
+embedding. -/
+theorem theorem49BoundaryZeroKirchhoffSubspace_lt_planarBoundaryZeroSubmodule_of_closedWalkExactShell
+    [Fintype G.edgeSet] {emb : PlaneEmbeddingWithBoundary G} (shell : ClosedWalkExactShell emb) :
+    theorem49BoundaryZeroKirchhoffSubspace emb
+        (selectedBoundaryInteriorEdgeEndpointVertices emb) <
+      planarBoundaryZeroSubmodule emb :=
+  theorem49BoundaryZeroKirchhoffSubspace_lt_planarBoundaryZeroSubmodule_of_hasUnblockedInteriorEndpoint
+    shell.endpoint
 
 /-- Every closed-walk shell (the endpoint witness suffices) forces two distinct
 interior edges onto some face boundary.  This is the structural fact that kills
