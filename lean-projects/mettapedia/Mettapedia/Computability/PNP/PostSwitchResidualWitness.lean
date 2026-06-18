@@ -271,6 +271,58 @@ theorem weightedTotalMass_activeOrbitWeight (z0 : Z) [Fintype Z] :
   simpa [sliceMass_activeOrbitSupport (Z := Z) z0,
     outsideMass_activeOrbitSupport (Z := Z) z0] using hsplit
 
+theorem activeOrbitSide_ne_of_positiveWeight
+    (z0 : Z) (u : ExactVisiblePostSwitchSurface Z 1)
+    (hu : 0 < activeOrbitWeight z0 u) :
+    (tiInputMap u).b ≠ u.b := by
+  classical
+  have hsupp : u = activeOrbitInputFalse z0 ∨ u = activeOrbitInputTrue z0 := by
+    by_cases h : u = activeOrbitInputFalse z0 ∨ u = activeOrbitInputTrue z0
+    · exact h
+    · have hzero : activeOrbitWeight z0 u = 0 := by
+        simp [activeOrbitWeight, h]
+      omega
+  rcases hsupp with rfl | rfl
+  · intro h
+    have h0 := congrArg (fun b : BitVec 1 => b 0) h
+    simp at h0
+  · intro h
+    have h0 := congrArg (fun b : BitVec 1 => b 0) h
+    simp at h0
+
+/-- The active two-point exact post-switch witness is correct on every
+positive-weight point, so the abstract invariant-base exact-success theorem
+already forces the whole supported mass to be orbit-resolving mass. -/
+theorem resolvedMass_activeOrbit_eq_weightedTotalMass
+    [Fintype Z] (z0 : Z) :
+    resolvedMass tiInputMap
+      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+      (activeOrbitWeight z0) =
+    weightedTotalMass (activeOrbitWeight z0) := by
+  exact
+    resolvedMass_eq_weightedTotalMass_of_supportwise_correct_invariant_base
+      tiInputMap
+      invariantVisibleData
+      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+      activeOrbitTarget
+      (activeOrbitWeight z0)
+      activeOrbitClassifier
+      invariantVisibleData_tiInputMap
+      (activeOrbitTarget_flip_of_positiveWeight z0)
+      (activeOrbitWeight_tiInputMap z0)
+      (activeOrbitCorrect_of_positiveWeight z0)
+
+/-- On the exact active two-point post-switch witness, every supported point is
+resolved by the retained side bit, so the resolved mass is the whole support
+mass. -/
+theorem resolvedMass_activeOrbit_eq_two
+    [Fintype Z] (z0 : Z) :
+    resolvedMass tiInputMap
+      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+      (activeOrbitWeight z0) = 2 := by
+  rw [resolvedMass_activeOrbit_eq_weightedTotalMass (Z := Z) z0,
+    weightedTotalMass_activeOrbitWeight (Z := Z) z0]
+
 theorem doubledAdvantage_activeOrbit_eq_two
     [Fintype Z] (z0 : Z) :
     doubledAdvantage
@@ -279,11 +331,36 @@ theorem doubledAdvantage_activeOrbit_eq_two
         (activeOrbitWeight z0)
         activeOrbitClassifier
       = 2 := by
-  have hcorrect :=
-    weightedCorrectMass_activeOrbit_eq_weightedTotalMass (Z := Z) z0
-  have htotal := weightedTotalMass_activeOrbitWeight (Z := Z) z0
-  unfold doubledAdvantage
-  omega
+  rw [doubledAdvantage_eq_weightedTotalMass_of_supportwise_correct
+    activeOrbitFeatures
+    activeOrbitTarget
+    (activeOrbitWeight z0)
+    activeOrbitClassifier
+    (activeOrbitCorrect_of_positiveWeight z0)]
+  exact weightedTotalMass_activeOrbitWeight (Z := Z) z0
+
+theorem doubledAdvantage_activeOrbit_eq_resolvedMass
+    [Fintype Z] (z0 : Z) :
+    doubledAdvantage
+        activeOrbitFeatures
+        activeOrbitTarget
+        (activeOrbitWeight z0)
+        activeOrbitClassifier =
+      resolvedMass tiInputMap
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0) := by
+  exact
+    doubledAdvantage_eq_resolvedMass_of_supportwise_correct_invariant_base
+      tiInputMap
+      invariantVisibleData
+      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+      activeOrbitTarget
+      (activeOrbitWeight z0)
+      activeOrbitClassifier
+      invariantVisibleData_tiInputMap
+      (activeOrbitTarget_flip_of_positiveWeight z0)
+      (activeOrbitWeight_tiInputMap z0)
+      (activeOrbitCorrect_of_positiveWeight z0)
 
 theorem pos_doubledAdvantage_activeOrbit
     [Fintype Z] (z0 : Z) :
@@ -391,14 +468,8 @@ theorem pos_resolvedMass_activeOrbit
     (z0 : Z) :
     0 < resolvedMass tiInputMap (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
       (activeOrbitWeight z0) := by
-  rcases exists_positive_same_base_ne_side_activeOrbit (Z := Z) z0 with
-    ⟨u, hu, _hbase, hside⟩
-  exact
-    resolvedMass_pos_of_resolving_point
-      tiInputMap
-      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
-      (activeOrbitWeight z0)
-      hu hside
+  rw [resolvedMass_activeOrbit_eq_two (Z := Z) z0]
+  decide
 
 /-- On the exact visible post-switch surface, positive resolving mass for the
 retained side bit already forces the pure residual obstruction package. -/
@@ -479,6 +550,92 @@ theorem exactPostSwitch_activeOrbit_realizes_residual_prediction_witness
     activeOrbitTarget_flip_of_positiveWeight z0,
     pos_doubledAdvantage_activeOrbit (Z := Z) z0,
     exists_positive_prediction_separation_activeOrbit (Z := Z) z0⟩
+
+/-- On the concrete active two-point exact post-switch witness, the retained
+classifier output cannot already be source-only over the invariant base,
+because some positive-weight involution pair is separated by the final
+prediction. -/
+theorem activeOrbitClassifier_not_supportwiseSourceOnly
+    [Fintype Z] (z0 : Z) :
+    ¬ SupportwiseSourceOnlyPairClassifier
+        invariantVisibleData
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0)
+        activeOrbitClassifier := by
+  intro hsource
+  rcases exists_positive_prediction_separation_activeOrbit (Z := Z) z0 with
+    ⟨u, hu, hsep⟩
+  have heq :=
+    prediction_eq_under_involution_of_supportwiseSourceOnlyPairClassifier_invariant_base
+      tiInputMap
+      invariantVisibleData
+      (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+      (activeOrbitWeight z0)
+      activeOrbitClassifier
+      invariantVisibleData_tiInputMap
+      (activeOrbitWeight_tiInputMap z0)
+      hsource
+      u
+      hu
+  exact hsep heq
+
+/-- The manuscript's concrete active exact post-switch orbit already realizes
+the full supported proof-relevant residual obstruction package with the actual
+successful classifier, and that same visible surface cannot admit any
+supportwise visible-pair balancing involution. -/
+theorem exactPostSwitch_activeOrbit_realizes_supported_obstruction_package_and_no_visiblePairBalancing
+    [Fintype Z] (z0 : Z) :
+    0 <
+      doubledAdvantage
+        activeOrbitFeatures
+        activeOrbitTarget
+        (activeOrbitWeight z0)
+        activeOrbitClassifier ∧
+      0 < resolvedMass tiInputMap
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0) ∧
+      ¬ SideInfoDeterminedBy invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) ∧
+      ¬ SupportwiseSourceOnlyPairClassifier
+          invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          (activeOrbitWeight z0)
+          activeOrbitClassifier ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          invariantVisibleData (tiInputMap u) = invariantVisibleData u ∧
+          (tiInputMap u).b ≠ u.b) ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          ¬ SourceOnlyPredicateCapturesSideEq
+            invariantVisibleData
+            (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) (u.b)) ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          activeOrbitClassifier (activeOrbitFeatures (tiInputMap u)) ≠
+            activeOrbitClassifier (activeOrbitFeatures u)) ∧
+      ¬ SupportwiseVisiblePairBalancing
+          invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          activeOrbitTarget
+          (activeOrbitWeight z0) := by
+  have hpackage :=
+    exactPostSwitch_activeOrbit_realizes_pure_residual_obstruction_package
+      (Z := Z) z0
+  rcases hpackage with
+    ⟨hmass, hnot, _hcollision, hwitness, hpred⟩
+  have hadv := pos_doubledAdvantage_activeOrbit (Z := Z) z0
+  refine ⟨hadv, hmass, hnot, ?_, hwitness, hpred, ?_, ?_⟩
+  · exact activeOrbitClassifier_not_supportwiseSourceOnly (Z := Z) z0
+  · exact exists_positive_prediction_separation_activeOrbit (Z := Z) z0
+  · exact
+      not_supportwiseVisiblePairBalancing_of_pos_doubledAdvantage_pair
+        invariantVisibleData
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        activeOrbitTarget
+        (activeOrbitWeight z0)
+        activeOrbitClassifier
+        hadv
 
 end
 

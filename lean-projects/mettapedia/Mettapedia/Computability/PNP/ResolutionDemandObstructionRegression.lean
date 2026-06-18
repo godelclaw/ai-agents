@@ -89,6 +89,48 @@ theorem unresolved_side_channel_has_zero_resolved_mass_regression
     resolvedMass τ v w = 0 := by
   exact resolvedMass_eq_zero_of_unresolved τ v w hunresolved
 
+theorem resolved_mass_never_exceeds_total_mass_regression
+    (τ : α → α) (v : α → V) (w : α → ℕ) :
+    resolvedMass τ v w ≤ weightedTotalMass w := by
+  exact resolvedMass_le_weightedTotalMass τ v w
+
+theorem supportwise_resolving_side_channel_has_total_resolved_mass_regression
+    (τ : α → α) (v : α → V) (w : α → ℕ)
+    (hresolve : ∀ x, 0 < w x → v (τ x) ≠ v x) :
+    resolvedMass τ v w = weightedTotalMass w := by
+  exact resolvedMass_eq_weightedTotalMass_of_supportwise_resolving
+    τ v w hresolve
+
+theorem supportwise_correct_classifier_has_total_doubled_advantage_regression
+    (u : α → U) (y : α → Bool) (w : α → ℕ) (h : U → Bool)
+    (hcorrect : ∀ x, 0 < w x → Correct u y h x) :
+    doubledAdvantage u y w h = weightedTotalMass w := by
+  exact doubledAdvantage_eq_weightedTotalMass_of_supportwise_correct
+    u y w h hcorrect
+
+theorem total_doubled_advantage_forces_exact_supported_success_regression
+    (u : α → U) (y : α → Bool) (w : α → ℕ) (h : U → Bool)
+    (hadv : doubledAdvantage u y w h = weightedTotalMass w) :
+    weightedCorrectMass u y w h = weightedTotalMass w := by
+  exact
+    weightedCorrectMass_eq_weightedTotalMass_of_doubledAdvantage_eq_weightedTotalMass
+      u y w h hadv
+
+theorem perfect_supported_success_forces_total_resolved_mass_regression
+    (τ : α → α) (u : α → U) (v : α → V) (y : α → Bool) (w : α → ℕ)
+    (h : U × V → Bool)
+    (hτ : Function.Involutive τ)
+    (hu : ∀ x, u (τ x) = u x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hperfect :
+      weightedCorrectMass (fun x => (u x, v x)) y w h =
+        weightedTotalMass w) :
+    resolvedMass τ v w = weightedTotalMass w := by
+  exact
+    resolvedMass_eq_weightedTotalMass_of_weightedCorrectMass_eq_weightedTotalMass_pair
+      τ u v y w h hτ hu hy hw hperfect
+
 theorem supportwise_unresolved_side_channel_blocks_positive_advantage_regression
     (τ : α → α) (u : α → U) (v : α → V) (y : α → Bool) (w : α → ℕ)
     (h : U × V → Bool)

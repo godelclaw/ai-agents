@@ -109,6 +109,421 @@ theorem v13_residual_side_information_subcoverage_regression :
     V13ResidualSideInformationSubcoverage := by
   exact v13ResidualSideInformationSubcoverage
 
+theorem residual_side_information_broad_coverage_regression :
+    ResidualSideInformationCoverage := by
+  exact residualSideInformationCoverage
+
+theorem residual_side_information_existential_positive_advantage_repair_exposes_resolving_witness_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) :
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_exposes_resolving_witness
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_existential_strict_half_repair_exposes_resolving_witness_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) :
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_exposes_resolving_witness
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_positive_advantage_forbids_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) (h : Base × Side → Bool)
+    (hadv : 0 < doubledAdvantage (fun x => (base x, side x)) y w h) :
+    ¬ SupportwiseVisiblePairBalancing base side y w := by
+  exact
+    residualSideInformationCoverage_anchor_positive_advantage_forbids_visible_pair_balancing
+      base side y w h hadv
+
+theorem residual_side_information_strict_half_forbids_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) (h : Base × Side → Bool)
+    (hadv :
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) :
+    ¬ SupportwiseVisiblePairBalancing base side y w := by
+  exact
+    residualSideInformationCoverage_anchor_strict_half_advantage_forbids_visible_pair_balancing
+      base side y w h hadv
+
+theorem residual_side_information_existential_positive_advantage_repair_iff_resolving_witness_and_no_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    ((∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      ¬ SupportwiseVisiblePairBalancing base side y w) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_iff_resolving_witness_and_no_visible_pair_balancing
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_strict_half_repair_iff_resolving_witness_and_no_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    ((∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      ¬ SupportwiseVisiblePairBalancing base side y w) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_iff_resolving_witness_and_no_visible_pair_balancing
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_positive_advantage_repair_iff_visible_pair_fiber_imbalance_regression
+    {α Base Side : Type*} [Fintype α] [Fintype Base] [Fintype Side]
+    [DecidableEq Base] [DecidableEq Side]
+    (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) :
+    (∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ↔
+      ∃ bs : Base × Side,
+        weightedFeatureFiberTrueMass (fun x => (base x, side x)) y w bs ≠
+          weightedFeatureFiberFalseMass (fun x => (base x, side x)) y w bs := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_iff_visible_pair_fiber_imbalance
+      base side y w
+
+theorem residual_side_information_existential_strict_half_repair_iff_visible_pair_fiber_imbalance_regression
+    {α Base Side : Type*} [Fintype α] [Fintype Base] [Fintype Side]
+    [DecidableEq Base] [DecidableEq Side]
+    (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) :
+    (∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) ↔
+      ∃ bs : Base × Side,
+        weightedFeatureFiberTrueMass (fun x => (base x, side x)) y w bs ≠
+          weightedFeatureFiberFalseMass (fun x => (base x, side x)) y w bs := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_iff_visible_pair_fiber_imbalance
+      base side y w
+
+theorem residual_side_information_existential_positive_advantage_repair_exposes_pure_residual_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) :
+    0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      PositiveWeightSideInfoCollisionOverBase base side w ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_exposes_pure_residual_obstruction_package
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_existential_positive_advantage_repair_exposes_supported_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) :
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_exposes_supported_obstruction_package
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_existential_strict_half_repair_exposes_supported_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) :
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_exposes_supported_obstruction_package
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_existential_strict_half_repair_exposes_pure_residual_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hsuccess : ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) :
+    0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      PositiveWeightSideInfoCollisionOverBase base side w ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_exposes_pure_residual_obstruction_package
+      τ base side y w hτ hbase hy hw hsuccess
+
+theorem residual_side_information_existential_positive_advantage_repair_iff_supported_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_iff_supported_obstruction_package
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_positive_advantage_repair_iff_supported_obstruction_package_and_no_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) ∧
+      ¬ SupportwiseVisiblePairBalancing base side y w := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_iff_supported_obstruction_package_and_no_visible_pair_balancing
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_positive_advantage_repair_iff_resolving_witness_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x := by
+  exact
+    residualSideInformationCoverage_anchor_existential_positive_advantage_repair_iff_resolving_witness
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_exact_supported_success_iff_full_resolution_budget_and_supported_obstruction_package_and_no_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    ((∃ h : Base × Side → Bool,
+      weightedCorrectMass (fun x => (base x, side x)) y w h =
+        weightedTotalMass w) ∧
+      0 < weightedTotalMass w) ↔
+    ∃ h : Base × Side → Bool,
+      doubledAdvantage (fun x => (base x, side x)) y w h =
+          resolvedMass τ side w ∧
+        resolvedMass τ side w = weightedTotalMass w ∧
+        0 < resolvedMass τ side w ∧
+        ¬ SideInfoDeterminedBy base side ∧
+        ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+        (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+        (∃ x, 0 < w x ∧
+          ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+        (∃ x, 0 < w x ∧
+          h (base (τ x), side (τ x)) ≠ h (base x, side x)) ∧
+        ¬ SupportwiseVisiblePairBalancing base side y w := by
+  exact
+    residualSideInformationCoverage_anchor_existential_exact_supported_success_iff_full_resolution_budget_and_supported_obstruction_package_and_no_visible_pair_balancing
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_exact_supported_success_iff_full_resolution_budget_and_resolving_witness_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    ((∃ h : Base × Side → Bool,
+      weightedCorrectMass (fun x => (base x, side x)) y w h =
+        weightedTotalMass w) ∧
+      0 < weightedTotalMass w) ↔
+    ∃ h : Base × Side → Bool,
+      doubledAdvantage (fun x => (base x, side x)) y w h =
+          resolvedMass τ side w ∧
+        resolvedMass τ side w = weightedTotalMass w ∧
+        0 < resolvedMass τ side w ∧
+        (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_exact_supported_success_iff_full_resolution_budget_and_resolving_witness
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_strict_half_repair_iff_supported_obstruction_package_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_iff_supported_obstruction_package
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_strict_half_repair_iff_supported_obstruction_package_and_no_visible_pair_balancing_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ¬ SideInfoDeterminedBy base side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier base side w h ∧
+      (∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x) ∧
+      (∃ x, 0 < w x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq base side (side x)) ∧
+      (∃ x, 0 < w x ∧
+        h (base (τ x), side (τ x)) ≠ h (base x, side x)) ∧
+      ¬ SupportwiseVisiblePairBalancing base side y w := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_iff_supported_obstruction_package_and_no_visible_pair_balancing
+      τ base side y w hτ hbase hy hw
+
+theorem residual_side_information_existential_strict_half_repair_iff_resolving_witness_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x) :
+    (∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) ↔
+    ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h ∧
+      0 < resolvedMass τ side w ∧
+      ∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x := by
+  exact
+    residualSideInformationCoverage_anchor_existential_strict_half_repair_iff_resolving_witness
+      τ base side y w hτ hbase hy hw
+
 theorem current_pnp_randomized_residual_covered_subrepairs_exact_regression
     (repair : PNPRandomizedResidualSubrepairClass) :
     repair ∈ currentPNPRandomizedResidualCoveredSubrepairs := by
@@ -3303,6 +3718,26 @@ theorem residual_side_information_anchor_positive_resolved_mass_same_base_collis
     residualSideInformationCoverage_anchor_positive_resolvedMass_witnesses_same_base_residual_collision
       τ base side w hbase hmass
 
+theorem residual_side_information_anchor_positive_resolved_mass_iff_same_base_collision_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side) (w : α → ℕ)
+    (hbase : ∀ x, base (τ x) = base x) :
+    0 < resolvedMass τ side w ↔
+      ∃ x, 0 < w x ∧ base (τ x) = base x ∧ side (τ x) ≠ side x := by
+  exact
+    residualSideInformationCoverage_anchor_positive_resolvedMass_iff_same_base_residual_collision
+      τ base side w hbase
+
+theorem residual_side_information_anchor_positive_resolved_mass_iff_not_supportwise_visible_pair_invariant_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side) (w : α → ℕ)
+    (hbase : ∀ x, base (τ x) = base x) :
+    0 < resolvedMass τ side w ↔
+      ¬ ∀ x, 0 < w x → (base (τ x), side (τ x)) = (base x, side x) := by
+  exact
+    residualSideInformationCoverage_anchor_positive_resolvedMass_iff_not_supportwise_visible_pair_invariant
+      τ base side w hbase
+
 theorem residual_side_information_anchor_positive_resolved_mass_supported_obstruction_package_regression
     {α Base Side : Type*} [Fintype α]
     (τ : α → α) (base : α → Base) (side : α → Side) (w : α → ℕ)
@@ -3316,6 +3751,347 @@ theorem residual_side_information_anchor_positive_resolved_mass_supported_obstru
   exact
     residualSideInformationCoverage_anchor_positive_resolvedMass_forces_supported_obstruction_package
       τ base side w hbase hmass
+
+theorem residual_side_information_anchor_pure_residual_obstruction_not_sufficient_for_success_regression :
+    Function.Involutive BalancedResidualCounterexample.resolveSwap ∧
+      (∀ x, BalancedResidualCounterexample.base
+          (BalancedResidualCounterexample.resolveSwap x) =
+            BalancedResidualCounterexample.base x) ∧
+      (∀ x, BalancedResidualCounterexample.target
+          (BalancedResidualCounterexample.resolveSwap x) =
+            !(BalancedResidualCounterexample.target x)) ∧
+      (∀ x, BalancedResidualCounterexample.weight
+          (BalancedResidualCounterexample.resolveSwap x) =
+            BalancedResidualCounterexample.weight x) ∧
+      0 < resolvedMass
+        BalancedResidualCounterexample.resolveSwap
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight ∧
+      ¬ SideInfoDeterminedBy
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side ∧
+      PositiveWeightSideInfoCollisionOverBase
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        BalancedResidualCounterexample.base
+            (BalancedResidualCounterexample.resolveSwap x) =
+          BalancedResidualCounterexample.base x ∧
+        BalancedResidualCounterexample.side
+            (BalancedResidualCounterexample.resolveSwap x) ≠
+          BalancedResidualCounterexample.side x) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq
+          BalancedResidualCounterexample.base
+          BalancedResidualCounterexample.side
+          (BalancedResidualCounterexample.side x)) ∧
+      (∀ h : Unit × Bool → Bool,
+        ¬ 0 < doubledAdvantage
+          (fun x =>
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x))
+          BalancedResidualCounterexample.target
+          BalancedResidualCounterexample.weight h) ∧
+      (∀ h : Unit × Bool → Bool,
+        ¬ weightedTotalMass BalancedResidualCounterexample.weight <
+          2 * weightedCorrectMass
+            (fun x =>
+              (BalancedResidualCounterexample.base x,
+                BalancedResidualCounterexample.side x))
+            BalancedResidualCounterexample.target
+            BalancedResidualCounterexample.weight h) := by
+  exact
+    residualSideInformationCoverage_anchor_pure_residual_obstruction_not_sufficient_for_success
+
+theorem residual_side_information_anchor_supported_non_source_determined_not_sufficient_for_positive_resolved_mass_or_success_regression
+    :
+    Function.Involutive OrbitInvisibleResidualCounterexample.orbitSwap ∧
+      (∀ x, OrbitInvisibleResidualCounterexample.base
+          (OrbitInvisibleResidualCounterexample.orbitSwap x) =
+            OrbitInvisibleResidualCounterexample.base x) ∧
+      (∀ x, OrbitInvisibleResidualCounterexample.side
+          (OrbitInvisibleResidualCounterexample.orbitSwap x) =
+            OrbitInvisibleResidualCounterexample.side x) ∧
+      (∀ x, OrbitInvisibleResidualCounterexample.target
+          (OrbitInvisibleResidualCounterexample.orbitSwap x) =
+            !(OrbitInvisibleResidualCounterexample.target x)) ∧
+      (∀ x, OrbitInvisibleResidualCounterexample.weight
+          (OrbitInvisibleResidualCounterexample.orbitSwap x) =
+            OrbitInvisibleResidualCounterexample.weight x) ∧
+      ¬ SideInfoDeterminedBy
+        OrbitInvisibleResidualCounterexample.base
+        OrbitInvisibleResidualCounterexample.side ∧
+      PositiveWeightSideInfoCollisionOverBase
+        OrbitInvisibleResidualCounterexample.base
+        OrbitInvisibleResidualCounterexample.side
+        OrbitInvisibleResidualCounterexample.weight ∧
+      (∃ x, 0 < OrbitInvisibleResidualCounterexample.weight x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq
+          OrbitInvisibleResidualCounterexample.base
+          OrbitInvisibleResidualCounterexample.side
+          (OrbitInvisibleResidualCounterexample.side x)) ∧
+      resolvedMass
+        OrbitInvisibleResidualCounterexample.orbitSwap
+        OrbitInvisibleResidualCounterexample.side
+        OrbitInvisibleResidualCounterexample.weight = 0 ∧
+      (∃ h : Unit × Bool → Bool,
+        ¬ SupportwiseSourceOnlyPairClassifier
+          OrbitInvisibleResidualCounterexample.base
+          OrbitInvisibleResidualCounterexample.side
+          OrbitInvisibleResidualCounterexample.weight h ∧
+        ¬ 0 < doubledAdvantage
+          (fun x =>
+            (OrbitInvisibleResidualCounterexample.base x,
+              OrbitInvisibleResidualCounterexample.side x))
+          OrbitInvisibleResidualCounterexample.target
+          OrbitInvisibleResidualCounterexample.weight h ∧
+        ¬ weightedTotalMass OrbitInvisibleResidualCounterexample.weight <
+          2 * weightedCorrectMass
+            (fun x =>
+              (OrbitInvisibleResidualCounterexample.base x,
+                OrbitInvisibleResidualCounterexample.side x))
+            OrbitInvisibleResidualCounterexample.target
+            OrbitInvisibleResidualCounterexample.weight h) ∧
+      (∀ h : Unit × Bool → Bool,
+        ¬ 0 < doubledAdvantage
+          (fun x =>
+            (OrbitInvisibleResidualCounterexample.base x,
+              OrbitInvisibleResidualCounterexample.side x))
+          OrbitInvisibleResidualCounterexample.target
+          OrbitInvisibleResidualCounterexample.weight h) ∧
+      (∀ h : Unit × Bool → Bool,
+        ¬ weightedTotalMass OrbitInvisibleResidualCounterexample.weight <
+          2 * weightedCorrectMass
+            (fun x =>
+              (OrbitInvisibleResidualCounterexample.base x,
+                OrbitInvisibleResidualCounterexample.side x))
+            OrbitInvisibleResidualCounterexample.target
+            OrbitInvisibleResidualCounterexample.weight h) := by
+  exact
+    residualSideInformationCoverage_anchor_supported_non_source_determined_not_sufficient_for_positive_resolvedMass_or_success
+
+theorem residual_side_information_anchor_supportwise_visible_pair_balancing_blocks_any_classifier_success_regression
+    {α Base Side : Type*} [Fintype α]
+    (σ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ)
+    (hσ : Function.Involutive σ)
+    (hy : ∀ x, y (σ x) = !(y x))
+    (hw : ∀ x, w (σ x) = w x)
+    (hpair : ∀ x, 0 < w x → (base (σ x), side (σ x)) = (base x, side x)) :
+    (¬ ∃ h : Base × Side → Bool,
+      0 < doubledAdvantage (fun x => (base x, side x)) y w h) ∧
+    (¬ ∃ h : Base × Side → Bool,
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) := by
+  exact
+    residualSideInformationCoverage_anchor_supportwise_visible_pair_balancing_blocks_any_classifier_success
+      σ base side y w hσ hy hw hpair
+
+theorem residual_side_information_anchor_balanced_prediction_witness_not_sufficient_for_success_regression
+    :
+    ¬ SupportwiseSourceOnlyPairClassifier
+      BalancedResidualCounterexample.base
+      BalancedResidualCounterexample.side
+      BalancedResidualCounterexample.weight
+      BalancedResidualCounterexample.separatingClassifier ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        BalancedResidualCounterexample.separatingClassifier
+            (BalancedResidualCounterexample.base
+              (BalancedResidualCounterexample.resolveSwap x),
+              BalancedResidualCounterexample.side
+                (BalancedResidualCounterexample.resolveSwap x)) ≠
+          BalancedResidualCounterexample.separatingClassifier
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x)) ∧
+      ¬ 0 < doubledAdvantage
+        (fun x =>
+          (BalancedResidualCounterexample.base x,
+            BalancedResidualCounterexample.side x))
+        BalancedResidualCounterexample.target
+        BalancedResidualCounterexample.weight
+        BalancedResidualCounterexample.separatingClassifier ∧
+      ¬ weightedTotalMass BalancedResidualCounterexample.weight <
+        2 * weightedCorrectMass
+          (fun x =>
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x))
+          BalancedResidualCounterexample.target
+          BalancedResidualCounterexample.weight
+          BalancedResidualCounterexample.separatingClassifier := by
+  exact
+    residualSideInformationCoverage_anchor_balanced_prediction_witness_not_sufficient_for_success
+
+theorem residual_side_information_anchor_supported_obstruction_package_not_sufficient_for_success_regression
+    :
+    ∃ h : Unit × Bool → Bool,
+      0 < resolvedMass
+        BalancedResidualCounterexample.resolveSwap
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight ∧
+      ¬ SideInfoDeterminedBy
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight h ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        BalancedResidualCounterexample.base
+            (BalancedResidualCounterexample.resolveSwap x) =
+          BalancedResidualCounterexample.base x ∧
+        BalancedResidualCounterexample.side
+            (BalancedResidualCounterexample.resolveSwap x) ≠
+          BalancedResidualCounterexample.side x) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq
+          BalancedResidualCounterexample.base
+          BalancedResidualCounterexample.side
+          (BalancedResidualCounterexample.side x)) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        h
+            (BalancedResidualCounterexample.base
+              (BalancedResidualCounterexample.resolveSwap x),
+              BalancedResidualCounterexample.side
+                (BalancedResidualCounterexample.resolveSwap x)) ≠
+          h
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x)) ∧
+      ¬ 0 < doubledAdvantage
+        (fun x =>
+          (BalancedResidualCounterexample.base x,
+            BalancedResidualCounterexample.side x))
+        BalancedResidualCounterexample.target
+        BalancedResidualCounterexample.weight h ∧
+      ¬ weightedTotalMass BalancedResidualCounterexample.weight <
+        2 * weightedCorrectMass
+          (fun x =>
+          (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x))
+          BalancedResidualCounterexample.target
+          BalancedResidualCounterexample.weight h := by
+  exact
+    residualSideInformationCoverage_anchor_supported_obstruction_package_not_sufficient_for_success
+
+theorem residual_side_information_anchor_supported_obstruction_package_not_sufficient_for_any_success_regression
+    :
+    ∃ h : Unit × Bool → Bool,
+      0 < resolvedMass
+        BalancedResidualCounterexample.resolveSwap
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight ∧
+      ¬ SideInfoDeterminedBy
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight h ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        BalancedResidualCounterexample.base
+            (BalancedResidualCounterexample.resolveSwap x) =
+          BalancedResidualCounterexample.base x ∧
+        BalancedResidualCounterexample.side
+            (BalancedResidualCounterexample.resolveSwap x) ≠
+          BalancedResidualCounterexample.side x) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq
+          BalancedResidualCounterexample.base
+          BalancedResidualCounterexample.side
+          (BalancedResidualCounterexample.side x)) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        h
+            (BalancedResidualCounterexample.base
+              (BalancedResidualCounterexample.resolveSwap x),
+              BalancedResidualCounterexample.side
+                (BalancedResidualCounterexample.resolveSwap x)) ≠
+          h
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x)) ∧
+      (∀ h' : Unit × Bool → Bool,
+        ¬ 0 < doubledAdvantage
+          (fun x =>
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x))
+          BalancedResidualCounterexample.target
+          BalancedResidualCounterexample.weight h') ∧
+      (∀ h' : Unit × Bool → Bool,
+        ¬ weightedTotalMass BalancedResidualCounterexample.weight <
+          2 * weightedCorrectMass
+            (fun x =>
+              (BalancedResidualCounterexample.base x,
+                BalancedResidualCounterexample.side x))
+            BalancedResidualCounterexample.target
+            BalancedResidualCounterexample.weight h') := by
+  exact
+    residualSideInformationCoverage_anchor_supported_obstruction_package_not_sufficient_for_any_success
+
+theorem residual_side_information_anchor_supported_obstruction_package_with_visible_pair_balancing_blocks_any_success_regression
+    :
+    ∃ h : Unit × Bool → Bool,
+      0 < resolvedMass
+        BalancedResidualCounterexample.resolveSwap
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight ∧
+      ¬ SideInfoDeterminedBy
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side ∧
+      ¬ SupportwiseSourceOnlyPairClassifier
+        BalancedResidualCounterexample.base
+        BalancedResidualCounterexample.side
+        BalancedResidualCounterexample.weight h ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        BalancedResidualCounterexample.base
+            (BalancedResidualCounterexample.resolveSwap x) =
+          BalancedResidualCounterexample.base x ∧
+        BalancedResidualCounterexample.side
+            (BalancedResidualCounterexample.resolveSwap x) ≠
+          BalancedResidualCounterexample.side x) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        ¬ SourceOnlyPredicateCapturesSideEq
+          BalancedResidualCounterexample.base
+          BalancedResidualCounterexample.side
+          (BalancedResidualCounterexample.side x)) ∧
+      (∃ x, 0 < BalancedResidualCounterexample.weight x ∧
+        h
+            (BalancedResidualCounterexample.base
+              (BalancedResidualCounterexample.resolveSwap x),
+              BalancedResidualCounterexample.side
+                (BalancedResidualCounterexample.resolveSwap x)) ≠
+          h
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x)) ∧
+      Function.Involutive BalancedResidualCounterexample.neutralSwap ∧
+      (∀ x, BalancedResidualCounterexample.target
+          (BalancedResidualCounterexample.neutralSwap x) =
+            !(BalancedResidualCounterexample.target x)) ∧
+      (∀ x, BalancedResidualCounterexample.weight
+          (BalancedResidualCounterexample.neutralSwap x) =
+            BalancedResidualCounterexample.weight x) ∧
+      (∀ x, 0 < BalancedResidualCounterexample.weight x →
+        (BalancedResidualCounterexample.base
+            (BalancedResidualCounterexample.neutralSwap x),
+          BalancedResidualCounterexample.side
+            (BalancedResidualCounterexample.neutralSwap x)) =
+          (BalancedResidualCounterexample.base x,
+            BalancedResidualCounterexample.side x)) ∧
+      (∀ h' : Unit × Bool → Bool,
+        ¬ 0 < doubledAdvantage
+          (fun x =>
+            (BalancedResidualCounterexample.base x,
+              BalancedResidualCounterexample.side x))
+          BalancedResidualCounterexample.target
+          BalancedResidualCounterexample.weight h') ∧
+      (∀ h' : Unit × Bool → Bool,
+        ¬ weightedTotalMass BalancedResidualCounterexample.weight <
+          2 * weightedCorrectMass
+            (fun x =>
+              (BalancedResidualCounterexample.base x,
+                BalancedResidualCounterexample.side x))
+            BalancedResidualCounterexample.target
+            BalancedResidualCounterexample.weight h') := by
+  exact
+    residualSideInformationCoverage_anchor_supported_obstruction_package_with_visible_pair_balancing_blocks_any_success
 
 theorem residual_side_information_anchor_exact_post_switch_active_orbit_pure_package_regression
     {Z : Type*} [Fintype Z] (z0 : Z) :
@@ -3361,6 +4137,63 @@ theorem residual_side_information_anchor_exact_post_switch_active_orbit_predicti
     residualSideInformationCoverage_anchor_exactPostSwitch_activeOrbit_prediction_witness
       (Z := Z) z0
 
+theorem residual_side_information_anchor_exact_post_switch_active_orbit_supported_obstruction_package_and_no_visible_pair_balancing_regression
+    {Z : Type*} [Fintype Z] (z0 : Z) :
+    0 <
+      doubledAdvantage
+        activeOrbitFeatures
+        activeOrbitTarget
+        (activeOrbitWeight z0)
+        activeOrbitClassifier ∧
+      0 < resolvedMass tiInputMap
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0) ∧
+      ¬ SideInfoDeterminedBy invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) ∧
+      ¬ SupportwiseSourceOnlyPairClassifier
+          invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          (activeOrbitWeight z0)
+          activeOrbitClassifier ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          invariantVisibleData (tiInputMap u) = invariantVisibleData u ∧
+          (tiInputMap u).b ≠ u.b) ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          ¬ SourceOnlyPredicateCapturesSideEq invariantVisibleData
+            (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b) (u.b)) ∧
+      (∃ u : ExactVisiblePostSwitchSurface Z 1,
+        0 < activeOrbitWeight z0 u ∧
+          activeOrbitClassifier (activeOrbitFeatures (tiInputMap u)) ≠
+            activeOrbitClassifier (activeOrbitFeatures u)) ∧
+      ¬ SupportwiseVisiblePairBalancing
+          invariantVisibleData
+          (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+          activeOrbitTarget
+          (activeOrbitWeight z0) := by
+  exact
+    residualSideInformationCoverage_anchor_exactPostSwitch_activeOrbit_supported_obstruction_package_and_no_visible_pair_balancing
+      (Z := Z) z0
+
+theorem residual_side_information_anchor_exact_post_switch_active_orbit_full_resolution_budget_regression
+    {Z : Type*} [Fintype Z] (z0 : Z) :
+    resolvedMass tiInputMap
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0) =
+      weightedTotalMass (activeOrbitWeight z0) ∧
+    doubledAdvantage
+        activeOrbitFeatures
+        activeOrbitTarget
+        (activeOrbitWeight z0)
+        activeOrbitClassifier =
+      resolvedMass tiInputMap
+        (fun u : ExactVisiblePostSwitchSurface Z 1 => u.b)
+        (activeOrbitWeight z0) := by
+  exact
+    residualSideInformationCoverage_anchor_exactPostSwitch_activeOrbit_full_resolution_budget
+      (Z := Z) z0
+
 theorem residual_side_information_anchor_positive_advantage_forces_not_source_determined_regression
     {α Base Side : Type*} [Fintype α]
     (τ : α → α) (base : α → Base) (side : α → Side)
@@ -3373,6 +4206,20 @@ theorem residual_side_information_anchor_positive_advantage_forces_not_source_de
     ¬ SideInfoDeterminedBy base side := by
   exact
     residualSideInformationCoverage_anchor_positive_advantage_forces_not_source_determined
+      τ base side y w h hτ hbase hy hw hadv
+
+theorem residual_side_information_anchor_positive_advantage_forces_visible_pair_asymmetry_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) (h : Base × Side → Bool)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv : 0 < doubledAdvantage (fun x => (base x, side x)) y w h) :
+    ¬ ∀ x, 0 < w x → (base (τ x), side (τ x)) = (base x, side x) := by
+  exact
+    residualSideInformationCoverage_anchor_positive_advantage_forces_visible_pair_asymmetry
       τ base side y w h hτ hbase hy hw hadv
 
 theorem residual_side_information_anchor_strict_half_advantage_forces_not_source_determined_regression
@@ -3389,6 +4236,22 @@ theorem residual_side_information_anchor_strict_half_advantage_forces_not_source
     ¬ SideInfoDeterminedBy base side := by
   exact
     residualSideInformationCoverage_anchor_strict_half_advantage_forces_not_source_determined
+      τ base side y w h hτ hbase hy hw hadv
+
+theorem residual_side_information_anchor_strict_half_advantage_forces_visible_pair_asymmetry_regression
+    {α Base Side : Type*} [Fintype α]
+    (τ : α → α) (base : α → Base) (side : α → Side)
+    (y : α → Bool) (w : α → ℕ) (h : Base × Side → Bool)
+    (hτ : Function.Involutive τ)
+    (hbase : ∀ x, base (τ x) = base x)
+    (hy : ∀ x, y (τ x) = !(y x))
+    (hw : ∀ x, w (τ x) = w x)
+    (hadv :
+      weightedTotalMass w <
+        2 * weightedCorrectMass (fun x => (base x, side x)) y w h) :
+    ¬ ∀ x, 0 < w x → (base (τ x), side (τ x)) = (base x, side x) := by
+  exact
+    residualSideInformationCoverage_anchor_strict_half_advantage_forces_visible_pair_asymmetry
       τ base side y w h hτ hbase hy hw hadv
 
 theorem residual_side_information_anchor_positive_advantage_witnesses_same_base_collision_regression

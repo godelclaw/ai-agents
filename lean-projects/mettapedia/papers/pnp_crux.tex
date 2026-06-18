@@ -718,6 +718,13 @@ finite selected-index representative covers and finite quotient-code
 presentations.  So any surviving repair must prove one and therefore all of
 those equivalent finite-image theorems directly; changing the wrapper packaging
 no longer changes the mathematical burden.
+The positive downstream side is now packaged explicitly as well.  The new file
+\texttt{ActualSwitchedHistoryConstructionBridge.lean} shows that once the
+actual switched family is supplied by the direct exact ZAB ERM construction,
+the switched-history exact-visible and clocked wrappers hold automatically for
+every concrete history.  So that remaining wrapper is now downstream of the
+already formalized ERM small-image packet; it is not a separate positive
+theorem burden on top of that packet.
 Moreover, in the surjective regime the same reduction now exposes the exact
 numerical obligation directly: any surviving exact-visible or clocked wrapper
 forces
@@ -863,6 +870,7 @@ The current Lean modules under
 \texttt{ResolutionDemandObstruction.lean} & any doubled or strict half-accuracy domination gap forces matching orbit-resolving mass and a positive-weight resolving point \\
 \texttt{ResolutionDemandObstructionRegression.lean} & regression checks for positive-advantage, strict-half-accuracy, positive-resolution, and resolving-point consequences \\
 \texttt{ResidualSideInformationResolutionCost.lean} & source-determined residual side information over an invariant base has zero resolving mass and cannot supply advantage \\
+\texttt{ResidualSideInformationNonSourceDeterminedGap.lean} & supported non-source-determined residual variation can still have zero resolving mass and no successful classifier \\
 \texttt{RandomizedResidualObstruction.lean} & randomized residuals reduce to ordinary side channels on sample/coin products, with support-sensitive and deterministic coin-slice witnesses on both positive-advantage and strict-half surfaces \\
 \texttt{RandomizedResidualObstructionRegression.lean} & regression checks for the randomized residual product-space reduction, supportwise blocker, and deterministic coin-slice witnesses \\
 \texttt{PostSwitchRandomizedResidualObstruction.lean} & exact post-switch support blocks finite-coin randomized residual advantage, including the strict half-accuracy surface, and forces resolving deterministic coin slices \\
@@ -4695,6 +4703,701 @@ quantitative obligation in turn forces a positive-weight same-base residual
 collision.  This is the direct synthesis-layer reduction from residual-side
 advantage claims to the generic side-channel resolution-demand obstruction.
 
+Update note, 2026-06-09: the same residual-side lane is now proof-relevant at
+the existential level as well.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, Lean proves
+\[
+\begin{gathered}
+\texttt{exists\_classifier\_and\_same\_base\_residual\_witness\_of\_exists\_pos\_doubledAdvantage\_invariant\_base},\\
+\texttt{exists\_classifier\_and\_same\_base\_residual\_witness\_of\_exists\_total\_lt\_two\_mul\_weightedCorrectMass\_invariant\_base}.
+\end{gathered}
+\]
+So a manuscript repair no longer gets to say merely that ``there exists some
+classifier on \((\texttt{base},\texttt{side})\) that wins.''  Lean now forces
+that existential claim down to an actual successful classifier witness together
+with strictly positive orbit-resolving mass and a positive-support same-base
+point where the residual side information changes across the involution.  The
+synthesis layer re-exports the positive-advantage form as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_existential\_positive\_advantage\_repair\_exposes\_resolving\_witness}.
+\]
+This closes the remaining soft reading of the residual-side escape: over an
+involution-invariant base there is no purely existential ``some proof-relevant
+residual helps'' claim left.  Any successful repair must already surface a
+concrete resolving witness on support.
+
+Update note, 2026-06-09 (later): the existential reduction is now strengthened
+from a bare resolving pair to the whole supported obstruction package.  Lean
+now proves
+\[
+\begin{gathered}
+\texttt{exists\_classifier\_and\_supported\_obstruction\_package\_of\_exists\_pos\_doubledAdvantage\_invariant\_base},\\
+\texttt{exists\_classifier\_and\_supported\_obstruction\_package\_of\_exists\_total\_lt\_two\_mul\_weightedCorrectMass\_invariant\_base}.
+\end{gathered}
+\]
+So if a manuscript repair claims merely that there exists some classifier on
+\((\texttt{base},\texttt{side})\) beating chance or beating half accuracy over
+an involution-invariant base, Lean now extracts far more than one
+proof-relevant residual pair.  It extracts an actual witness classifier
+together with positive orbit-resolving mass, failure of source-determination,
+failure of supportwise source-only prediction factoring, a supported same-base
+residual change, a supported residual equality test that is not source-only,
+and supported classifier-level prediction separation.  The synthesis layer
+re-exports these as
+\[
+\begin{gathered}
+\texttt{residualSideInformationCoverage\_anchor\_existential\_positive\_advantage\_repair\_exposes\_supported\_obstruction\_package},\\
+\texttt{residualSideInformationCoverage\_anchor\_existential\_strict\_half\_repair\_exposes\_supported\_obstruction\_package}.
+\end{gathered}
+\]
+This removes the remaining existential ambiguity from the invariant-base
+residual-side route: a successful repair is now forced to surface the same full
+supported obstruction package that the fixed-classifier theorems already
+demanded.
+
+Update note, 2026-06-09 (exact existential boundary): the residual-side lane
+now states this as an exact equivalence rather than only a one-way reduction.
+Lean proves
+\[
+\begin{gathered}
+\texttt{exists\_pos\_doubledAdvantage\_iff\_exists\_supported\_obstruction\_package\_invariant\_base},\\
+\texttt{exists\_total\_lt\_two\_mul\_weightedCorrectMass\_iff\_exists\_supported\_obstruction\_package\_invariant\_base}.
+\end{gathered}
+\]
+So on an involution-invariant base there is now no gap at all between the weak
+existential wording
+\[
+\exists h,\quad h \text{ succeeds on } (\texttt{base},\texttt{side})
+\]
+and the strong proof-relevant obstruction package.  The synthesis file
+re-exports the same exact boundary as
+\[
+\begin{gathered}
+\texttt{residualSideInformationCoverage\_anchor\_existential\_positive\_advantage\_repair\_iff\_supported\_obstruction\_package},\\
+\texttt{residualSideInformationCoverage\_anchor\_existential\_strict\_half\_repair\_iff\_supported\_obstruction\_package}.
+\end{gathered}
+\]
+Hence an invariant-base residual repair either presents a concrete classifier
+with positive resolved mass, non-source determination, failure of supportwise
+source-only prediction factoring, supported same-base residual variation, a
+supported non-source-only residual equality test, and supported prediction
+separation, or else there simply is no successful residual classifier on that
+surface.  This is now the exact formal boundary, not merely a strong necessary
+condition.
+
+Update note, 2026-06-09 (broad package): this exact existential boundary is now
+lifted into the official broad residual-side synthesis object itself.  The
+definition
+\[
+\texttt{ResidualSideInformationCoverage}
+\]
+now contains, as explicit conjuncts, both invariant-base equivalences
+packaging existential positive advantage and existential strict-half success as
+iff statements with the full supported obstruction package.  The theorem
+\[
+\texttt{residualSideInformationCoverage : ResidualSideInformationCoverage}
+\]
+therefore no longer leaves a gap between the local anchor theorems and the
+route-facing broad coverage claim.  In the current Lean ledger, the broad
+residual-side class itself now certifies that any successful invariant-base
+repair exists exactly when some concrete witness classifier already carries the
+positive resolved-mass and supported non-source-only obstruction data.
+
+Update note, 2026-06-09 (classifier-free core): the residual-side lane is now
+sharpened one step further below the witness-classifier layer.  Lean proves
+\[
+\texttt{pos\_resolvedMass\_iff\_exists\_positive\_same\_base\_ne\_side\_invariant\_base},
+\]
+so over an involution-invariant base the quantitative condition
+\[
+0 < \texttt{resolvedMass}\;\tau\;\texttt{side}\;w
+\]
+is now exactly equivalent to the existence of a positive-support involution
+pair that agrees on the base and disagrees on the residual side information.
+This is the minimal classifier-free proof-relevant witness boundary.
+
+Lean also proves the classifier-free existential reductions
+\[
+\begin{gathered}
+\texttt{pos\_resolvedMass\_obstruction\_package\_of\_exists\_pos\_doubledAdvantage\_invariant\_base},\\
+\texttt{pos\_resolvedMass\_obstruction\_package\_of\_exists\_total\_lt\_two\_mul\_weightedCorrectMass\_invariant\_base}.
+\end{gathered}
+\]
+So once a residual repair claim merely asserts that some classifier on
+\((\texttt{base},\texttt{side})\) succeeds over an invariant base, the
+classifier can now be discarded from the conclusion entirely.  What remains is
+the pure residual obstruction package: positive resolved mass, failure of
+source-determination, positive-weight residual collision over the base, a
+supported same-base residual-change witness, and a supported non-source-only
+residual equality predicate.  The synthesis layer re-exports these as route
+anchors, so the active PNP lane now has an exact minimal classifier-free core
+below the stronger supported-obstruction package.
+
+Update note, 2026-06-09 (strict gap): Lean now proves that this classifier-free
+core is genuinely weaker than successful residual repair.  The focused support
+module
+\[
+\texttt{ResidualSideInformationPureResidualGap.lean}
+\]
+defines a concrete balanced four-point surface on \(\texttt{Bool} \times
+\texttt{Bool}\) with constant base, residual side bit, xor target, uniform
+weights, and a residual-flipping involution.  The theorem
+\[
+\texttt{BalancedResidualCounterexample.route\_package}
+\]
+shows that this surface satisfies the invariant-base route hypotheses, has
+strictly positive resolved mass, and realizes the full pure residual
+obstruction package.  Nevertheless, every classifier on
+\((\texttt{base},\texttt{side})\) still fails both success formulations:
+\[
+\forall h,\quad
+\neg\, 0 < \texttt{doubledAdvantage}((\texttt{base},\texttt{side}),y,w,h)
+\]
+and
+\[
+\forall h,\quad
+\neg\, \texttt{weightedTotalMass}(w) <
+2 \cdot \texttt{weightedCorrectMass}((\texttt{base},\texttt{side}),y,w,h).
+\]
+So the classifier-free residual obstruction package is now formally separated
+from actual classifier success.  This blocks any attempted converse saying that
+positive resolved mass, or even the full pure residual package, is enough to
+recover a successful residual-side repair over an invariant base.
+
+Update note, 2026-06-15 (orbit-invisible non-source-determination gap): Lean
+now blocks the broader repair move that merely points to supported
+non-source-determined residual data.  The focused support module
+\[
+\texttt{ResidualSideInformationNonSourceDeterminedGap.lean}
+\]
+defines a second concrete four-point surface on \(\texttt{Bool} \times
+\texttt{Bool}\) with constant base, visible residual side bit, hidden orbit-bit
+target, uniform weights, and an involution that flips only the hidden orbit
+bit.  The theorem
+\[
+\texttt{OrbitInvisibleResidualCounterexample.route\_package}
+\]
+proves that this surface has positive-support same-base residual variation and
+\(\neg\,\texttt{SideInfoDeterminedBy}(\texttt{base},\texttt{side})\), yet the
+residual bit is constant on every involution orbit:
+\[
+\forall x,\quad \texttt{side}(\tau x)=\texttt{side}(x).
+\]
+Hence
+\[
+\texttt{resolvedMass}\;\tau\;\texttt{side}\;\texttt{weight} = 0,
+\]
+and every classifier on \((\texttt{base},\texttt{side})\) still fails both
+success formulations.  So the residual-side route can no longer stop at
+``proof-relevant residual information exists'' or even ``supported
+non-source-determination exists.''  Any viable repair must exhibit
+\emph{orbit-visible} proof-relevant residual information, i.e. strictly
+positive resolved mass.
+
+Update note, 2026-06-15 (exact visible-pair asymmetry boundary): Lean now
+packages that orbit-visible obligation in an exact classifier-free form.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, the theorems
+\[
+\texttt{resolvedMass\_eq\_zero\_iff\_supportwise\_visiblePair\_invariant\_invariant\_base}
+\]
+and
+\[
+\texttt{pos\_resolvedMass\_iff\_not\_supportwise\_visiblePair\_invariant\_invariant\_base}
+\]
+show that, over an involution-invariant base, zero resolved mass is
+\emph{exactly} the same as supportwise invariance of the visible
+\((\texttt{base},\texttt{side})\) pair, while positive resolved mass is
+exactly the failure of that visible-pair invariance on positive support.  The
+synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_positive\_resolvedMass\_iff\_not\_supportwise\_visible\_pair\_invariant},
+\]
+and then proves the direct success corollaries
+\[
+\begin{gathered}
+\texttt{residualSideInformationCoverage\_anchor\_positive\_advantage\_forces\_visible\_pair\_asymmetry},\\
+\texttt{residualSideInformationCoverage\_anchor\_strict\_half\_advantage\_forces\_visible\_pair\_asymmetry}.
+\end{gathered}
+\]
+So the manuscript's residual-side lane can no longer trade in vague
+``proof-relevant residual data'' language.  Any successful invariant-base
+repair must already break visible \((\texttt{base},\texttt{side})\) symmetry
+on positive support.
+
+Update note, 2026-06-15 (balanced residual-reading classifier still fails):
+Lean now sharpens the converse failure at the classifier level on the same
+balanced four-point surface.  In
+\texttt{ResidualSideInformationPureResidualGap.lean}, the definition
+\[
+\texttt{BalancedResidualCounterexample.separatingClassifier}
+\]
+reads the visible residual bit directly.  The theorems
+\[
+\begin{gathered}
+\texttt{BalancedResidualCounterexample.separatingClassifier\_not\_supportwiseSourceOnly},\\
+\texttt{BalancedResidualCounterexample.separatingClassifier\_prediction\_separation},\\
+\texttt{BalancedResidualCounterexample.prediction\_witness\_not\_sufficient\_package}
+\end{gathered}
+\]
+show that this classifier is not supportwise source-only, does change across a
+positive-support involution pair, and yet still has neither positive doubled
+advantage nor strict-half accuracy.  The synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_balanced\_prediction\_witness\_not\_sufficient\_for\_success}.
+\]
+So even an explicit residual-reading witness classifier does not rescue the
+invariant-base residual-side route.  Positive resolved mass plus classifier
+level prediction separation still need not yield any actual predictive
+success.
+
+Update note, 2026-06-15 (full supported obstruction package still fails): Lean
+now strengthens that same converse failure to the whole supported obstruction
+packet.  In \texttt{ResidualSideInformationPureResidualGap.lean}, the theorem
+\[
+\texttt{BalancedResidualCounterexample.supported\_obstruction\_package\_not\_sufficient\_package}
+\]
+proves that there exists a concrete classifier on \((\texttt{base},\texttt{side})\)
+with all of the proof-relevant support witnesses already in hand: positive
+resolved mass, non-source-determined residual information, failure of
+supportwise source-only factoring, supported same-base residual variation, a
+supported non-source-only residual equality test, and supported prediction
+separation across a positive-support involution pair.  Yet that same classifier
+still has neither positive doubled advantage nor strict-half accuracy.  The
+synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_supported\_obstruction\_package\_not\_sufficient\_for\_success}.
+\]
+So the existential iff theorems for successful residual repair really are
+one-way unless the success conjunct is kept.  Even the full supported
+obstruction package is not itself a viable residual-side repair.
+
+Update note, 2026-06-15 (successful repair exactly exposes a resolving witness):
+Lean now isolates the minimal exact boundary underneath those larger
+obstruction packages.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, the theorems
+\[
+\begin{gathered}
+\texttt{exists\_pos\_doubledAdvantage\_iff\_exists\_classifier\_and\_same\_base\_residual\_witness\_invariant\_base},\\
+\texttt{exists\_total\_lt\_two\_mul\_weightedCorrectMass\_iff\_exists\_classifier\_and\_same\_base\_residual\_witness\_invariant\_base}
+\end{gathered}
+\]
+show that, over an invariant base, an existential residual-side success claim
+is exactly equivalent to the same claim together with two forced witnesses:
+\[
+0 < \texttt{resolvedMass}\;\tau\;\texttt{side}\;w
+\quad\text{and}\quad
+\exists x,\;0 < w(x)\land \texttt{base}(\tau x)=\texttt{base}(x)\land
+\texttt{side}(\tau x)\neq \texttt{side}(x).
+\]
+The synthesis layer re-exports this as
+\[
+\begin{gathered}
+\texttt{residualSideInformationCoverage\_anchor\_existential\_positive\_advantage\_repair\_iff\_resolving\_witness},\\
+\texttt{residualSideInformationCoverage\_anchor\_existential\_strict\_half\_repair\_iff\_resolving\_witness},
+\end{gathered}
+\]
+and extends the broad \texttt{ResidualSideInformationCoverage} theorem with
+these exact witness boundaries.  So the route no longer merely says
+``successful repair implies positive resolved mass'' in a loose way; it now
+says that any genuine residual-side repair must surface an actual
+positive-support resolving pair before any stronger supported obstruction
+package enters the story.
+
+Update note, 2026-06-15 (orbit-invisible proof-relevant classifier still fails):
+Lean now blocks the most natural escape from that exact witness boundary.
+In \texttt{ResidualSideInformationNonSourceDeterminedGap.lean}, the concrete
+definition
+\[
+\texttt{OrbitInvisibleResidualCounterexample.separatingClassifier}
+\]
+reads the visible residual bit directly on the orbit-invisible four-point
+surface.  The theorems
+\[
+\begin{gathered}
+\texttt{OrbitInvisibleResidualCounterexample.separatingClassifier\_not\_supportwiseSourceOnly},\\
+\texttt{OrbitInvisibleResidualCounterexample.proof\_relevant\_classifier\_not\_sufficient\_package}
+\end{gathered}
+\]
+show that this classifier really is not source-only on positive support, yet
+still has neither positive doubled advantage nor strict-half accuracy.  The
+same packet is then threaded into
+\[
+\texttt{residualSideInformationCoverage\_anchor\_supported\_non\_source\_determined\_not\_sufficient\_for\_positive\_resolvedMass\_or\_success}.
+\]
+So the route now blocks not only vague non-source-determined residual data, but
+also the sharper creative repair move ``use a genuinely residual-reading
+classifier anyway.''  If the involution never exposes a positive-support
+resolving pair, then explicit proof-relevant dependence on the residual bit can
+still be completely useless.
+
+Update note, 2026-06-15 (full proof-relevant obstruction package can coexist
+with total failure): Lean now closes the next natural loophole too.  In
+\texttt{ResidualSideInformationPureResidualGap.lean}, the new theorem
+\[
+\texttt{BalancedResidualCounterexample.supported\_obstruction\_package\_not\_sufficient\_for\_any\_success\_package}
+\]
+packages a concrete classifier on the balanced four-point surface with
+positive resolved mass, non-source-determined residual variation, failure of
+supportwise source-only factoring, a supported non-source-only residual
+predicate, and supported prediction separation, yet simultaneously proves that
+\emph{every} classifier on the same visible \((\texttt{base},\texttt{side})\)
+surface still has neither positive doubled advantage nor strict-half
+accuracy.  The synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_supported\_obstruction\_package\_not\_sufficient\_for\_any\_success}.
+\]
+So the route no longer leaves room for the reply ``that witness classifier
+fails, but maybe another classifier on the same surface succeeds.''  Lean now
+shows a concrete positive-resolved-mass surface where the full supported
+proof-relevant obstruction package is present and yet no residual-side repair
+works at all.
+
+Update note, 2026-06-15 (positive resolved mass still fails under surviving
+visible-pair balancing): Lean now records the stronger structural reason why
+that balanced surface fails.  In
+\texttt{ResidualSideInformationPureResidualGap.lean}, the theorem
+\[
+\texttt{BalancedResidualCounterexample.supported\_obstruction\_package\_with\_visiblePair\_balancing\_blocks\_any\_success\_package}
+\]
+shows that the same visible surface simultaneously has positive
+\texttt{resolvedMass} for the manuscript involution \texttt{resolveSwap}, a
+concrete classifier carrying the full supported proof-relevant obstruction
+package, and a second involution \texttt{neutralSwap} that fixes the visible
+\((\texttt{base},\texttt{side})\) pair on positive support while flipping the
+target.  The synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_supported\_obstruction\_package\_with\_visible\_pair\_balancing\_blocks\_any\_success}.
+\]
+So the route now isolates a sharper missing burden than ``show positive
+resolving mass'': any genuine residual-side repair must also rule out
+surviving visible-pair balancing symmetries on the candidate visible surface.
+
+Update note, 2026-06-15 (successful repair generically forbids visible-pair
+balancing): Lean now records that burden at the general theorem level rather
+than only through the balanced four-point surface.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, the new definition
+\[
+\texttt{SupportwiseVisiblePairBalancing}
+\]
+packages the abstract obstruction: an involution that flips the target,
+preserves weights, and fixes the visible \((\texttt{base},\texttt{side})\)
+pair on positive support.  Lean then proves
+\[
+\texttt{not\_supportwiseVisiblePairBalancing\_of\_pos\_doubledAdvantage\_pair}
+\]
+and its strict-half analogue, so any actually successful classifier on the
+visible surface already rules out every such balancing involution.  The
+existential repair boundary is strengthened accordingly:
+\[
+\texttt{exists\_pos\_doubledAdvantage\_iff\_exists\_classifier\_and\_same\_base\_residual\_witness\_and\_no\_visiblePairBalancing\_invariant\_base}
+\]
+and the strict-half counterpart identify successful residual repair with the
+same claim plus a resolving-mass witness, a same-base residual-change witness,
+and absence of visible-pair balancing.  The synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_existential\_positive\_advantage\_repair\_iff\_resolving\_witness\_and\_no\_visible\_pair\_balancing}
+\]
+and the strict-half analogue, and the broad
+\texttt{ResidualSideInformationCoverage} theorem now carries those sharpened
+generic burdens.
+
+Update note, 2026-06-15 (full supported package also forbids visible-pair
+balancing): the residual-side boundary is now tightened one step further at the
+classifier-level proof-relevant surface.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, Lean proves
+\[
+\texttt{exists\_pos\_doubledAdvantage\_iff\_exists\_supported\_obstruction\_package\_and\_no\_visiblePairBalancing\_invariant\_base}
+\]
+and the strict-half analogue.  So a successful invariant-base residual repair
+is no longer only equivalent to the full supported obstruction package; it is
+equivalent to that whole package together with the extra burden that no
+supportwise visible-pair-balancing involution survives on the candidate visible
+surface.  The synthesis layer re-exports these exact strengthened boundaries,
+and the broad \texttt{ResidualSideInformationCoverage} theorem now records the
+combined claim directly rather than leaving the no-balancing burden in a
+separate exact theorem.
+
+Update note, 2026-06-15 (exact post-switch active orbit meets the full
+supported burden): the manuscript's own exact visible post-switch witness is
+now synchronized with that stronger abstract boundary.  In
+\texttt{PostSwitchResidualWitness.lean}, Lean proves
+\[
+\texttt{exactPostSwitch\_activeOrbit\_realizes\_supported\_obstruction\_package\_and\_no\_visiblePairBalancing}.
+\]
+So the concrete active two-point orbit does not merely realize positive
+resolved mass plus a separate prediction-separation witness.  The actual
+successful classifier on that surface already carries the full supported
+proof-relevant obstruction package: non-source-determination of the retained
+side channel, a positive-weight same-base side-change witness, a supported
+non-source-only residual equality predicate, a non-source-only realized
+classifier, a supported prediction-separation witness, and
+\(\neg \texttt{SupportwiseVisiblePairBalancing}\) on the same visible surface.
+The synthesis layer re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_exactPostSwitch\_activeOrbit\_supported\_obstruction\_package\_and\_no\_visible\_pair\_balancing},
+\]
+and \texttt{ResidualSideInformationCoverage} now records the manuscript's own
+active post-switch orbit as satisfying the same full burden that the abstract
+invariant-base exact theorem requires.
+
+Update note, 2026-06-15 (exact post-switch active orbit saturates the
+resolving-mass budget): Lean now sharpens the manuscript's concrete witness
+from mere positivity to exact saturation.  In
+\texttt{ResolutionDemandObstruction.lean}, Lean proves the reusable theorem
+\[
+\texttt{resolvedMass\_eq\_weightedTotalMass\_of\_supportwise\_resolving},
+\]
+showing that if the retained side channel changes on every positive-weight
+involution pair, then the resolved mass is the entire supported mass.  In
+\texttt{PostSwitchResidualWitness.lean}, this is specialized to the exact
+active two-point post-switch orbit as
+\[
+\texttt{resolvedMass\_activeOrbit\_eq\_two}
+\]
+and
+\[
+\texttt{doubledAdvantage\_activeOrbit\_eq\_resolvedMass}.
+\]
+So the manuscript's own active witness now has the exact quantitative profile
+\[
+\texttt{resolvedMass} = \texttt{weightedTotalMass} = \texttt{doubledAdvantage}
+= 2.
+\]
+This removes the remaining gap between the abstract upper bound
+``successful repair requires positive resolving mass'' and the manuscript's
+concrete exact witness: on that exact active orbit, every supported point is
+already fully residual-resolving.
+
+Update note, 2026-06-15 (supportwise exact success identifies doubled
+advantage with resolving mass): Lean now pushes that quantitative equality
+back into the abstract invariant-base theory.  In
+\texttt{ResolutionDemandObstruction.lean}, Lean proves
+\[
+\texttt{doubledAdvantage\_eq\_weightedTotalMass\_of\_supportwise\_correct},
+\]
+showing that once a classifier is correct on every positive-weight point, its
+doubled advantage is the whole supported mass.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, this is combined with the
+residual saturation theorem to obtain
+\[
+\texttt{doubledAdvantage\_eq\_resolvedMass\_of\_supportwise\_correct\_invariant\_base}.
+\]
+So on any invariant-base involution surface, supportwise exact visible-pair
+success already forces the classifier's advantage to be exactly the
+orbit-resolving residual budget.  The manuscript's exact active post-switch
+orbit is now merely a specialization of that abstract fact, and the synthesis
+surface re-exports it as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_exactPostSwitch\_activeOrbit\_full\_resolution\_budget}.
+\]
+This closes another local escape hatch: on invariant-base residual routes,
+exact supported success cannot hide excess advantage outside resolving mass.
+
+Update note, 2026-06-15 (positive-support exact supported success collapses to
+the full supported obstruction package): Lean now closes the exact-success
+variant of the residual-side route.  In
+\texttt{ResidualSideInformationResolutionCost.lean}, Lean proves
+\[
+\texttt{exact\_supported\_obstruction\_package\_and\_no\_visiblePairBalancing\_of\_weightedCorrectMass\_eq\_weightedTotalMass\_invariant\_base}
+\]
+and its existential boundary
+\[
+\texttt{exists\_weightedCorrectMass\_eq\_weightedTotalMass\_and\_pos\_totalMass\_iff\_exists\_exact\_supported\_obstruction\_package\_and\_no\_visiblePairBalancing\_invariant\_base}.
+\]
+So on any invariant-base involution surface, if a visible-pair classifier is
+exact on all positive-weight points and the support is nonempty, Lean now
+forces the whole proof-relevant burden at once: positive doubled advantage,
+\[
+\texttt{doubledAdvantage} = \texttt{resolvedMass},
+\]
+positive resolved mass, non-source-determination, failure of supportwise
+source-only decoding, a same-base residual witness, a supported non-source-only
+side predicate witness, classifier prediction separation, and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing}.
+\]
+The synthesis surface re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_existential\_exact\_supported\_success\_iff\_supported\_obstruction\_package\_and\_no\_visible\_pair\_balancing}.
+\]
+This removes another creative repair avenue: positive-support exact supported
+repair is no longer a separate escape hatch from the positive-advantage lane,
+but collapses to the same full proof-relevant obstruction package with the
+exact budget identity built in.
+
+Update note, 2026-06-16 (the exact-success boundary now speaks directly in
+full resolving-budget language): the previous exact-success theorem still
+exists, but Lean now proves the sharper converse arithmetic bridge
+\[
+\texttt{weightedCorrectMass\_eq\_weightedTotalMass\_of\_doubledAdvantage\_eq\_weightedTotalMass}
+\]
+in \texttt{ResolutionDemandObstruction.lean}, and uses it to restate the
+invariant-base existential exact-success boundary as
+\[
+\texttt{exists\_weightedCorrectMass\_eq\_weightedTotalMass\_and\_pos\_totalMass\_iff\_exists\_full\_resolution\_budget\_and\_supported\_obstruction\_package\_and\_no\_visiblePairBalancing\_invariant\_base}.
+\]
+So the right-hand side no longer needs to repeat exact correctness itself.
+Instead it now records the strictly sharper residual-side burden: a witness
+classifier whose doubled advantage exactly matches resolved mass, whose
+resolved mass already saturates total supported mass, with positive resolved
+mass, the full supported obstruction package, and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing}.
+\]
+The synthesis packet re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_existential\_exact\_supported\_success\_iff\_full\_resolution\_budget\_and\_supported\_obstruction\_package\_and\_no\_visible\_pair\_balancing},
+\]
+and the broad \texttt{ResidualSideInformationCoverage} ledger now carries that
+sharper formulation directly.
+
+Update note, 2026-06-16 (the exact-success route also has a minimal
+proof-relevant reduction): Lean now proves a second invariant-base exact
+boundary,
+\[
+\texttt{exists\_weightedCorrectMass\_eq\_weightedTotalMass\_and\_pos\_totalMass\_iff\_exists\_full\_resolution\_budget\_and\_same\_base\_residual\_witness\_invariant\_base},
+\]
+which strips the right-hand side down to the minimal residual-side burden.
+Nonempty exact supported success is equivalent to existence of a classifier
+whose doubled advantage equals resolved mass, whose resolved mass already
+equals total supported mass, with
+\[
+0 < \texttt{resolvedMass},
+\]
+and an explicit positive-support witness
+\[
+\exists x,\ 0 < w(x)\ \wedge\ \texttt{base}(\tau x)=\texttt{base}(x)\ \wedge\
+\texttt{side}(\tau x)\neq \texttt{side}(x).
+\]
+So the exact-success route no longer only says that a successful repair must
+carry the full supported obstruction package and defeat visible-pair
+balancing; it also yields the sharper minimal consequence that any such repair
+must spend the entire resolving budget and expose a concrete same-base
+side-changing orbit witness.  The synthesis surface re-exports this as
+\[
+\texttt{residualSideInformationCoverage\_anchor\_existential\_exact\_supported\_success\_iff\_full\_resolution\_budget\_and\_resolving\_witness}.
+\]
+
+Update note, 2026-06-16 (the converse still fails even after adding
+$\neg\,\texttt{SupportwiseVisiblePairBalancing}$): Lean now contains the
+concrete counterexample module
+\texttt{ResidualSideInformationWeightSplitGap.lean}.  Its visible surface is
+again only \((\texttt{base},\texttt{side}) = \texttt{Unit} \times \texttt{Bool}\),
+but the hidden support is weight-split: one heavy point carries the target
+opposite to the visible side bit, while two light points carry the matching
+target.  On this surface Lean proves all of the following simultaneously:
+positive resolved mass, failure of source-determination, a concrete
+non-source-only classifier witness, a positive-support same-base side-changing
+witness, a supported non-source-only side predicate witness, prediction
+separation, and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing}.
+\]
+Nevertheless every classifier on the visible \((\texttt{base},\texttt{side})\)
+surface still has nonpositive doubled advantage and cannot beat strict-half
+weighted accuracy.  So even the strengthened proof-relevant obstruction bundle
+plus no visible-pair balancing is not yet sufficient for any residual-side
+repair.  The focused regression module
+\texttt{ResidualSideInformationWeightSplitGapRegression.lean} pins this
+counterexample directly against the standalone theorem surface.
+
+Update note, 2026-06-16 (visible-fiber balance now explains the weight-split
+gap generically): Lean now isolates the structural reason this counterexample
+fails.  In \texttt{WeightedFeatureFiberMarginObstruction.lean}, if every
+retained visible fiber carries the same weighted mass of \texttt{true} and
+\texttt{false} labels, then every classifier on that visible surface has
+\[
+\texttt{weightedCorrectMass}=\texttt{weightedIncorrectMass},
+\qquad
+2\cdot \texttt{weightedCorrectMass}=\texttt{weightedTotalMass},
+\qquad
+\texttt{doubledAdvantage}=0.
+\]
+So visible-fiber balance by itself blocks all positive doubled advantage and
+all strict-half weighted success.  The regression module
+\texttt{WeightedFeatureFiberMarginObstructionRegression.lean} specializes this
+generic theorem to the weight-splitting surface, showing that its no-success
+conclusion no longer depends on brute-force enumeration of the four visible
+classifiers: it follows from a reusable fiber-balance obstruction on the
+visible \((\texttt{base},\texttt{side})\) surface.
+
+Update note, 2026-06-16 (success on the visible surface now forces an
+imbalanced visible fiber): Lean now proves the converse necessary condition on
+finite visible surfaces.  In the same module, any classifier with
+\[
+0 < \texttt{doubledAdvantage}
+\]
+or with strict-half weighted success
+\[
+\texttt{weightedTotalMass} < 2 \cdot \texttt{weightedCorrectMass}
+\]
+must already witness some visible fiber whose retained \texttt{true}-mass and
+\texttt{false}-mass are unequal.  The residual-side module
+\texttt{ResidualSideInformationResolutionCost.lean} specializes this to the
+visible \((\texttt{base},\texttt{side})\) surface: any successful
+residual-side repair on that finite visible surface must expose a concrete
+visible-pair fiber imbalance.  The weight-splitting counterexample remains
+fiber-balanced on every visible pair, so its no-success conclusion can now be
+recovered not only from the generic balance obstruction, but also from this
+new necessary-condition theorem.
+
+Update note, 2026-06-16 (the weight-splitting blocker now carries that balance
+internally): the concrete file
+\texttt{ResidualSideInformationWeightSplitGap.lean} now proves its own visible
+pair-fiber balance theorem directly and derives its universal no-success
+claims from the generic visible-fiber-imbalance necessity theorem, rather than
+from a brute-force case split over the four visible classifiers.  This makes
+the counterexample structurally cleaner: the same finite surface exhibits
+positive resolved mass, the full supported obstruction package, and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing},
+\]
+yet still cannot support any residual-side repair because every visible
+\((\texttt{base},\texttt{side})\) fiber is exactly weight-balanced.
+
+Update note, 2026-06-16 (existential residual-side success now collapses to a
+classifier-free visible obstruction): Lean now pushes the visible-fiber
+imbalance theorem one quantifier further outward inside
+\texttt{ResidualSideInformationResolutionCost.lean}.  Over an invariant base,
+if there exists any visible \((\texttt{base},\texttt{side})\) classifier with
+\[
+0 < \texttt{doubledAdvantage}
+\]
+or with
+\[
+\texttt{weightedTotalMass} < 2 \cdot \texttt{weightedCorrectMass},
+\]
+then two classifier-independent facts already follow from the data:
+\[
+0 < \texttt{resolvedMass}
+\]
+and some visible pair fiber has unequal retained \texttt{true}-mass and
+\texttt{false}-mass.  Dually, if every visible pair fiber is balanced, then no
+successful classifier exists at all on that visible surface.  The regression
+file \texttt{ResidualSideInformationWeightSplitGapRegression.lean} now uses
+that sharper route theorem directly: the weight-splitting counterexample still
+has positive resolved mass and the full proof-relevant obstruction package,
+but existential success is impossible because its visible \((\texttt{base},
+\texttt{side})\) fibers remain balanced.
+
+Update note, 2026-06-15 (the broad synthesis packet now records that exact
+collapse internally): the exact-success boundary is no longer only a local
+theorem and regression pin.  In \texttt{CruxSynthesis.lean},
+\texttt{ResidualSideInformationCoverage} itself now includes the equivalence
+between nonempty exact supported success and existence of a classifier
+carrying the full supported obstruction package, the identity
+\[
+\texttt{doubledAdvantage} = \texttt{resolvedMass},
+\]
+and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing}.
+\]
+So the theorem-backed broad residual-side route no longer leaves exact
+positive-support repair as an unstated side case; it records inside the
+coverage packet that exact success already collapses to the same
+proof-relevant obstruction burden.
+
 Update note, 2026-05-14 (later still): the same quantitative condition is now
 formalized as a classifier-free residual obstruction package.  In
 \texttt{ResidualSideInformationResolutionCost.lean}, Lean proves
@@ -5052,6 +5755,59 @@ is not stop-grade.  This does not upgrade the baseline current packet; it
 records that once the existing residual obstruction layer is treated as a
 broad blocker, the next remaining broad escape route is the randomized
 residual lane rather than residual side information itself.
+This is now the right manuscript-facing verdict for the residual-side route.
+The residual-side block is now stratified by three concrete finite
+counterexamples.  First, the orbit-invisible surface shows that supported
+non-source-determined residual variation alone can still have zero resolving
+mass and no successful visible repair.  Second, the balanced four-point
+surface shows that even positive resolving mass together with the pure
+residual obstruction package is still not sufficient for any visible
+success.  Only after those two failures does the weight-splitting surface
+falsify the strongest currently formalized proof-relevant package with
+supported prediction separation and
+\[
+\neg\,\texttt{SupportwiseVisiblePairBalancing}.
+\]
+There is now also an exact finite visible-surface criterion behind these
+counterexamples.  Lean constructs the weighted fiber-majority classifier and
+proves that on any finite visible surface there exists a classifier with
+positive doubled advantage exactly when some visible fiber has unequal retained
+\texttt{true}-mass and \texttt{false}-mass; equivalently, strict-half weighted
+success exists exactly when such a fiber imbalance exists.  Specializing to
+the residual visible surface \((\texttt{base},\texttt{side})\), existential
+residual repair is therefore no longer only forced to expose a visible-pair
+imbalance; it is exactly equivalent to one.  The weight-splitting
+counterexample then blocks existential residual repair for the simplest
+possible reason: every visible pair fiber is balanced.  This exact finite
+visible-surface criterion is now also promoted into the synthesis ledger
+itself: \texttt{CruxSynthesis} exports named route anchors for positive
+advantage and strict-half success iff visible-pair fiber imbalance, and
+\texttt{CruxSynthesisRegression} pins those anchors.  So the theorem-backed
+residual-side packet now records the exact visible-pair-fiber boundary, not
+just the weaker no-balancing consequence.  Moreover, the broad theorem
+\texttt{ResidualSideInformationCoverage} now carries that same exact
+visible-pair-fiber boundary internally, together with the classifier-free
+pure residual reduction saying that any existential positive or strict-half
+visible repair already forces positive resolved mass, failure of
+source-determination, a positive-weight same-base side collision, and a
+non-source-only side predicate witness.  So these are no longer merely
+standalone auxiliary anchors adjacent to the broad packet; they are literal
+conjuncts of the theorem-backed residual-side coverage theorem itself.
+The concrete theorem
+\[
+  \texttt{supported\_obstruction\_package\_and\_no\_visiblePairBalancing\_not\_sufficient\_for\_any\_success\_package}
+\]
+already falsifies the strongest presently formalized proof-relevant residual
+repair schema: positive resolved mass, supported same-base residual variation,
+supported non-source-only predicates, and supported prediction separation
+still do not force any visible repair success.  So the current manuscript
+residual-side repair class is formally blocked in the theorem-backed packet
+sense.  But the overall manuscript is still game-on globally, because
+\texttt{currentPNPResidualPromotedStatus} also shows that the promoted packet
+is not stop-grade and that the next broad uncovered target is
+\texttt{randomizedResidual}, followed by
+\texttt{approximateDecorrelation} and the remaining
+\texttt{kpolyCompressionBridge} route.
 The next broad packet step is now formalized as well.  The same module defines
 \texttt{RandomizedResidualCoverage} as the theorem-backed statement that
 finite-coin randomized residuals stay under the ordinary resolving-mass budget,
